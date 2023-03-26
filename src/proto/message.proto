@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message MetaData {
+    string name = 1;
+    int32  size = 2;
+    string type = 3;
+}
+
+message Message {
+    string id = 1;
+    oneof data {
+        MetaData metaData = 2;
+        bytes fileChunk = 3;
+    }
+}

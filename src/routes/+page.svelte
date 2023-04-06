@@ -124,7 +124,12 @@
     sendingFiles = sendingFiles;
   }
 
-  function sendSelectedFiles() {}
+  function sendAllFiles() {
+    Object.keys(sendingFiles).forEach((key) => {
+      if (sendingFiles[key].success || !sendingFiles[key].error) return;
+      sendFile(key);
+    });
+  }
 
   function handleFilesPick(files: FileList) {
     Array.from(files).forEach((file) => {
@@ -201,7 +206,7 @@
       hidden={!isConnecting}
     >
       <DragAndDrop {handleFilesPick} />
-      {#if sendingFiles}
+      {#if Object.keys(sendingFiles).length > 0}
         <div class="mt-4 space-y-2">
           {#each Object.entries(sendingFiles) as [key, sendingFile], index (key)}
             <div class="flex items-center justify-between">
@@ -220,6 +225,9 @@
             </div>
           {/each}
         </div>
+        <button class="btn btn-sm btn-info mt-2" on:click={sendAllFiles}
+          >Send all files</button
+        >
       {:else}
         <p class="mt-4">No files selected</p>
       {/if}

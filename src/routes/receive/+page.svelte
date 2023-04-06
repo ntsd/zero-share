@@ -164,7 +164,7 @@
     {/if}
     {#if isConnecting}
       <div class="p-4 space-y-4 bg-white rounded-xl">
-        {#if receivingFiles}
+        {#if Object.keys(receivingFiles).length > 0}
           <div class="space-y-2">
             {#each Object.entries(receivingFiles) as [key, receivedFile], index (key)}
               <div class="flex items-center justify-between">

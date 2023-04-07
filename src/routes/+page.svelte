@@ -1,7 +1,7 @@
 <script lang="ts">
   import { pathJoin } from "../utils/path";
   import { addToastMessage } from "../stores/toastStore";
-  import { chunkSize, rtcConfig } from "../configs";
+  import { chunkSize, pageDescription, rtcConfig } from "../configs";
   import Eye from "../components/Eye.svelte";
   import { validateFileMetadata } from "../utils/validator";
   import {
@@ -13,6 +13,7 @@
   } from "../proto/message";
   import DragAndDrop from "../components/DragAndDrop.svelte";
   import EventEmitter from "eventemitter3";
+  import Collapse from "../components/Collapse.svelte";
 
   // web rtc
   let isConnecting: boolean = false;
@@ -143,7 +144,7 @@
         metaData: sendingFile.metaData,
       }).finish()
     );
-    
+
     // todo wait finish (success, error)
   }
 
@@ -188,82 +189,77 @@
 </script>
 
 <svelte:head>
-  <title>Home</title>
-  <meta name="description" content="Svelte demo app" />
+  <title>Zero Share: Sender</title>
+  <meta name="description" content={pageDescription} />
 </svelte:head>
 
-<div class="flex justify-center">
-  <div class="artboard artboard-horizontal phone-5">
-    <button class="btn btn-primary" on:click={generateOfferLink}>
-      Generate Offer Link
-    </button>
-    {#if offerLink}
-      <div class="mt-4">
-        <div class="label">
-          <span class="label-text">Offer link:</span>
-        </div>
-        <div class="relative">
-          <input
-            type={showOfferLink ? "text" : "password"}
-            class="input input-bordered w-full"
-            value={offerLink}
-            readonly
-          />
+<Collapse title="Generate" isOpen={true}>
+  <button class="btn btn-primary" on:click={generateOfferLink}>
+    Generate Offer Link
+  </button>
+</Collapse>
+
+{#if offerLink}
+  <div class="mt-4">
+    <div class="label">
+      <span class="label-text">Offer link:</span>
+    </div>
+    <div class="relative">
+      <input
+        type={showOfferLink ? "text" : "password"}
+        class="input input-bordered w-full"
+        value={offerLink}
+        readonly
+      />
+      <button
+        class="absolute top-2 right-2 p-2"
+        on:click={toggleOfferLinkVisibility}
+      >
+        <Eye show={showOfferLink} />
+      </button>
+    </div>
+    <button class="btn btn-sm btn-info mt-2" on:click={copyOfferLink}
+      >Copy Link</button
+    >
+    <div class="label">
+      <span class="label-text">Answer SDP:</span>
+    </div>
+    <div class="relative">
+      <input
+        type="password"
+        class="input input-bordered w-full"
+        bind:value={answerSDP}
+      />
+    </div>
+    <button class="btn btn-sm btn-info mt-2" on:click={acceptAnswer}
+      >Accept Answer</button
+    >
+  </div>
+{/if}
+<div
+  class="p-4 space-y-4 bg-white border-2 border-dashed border-gray-200 rounded-xl"
+  hidden={!isConnecting}
+>
+  <DragAndDrop {handleFilesPick} />
+  {#if Object.keys(sendingFiles).length > 0}
+    <div class="mt-4 space-y-2">
+      {#each Object.entries(sendingFiles) as [key, sendingFile], index (key)}
+        <div class="flex items-center justify-between">
+          <p>{sendingFile.metaData.name}</p>
+          <progress value={sendingFile.progress} max="100" class="w-1/2 mr-2" />
           <button
-            class="absolute top-2 right-2 p-2"
-            on:click={toggleOfferLinkVisibility}
+            on:click={() => removeSelectedFile(key)}
+            class="btn btn-error"
           >
-            <Eye show={showOfferLink} />
+            Remove
           </button>
         </div>
-        <button class="btn btn-sm btn-info mt-2" on:click={copyOfferLink}
-          >Copy Link</button
-        >
-        <div class="label">
-          <span class="label-text">Answer SDP:</span>
-        </div>
-        <div class="relative">
-          <input
-            type="password"
-            class="input input-bordered w-full"
-            bind:value={answerSDP}
-          />
-        </div>
-        <button class="btn btn-sm btn-info mt-2" on:click={acceptAnswer}
-          >Accept Answer</button
-        >
-      </div>
-    {/if}
-    <div
-      class="p-4 space-y-4 bg-white border-2 border-dashed border-gray-200 rounded-xl"
-      hidden={!isConnecting}
-    >
-      <DragAndDrop {handleFilesPick} />
-      {#if Object.keys(sendingFiles).length > 0}
-        <div class="mt-4 space-y-2">
-          {#each Object.entries(sendingFiles) as [key, sendingFile], index (key)}
-            <div class="flex items-center justify-between">
-              <p>{sendingFile.metaData.name}</p>
-              <progress
-                value={sendingFile.progress}
-                max="100"
-                class="w-1/2 mr-2"
-              />
-              <button
-                on:click={() => removeSelectedFile(key)}
-                class="btn btn-error"
-              >
-                Remove
-              </button>
-            </div>
-          {/each}
-        </div>
-        <button class="btn btn-sm btn-info mt-2" on:click={sendAllFiles}
-          >Send all files</button
-        >
-      {:else}
-        <p class="mt-4">No files selected</p>
-      {/if}
+      {/each}
     </div>
-  </div>
+    <button class="btn btn-sm btn-info mt-2" on:click={sendAllFiles}
+      >Send all files</button
+    >
+  {:else}
+    <p class="mt-4">No files selected</p>
+  {/if}
 </div>

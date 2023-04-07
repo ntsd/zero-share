@@ -29,7 +29,8 @@
 		"ts-proto": "^1.146.0",
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
-		"vite": "^4.2.0"
+		"vite": "^4.2.0",
+		"eventemitter3": "^5.0.0"
 	},
 	"type": "module"
 }

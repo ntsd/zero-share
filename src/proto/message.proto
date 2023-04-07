@@ -7,9 +7,29 @@ message MetaData {
 }
 
 message Message {
+    // file id
     string id = 1;
     oneof data {
-        MetaData metaData = 2;
-        bytes fileChunk = 3;
+        // use for sender to send file metadata
+        MetaData metaData = 2; 
+        // use for sender to send file chunk
+        bytes chunk = 3;
     }
+}
+
+enum ReceiverEvent {
+    // event when the reveiver got metadata
+    EVENT_RECEIVED_METADATA = 0;
+    // event when the reveiver got file chunk
+    EVENT_RECEIVED_CHUNK = 1;
+    // event when the reveiver got validate error
+    EVENT_VALIDATE_ERROR = 2;
+}
+
+// use for receiver to send back event
+message EventMessage {
+    // file id
+    string id = 1; 
+    // event
+    ReceiverEvent event = 2;
 }

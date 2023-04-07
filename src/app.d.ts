@@ -1,5 +1,5 @@
 import type { MetaData } from "./proto/message";
-
+import type { EventEmitter } from "eventemitter3";
 
 declare global {
 	namespace App {
@@ -17,6 +17,7 @@ declare global {
 		progress: number;
 		success: boolean;
 		error?: Error;
+		event?: EventEmitter;
 	}
 
 	interface ReceivingFile {

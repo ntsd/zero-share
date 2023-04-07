@@ -126,7 +126,9 @@
 
   function sendAllFiles() {
     Object.keys(sendingFiles).forEach((key) => {
-      if (sendingFiles[key].success || !sendingFiles[key].error) return;
+      if (sendingFiles[key].success || sendingFiles[key].error) {
+        return;
+      }
       sendFile(key);
     });
   }

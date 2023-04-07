@@ -1,11 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import { rtcConfig } from "../../configs";
+  import { pageDescription, rtcConfig } from "../../configs";
   import { addToastMessage } from "../../stores/toastStore";
   import Eye from "../../components/Eye.svelte";
   import { validateFileMetadata } from "../../utils/validator";
   import { Message, EventMessage, ReceiverEvent } from "../../proto/message";
+  import Collapse from "../../components/Collapse.svelte";
 
   // web rtc
   let isConnecting: boolean = false;
@@ -156,65 +157,58 @@
 </script>
 
 <svelte:head>
-  <title>Home</title>
-  <meta name="description" content="Svelte demo app" />
+  <title>Zero Share: Receiver</title>
+  <meta name="description" content={pageDescription} />
 </svelte:head>
 
-<div class="flex justify-center">
-  <div class="artboard artboard-horizontal phone-5">
-    {#if answerSDP}
-      <div class="mt-4">
-        <div class="label">
-          <span class="label-text">Answer SDP:</span>
-        </div>
-        <div class="relative">
-          <input
-            type={showAnswerCode ? "text" : "password"}
-            class="input input-bordered w-full"
-            value={answerSDP}
-            readonly
-          />
-          <button
-            class="absolute top-2 right-2 p-2"
-            on:click={toggleAnswerCodeVisibility}
-          >
-            <Eye show={showAnswerCode} />
-          </button>
-        </div>
-        <button class="btn btn-sm btn-info mt-2" on:click={copyAnswerCode}
-          >Copy Answer SDP</button
-        >
-      </div>
-    {/if}
-    {#if isConnecting}
-      <div class="p-4 space-y-4 bg-white rounded-xl">
-        {#if Object.keys(receivingFiles).length > 0}
-          <div class="space-y-2">
-            {#each Object.entries(receivingFiles) as [key, receivedFile], index (key)}
-              <div class="flex items-center justify-between">
-                <p><strong>Name:</strong> {receivedFile.metaData.name}</p>
-                <p><strong>Size:</strong> {receivedFile.metaData.size} bytes</p>
-                <p><strong>Type:</strong> {receivedFile.metaData.type}</p>
-                <progress
-                  value={receivedFile.progress}
-                  max="100"
-                  class="w-1/2 mr-2"
-                />
-                {#if receivedFile.success}
-                  <button
-                    on:click={() => downloadFile(key)}
-                    class="btn btn-primary"
-                  >
-                    Download
-                  </button>
-                {/if}
-              </div>
-            {/each}
+{#if answerSDP}
+  <Collapse title="Connecting" isOpen={true}>
+    <p>Copy the answer SDP and send to the sender to connect between peer.</p>
+    <div class="relative mt-2">
+      <input
+        type={showAnswerCode ? "text" : "password"}
+        class="input input-bordered w-full"
+        value={answerSDP}
+        readonly
+      />
+      <button
+        class="absolute top-2 right-2 p-2"
+        on:click={toggleAnswerCodeVisibility}
+      >
+        <Eye show={showAnswerCode} />
+      </button>
+    </div>
+    <button class="btn btn-info mt-2" on:click={copyAnswerCode}>Copy SDP</button
+    >
+  </Collapse>
+{/if}
+{#if isConnecting}
+  <div class="p-4 space-y-4 bg-white rounded-xl">
+    {#if Object.keys(receivingFiles).length > 0}
+      <div class="space-y-2">
+        {#each Object.entries(receivingFiles) as [key, receivedFile], index (key)}
+          <div class="flex items-center justify-between">
+            <p><strong>Name:</strong> {receivedFile.metaData.name}</p>
+            <p><strong>Size:</strong> {receivedFile.metaData.size} bytes</p>
+            <p><strong>Type:</strong> {receivedFile.metaData.type}</p>
+            <progress
+              value={receivedFile.progress}
+              max="100"
+              class="w-1/2 mr-2"
+            />
+            {#if receivedFile.success}
+              <button
+                on:click={() => downloadFile(key)}
+                class="btn btn-primary"
+              >
+                Download
+              </button>
+            {/if}
           </div>
-        {:else}
-          <p>Connecting, waiting for files...</p>
-        {/if}
+        {/each}
       </div>
+    {:else}
+      <p>Connecting, waiting for files...</p>
     {/if}
   </div>
-</div>
+{/if}

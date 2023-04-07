@@ -5,7 +5,7 @@
   import { addToastMessage } from "../../stores/toastStore";
   import Eye from "../../components/Eye.svelte";
   import { validateFileMetadata } from "../../utils/validator";
-  import { Message } from "../../proto/message";
+  import { Message, EventMessage, ReceiverEvent } from "../../proto/message";
 
   // web rtc
   let isConnecting: boolean = false;
@@ -85,8 +85,23 @@
       const validateErr = validateFileMetadata(message.metaData);
       if (validateErr) {
         addToastMessage(`${message.metaData.name} ${validateErr.message}`);
+
+        dataChannel.send(
+          EventMessage.encode({
+            id: message.id,
+            event: ReceiverEvent.EVENT_VALIDATE_ERROR,
+          }).finish()
+        );
+
         return;
       }
+
+      dataChannel.send(
+        EventMessage.encode({
+          id: message.id,
+          event: ReceiverEvent.EVENT_RECEIVED_CHUNK,
+        }).finish()
+      );
 
       receivingFiles[message.id] = {
         metaData: message.metaData,
@@ -99,11 +114,20 @@
       return;
     }
 
-    if (message.fileChunk) {
-      const arrayBuffer = message.fileChunk;
+    if (message.chunk) {
+      const arrayBuffer = message.chunk;
+      const receivingSize = arrayBuffer.byteLength;
+
+      dataChannel.send(
+        EventMessage.encode({
+          id: message.id,
+          event: ReceiverEvent.EVENT_RECEIVED_CHUNK,
+        }).finish()
+      );
+
       const receivingFile = receivingFiles[message.id];
       receivingFiles[message.id].receivedChunks.push(arrayBuffer);
-      receivingFiles[message.id].receivedSize += arrayBuffer.byteLength;
+      receivingFiles[message.id].receivedSize += receivingSize;
 
       receivingFiles[message.id].progress = Math.round(
         (receivingFiles[message.id].receivedSize /
@@ -117,8 +141,8 @@
     }
   }
 
-  function downloadFile(index: number) {
-    const receivedFile = receivingFiles[index];
+  function downloadFile(key: string) {
+    const receivedFile = receivingFiles[key];
     const blobFile = new Blob(receivedFile.receivedChunks, {
       type: receivedFile.metaData.type,
     });
@@ -178,7 +202,7 @@
                 />
                 {#if receivedFile.success}
                   <button
-                    on:click={() => downloadFile(index)}
+                    on:click={() => downloadFile(key)}
                     class="btn btn-primary"
                   >
                     Download

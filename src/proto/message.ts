@@ -3,6 +3,48 @@ import * as _m0 from "protobufjs/minimal";
 
 export const protobufPackage = "";
 
+export enum ReceiverEvent {
+  /** EVENT_RECEIVED_METADATA - event when the reveiver got metadata */
+  EVENT_RECEIVED_METADATA = 0,
+  /** EVENT_RECEIVED_CHUNK - event when the reveiver got file chunk */
+  EVENT_RECEIVED_CHUNK = 1,
+  /** EVENT_VALIDATE_ERROR - event when the reveiver got validate error */
+  EVENT_VALIDATE_ERROR = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function receiverEventFromJSON(object: any): ReceiverEvent {
+  switch (object) {
+    case 0:
+    case "EVENT_RECEIVED_METADATA":
+      return ReceiverEvent.EVENT_RECEIVED_METADATA;
+    case 1:
+    case "EVENT_RECEIVED_CHUNK":
+      return ReceiverEvent.EVENT_RECEIVED_CHUNK;
+    case 2:
+    case "EVENT_VALIDATE_ERROR":
+      return ReceiverEvent.EVENT_VALIDATE_ERROR;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ReceiverEvent.UNRECOGNIZED;
+  }
+}
+
+export function receiverEventToJSON(object: ReceiverEvent): string {
+  switch (object) {
+    case ReceiverEvent.EVENT_RECEIVED_METADATA:
+      return "EVENT_RECEIVED_METADATA";
+    case ReceiverEvent.EVENT_RECEIVED_CHUNK:
+      return "EVENT_RECEIVED_CHUNK";
+    case ReceiverEvent.EVENT_VALIDATE_ERROR:
+      return "EVENT_VALIDATE_ERROR";
+    case ReceiverEvent.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface MetaData {
   name: string;
   size: number;
@@ -10,9 +52,22 @@ export interface MetaData {
 }
 
 export interface Message {
+  /** file id */
   id: string;
-  metaData?: MetaData | undefined;
-  fileChunk?: Uint8Array | undefined;
+  /** use for sender to send file metadata */
+  metaData?:
+    | MetaData
+    | undefined;
+  /** use for sender to send file chunk */
+  chunk?: Uint8Array | undefined;
+}
+
+/** use for receiver to send back event */
+export interface EventMessage {
+  /** file id */
+  id: string;
+  /** event */
+  event: ReceiverEvent;
 }
 
 function createBaseMetaData(): MetaData {
@@ -100,7 +155,7 @@ export const MetaData = {
 };
 
 function createBaseMessage(): Message {
-  return { id: "", metaData: undefined, fileChunk: undefined };
+  return { id: "", metaData: undefined, chunk: undefined };
 }
 
 export const Message = {
@@ -111,8 +166,8 @@ export const Message = {
     if (message.metaData !== undefined) {
       MetaData.encode(message.metaData, writer.uint32(18).fork()).ldelim();
     }
-    if (message.fileChunk !== undefined) {
-      writer.uint32(26).bytes(message.fileChunk);
+    if (message.chunk !== undefined) {
+      writer.uint32(26).bytes(message.chunk);
     }
     return writer;
   },
@@ -143,7 +198,7 @@ export const Message = {
             break;
           }
 
-          message.fileChunk = reader.bytes();
+          message.chunk = reader.bytes();
           continue;
       }
       if ((tag & 7) == 4 || tag == 0) {
@@ -158,7 +213,7 @@ export const Message = {
     return {
       id: isSet(object.id) ? String(object.id) : "",
       metaData: isSet(object.metaData) ? MetaData.fromJSON(object.metaData) : undefined,
-      fileChunk: isSet(object.fileChunk) ? bytesFromBase64(object.fileChunk) : undefined,
+      chunk: isSet(object.chunk) ? bytesFromBase64(object.chunk) : undefined,
     };
   },
 
@@ -166,8 +221,8 @@ export const Message = {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
     message.metaData !== undefined && (obj.metaData = message.metaData ? MetaData.toJSON(message.metaData) : undefined);
-    message.fileChunk !== undefined &&
-      (obj.fileChunk = message.fileChunk !== undefined ? base64FromBytes(message.fileChunk) : undefined);
+    message.chunk !== undefined &&
+      (obj.chunk = message.chunk !== undefined ? base64FromBytes(message.chunk) : undefined);
     return obj;
   },
 
@@ -181,7 +236,78 @@ export const Message = {
     message.metaData = (object.metaData !== undefined && object.metaData !== null)
       ? MetaData.fromPartial(object.metaData)
       : undefined;
-    message.fileChunk = object.fileChunk ?? undefined;
+    message.chunk = object.chunk ?? undefined;
+    return message;
+  },
+};
+
+function createBaseEventMessage(): EventMessage {
+  return { id: "", event: 0 };
+}
+
+export const EventMessage = {
+  encode(message: EventMessage, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.event !== 0) {
+      writer.uint32(16).int32(message.event);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): EventMessage {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEventMessage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag != 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        case 2:
+          if (tag != 16) {
+            break;
+          }
+
+          message.event = reader.int32() as any;
+          continue;
+      }
+      if ((tag & 7) == 4 || tag == 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EventMessage {
+    return {
+      id: isSet(object.id) ? String(object.id) : "",
+      event: isSet(object.event) ? receiverEventFromJSON(object.event) : 0,
+    };
+  },
+
+  toJSON(message: EventMessage): unknown {
+    const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
+    message.event !== undefined && (obj.event = receiverEventToJSON(message.event));
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EventMessage>, I>>(base?: I): EventMessage {
+    return EventMessage.fromPartial(base ?? {});
+  },
+
+  fromPartial<I extends Exact<DeepPartial<EventMessage>, I>>(object: I): EventMessage {
+    const message = createBaseEventMessage();
+    message.id = object.id ?? "";
+    message.event = object.event ?? 0;
     return message;
   },
 };

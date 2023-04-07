@@ -4,8 +4,15 @@
   import { chunkSize, rtcConfig } from "../configs";
   import Eye from "../components/Eye.svelte";
   import { validateFileMetadata } from "../utils/validator";
-  import { Message, MetaData } from "../proto/message";
+  import {
+    Message,
+    MetaData,
+    EventMessage,
+    ReceiverEvent,
+    receiverEventToJSON,
+  } from "../proto/message";
   import DragAndDrop from "../components/DragAndDrop.svelte";
+  import EventEmitter from "eventemitter3";
 
   // web rtc
   let isConnecting: boolean = false;
@@ -17,7 +24,9 @@
     addToastMessage(`Connected`);
     isConnecting = true;
   };
-  dataChannel.onmessage = (event) => {};
+  dataChannel.onmessage = (event) => {
+    handleMessage(event);
+  };
   dataChannel.onerror = (event) => {
     addToastMessage(`WebRTC error`);
     isConnecting = false;
@@ -30,6 +39,15 @@
   let offerLink: string = "";
   let showOfferLink: boolean = false;
   let answerSDP: string = "";
+
+  function handleMessage(event: MessageEvent) {
+    const eventData = EventMessage.decode(new Uint8Array(event.data));
+
+    const sendingFile = sendingFiles[eventData.id];
+    if (sendingFile && sendingFile.event) {
+      sendingFile.event.emit(receiverEventToJSON(eventData.event));
+    }
+  }
 
   async function generateOfferLink() {
     connection.onicecandidate = (event) => {
@@ -68,52 +86,65 @@
 
   async function sendFile(key: string) {
     const sendingFile = sendingFiles[key];
-    const fileReader = new FileReader();
     let offset = 0;
 
-    fileReader.onload = (event: ProgressEvent<FileReader>) => {
-      const result = event.target?.result;
-      if (result && typeof result !== "string") {
-        dataChannel.send(
-          Message.encode({
-            id: sendingFile.metaData.name,
-            fileChunk: new Uint8Array(result),
-          }).finish()
-        );
-        offset += result.byteLength;
+    sendingFiles[key].event = new EventEmitter();
 
-        sendingFiles[key].progress = Math.round(
-          (offset / sendingFile.metaData.size) * 100
-        );
-
+    sendingFiles[key].event?.on(
+      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_METADATA),
+      async (e: Event) => {
+        await sendNextChunk();
+      }
+    );
+    sendingFiles[key].event?.on(
+      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_CHUNK),
+      async (e: Event) => {
         if (offset < sendingFile.metaData.size) {
-          readNextChunk();
+          await sendNextChunk();
           return;
         }
 
         sendingFiles[key].success = true;
         addToastMessage(`File ${sendingFile.metaData.name} sent successfully`);
       }
-    };
+    );
+    sendingFiles[key].event?.on(
+      receiverEventToJSON(ReceiverEvent.EVENT_VALIDATE_ERROR),
+      (e: Event) => {
+        addToastMessage("Receiver validate error");
+      }
+    );
 
-    fileReader.onerror = (error: ProgressEvent<FileReader>) => {
-      console.error(error);
-      addToastMessage(`Error reading file ${sendingFile.metaData.name}`);
-    };
-
-    function readNextChunk() {
-      const slice = sendingFile.file.slice(offset, offset + chunkSize);
-      fileReader.readAsArrayBuffer(slice);
+    function sendBuffer(buffer: ArrayBuffer) {
+      dataChannel.send(
+        Message.encode({
+          id: sendingFile.metaData.name,
+          chunk: new Uint8Array(buffer),
+        }).finish()
+      );
     }
 
+    async function sendNextChunk() {
+      const slice = sendingFile.file.slice(offset, offset + chunkSize);
+      const buffer = await slice.arrayBuffer();
+
+      sendBuffer(buffer);
+
+      offset += buffer.byteLength;
+      sendingFiles[key].progress = Math.round(
+        (offset / sendingFile.metaData.size) * 100
+      );
+    }
+
+    // send meta data
     dataChannel.send(
       Message.encode({
         id: sendingFile.metaData.name,
         metaData: sendingFile.metaData,
       }).finish()
     );
-
-    readNextChunk();
+    
+    // todo wait finish (success, error)
   }
 
   let sendingFiles: { [key: string]: SendingFile } = {};
@@ -124,13 +155,13 @@
     sendingFiles = sendingFiles;
   }
 
-  function sendAllFiles() {
-    Object.keys(sendingFiles).forEach((key) => {
+  async function sendAllFiles() {
+    for (const key of Object.keys(sendingFiles)) {
       if (sendingFiles[key].success || sendingFiles[key].error) {
-        return;
+        continue;
       }
-      sendFile(key);
-    });
+      await sendFile(key);
+    }
   }
 
   function handleFilesPick(files: FileList) {

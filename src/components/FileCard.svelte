@@ -17,9 +17,9 @@
         <div class="text-center">
           {#if fileDetail.processing}
             {#if isSender}
-              Sending: {fileDetail.bitrate} kbits/sec
+              Sending: {humanFileSize(fileDetail.bitrate)}/sec
             {:else}
-              Receiving: {fileDetail.bitrate} kbits/sec
+              Receiving: {humanFileSize(fileDetail.bitrate)}/sec
             {/if}
           {:else if fileDetail.error}
             <div class="text-error">

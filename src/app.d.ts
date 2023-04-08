@@ -9,11 +9,12 @@ declare global {
 
   interface FileDetail {
     metaData: MetaData;
-    progress: number;
-    bitrate: number;
-    processing: boolean;
+    progress: number; // percentage
+    bitrate: number; // bytes per second
+    processing: boolean; // is sending or receiving
     success: boolean;
     error?: Error;
+    startTime: number;
   }
 
   interface SendingFile extends FileDetail {

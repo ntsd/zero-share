@@ -78,33 +78,6 @@
   }
   generateAnswerSDP();
 
-  // for bitrate
-  let bytesPrev = 0;
-  let timestampPrev = 0;
-
-  async function getBitRate(): Promise<number> {
-    if (connection && connection.iceConnectionState === 'connected') {
-      const stats = await connection.getStats();
-      let activeCandidatePair: { bytesReceived: number; timestamp: number } | undefined;
-      stats.forEach((report) => {
-        if (report.type === 'transport') {
-          activeCandidatePair = stats.get(report.selectedCandidatePairId);
-        }
-      });
-
-      if (activeCandidatePair) {
-        const bytesNow = activeCandidatePair.bytesReceived;
-        const bitrate = Math.round(
-          ((bytesNow - bytesPrev) * 8) / (activeCandidatePair.timestamp - timestampPrev)
-        );
-        timestampPrev = activeCandidatePair.timestamp;
-        bytesPrev = bytesNow;
-        return bitrate;
-      }
-    }
-    return 0;
-  }
-
   // downloading
   let receivingFiles: { [key: string]: ReceivingFile } = {};
 
@@ -133,7 +106,8 @@
         processing: false,
         receivedSize: 0,
         receivedChunks: [],
-        success: false
+        success: false,
+        startTime: 0
       };
 
       // TODO: waiting for approve
@@ -146,6 +120,7 @@
       );
 
       receivingFiles[message.id].processing = true;
+      receivingFiles[message.id].startTime = Date.now();
 
       return;
     }
@@ -165,15 +140,16 @@
       receivingFiles[message.id].receivedChunks.push(arrayBuffer);
       receivingFiles[message.id].receivedSize += receivingSize;
 
+      // calculate progress
       receivingFiles[message.id].progress = Math.round(
         (receivingFiles[message.id].receivedSize / receivingFile.metaData.size) * 100
       );
 
-      getBitRate().then((bitrate) => {
-        if (bitrate) {
-          receivingFiles[message.id].bitrate = bitrate;
-        }
-      });
+      // calculate bitrate
+      receivingFiles[message.id].bitrate = Math.round(
+        receivingFiles[message.id].receivedSize /
+          ((Date.now() - receivingFiles[message.id].startTime) / 1000)
+      );
 
       if (receivingFile.receivedSize >= receivingFile.metaData.size) {
         receivingFiles[message.id].processing = false;

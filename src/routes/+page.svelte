@@ -87,16 +87,13 @@
     const sendingFile = sendingFiles[key];
     let offset = 0;
 
-    // for bitrate
-    let bytesPrev = 0;
-    let timestampPrev = 0;
-
     sendingFiles[key].event = new EventEmitter();
 
     sendingFiles[key].event?.on(
       receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_APPROVE),
       async () => {
         sendingFiles[key].processing = true;
+        sendingFiles[key].startTime = Date.now();
         await sendNextChunk();
       }
     );
@@ -138,29 +135,6 @@
       );
     }
 
-    async function getBitRate(): Promise<number> {
-      if (connection && connection.iceConnectionState === 'connected') {
-        const stats = await connection.getStats();
-        let activeCandidatePair: { bytesReceived: number; timestamp: number } | undefined;
-        stats.forEach((report) => {
-          if (report.type === 'transport') {
-            activeCandidatePair = stats.get(report.selectedCandidatePairId);
-          }
-        });
-
-        if (activeCandidatePair) {
-          const bytesNow = activeCandidatePair.bytesReceived;
-          const bitrate = Math.round(
-            ((bytesNow - bytesPrev) * 8) / (activeCandidatePair.timestamp - timestampPrev)
-          );
-          timestampPrev = activeCandidatePair.timestamp;
-          bytesPrev = bytesNow;
-          return bitrate;
-        }
-      }
-      return 0;
-    }
-
     async function sendNextChunk() {
       const slice = sendingFile.file.slice(offset, offset + chunkSize);
       const buffer = await slice.arrayBuffer();
@@ -169,11 +143,13 @@
 
       offset += buffer.byteLength;
 
+      // calculate progress
       sendingFiles[key].progress = Math.round((offset / sendingFile.metaData.size) * 100);
-      const bitrate = await getBitRate();
-      if (bitrate) {
-        sendingFiles[key].bitrate = bitrate;
-      }
+
+      // calculate bitrate
+      sendingFiles[key].bitrate = Math.round(
+        offset / ((Date.now() - sendingFiles[key].startTime) / 1000)
+      );
     }
 
     // send meta data
@@ -230,7 +206,8 @@
         bitrate: 0,
         stop: false,
         success: false,
-        error: validateErr
+        error: validateErr,
+        startTime: 0
       };
     });
   }

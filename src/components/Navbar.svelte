@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { githubLink, pageDescription } from "../configs";
+  import { githubLink, pageDescription } from '../configs';
 </script>
 
 <div class="navbar w-full">

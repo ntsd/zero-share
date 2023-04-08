@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount } from 'svelte';
 
   let dropArea: HTMLElement;
   let fileInput: HTMLInputElement;
@@ -7,7 +7,7 @@
   export let handleFilesPick: (files: FileList) => void;
 
   function setupDropAreaListeners() {
-    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
       dropArea.addEventListener(
         eventName,
         (e: Event) => {
@@ -18,15 +18,15 @@
       );
     });
 
-    ["dragenter", "dragover"].forEach((eventName) => {
+    ['dragenter', 'dragover'].forEach((eventName) => {
       dropArea.addEventListener(eventName, highlight, false);
     });
 
-    ["dragleave", "drop"].forEach((eventName) => {
+    ['dragleave', 'drop'].forEach((eventName) => {
       dropArea.addEventListener(eventName, unhighlight, false);
     });
 
-    dropArea.addEventListener("drop", handleDrop, false);
+    dropArea.addEventListener('drop', handleDrop, false);
   }
 
   onMount(() => {
@@ -34,11 +34,11 @@
   });
 
   function highlight() {
-    dropArea.classList.add("bg-blue-200");
+    dropArea.classList.add('bg-blue-200');
   }
 
   function unhighlight() {
-    dropArea.classList.remove("bg-blue-200");
+    dropArea.classList.remove('bg-blue-200');
   }
 
   function handleDrop(e: DragEvent) {

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
-  import { onDestroy } from "svelte";
-  import toastStore from "../stores/toastStore";
+  import { fade } from 'svelte/transition';
+  import { onDestroy } from 'svelte';
+  import toastStore from '../stores/toastStore';
 
   export let duration: number = 3000;
   let toasts: { text: string; visible: boolean }[] = [];
@@ -31,7 +31,7 @@
       class="alert alert-info"
       in:fade={{ duration: 300 }}
       out:fade={{ duration: 300 }}
-      style={toast.visible ? "" : "display: none;"}
+      style={toast.visible ? '' : 'display: none;'}
     >
       <div>
         <span>{toast.text}</span>

@@ -9,7 +9,7 @@
   import Collapse from '../../components/Collapse.svelte';
 
   // web rtc
-  let isConnecting: boolean = false;
+  let isConnecting = false;
 
   const connection = new RTCPeerConnection(rtcConfig);
 
@@ -18,25 +18,25 @@
   connection.ondatachannel = (event) => {
     dataChannel = event.channel;
 
-    dataChannel.onopen = (event) => {
+    dataChannel.onopen = () => {
       addToastMessage(`Connected`);
       isConnecting = true;
     };
     dataChannel.onmessage = (event) => {
       handleMessage(event);
     };
-    dataChannel.onerror = (event) => {
+    dataChannel.onerror = () => {
       addToastMessage(`WebRTC error`);
       isConnecting = false;
     };
-    dataChannel.onclose = (event) => {
+    dataChannel.onclose = () => {
       addToastMessage(`Disconnected`);
       isConnecting = false;
     };
   };
 
-  let answerSDP: string = '';
-  let showAnswerCode: boolean = false;
+  let answerSDP = '';
+  let showAnswerCode = false;
 
   const sdpEncoded = $page.url.searchParams.get('sdp');
   if (sdpEncoded === null || !sdpEncoded) {

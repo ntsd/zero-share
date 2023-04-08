@@ -16,30 +16,30 @@
   import Collapse from '../components/Collapse.svelte';
 
   // web rtc
-  let isConnecting: boolean = false;
+  let isConnecting = false;
 
   const connection = new RTCPeerConnection(rtcConfig);
 
   let dataChannel = connection.createDataChannel('data');
-  dataChannel.onopen = (event) => {
+  dataChannel.onopen = () => {
     addToastMessage(`Connected`);
     isConnecting = true;
   };
   dataChannel.onmessage = (event) => {
     handleMessage(event);
   };
-  dataChannel.onerror = (event) => {
+  dataChannel.onerror = () => {
     addToastMessage(`WebRTC error`);
     isConnecting = false;
   };
-  dataChannel.onclose = (event) => {
+  dataChannel.onclose = () => {
     addToastMessage(`Disconnected`);
     isConnecting = false;
   };
 
-  let offerLink: string = '';
-  let showOfferLink: boolean = false;
-  let answerSDP: string = '';
+  let offerLink = '';
+  let showOfferLink = false;
+  let answerSDP = '';
 
   function handleMessage(event: MessageEvent) {
     const eventData = EventMessage.decode(new Uint8Array(event.data));
@@ -90,13 +90,13 @@
 
     sendingFiles[key].event?.on(
       receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_METADATA),
-      async (e: Event) => {
+      async () => {
         await sendNextChunk();
       }
     );
     sendingFiles[key].event?.on(
       receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_CHUNK),
-      async (e: Event) => {
+      async () => {
         if (offset < sendingFile.metaData.size) {
           await sendNextChunk();
           return;
@@ -106,12 +106,9 @@
         addToastMessage(`File ${sendingFile.metaData.name} sent successfully`);
       }
     );
-    sendingFiles[key].event?.on(
-      receiverEventToJSON(ReceiverEvent.EVENT_VALIDATE_ERROR),
-      (e: Event) => {
-        addToastMessage('Receiver validate error');
-      }
-    );
+    sendingFiles[key].event?.on(receiverEventToJSON(ReceiverEvent.EVENT_VALIDATE_ERROR), () => {
+      addToastMessage('Receiver validate error');
+    });
 
     function sendBuffer(buffer: ArrayBuffer) {
       dataChannel.send(

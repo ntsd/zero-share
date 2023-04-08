@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
-  import { pageDescription, rtcConfig } from "../../configs";
-  import { addToastMessage } from "../../stores/toastStore";
-  import Eye from "../../components/Eye.svelte";
-  import { validateFileMetadata } from "../../utils/validator";
-  import { Message, EventMessage, ReceiverEvent } from "../../proto/message";
-  import Collapse from "../../components/Collapse.svelte";
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
+  import { pageDescription, rtcConfig } from '../../configs';
+  import { addToastMessage } from '../../stores/toastStore';
+  import Eye from '../../components/Eye.svelte';
+  import { validateFileMetadata } from '../../utils/validator';
+  import { Message, EventMessage, ReceiverEvent } from '../../proto/message';
+  import Collapse from '../../components/Collapse.svelte';
 
   // web rtc
   let isConnecting: boolean = false;
@@ -35,20 +35,20 @@
     };
   };
 
-  let answerSDP: string = "";
+  let answerSDP: string = '';
   let showAnswerCode: boolean = false;
 
-  const sdpEncoded = $page.url.searchParams.get("sdp");
+  const sdpEncoded = $page.url.searchParams.get('sdp');
   if (sdpEncoded === null || !sdpEncoded) {
-    goto("/");
-    throw new Error("no sdp found");
+    goto('/');
+    throw new Error('no sdp found');
   }
 
   async function setOfferSDP(sdpEncoded: string) {
     const sdpDecoded = decodeURIComponent(sdpEncoded);
     const sessionDesc: RTCSessionDescriptionInit = {
-      type: "offer",
-      sdp: sdpDecoded,
+      type: 'offer',
+      sdp: sdpDecoded
     };
 
     await connection.setRemoteDescription(sessionDesc);
@@ -61,7 +61,7 @@
 
   async function copyAnswerCode() {
     await navigator.clipboard.writeText(answerSDP);
-    addToastMessage("Copied to clipboard");
+    addToastMessage('Copied to clipboard');
   }
 
   async function generateAnswerSDP() {
@@ -90,7 +90,7 @@
         dataChannel.send(
           EventMessage.encode({
             id: message.id,
-            event: ReceiverEvent.EVENT_VALIDATE_ERROR,
+            event: ReceiverEvent.EVENT_VALIDATE_ERROR
           }).finish()
         );
 
@@ -100,7 +100,7 @@
       dataChannel.send(
         EventMessage.encode({
           id: message.id,
-          event: ReceiverEvent.EVENT_RECEIVED_CHUNK,
+          event: ReceiverEvent.EVENT_RECEIVED_CHUNK
         }).finish()
       );
 
@@ -109,7 +109,7 @@
         progress: 0,
         receivedSize: 0,
         receivedChunks: [],
-        success: false,
+        success: false
       };
 
       return;
@@ -122,7 +122,7 @@
       dataChannel.send(
         EventMessage.encode({
           id: message.id,
-          event: ReceiverEvent.EVENT_RECEIVED_CHUNK,
+          event: ReceiverEvent.EVENT_RECEIVED_CHUNK
         }).finish()
       );
 
@@ -131,9 +131,7 @@
       receivingFiles[message.id].receivedSize += receivingSize;
 
       receivingFiles[message.id].progress = Math.round(
-        (receivingFiles[message.id].receivedSize /
-          receivingFile.metaData.size) *
-          100
+        (receivingFiles[message.id].receivedSize / receivingFile.metaData.size) * 100
       );
 
       if (receivingFile.receivedSize >= receivingFile.metaData.size) {
@@ -145,10 +143,10 @@
   function downloadFile(key: string) {
     const receivedFile = receivingFiles[key];
     const blobFile = new Blob(receivedFile.receivedChunks, {
-      type: receivedFile.metaData.type,
+      type: receivedFile.metaData.type
     });
     const url = URL.createObjectURL(blobFile);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
     link.download = receivedFile.metaData.name;
     link.click();
@@ -166,20 +164,16 @@
     <p>Copy the answer SDP and send to the sender to connect between peer.</p>
     <div class="relative mt-2">
       <input
-        type={showAnswerCode ? "text" : "password"}
+        type={showAnswerCode ? 'text' : 'password'}
         class="input input-bordered w-full"
         value={answerSDP}
         readonly
       />
-      <button
-        class="absolute top-2 right-2 p-2"
-        on:click={toggleAnswerCodeVisibility}
-      >
+      <button class="absolute top-2 right-2 p-2" on:click={toggleAnswerCodeVisibility}>
         <Eye show={showAnswerCode} />
       </button>
     </div>
-    <button class="btn btn-info mt-2" on:click={copyAnswerCode}>Copy SDP</button
-    >
+    <button class="btn btn-info mt-2" on:click={copyAnswerCode}>Copy SDP</button>
   </Collapse>
 {/if}
 {#if isConnecting}
@@ -191,18 +185,9 @@
             <p><strong>Name:</strong> {receivedFile.metaData.name}</p>
             <p><strong>Size:</strong> {receivedFile.metaData.size} bytes</p>
             <p><strong>Type:</strong> {receivedFile.metaData.type}</p>
-            <progress
-              value={receivedFile.progress}
-              max="100"
-              class="w-1/2 mr-2"
-            />
+            <progress value={receivedFile.progress} max="100" class="w-1/2 mr-2" />
             {#if receivedFile.success}
-              <button
-                on:click={() => downloadFile(key)}
-                class="btn btn-primary"
-              >
-                Download
-              </button>
+              <button on:click={() => downloadFile(key)} class="btn btn-primary"> Download </button>
             {/if}
           </div>
         {/each}

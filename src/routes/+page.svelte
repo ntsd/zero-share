@@ -1,26 +1,26 @@
 <script lang="ts">
-  import { pathJoin } from "../utils/path";
-  import { addToastMessage } from "../stores/toastStore";
-  import { chunkSize, pageDescription, rtcConfig } from "../configs";
-  import Eye from "../components/Eye.svelte";
-  import { validateFileMetadata } from "../utils/validator";
+  import { pathJoin } from '../utils/path';
+  import { addToastMessage } from '../stores/toastStore';
+  import { chunkSize, pageDescription, rtcConfig } from '../configs';
+  import Eye from '../components/Eye.svelte';
+  import { validateFileMetadata } from '../utils/validator';
   import {
     Message,
     MetaData,
     EventMessage,
     ReceiverEvent,
-    receiverEventToJSON,
-  } from "../proto/message";
-  import DragAndDrop from "../components/DragAndDrop.svelte";
-  import EventEmitter from "eventemitter3";
-  import Collapse from "../components/Collapse.svelte";
+    receiverEventToJSON
+  } from '../proto/message';
+  import DragAndDrop from '../components/DragAndDrop.svelte';
+  import EventEmitter from 'eventemitter3';
+  import Collapse from '../components/Collapse.svelte';
 
   // web rtc
   let isConnecting: boolean = false;
 
   const connection = new RTCPeerConnection(rtcConfig);
 
-  let dataChannel = connection.createDataChannel("data");
+  let dataChannel = connection.createDataChannel('data');
   dataChannel.onopen = (event) => {
     addToastMessage(`Connected`);
     isConnecting = true;
@@ -37,9 +37,9 @@
     isConnecting = false;
   };
 
-  let offerLink: string = "";
+  let offerLink: string = '';
   let showOfferLink: boolean = false;
-  let answerSDP: string = "";
+  let answerSDP: string = '';
 
   function handleMessage(event: MessageEvent) {
     const eventData = EventMessage.decode(new Uint8Array(event.data));
@@ -54,16 +54,13 @@
     connection.onicecandidate = (event) => {
       if (!event.candidate && connection.localDescription) {
         const sdp = connection.localDescription.sdp;
-        offerLink = pathJoin(
-          location.href,
-          `receive?sdp=${encodeURIComponent(sdp)}`
-        );
+        offerLink = pathJoin(location.href, `receive?sdp=${encodeURIComponent(sdp)}`);
       }
     };
 
     const offer = await connection.createOffer({
       offerToReceiveVideo: false,
-      offerToReceiveAudio: false,
+      offerToReceiveAudio: false
     });
     await connection.setLocalDescription(offer);
   }
@@ -74,13 +71,13 @@
 
   async function copyOfferLink() {
     await navigator.clipboard.writeText(offerLink);
-    addToastMessage("Copied to clipboard");
+    addToastMessage('Copied to clipboard');
   }
 
   async function acceptAnswer() {
     const remoteDesc: RTCSessionDescriptionInit = {
-      type: "answer",
-      sdp: decodeURIComponent(answerSDP),
+      type: 'answer',
+      sdp: decodeURIComponent(answerSDP)
     };
     await connection.setRemoteDescription(remoteDesc);
   }
@@ -112,7 +109,7 @@
     sendingFiles[key].event?.on(
       receiverEventToJSON(ReceiverEvent.EVENT_VALIDATE_ERROR),
       (e: Event) => {
-        addToastMessage("Receiver validate error");
+        addToastMessage('Receiver validate error');
       }
     );
 
@@ -120,7 +117,7 @@
       dataChannel.send(
         Message.encode({
           id: sendingFile.metaData.name,
-          chunk: new Uint8Array(buffer),
+          chunk: new Uint8Array(buffer)
         }).finish()
       );
     }
@@ -132,20 +129,18 @@
       sendBuffer(buffer);
 
       offset += buffer.byteLength;
-      sendingFiles[key].progress = Math.round(
-        (offset / sendingFile.metaData.size) * 100
-      );
+      sendingFiles[key].progress = Math.round((offset / sendingFile.metaData.size) * 100);
     }
 
     // send meta data
     dataChannel.send(
       Message.encode({
         id: sendingFile.metaData.name,
-        metaData: sendingFile.metaData,
+        metaData: sendingFile.metaData
       }).finish()
     );
 
-    // todo wait finish (success, error)
+    // TODO: wait finish (success, error)
   }
 
   let sendingFiles: { [key: string]: SendingFile } = {};
@@ -170,7 +165,7 @@
       const fileMetaData: MetaData = {
         name: file.name,
         size: file.size,
-        type: file.type,
+        type: file.type
       };
       const validateErr = validateFileMetadata(fileMetaData);
       if (validateErr) {
@@ -182,7 +177,7 @@
         metaData: fileMetaData,
         progress: 0,
         success: false,
-        error: validateErr,
+        error: validateErr
       };
     });
   }
@@ -194,9 +189,7 @@
 </svelte:head>
 
 <Collapse title="Generate" isOpen={true}>
-  <button class="btn btn-primary" on:click={generateOfferLink}>
-    Generate Offer Link
-  </button>
+  <button class="btn btn-primary" on:click={generateOfferLink}> Generate Offer Link </button>
 </Collapse>
 
 {#if offerLink}
@@ -206,34 +199,23 @@
     </div>
     <div class="relative">
       <input
-        type={showOfferLink ? "text" : "password"}
+        type={showOfferLink ? 'text' : 'password'}
         class="input input-bordered w-full"
         value={offerLink}
         readonly
       />
-      <button
-        class="absolute top-2 right-2 p-2"
-        on:click={toggleOfferLinkVisibility}
-      >
+      <button class="absolute top-2 right-2 p-2" on:click={toggleOfferLinkVisibility}>
         <Eye show={showOfferLink} />
       </button>
     </div>
-    <button class="btn btn-sm btn-info mt-2" on:click={copyOfferLink}
-      >Copy Link</button
-    >
+    <button class="btn btn-sm btn-info mt-2" on:click={copyOfferLink}>Copy Link</button>
     <div class="label">
       <span class="label-text">Answer SDP:</span>
     </div>
     <div class="relative">
-      <input
-        type="password"
-        class="input input-bordered w-full"
-        bind:value={answerSDP}
-      />
+      <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
     </div>
-    <button class="btn btn-sm btn-info mt-2" on:click={acceptAnswer}
-      >Accept Answer</button
-    >
+    <button class="btn btn-sm btn-info mt-2" on:click={acceptAnswer}>Accept Answer</button>
   </div>
 {/if}
 <div
@@ -247,18 +229,11 @@
         <div class="flex items-center justify-between">
           <p>{sendingFile.metaData.name}</p>
           <progress value={sendingFile.progress} max="100" class="w-1/2 mr-2" />
-          <button
-            on:click={() => removeSelectedFile(key)}
-            class="btn btn-error"
-          >
-            Remove
-          </button>
+          <button on:click={() => removeSelectedFile(key)} class="btn btn-error"> Remove </button>
         </div>
       {/each}
     </div>
-    <button class="btn btn-sm btn-info mt-2" on:click={sendAllFiles}
-      >Send all files</button
-    >
+    <button class="btn btn-sm btn-info mt-2" on:click={sendAllFiles}>Send all files</button>
   {:else}
     <p class="mt-4">No files selected</p>
   {/if}

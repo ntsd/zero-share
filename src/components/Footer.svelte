@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { githubLink } from "../configs";
+  import { githubLink } from '../configs';
 </script>
 
 <footer class="footer footer-center pt-10 pb-5 text-base-content">
@@ -26,10 +26,10 @@
   </div>
   <div>
     <p>
-      This project is <a class="link" href={githubLink + "/blob/main/LICENSE"}
-      >Open-source License</a> by <a class="link" href="https://ntsd.dev"
-        >Jirawat Boonkumnerd</a
+      This project is <a class="link" href={githubLink + '/blob/main/LICENSE'}
+        >Open-source License</a
       >
+      by <a class="link" href="https://ntsd.dev">Jirawat Boonkumnerd</a>
     </p>
   </div>
 </footer>

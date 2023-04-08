@@ -18,12 +18,14 @@ message Message {
 }
 
 enum ReceiverEvent {
-    // event when the reveiver got metadata
-    EVENT_RECEIVED_METADATA = 0;
+    // event when the reveiver got metadata and approved
+    EVENT_RECEIVER_APPROVE = 0;
+    // event when the reveiver rejected the file
+    EVENT_RECEIVER_REJECT = 1;
     // event when the reveiver got file chunk
-    EVENT_RECEIVED_CHUNK = 1;
+    EVENT_RECEIVED_CHUNK = 2;
     // event when the reveiver got validate error
-    EVENT_VALIDATE_ERROR = 2;
+    EVENT_VALIDATE_ERROR = 3;
 }
 
 // use for receiver to send back event

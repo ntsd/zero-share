@@ -25,6 +25,6 @@
     >
   </div>
 </div>
-<div class="text-center m-4 xl:m-8">
+<div class="text-center mb-4 xl:mb-8">
   <p>{pageDescription}</p>
 </div>

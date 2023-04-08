@@ -1,12 +1,14 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { pageDescription, rtcConfig } from '../../configs';
+  import { rtcConfig } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { validateFileMetadata } from '../../utils/validator';
   import { Message, EventMessage, ReceiverEvent } from '../../proto/message';
   import Collapse from '../../components/Collapse.svelte';
+  import ReceivingFileList from '../../components/ReceivingFileList.svelte';
+  import * as zip from '@zip.js/zip.js';
 
   // web rtc
   let isConnecting = false;
@@ -76,6 +78,33 @@
   }
   generateAnswerSDP();
 
+  // for bitrate
+  let bytesPrev = 0;
+  let timestampPrev = 0;
+
+  async function getBitRate(): Promise<number> {
+    if (connection && connection.iceConnectionState === 'connected') {
+      const stats = await connection.getStats();
+      let activeCandidatePair: { bytesReceived: number; timestamp: number } | undefined;
+      stats.forEach((report) => {
+        if (report.type === 'transport') {
+          activeCandidatePair = stats.get(report.selectedCandidatePairId);
+        }
+      });
+
+      if (activeCandidatePair) {
+        const bytesNow = activeCandidatePair.bytesReceived;
+        const bitrate = Math.round(
+          ((bytesNow - bytesPrev) * 8) / (activeCandidatePair.timestamp - timestampPrev)
+        );
+        timestampPrev = activeCandidatePair.timestamp;
+        bytesPrev = bytesNow;
+        return bitrate;
+      }
+    }
+    return 0;
+  }
+
   // downloading
   let receivingFiles: { [key: string]: ReceivingFile } = {};
 
@@ -97,20 +126,26 @@
         return;
       }
 
-      dataChannel.send(
-        EventMessage.encode({
-          id: message.id,
-          event: ReceiverEvent.EVENT_RECEIVED_CHUNK
-        }).finish()
-      );
-
       receivingFiles[message.id] = {
         metaData: message.metaData,
         progress: 0,
+        bitrate: 0,
+        processing: false,
         receivedSize: 0,
         receivedChunks: [],
         success: false
       };
+
+      // TODO: waiting for approve
+
+      dataChannel.send(
+        EventMessage.encode({
+          id: message.id,
+          event: ReceiverEvent.EVENT_RECEIVER_APPROVE
+        }).finish()
+      );
+
+      receivingFiles[message.id].processing = true;
 
       return;
     }
@@ -134,13 +169,34 @@
         (receivingFiles[message.id].receivedSize / receivingFile.metaData.size) * 100
       );
 
+      getBitRate().then((bitrate) => {
+        if (bitrate) {
+          receivingFiles[message.id].bitrate = bitrate;
+        }
+      });
+
       if (receivingFile.receivedSize >= receivingFile.metaData.size) {
+        receivingFiles[message.id].processing = false;
         receivingFiles[message.id].success = true;
+        addToastMessage(`Received ${receivingFiles[message.id].metaData.name}`);
       }
     }
   }
 
-  function downloadFile(key: string) {
+  function onRemove(key: string) {
+    if (receivingFiles[key].processing) {
+      dataChannel.send(
+        EventMessage.encode({
+          id: key,
+          event: ReceiverEvent.EVENT_RECEIVER_REJECT
+        }).finish()
+      );
+    }
+    delete receivingFiles[key];
+    receivingFiles = receivingFiles; // do this to trigger update the map
+  }
+
+  async function onDownload(key: string) {
     const receivedFile = receivingFiles[key];
     const blobFile = new Blob(receivedFile.receivedChunks, {
       type: receivedFile.metaData.type
@@ -152,15 +208,55 @@
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  async function downloadAllFiles() {
+    const zipFileWriter = new zip.BlobWriter();
+    const zipWriter = new zip.ZipWriter(zipFileWriter);
+
+    let found = false;
+
+    for (const key of Object.keys(receivingFiles)) {
+      if (
+        !receivingFiles[key].success ||
+        receivingFiles[key].error ||
+        receivingFiles[key].processing
+      ) {
+        continue;
+      }
+
+      const receivedFile = receivingFiles[key];
+      const blobFile = new Blob(receivedFile.receivedChunks, {
+        type: receivedFile.metaData.type
+      });
+      const name = receivedFile.metaData.name;
+
+      const blobReader = new zip.BlobReader(blobFile);
+
+      await zipWriter.add(name, blobReader);
+
+      found = true;
+    }
+
+    await zipWriter.close();
+
+    if (found) {
+      const zipFileBlob = await zipFileWriter.getData();
+
+      const url = URL.createObjectURL(zipFileBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'zero-share.zip';
+      link.click();
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    addToastMessage('Not found files to download');
+  }
 </script>
 
-<svelte:head>
-  <title>Zero Share: Receiver</title>
-  <meta name="description" content={pageDescription} />
-</svelte:head>
-
-{#if answerSDP}
-  <Collapse title="Connecting" isOpen={true}>
+<Collapse title="1. Connecting" isOpen={!isConnecting}>
+  {#if answerSDP}
     <p>Copy the answer SDP and send to the sender to connect between peer.</p>
     <div class="relative mt-2">
       <input
@@ -174,26 +270,17 @@
       </button>
     </div>
     <button class="btn btn-info mt-2" on:click={copyAnswerCode}>Copy SDP</button>
-  </Collapse>
-{/if}
-{#if isConnecting}
-  <div class="p-4 space-y-4 bg-white rounded-xl">
+  {/if}
+</Collapse>
+<Collapse title="2. Receiving Files" isOpen={isConnecting}>
+  <div class="grid gap-4">
     {#if Object.keys(receivingFiles).length > 0}
-      <div class="space-y-2">
-        {#each Object.entries(receivingFiles) as [key, receivedFile], index (key)}
-          <div class="flex items-center justify-between">
-            <p><strong>Name:</strong> {receivedFile.metaData.name}</p>
-            <p><strong>Size:</strong> {receivedFile.metaData.size} bytes</p>
-            <p><strong>Type:</strong> {receivedFile.metaData.type}</p>
-            <progress value={receivedFile.progress} max="100" class="w-1/2 mr-2" />
-            {#if receivedFile.success}
-              <button on:click={() => downloadFile(key)} class="btn btn-primary"> Download </button>
-            {/if}
-          </div>
-        {/each}
-      </div>
+      <ReceivingFileList {receivingFiles} {onRemove} {onDownload} />
+      <button class="btn btn-primary mt-2" on:click={downloadAllFiles}
+        >Download all files (zip)</button
+      >
     {:else}
       <p>Connecting, waiting for files...</p>
     {/if}
   </div>
-{/if}
+</Collapse>

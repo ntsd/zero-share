@@ -1,7 +1,7 @@
 <script lang="ts">
   import { pathJoin } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
-  import { chunkSize, pageDescription, rtcConfig } from '../configs';
+  import { chunkSize, rtcConfig } from '../configs';
   import Eye from '../components/Eye.svelte';
   import { validateFileMetadata } from '../utils/validator';
   import {
@@ -14,8 +14,8 @@
   import DragAndDrop from '../components/DragAndDrop.svelte';
   import EventEmitter from 'eventemitter3';
   import Collapse from '../components/Collapse.svelte';
+  import SendingFileList from '../components/SendingFileList.svelte';
 
-  // web rtc
   let isConnecting = false;
 
   const connection = new RTCPeerConnection(rtcConfig);
@@ -64,6 +64,7 @@
     });
     await connection.setLocalDescription(offer);
   }
+  generateOfferLink();
 
   function toggleOfferLinkVisibility() {
     showOfferLink = !showOfferLink;
@@ -82,32 +83,50 @@
     await connection.setRemoteDescription(remoteDesc);
   }
 
-  async function sendFile(key: string) {
+  async function onSend(key: string) {
     const sendingFile = sendingFiles[key];
     let offset = 0;
+
+    // for bitrate
+    let bytesPrev = 0;
+    let timestampPrev = 0;
 
     sendingFiles[key].event = new EventEmitter();
 
     sendingFiles[key].event?.on(
-      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_METADATA),
+      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_APPROVE),
       async () => {
+        sendingFiles[key].processing = true;
         await sendNextChunk();
       }
     );
     sendingFiles[key].event?.on(
       receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_CHUNK),
       async () => {
+        if (sendingFiles[key].stop) {
+          sendingFiles[key].progress = 0;
+          sendingFiles[key].processing = false;
+          sendingFiles[key].stop = false;
+          return;
+        }
+
         if (offset < sendingFile.metaData.size) {
           await sendNextChunk();
           return;
         }
 
+        sendingFiles[key].processing = false;
         sendingFiles[key].success = true;
         addToastMessage(`File ${sendingFile.metaData.name} sent successfully`);
       }
     );
     sendingFiles[key].event?.on(receiverEventToJSON(ReceiverEvent.EVENT_VALIDATE_ERROR), () => {
       addToastMessage('Receiver validate error');
+      sendingFiles[key].error = new Error('Receiver validate error');
+    });
+    sendingFiles[key].event?.on(receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_REJECT), () => {
+      addToastMessage('Receiver reject the file');
+      sendingFiles[key].error = new Error('Receiver reject the file');
     });
 
     function sendBuffer(buffer: ArrayBuffer) {
@@ -119,6 +138,29 @@
       );
     }
 
+    async function getBitRate(): Promise<number> {
+      if (connection && connection.iceConnectionState === 'connected') {
+        const stats = await connection.getStats();
+        let activeCandidatePair: { bytesReceived: number; timestamp: number } | undefined;
+        stats.forEach((report) => {
+          if (report.type === 'transport') {
+            activeCandidatePair = stats.get(report.selectedCandidatePairId);
+          }
+        });
+
+        if (activeCandidatePair) {
+          const bytesNow = activeCandidatePair.bytesReceived;
+          const bitrate = Math.round(
+            ((bytesNow - bytesPrev) * 8) / (activeCandidatePair.timestamp - timestampPrev)
+          );
+          timestampPrev = activeCandidatePair.timestamp;
+          bytesPrev = bytesNow;
+          return bitrate;
+        }
+      }
+      return 0;
+    }
+
     async function sendNextChunk() {
       const slice = sendingFile.file.slice(offset, offset + chunkSize);
       const buffer = await slice.arrayBuffer();
@@ -126,7 +168,12 @@
       sendBuffer(buffer);
 
       offset += buffer.byteLength;
+
       sendingFiles[key].progress = Math.round((offset / sendingFile.metaData.size) * 100);
+      const bitrate = await getBitRate();
+      if (bitrate) {
+        sendingFiles[key].bitrate = bitrate;
+      }
     }
 
     // send meta data
@@ -137,27 +184,33 @@
       }).finish()
     );
 
-    // TODO: wait finish (success, error)
-  }
-
-  let sendingFiles: { [key: string]: SendingFile } = {};
-
-  function removeSelectedFile(key: string) {
-    delete sendingFiles[key];
-    // call this to trigger update the map
-    sendingFiles = sendingFiles;
+    // TODO: wait finish to send 1 by 1 file (success, error)
   }
 
   async function sendAllFiles() {
     for (const key of Object.keys(sendingFiles)) {
-      if (sendingFiles[key].success || sendingFiles[key].error) {
+      if (sendingFiles[key].success || sendingFiles[key].error || sendingFiles[key].processing) {
         continue;
       }
-      await sendFile(key);
+      await onSend(key);
     }
   }
 
-  function handleFilesPick(files: FileList) {
+  async function onStop(key: string) {
+    sendingFiles[key].stop = true;
+  }
+
+  let sendingFiles: { [key: string]: SendingFile } = {};
+
+  function onRemove(key: string) {
+    if (sendingFiles[key].processing) {
+      sendingFiles[key].stop = true;
+    }
+    delete sendingFiles[key];
+    sendingFiles = sendingFiles; // do this to trigger update the map
+  }
+
+  function onFilesPick(files: FileList) {
     Array.from(files).forEach((file) => {
       const fileMetaData: MetaData = {
         name: file.name,
@@ -172,7 +225,10 @@
       sendingFiles[file.name] = {
         file: file,
         metaData: fileMetaData,
+        processing: false,
         progress: 0,
+        bitrate: 0,
+        stop: false,
         success: false,
         error: validateErr
       };
@@ -180,21 +236,10 @@
   }
 </script>
 
-<svelte:head>
-  <title>Zero Share: Sender</title>
-  <meta name="description" content={pageDescription} />
-</svelte:head>
-
-<Collapse title="Generate" isOpen={true}>
-  <button class="btn btn-primary" on:click={generateOfferLink}> Generate Offer Link </button>
-</Collapse>
-
-{#if offerLink}
-  <div class="mt-4">
-    <div class="label">
-      <span class="label-text">Offer link:</span>
-    </div>
-    <div class="relative">
+<Collapse title="1. Connecting" isOpen={!isConnecting}>
+  {#if offerLink}
+    <p>1.1. Copy the offer link and send to the receiver to connect between peer.</p>
+    <div class="relative mt-2">
       <input
         type={showOfferLink ? 'text' : 'password'}
         class="input input-bordered w-full"
@@ -205,33 +250,25 @@
         <Eye show={showOfferLink} />
       </button>
     </div>
-    <button class="btn btn-sm btn-info mt-2" on:click={copyOfferLink}>Copy Link</button>
-    <div class="label">
-      <span class="label-text">Answer SDP:</span>
-    </div>
-    <div class="relative">
+    <button class="btn btn-info mt-2" on:click={copyOfferLink}>Copy Link</button>
+    <p class="mt-4">
+      1.2. Enter the Session Description Protocol (SDP) from the receiver to accept the answer.
+    </p>
+    <div class="relative mt-2">
       <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
     </div>
-    <button class="btn btn-sm btn-info mt-2" on:click={acceptAnswer}>Accept Answer</button>
-  </div>
-{/if}
-<div
-  class="p-4 space-y-4 bg-white border-2 border-dashed border-gray-200 rounded-xl"
-  hidden={!isConnecting}
->
-  <DragAndDrop {handleFilesPick} />
-  {#if Object.keys(sendingFiles).length > 0}
-    <div class="mt-4 space-y-2">
-      {#each Object.entries(sendingFiles) as [key, sendingFile], index (key)}
-        <div class="flex items-center justify-between">
-          <p>{sendingFile.metaData.name}</p>
-          <progress value={sendingFile.progress} max="100" class="w-1/2 mr-2" />
-          <button on:click={() => removeSelectedFile(key)} class="btn btn-error"> Remove </button>
-        </div>
-      {/each}
-    </div>
-    <button class="btn btn-sm btn-info mt-2" on:click={sendAllFiles}>Send all files</button>
-  {:else}
-    <p class="mt-4">No files selected</p>
+    <button class="btn btn-info mt-2" on:click={acceptAnswer}>Accept Answer</button>
   {/if}
-</div>
+</Collapse>
+
+<Collapse title="2. Sending Files" isOpen={isConnecting}>
+  <div class="grid gap-4">
+    <DragAndDrop {onFilesPick} />
+    {#if Object.keys(sendingFiles).length > 0}
+      <SendingFileList {sendingFiles} {onRemove} {onSend} {onStop} />
+      <button class="btn btn-primary mt-2" on:click={sendAllFiles}>Send all files</button>
+    {:else}
+      <p class="mt-4">No files selected</p>
+    {/if}
+  </div>
+</Collapse>

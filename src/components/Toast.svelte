@@ -3,7 +3,7 @@
   import { onDestroy } from 'svelte';
   import toastStore from '../stores/toastStore';
 
-  export let duration: number = 3000;
+  const duration = 3000;
   let toasts: { text: string; visible: boolean }[] = [];
 
   function addToast(text: string): void {

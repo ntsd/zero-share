@@ -4,7 +4,7 @@
   let dropArea: HTMLElement;
   let fileInput: HTMLInputElement;
 
-  export let handleFilesPick: (files: FileList) => void;
+  export let onFilesPick: (files: FileList) => void;
 
   function setupDropAreaListeners() {
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
@@ -45,19 +45,20 @@
     unhighlight();
     const files = e.dataTransfer?.files;
     if (files) {
-      handleFilesPick(files);
+      onFilesPick(files);
     }
   }
 
   function handleFileInputChange() {
     if (fileInput.files) {
-      handleFilesPick(fileInput.files);
+      onFilesPick(fileInput.files);
+      fileInput.value = '';
     }
   }
 </script>
 
 <div
-  class="relative flex flex-col text-gray-400 border border-gray-200 border-dashed rounded cursor-pointer"
+  class="relative flex flex-col border border-gray-900 border-dashed cursor-pointer"
   bind:this={dropArea}
 >
   <input
@@ -86,6 +87,7 @@
       />
     </svg>
 
-    <p class="m-0">Drag your files here or click in this area.</p>
+    <p class="m-0 hidden xl:block">Drop your files or click to this area</p>
+    <p class="m-0 xl:hidden">Click to this area</p>
   </div>
 </div>

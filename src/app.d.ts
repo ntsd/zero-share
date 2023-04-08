@@ -5,27 +5,26 @@ declare global {
   namespace App {
     // See https://kit.svelte.dev/docs/types#app
     // for information about these interfaces
-    // interface Error {}
-    // interface Locals {}
-    // interface PageData {}
-    // interface Platform {}
   }
 
-  interface SendingFile {
+  interface FileDetail {
     metaData: MetaData;
-    file: File;
     progress: number;
+    bitrate: number;
+    processing: boolean;
     success: boolean;
     error?: Error;
+  }
+
+  interface SendingFile extends FileDetail {
+    stop: boolean;
+    file: File;
     event?: EventEmitter;
   }
 
-  interface ReceivingFile {
-    metaData: MetaData;
+  interface ReceivingFile extends FileDetail {
     receivedSize: number;
     receivedChunks: Uint8Array[];
-    progress: number;
-    success: boolean;
   }
 }
 

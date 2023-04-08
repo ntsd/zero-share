@@ -54,7 +54,7 @@
     connection.onicecandidate = (event) => {
       if (!event.candidate && connection.localDescription) {
         const sdp = connection.localDescription.sdp;
-        offerLink = pathJoin(location.href, `receive?sdp=${encodeURIComponent(sdp)}`);
+        offerLink = pathJoin(location.href.split('?')[0], `receive?sdp=${encodeURIComponent(sdp)}`);
       }
     };
 

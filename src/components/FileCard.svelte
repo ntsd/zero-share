@@ -11,7 +11,9 @@
       <div class="col-span-4">
         <p><strong>Name:</strong> {fileDetail.metaData.name}</p>
         <p><strong>Size:</strong> {humanFileSize(fileDetail.metaData.size)}</p>
-        <p><strong>Type:</strong> {fileDetail.metaData.type}</p>
+        {#if fileDetail.metaData.type}
+          <p><strong>Type:</strong> {fileDetail.metaData.type}</p>
+        {/if}
       </div>
       <div class="col-span-4">
         <div class="text-center">

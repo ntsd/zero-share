@@ -20,13 +20,17 @@
 
   const connection = new RTCPeerConnection(rtcConfig);
 
+  connection.onicecandidateerror = (ev) => {
+    addToastMessage('Ice candidate error')
+  }
+
   let dataChannel = connection.createDataChannel('data');
   dataChannel.onopen = () => {
     addToastMessage(`Connected`);
     isConnecting = true;
   };
-  dataChannel.onmessage = (event) => {
-    handleMessage(event);
+  dataChannel.onmessage = (ev) => {
+    handleMessage(ev);
   };
   dataChannel.onerror = () => {
     addToastMessage(`WebRTC error`);

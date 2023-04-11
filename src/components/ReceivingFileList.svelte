@@ -13,7 +13,7 @@
         <!-- <button class="btn btn-ghost">Deny</button>
         <button class="btn btn-primary">Accept</button> -->
         {#if receivedFile.success}
-          <button on:click={() => onDownload(key)} class="btn btn-primary"> Download </button>
+          <button on:click={() => onDownload(key)} class="btn btn-secondary"> Download </button>
         {/if}
         <button on:click={() => onRemove(key)} class="btn btn-error"> Remove </button>
       </div>

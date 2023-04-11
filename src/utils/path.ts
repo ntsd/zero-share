@@ -1,13 +1,20 @@
-export function pathJoin(...parts: string[]) {
-  const separator = '/';
-  parts = parts.map((part, index) => {
-    if (index) {
-      part = part.replace(new RegExp('^' + separator), '');
-    }
-    if (index !== parts.length - 1) {
-      part = part.replace(new RegExp(separator + '$'), '');
-    }
-    return part;
-  });
-  return parts.join(separator);
+export function joinPath(...paths: string[]): string {
+  return paths.map((path) => path.replace(/^\/+|\/+$/g, '')).join('/');
+}
+
+export function buildURLParams(obj: { [key: string]: string }): string {
+  const queryParams = Object.entries(obj)
+    .map(([key, value]) => {
+      return encodeURIComponent(key) + '=' + encodeURIComponent(value);
+    })
+    .join('&');
+
+  return queryParams;
+}
+
+export function buildURL(baseURL: string, path: string, params: { [key: string]: string }): string {
+  const joinedPath = joinPath(baseURL, path);
+  const queryParams = buildURLParams(params);
+
+  return `${joinedPath}?${queryParams}`;
 }

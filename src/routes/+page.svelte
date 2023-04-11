@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { pathJoin } from '../utils/path';
+  import { buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
-  import { chunkSize, rtcConfig } from '../configs';
+  import { defaultSendOptions, rtcConfig } from '../configs';
   import Eye from '../components/Eye.svelte';
   import { validateFileMetadata } from '../utils/validator';
   import {
@@ -15,14 +15,16 @@
   import EventEmitter from 'eventemitter3';
   import Collapse from '../components/Collapse.svelte';
   import SendingFileList from '../components/SendingFileList.svelte';
+  import SenderOptions from '../components/SenderOptions.svelte';
 
+  let sendOptions = defaultSendOptions;
   let isConnecting = false;
 
   const connection = new RTCPeerConnection(rtcConfig);
 
-  connection.onicecandidateerror = (ev) => {
-    addToastMessage('Ice candidate error')
-  }
+  connection.onicecandidateerror = () => {
+    addToastMessage('Ice candidate error');
+  };
 
   let dataChannel = connection.createDataChannel('data');
   dataChannel.onopen = () => {
@@ -58,7 +60,10 @@
     connection.onicecandidate = (event) => {
       if (!event.candidate && connection.localDescription) {
         const sdp = connection.localDescription.sdp;
-        offerLink = pathJoin(location.href.split('?')[0], `receive?sdp=${encodeURIComponent(sdp)}`);
+        offerLink = buildURL(location.href.split('?')[0], 'receive', {
+          sdp: sdp,
+          e2e: sendOptions.encryptionEnabled ? '1' : '0'
+        });
       }
     };
 
@@ -68,7 +73,6 @@
     });
     await connection.setLocalDescription(offer);
   }
-  generateOfferLink();
 
   function toggleOfferLinkVisibility() {
     showOfferLink = !showOfferLink;
@@ -140,7 +144,7 @@
     }
 
     async function sendNextChunk() {
-      const slice = sendingFile.file.slice(offset, offset + chunkSize);
+      const slice = sendingFile.file.slice(offset, offset + sendOptions.chunkSize);
       const buffer = await slice.arrayBuffer();
 
       sendBuffer(buffer);
@@ -215,11 +219,23 @@
       };
     });
   }
+
+  function onOptionsUpdate(options: SendOptions) {
+    sendOptions = options;
+  }
 </script>
 
-<Collapse title="1. Connecting" isOpen={!isConnecting}>
+<Collapse title="1. Generate Offer" isOpen={!offerLink}>
+  <p>Generate local SDP and build the offer link to connect with the peer.</p>
+  <div class="mt-2">
+    <SenderOptions onUpdate={onOptionsUpdate} />
+    <button class="btn btn-primary mt-2" on:click={generateOfferLink}>Generate Offer</button>
+  </div>
+</Collapse>
+
+<Collapse title="2. Accept Answer" isOpen={!isConnecting}>
   {#if offerLink}
-    <p>1.1. Copy the offer link and send to the receiver to connect between peer.</p>
+    <p class="mt-2">Copy the offer link and send to the receiver to connect between peer.</p>
     <div class="relative mt-2">
       <input
         type={showOfferLink ? 'text' : 'password'}
@@ -231,18 +247,18 @@
         <Eye show={showOfferLink} />
       </button>
     </div>
-    <button class="btn btn-info mt-2" on:click={copyOfferLink}>Copy Link</button>
-    <p class="mt-4">
-      1.2. Enter the Session Description Protocol (SDP) from the receiver to accept the answer.
-    </p>
+    <button class="btn btn-primary mt-2" on:click={copyOfferLink}>Copy Link</button>
+  {/if}
+  {#if offerLink}
+    <p>Enter the Session Description Protocol (SDP) from the receiver to accept the answer.</p>
     <div class="relative mt-2">
       <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
     </div>
-    <button class="btn btn-info mt-2" on:click={acceptAnswer}>Accept Answer</button>
+    <button class="btn btn-primary mt-2" on:click={acceptAnswer}>Accept Answer</button>
   {/if}
 </Collapse>
 
-<Collapse title="2. Sending Files" isOpen={isConnecting}>
+<Collapse title="3. Send Files" isOpen={isConnecting}>
   <div class="grid gap-4">
     <DragAndDrop {onFilesPick} />
     {#if Object.keys(sendingFiles).length > 0}

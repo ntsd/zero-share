@@ -33,7 +33,7 @@
             Pending
           {/if}
         </div>
-        <progress value={fileDetail.progress} max="100" class="progress" />
+        <progress value={fileDetail.progress} max="100" class="progress progress-secondary" />
       </div>
       <div class="col-span-4 flex justify-end">
         <slot />

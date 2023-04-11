@@ -27,6 +27,15 @@ declare global {
     receivedSize: number;
     receivedChunks: Uint8Array[];
   }
+
+  interface SendOptions {
+    encryptionEnabled: boolean;
+    chunkSize: number;
+  }
+
+  interface ReceiveOptions {
+    autoAccept: boolean;
+  }
 }
 
 export {};

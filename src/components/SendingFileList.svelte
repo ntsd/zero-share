@@ -12,9 +12,9 @@
     <FileCard fileDetail={sendingFile} isSender={true}>
       <div class="flex-none">
         {#if sendingFile.processing}
-          <button on:click={() => onStop(key)} class="btn btn-primary"> Stop </button>
+          <button on:click={() => onStop(key)} class="btn btn-secondary"> Stop </button>
         {:else}
-          <button on:click={() => onSend(key)} class="btn btn-primary"> Send </button>
+          <button on:click={() => onSend(key)} class="btn btn-secondary"> Send </button>
         {/if}
         <button on:click={() => onRemove(key)} class="btn btn-error"> Remove </button>
       </div>

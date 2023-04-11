@@ -9,12 +9,22 @@
   import Collapse from '../../components/Collapse.svelte';
   import ReceivingFileList from '../../components/ReceivingFileList.svelte';
   import * as zip from '@zip.js/zip.js';
+  import ReceiverOptions from '../../components/ReceiverOptions.svelte';
 
-  // web rtc
-  let isConnecting = false;
+  let receiveOptions: ReceiveOptions = {
+    autoAccept: true
+  };
+  let answerSDP = '';
+  let showAnswerCode = false;
+
+  const sdpEncoded = $page.url.searchParams.get('sdp');
+  if (sdpEncoded === null || !sdpEncoded) {
+    goto('/');
+    throw new Error('no sdp found');
+  }
 
   const connection = new RTCPeerConnection(rtcConfig);
-
+  let isConnecting = false;
   let dataChannel: RTCDataChannel;
 
   connection.ondatachannel = (event) => {
@@ -36,15 +46,6 @@
       isConnecting = false;
     };
   };
-
-  let answerSDP = '';
-  let showAnswerCode = false;
-
-  const sdpEncoded = $page.url.searchParams.get('sdp');
-  if (sdpEncoded === null || !sdpEncoded) {
-    goto('/');
-    throw new Error('no sdp found');
-  }
 
   async function setOfferSDP(sdpEncoded: string) {
     const sdpDecoded = decodeURIComponent(sdpEncoded);
@@ -229,9 +230,13 @@
 
     addToastMessage('Not found files to download');
   }
+
+  function onOptionsUpdate(options: ReceiveOptions) {
+    receiveOptions = options;
+  }
 </script>
 
-<Collapse title="1. Connecting" isOpen={!isConnecting}>
+<Collapse title="1. Answer SDP" isOpen={!isConnecting}>
   {#if answerSDP}
     <p>Copy the answer SDP and send to the sender to connect between peer.</p>
     <div class="relative mt-2">
@@ -245,11 +250,12 @@
         <Eye show={showAnswerCode} />
       </button>
     </div>
-    <button class="btn btn-info mt-2" on:click={copyAnswerCode}>Copy SDP</button>
+    <button class="btn btn-primary mt-2" on:click={copyAnswerCode}>Copy SDP</button>
   {/if}
 </Collapse>
 <Collapse title="2. Receiving Files" isOpen={isConnecting}>
-  <div class="grid gap-4">
+  <ReceiverOptions onUpdate={onOptionsUpdate} />
+  <div class="grid gap-4 mt-2">
     {#if Object.keys(receivingFiles).length > 0}
       <ReceivingFileList {receivingFiles} {onRemove} {onDownload} />
       <button class="btn btn-primary mt-2" on:click={downloadAllFiles}

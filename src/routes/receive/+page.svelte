@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { rtcConfig } from '../../configs';
+  import { defaultReceiveOptions, rtcConfig } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { validateFileMetadata } from '../../utils/validator';
@@ -10,10 +10,9 @@
   import ReceivingFileList from '../../components/ReceivingFileList.svelte';
   import * as zip from '@zip.js/zip.js';
   import ReceiverOptions from '../../components/ReceiverOptions.svelte';
+  import { FileStatus, type ReceiveOptions, type ReceivingFile } from '../../type';
 
-  let receiveOptions: ReceiveOptions = {
-    autoAccept: true
-  };
+  let receiveOptions: ReceiveOptions = defaultReceiveOptions;
   let answerSDP = '';
   let showAnswerCode = false;
 
@@ -31,18 +30,18 @@
     dataChannel = event.channel;
 
     dataChannel.onopen = () => {
-      addToastMessage(`Connected`);
+      addToastMessage('Connected', 'success');
       isConnecting = true;
     };
     dataChannel.onmessage = (event) => {
       handleMessage(event);
     };
     dataChannel.onerror = () => {
-      addToastMessage(`WebRTC error`);
+      addToastMessage('WebRTC error', 'error');
       isConnecting = false;
     };
     dataChannel.onclose = () => {
-      addToastMessage(`Disconnected`);
+      addToastMessage('Disconnected', 'error');
       isConnecting = false;
     };
   };
@@ -64,7 +63,7 @@
 
   async function copyAnswerCode() {
     await navigator.clipboard.writeText(answerSDP);
-    addToastMessage('Copied to clipboard');
+    addToastMessage('Copied to clipboard', 'info');
   }
 
   async function generateAnswerSDP() {
@@ -86,9 +85,19 @@
     const message = Message.decode(new Uint8Array(event.data));
 
     if (message.metaData) {
-      const validateErr = validateFileMetadata(message.metaData);
+      receivingFiles[message.id] = {
+        metaData: message.metaData,
+        progress: 0,
+        bitrate: 0,
+        receivedSize: 0,
+        receivedChunks: [],
+        startTime: 0,
+        status: FileStatus.WaitingAccept
+      };
+
+      const validateErr = validateFileMetadata(message.metaData, receiveOptions.maxSize);
       if (validateErr) {
-        addToastMessage(`${message.metaData.name} ${validateErr.message}`);
+        addToastMessage(`${message.metaData.name} ${validateErr.message}`, 'error');
 
         dataChannel.send(
           EventMessage.encode({
@@ -97,31 +106,22 @@
           }).finish()
         );
 
+        receivingFiles[message.id].error = validateErr;
+
         return;
       }
 
-      receivingFiles[message.id] = {
-        metaData: message.metaData,
-        progress: 0,
-        bitrate: 0,
-        processing: false,
-        receivedSize: 0,
-        receivedChunks: [],
-        success: false,
-        startTime: 0
-      };
+      if (receiveOptions.autoAccept) {
+        dataChannel.send(
+          EventMessage.encode({
+            id: message.id,
+            event: ReceiverEvent.EVENT_RECEIVER_ACCEPT
+          }).finish()
+        );
 
-      // TODO: waiting for approve
-
-      dataChannel.send(
-        EventMessage.encode({
-          id: message.id,
-          event: ReceiverEvent.EVENT_RECEIVER_APPROVE
-        }).finish()
-      );
-
-      receivingFiles[message.id].processing = true;
-      receivingFiles[message.id].startTime = Date.now();
+        receivingFiles[message.id].status = FileStatus.Processing;
+        receivingFiles[message.id].startTime = Date.now();
+      }
 
       return;
     }
@@ -153,15 +153,14 @@
       );
 
       if (receivingFile.receivedSize >= receivingFile.metaData.size) {
-        receivingFiles[message.id].processing = false;
-        receivingFiles[message.id].success = true;
-        addToastMessage(`Received ${receivingFiles[message.id].metaData.name}`);
+        receivingFiles[message.id].status = FileStatus.Success;
+        addToastMessage(`Received ${receivingFiles[message.id].metaData.name}`, 'success');
       }
     }
   }
 
   function onRemove(key: string) {
-    if (receivingFiles[key].processing) {
+    if (receivingFiles[key].status != FileStatus.Success) {
       dataChannel.send(
         EventMessage.encode({
           id: key,
@@ -186,6 +185,29 @@
     URL.revokeObjectURL(url);
   }
 
+  function onAccept(key: string) {
+    dataChannel.send(
+      EventMessage.encode({
+        id: key,
+        event: ReceiverEvent.EVENT_RECEIVER_ACCEPT
+      }).finish()
+    );
+
+    receivingFiles[key].status = FileStatus.Processing;
+    receivingFiles[key].startTime = Date.now();
+  }
+
+  function onDeny(key: string) {
+    dataChannel.send(
+      EventMessage.encode({
+        id: key,
+        event: ReceiverEvent.EVENT_RECEIVER_REJECT
+      }).finish()
+    );
+    delete receivingFiles[key];
+    receivingFiles = receivingFiles; // do this to trigger update the map
+  }
+
   async function downloadAllFiles() {
     const zipFileWriter = new zip.BlobWriter();
     const zipWriter = new zip.ZipWriter(zipFileWriter);
@@ -193,11 +215,7 @@
     let found = false;
 
     for (const key of Object.keys(receivingFiles)) {
-      if (
-        !receivingFiles[key].success ||
-        receivingFiles[key].error ||
-        receivingFiles[key].processing
-      ) {
+      if (receivingFiles[key].status != FileStatus.Success || receivingFiles[key].error) {
         continue;
       }
 
@@ -228,7 +246,7 @@
       return;
     }
 
-    addToastMessage('Not found files to download');
+    addToastMessage('Not found files to download', 'error');
   }
 
   function onOptionsUpdate(options: ReceiveOptions) {
@@ -257,7 +275,7 @@
   <ReceiverOptions onUpdate={onOptionsUpdate} />
   <div class="grid gap-4 mt-2">
     {#if Object.keys(receivingFiles).length > 0}
-      <ReceivingFileList {receivingFiles} {onRemove} {onDownload} />
+      <ReceivingFileList {receivingFiles} {onRemove} {onDownload} {onAccept} {onDeny} />
       <button class="btn btn-primary mt-2" on:click={downloadAllFiles}
         >Download all files (zip)</button
       >

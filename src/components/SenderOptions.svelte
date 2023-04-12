@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { SendOptions } from "../type";
+
   let encryptionEnabled = 'true';
   let chunkSize: number = 16 * 1024;
 

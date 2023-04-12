@@ -16,6 +16,7 @@
   import Collapse from '../components/Collapse.svelte';
   import SendingFileList from '../components/SendingFileList.svelte';
   import SenderOptions from '../components/SenderOptions.svelte';
+  import { FileStatus, type SendOptions, type SendingFile } from '../type';
 
   let sendOptions = defaultSendOptions;
   let isConnecting = false;
@@ -23,23 +24,23 @@
   const connection = new RTCPeerConnection(rtcConfig);
 
   connection.onicecandidateerror = () => {
-    addToastMessage('Ice candidate error');
+    addToastMessage('Ice candidate error', 'error');
   };
 
   let dataChannel = connection.createDataChannel('data');
   dataChannel.onopen = () => {
-    addToastMessage(`Connected`);
+    addToastMessage('Connected', 'success');
     isConnecting = true;
   };
   dataChannel.onmessage = (ev) => {
     handleMessage(ev);
   };
   dataChannel.onerror = () => {
-    addToastMessage(`WebRTC error`);
+    addToastMessage('WebRTC error', 'error');
     isConnecting = false;
   };
   dataChannel.onclose = () => {
-    addToastMessage(`Disconnected`);
+    addToastMessage('Disconnected', 'error');
     isConnecting = false;
   };
 
@@ -80,7 +81,7 @@
 
   async function copyOfferLink() {
     await navigator.clipboard.writeText(offerLink);
-    addToastMessage('Copied to clipboard');
+    addToastMessage('Copied to clipboard', 'info');
   }
 
   async function acceptAnswer() {
@@ -95,12 +96,16 @@
     const sendingFile = sendingFiles[key];
     let offset = 0;
 
+    // reset value
+    sendingFiles[key].error = undefined;
+    sendingFiles[key].stop = false;
+
     sendingFiles[key].event = new EventEmitter();
 
     sendingFiles[key].event?.on(
-      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_APPROVE),
+      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_ACCEPT),
       async () => {
-        sendingFiles[key].processing = true;
+        sendingFiles[key].status = FileStatus.Processing;
         sendingFiles[key].startTime = Date.now();
         await sendNextChunk();
       }
@@ -109,8 +114,11 @@
       receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_CHUNK),
       async () => {
         if (sendingFiles[key].stop) {
+          return;
+        }
+        if (sendingFiles[key].error || sendingFiles[key].status != FileStatus.Processing) {
           sendingFiles[key].progress = 0;
-          sendingFiles[key].processing = false;
+          sendingFiles[key].status = FileStatus.Pending;
           sendingFiles[key].stop = false;
           return;
         }
@@ -120,18 +128,21 @@
           return;
         }
 
-        sendingFiles[key].processing = false;
-        sendingFiles[key].success = true;
-        addToastMessage(`File ${sendingFile.metaData.name} sent successfully`);
+        sendingFiles[key].status = FileStatus.Success;
+        addToastMessage(`File ${sendingFile.metaData.name} sent successfully`, 'success');
       }
     );
+
     sendingFiles[key].event?.on(receiverEventToJSON(ReceiverEvent.EVENT_VALIDATE_ERROR), () => {
-      addToastMessage('Receiver validate error');
+      addToastMessage('Receiver validate error', 'error');
       sendingFiles[key].error = new Error('Receiver validate error');
+      sendingFiles[key].status = FileStatus.Pending;
     });
+
     sendingFiles[key].event?.on(receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_REJECT), () => {
-      addToastMessage('Receiver reject the file');
+      addToastMessage('Receiver reject the file', 'error');
       sendingFiles[key].error = new Error('Receiver reject the file');
+      sendingFiles[key].status = FileStatus.Pending;
     });
 
     function sendBuffer(buffer: ArrayBuffer) {
@@ -168,12 +179,13 @@
       }).finish()
     );
 
+    sendingFiles[key].status = FileStatus.WaitingAccept;
     // TODO: wait finish to send 1 by 1 file (success, error)
   }
 
   async function sendAllFiles() {
     for (const key of Object.keys(sendingFiles)) {
-      if (sendingFiles[key].success || sendingFiles[key].error || sendingFiles[key].processing) {
+      if (sendingFiles[key].status != FileStatus.Pending || sendingFiles[key].error) {
         continue;
       }
       await onSend(key);
@@ -184,10 +196,15 @@
     sendingFiles[key].stop = true;
   }
 
+  async function onContinue(key: string) {
+    sendingFiles[key].stop = false;
+    sendingFiles[key].event?.emit(receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_CHUNK));
+  }
+
   let sendingFiles: { [key: string]: SendingFile } = {};
 
   function onRemove(key: string) {
-    if (sendingFiles[key].processing) {
+    if (sendingFiles[key].status === FileStatus.Processing) {
       sendingFiles[key].stop = true;
     }
     delete sendingFiles[key];
@@ -203,19 +220,18 @@
       };
       const validateErr = validateFileMetadata(fileMetaData);
       if (validateErr) {
-        addToastMessage(`${file.name} ${validateErr.message}`);
+        addToastMessage(`${file.name} ${validateErr.message}`, 'error');
       }
 
       sendingFiles[file.name] = {
         file: file,
         metaData: fileMetaData,
-        processing: false,
         progress: 0,
         bitrate: 0,
         stop: false,
-        success: false,
         error: validateErr,
-        startTime: 0
+        startTime: 0,
+        status: FileStatus.Pending
       };
     });
   }
@@ -262,7 +278,7 @@
   <div class="grid gap-4">
     <DragAndDrop {onFilesPick} />
     {#if Object.keys(sendingFiles).length > 0}
-      <SendingFileList {sendingFiles} {onRemove} {onSend} {onStop} />
+      <SendingFileList {sendingFiles} {onRemove} {onSend} {onStop} {onContinue} />
       <button class="btn btn-primary mt-2" on:click={sendAllFiles}>Send all files</button>
     {:else}
       <p class="mt-4">No files selected</p>

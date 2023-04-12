@@ -18,8 +18,8 @@ message Message {
 }
 
 enum ReceiverEvent {
-    // event when the reveiver got metadata and approved
-    EVENT_RECEIVER_APPROVE = 0;
+    // event when the reveiver got metadata and accept
+    EVENT_RECEIVER_ACCEPT = 0;
     // event when the reveiver rejected the file
     EVENT_RECEIVER_REJECT = 1;
     // event when the reveiver got file chunk

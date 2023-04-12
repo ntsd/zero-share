@@ -3,11 +3,17 @@
   import { onDestroy } from 'svelte';
   import toastStore from '../stores/toastStore';
 
-  const duration = 3000;
-  let toasts: { text: string; visible: boolean }[] = [];
+  interface Toast {
+    text: string;
+    visible: boolean;
+    status: 'info' | 'success' | 'error';
+  }
 
-  function addToast(text: string): void {
-    const toast = { text, visible: true };
+  const duration = 3000;
+  let toasts: Toast[] = [];
+
+  function addToast(text: string, status: 'info' | 'success' | 'error'): void {
+    const toast = { text, visible: true, status };
     toasts = [toast, ...toasts];
 
     setTimeout(() => {
@@ -17,7 +23,7 @@
   }
 
   const unsubscribe = toastStore.subscribe((t) => {
-    if (t) addToast(t.message);
+    if (t) addToast(t.message, t.status);
   });
 
   onDestroy(() => {
@@ -28,7 +34,7 @@
 <div class="fixed bottom-4 right-4 space-y-2">
   {#each toasts as toast}
     <div
-      class="alert alert-info"
+      class="alert alert-{toast.status}"
       in:fade={{ duration: 300 }}
       out:fade={{ duration: 300 }}
       style={toast.visible ? '' : 'display: none;'}

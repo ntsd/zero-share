@@ -1,3 +1,5 @@
+import type { ReceiveOptions, SendOptions } from './type';
+
 export const rtcConfig: RTCConfiguration = {
   iceServers: [
     {
@@ -28,5 +30,6 @@ export const defaultSendOptions: SendOptions = {
 };
 
 export const defaultReceiveOptions: ReceiveOptions = {
-  autoAccept: true
+  autoAccept: true,
+  maxSize: 1024 * 1024 * 1024 // 1GB
 };

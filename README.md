@@ -73,6 +73,12 @@ npm run lint
 npm run format
 ```
 
+## Deployment
+
+The deployment will using this [Github Workflow](https://github.com/zero-share/zero-share.github.io/blob/main/.github/workflows/static.yml) to trigger the Github Action to build the Github Pages. Because we want to use the domain `zero-share.github.io` instead of my personal one.
+
+For self-host or local deployment, you can run `npm run build` to build the static files. This no need the server side of svelte.
+
 ## Contributing
 
 We welcome contributions from the community! If you'd like to contribute to the project, follow these steps:

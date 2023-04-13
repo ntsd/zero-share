@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { defaultSendOptions } from "../configs";
-  import type { SendOptions } from "../type";
+  import { defaultSendOptions } from '../configs';
+  import type { SendOptions } from '../type';
 
   let encryptionEnabled = defaultSendOptions.isEncrypt ? 'true' : 'false';
   let chunkSize: number = defaultSendOptions.chunkSize;

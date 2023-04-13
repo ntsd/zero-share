@@ -7,7 +7,7 @@
 </script>
 
 <div class="card bg-base-100 shadow-xl">
-  <div class="card-body text-xs xl:text-sm">
+  <div class="card-body p-4 text-xs xl:text-sm">
     <div class="grid gap-2 grid-cols-4 items-center">
       <div class="col-span-4">
         <p><strong>Name:</strong> {fileDetail.metaData.name}</p>
@@ -36,7 +36,11 @@
             Pending
           {/if}
         </div>
-        <progress value={fileDetail.progress} max="100" class="progress progress-accent" />
+        <progress
+          value={isNaN(fileDetail.progress) ? 100 : fileDetail.progress}
+          max="100"
+          class="progress progress-accent"
+        />
       </div>
       <div class="col-span-4 flex justify-end">
         <slot />

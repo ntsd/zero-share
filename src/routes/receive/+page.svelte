@@ -284,9 +284,9 @@
   }
 </script>
 
-<Collapse title="1. Answer SDP" isOpen={!isConnecting}>
+<Collapse title="1. Answer" isOpen={!isConnecting}>
   {#if answerSDP}
-    <p>Copy the answer SDP and send to the sender to connect between peer.</p>
+    <p>Copy the answer code and send to the sender to connect between peer.</p>
     <div class="relative mt-2">
       <input
         type={showAnswerCode ? 'text' : 'password'}
@@ -298,7 +298,7 @@
         <Eye show={showAnswerCode} />
       </button>
     </div>
-    <button class="btn btn-primary mt-2" on:click={copyAnswerCode}>Copy SDP</button>
+    <button class="btn btn-primary mt-2" on:click={copyAnswerCode}>Copy Answer</button>
   {/if}
 </Collapse>
 <Collapse title="2. Receiving Files" isOpen={isConnecting}>

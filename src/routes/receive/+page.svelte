@@ -11,15 +11,28 @@
   import * as zip from '@zip.js/zip.js';
   import ReceiverOptions from '../../components/ReceiverOptions.svelte';
   import { FileStatus, type ReceiveOptions, type ReceivingFile } from '../../type';
+  import {
+    decryptAesGcm,
+    decryptAesKeyWithRsaPrivateKey,
+    exportRsaPublicKeyToBase64,
+    generateRsaKeyPair
+  } from '../../utils/crypto';
 
   let receiveOptions: ReceiveOptions = defaultReceiveOptions;
   let answerSDP = '';
   let showAnswerCode = false;
+  let isEncrypt = false;
+  let rsa: CryptoKeyPair;
 
   const sdpEncoded = $page.url.searchParams.get('sdp');
   if (sdpEncoded === null || !sdpEncoded) {
     goto('/');
     throw new Error('no sdp found');
+  }
+
+  const e2eParam = $page.url.searchParams.get('e2e');
+  if (e2eParam) {
+    isEncrypt = e2eParam === '1' ? true : false;
   }
 
   const connection = new RTCPeerConnection(rtcConfig);
@@ -67,9 +80,15 @@
   }
 
   async function generateAnswerSDP() {
+    let publicKeyBase64 = '';
+    if (isEncrypt) {
+      rsa = await generateRsaKeyPair();
+      publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
+    }
+
     connection.onicecandidate = (event) => {
       if (!event.candidate && connection.localDescription) {
-        answerSDP = encodeURIComponent(connection.localDescription.sdp);
+        answerSDP = encodeURIComponent(connection.localDescription.sdp) + '|' + publicKeyBase64;
       }
     };
 
@@ -81,10 +100,15 @@
   // downloading
   let receivingFiles: { [key: string]: ReceivingFile } = {};
 
-  function handleMessage(event: MessageEvent) {
+  async function handleMessage(event: MessageEvent) {
     const message = Message.decode(new Uint8Array(event.data));
 
     if (message.metaData) {
+      let aesKey: CryptoKey | undefined;
+      if (isEncrypt) {
+        aesKey = await decryptAesKeyWithRsaPrivateKey(rsa.privateKey, message.metaData.key);
+      }
+
       receivingFiles[message.id] = {
         metaData: message.metaData,
         progress: 0,
@@ -92,7 +116,8 @@
         receivedSize: 0,
         receivedChunks: [],
         startTime: 0,
-        status: FileStatus.WaitingAccept
+        status: FileStatus.WaitingAccept,
+        aesKey: aesKey
       };
 
       const validateErr = validateFileMetadata(message.metaData, receiveOptions.maxSize);
@@ -127,7 +152,7 @@
     }
 
     if (message.chunk) {
-      const arrayBuffer = message.chunk;
+      let arrayBuffer = message.chunk;
       const receivingSize = arrayBuffer.byteLength;
 
       dataChannel.send(
@@ -138,6 +163,11 @@
       );
 
       const receivingFile = receivingFiles[message.id];
+
+      if (isEncrypt && receivingFile.aesKey) {
+        arrayBuffer = await decryptAesGcm(receivingFile.aesKey, arrayBuffer);
+      }
+
       receivingFiles[message.id].receivedChunks.push(arrayBuffer);
       receivingFiles[message.id].receivedSize += receivingSize;
 

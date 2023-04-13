@@ -15,6 +15,7 @@ export interface FileDetail {
   error?: Error;
   startTime: number;
   status: FileStatus;
+  aesKey?: CryptoKey;
 }
 
 export interface SendingFile extends FileDetail {
@@ -29,7 +30,7 @@ export interface ReceivingFile extends FileDetail {
 }
 
 export interface SendOptions {
-  encryptionEnabled: boolean;
+  isEncrypt: boolean;
   chunkSize: number;
 }
 

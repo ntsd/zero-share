@@ -26,7 +26,7 @@ export const githubLink = 'https://github.com/ntsd/zero-share';
 
 export const defaultSendOptions: SendOptions = {
   chunkSize: 16 * 1024,
-  encryptionEnabled: true
+  isEncrypt: false
 };
 
 export const defaultReceiveOptions: ReceiveOptions = {

@@ -17,9 +17,16 @@
   import SendingFileList from '../components/SendingFileList.svelte';
   import SenderOptions from '../components/SenderOptions.svelte';
   import { FileStatus, type SendOptions, type SendingFile } from '../type';
+  import {
+    encryptAesGcm,
+    encryptAesKeyWithRsaPublicKey,
+    generateAesKey,
+    importRsaPublicKeyFromBase64
+  } from '../utils/crypto';
 
   let sendOptions = defaultSendOptions;
   let isConnecting = false;
+  let rsaPub: CryptoKey;
 
   const connection = new RTCPeerConnection(rtcConfig);
 
@@ -63,7 +70,7 @@
         const sdp = connection.localDescription.sdp;
         offerLink = buildURL(location.href.split('?')[0], 'receive', {
           sdp: sdp,
-          e2e: sendOptions.encryptionEnabled ? '1' : '0'
+          e2e: sendOptions.isEncrypt ? '1' : '0'
         });
       }
     };
@@ -85,9 +92,15 @@
   }
 
   async function acceptAnswer() {
+    const [sdp, pubKeyB64] = answerSDP.split('|');
+
+    if (sendOptions.isEncrypt) {
+      rsaPub = await importRsaPublicKeyFromBase64(pubKeyB64);
+    }
+
     const remoteDesc: RTCSessionDescriptionInit = {
       type: 'answer',
-      sdp: decodeURIComponent(answerSDP)
+      sdp: decodeURIComponent(sdp)
     };
     await connection.setRemoteDescription(remoteDesc);
   }
@@ -145,7 +158,21 @@
       sendingFiles[key].status = FileStatus.Pending;
     });
 
-    function sendBuffer(buffer: ArrayBuffer) {
+    async function sendBuffer(buffer: ArrayBuffer) {
+      if (sendOptions.isEncrypt) {
+        const aesKey = sendingFiles[key].aesKey;
+        if (aesKey) {
+          const encrypted = await encryptAesGcm(aesKey, buffer);
+          dataChannel.send(
+            Message.encode({
+              id: sendingFile.metaData.name,
+              chunk: encrypted
+            }).finish()
+          );
+          return;
+        }
+      }
+
       dataChannel.send(
         Message.encode({
           id: sendingFile.metaData.name,
@@ -158,7 +185,7 @@
       const slice = sendingFile.file.slice(offset, offset + sendOptions.chunkSize);
       const buffer = await slice.arrayBuffer();
 
-      sendBuffer(buffer);
+      await sendBuffer(buffer);
 
       offset += buffer.byteLength;
 
@@ -212,11 +239,19 @@
   }
 
   function onFilesPick(files: FileList) {
-    Array.from(files).forEach((file) => {
+    Array.from(files).forEach(async (file) => {
+      let aesKey;
+      let aesEncrypted = new Uint8Array();
+      if (sendOptions.isEncrypt) {
+        aesKey = await generateAesKey();
+        aesEncrypted = await encryptAesKeyWithRsaPublicKey(rsaPub, aesKey);
+      }
+
       const fileMetaData: MetaData = {
         name: file.name,
         size: file.size,
-        type: file.type
+        type: file.type,
+        key: aesEncrypted
       };
       const validateErr = validateFileMetadata(fileMetaData);
       if (validateErr) {
@@ -231,7 +266,8 @@
         stop: false,
         error: validateErr,
         startTime: 0,
-        status: FileStatus.Pending
+        status: FileStatus.Pending,
+        aesKey: aesKey
       };
     });
   }

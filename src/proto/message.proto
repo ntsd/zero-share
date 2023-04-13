@@ -4,6 +4,7 @@ message MetaData {
     string name = 1;
     int32  size = 2;
     string type = 3;
+    bytes key = 4; // encrypted AES key
 }
 
 message Message {

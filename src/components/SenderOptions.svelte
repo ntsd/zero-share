@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { defaultSendOptions } from "../configs";
   import type { SendOptions } from "../type";
 
-  let encryptionEnabled = 'true';
-  let chunkSize: number = 16 * 1024;
+  let encryptionEnabled = defaultSendOptions.isEncrypt ? 'true' : 'false';
+  let chunkSize: number = defaultSendOptions.chunkSize;
 
   function getEncryptionEnabled(): boolean {
     return encryptionEnabled === 'true';
@@ -12,7 +13,7 @@
 
   function onChange() {
     onUpdate({
-      encryptionEnabled: getEncryptionEnabled(),
+      isEncrypt: getEncryptionEnabled(),
       chunkSize
     });
   }

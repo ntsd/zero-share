@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { defaultReceiveOptions, rtcConfig } from '../../configs';
+  import { defaultReceiveOptions, defaultSendOptions, stunServers } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { validateFileMetadata } from '../../utils/validator';
@@ -19,9 +19,10 @@
   } from '../../utils/crypto';
 
   let receiveOptions: ReceiveOptions = defaultReceiveOptions;
+  let iceServer = defaultSendOptions.iceServer;
   let answerSDP = '';
   let showAnswerCode = false;
-  let isEncrypt = false;
+  let isEncrypt = defaultSendOptions.isEncrypt;
   let rsa: CryptoKeyPair;
 
   const sdpEncoded = $page.url.searchParams.get('sdp');
@@ -35,7 +36,14 @@
     isEncrypt = e2eParam === '1' ? true : false;
   }
 
-  const connection = new RTCPeerConnection(rtcConfig);
+  const iceServerParam = $page.url.searchParams.get('ice');
+  if (iceServerParam) {
+    iceServer = iceServerParam;
+  }
+
+  const connection = new RTCPeerConnection({
+    iceServers: [{ urls: iceServer }]
+  });
   let isConnecting = false;
   let dataChannel: RTCDataChannel;
 
@@ -153,7 +161,6 @@
 
     if (message.chunk) {
       let arrayBuffer = message.chunk;
-      const receivingSize = arrayBuffer.byteLength;
 
       dataChannel.send(
         EventMessage.encode({
@@ -167,6 +174,7 @@
       if (isEncrypt && receivingFile.aesKey) {
         arrayBuffer = await decryptAesGcm(receivingFile.aesKey, arrayBuffer);
       }
+      const receivingSize = arrayBuffer.byteLength;
 
       receivingFiles[message.id].receivedChunks.push(arrayBuffer);
       receivingFiles[message.id].receivedSize += receivingSize;
@@ -182,7 +190,7 @@
           ((Date.now() - receivingFiles[message.id].startTime) / 1000)
       );
 
-      if (receivingFile.receivedSize >= receivingFile.metaData.size) {
+      if (receivingFiles[message.id].receivedSize >= receivingFile.metaData.size) {
         receivingFiles[message.id].status = FileStatus.Success;
         addToastMessage(`Received ${receivingFiles[message.id].metaData.name}`, 'success');
       }

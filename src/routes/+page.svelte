@@ -1,7 +1,7 @@
 <script lang="ts">
   import { buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
-  import { defaultSendOptions, rtcConfig } from '../configs';
+  import { defaultSendOptions } from '../configs';
   import Eye from '../components/Eye.svelte';
   import { validateFileMetadata } from '../utils/validator';
   import {
@@ -28,49 +28,55 @@
   let isConnecting = false;
   let rsaPub: CryptoKey;
 
-  const connection = new RTCPeerConnection(rtcConfig);
-
-  connection.onicecandidateerror = () => {
-    addToastMessage('Ice candidate error', 'error');
-  };
-
-  let dataChannel = connection.createDataChannel('data');
-  dataChannel.onopen = () => {
-    addToastMessage('Connected', 'success');
-    isConnecting = true;
-  };
-  dataChannel.onmessage = (ev) => {
-    handleMessage(ev);
-  };
-  dataChannel.onerror = () => {
-    addToastMessage('WebRTC error', 'error');
-    isConnecting = false;
-  };
-  dataChannel.onclose = () => {
-    addToastMessage('Disconnected', 'error');
-    isConnecting = false;
-  };
+  let connection: RTCPeerConnection;
+  let dataChannel: RTCDataChannel;
 
   let offerLink = '';
   let showOfferLink = false;
   let answerSDP = '';
 
-  function handleMessage(event: MessageEvent) {
-    const eventData = EventMessage.decode(new Uint8Array(event.data));
+  async function connectPeerAndCreateDataCannel() {
+    connection = new RTCPeerConnection({
+      iceServers: [{ urls: sendOptions.iceServer }]
+    });
 
-    const sendingFile = sendingFiles[eventData.id];
-    if (sendingFile && sendingFile.event) {
-      sendingFile.event.emit(receiverEventToJSON(eventData.event));
-    }
+    connection.onicecandidateerror = () => {
+      addToastMessage('Ice candidate error', 'error');
+    };
+
+    dataChannel = connection.createDataChannel('data');
+    dataChannel.onopen = () => {
+      addToastMessage('Connected', 'success');
+      isConnecting = true;
+    };
+    dataChannel.onmessage = (ev) => {
+      const eventData = EventMessage.decode(new Uint8Array(ev.data));
+
+      const sendingFile = sendingFiles[eventData.id];
+      if (sendingFile && sendingFile.event) {
+        sendingFile.event.emit(receiverEventToJSON(eventData.event));
+      }
+    };
+    dataChannel.onerror = () => {
+      addToastMessage('WebRTC error', 'error');
+      isConnecting = false;
+    };
+    dataChannel.onclose = () => {
+      addToastMessage('Disconnected', 'error');
+      isConnecting = false;
+    };
   }
 
   async function generateOfferLink() {
+    await connectPeerAndCreateDataCannel();
+
     connection.onicecandidate = (event) => {
       if (!event.candidate && connection.localDescription) {
         const sdp = connection.localDescription.sdp;
         offerLink = buildURL(location.href.split('?')[0], 'receive', {
           sdp: sdp,
-          e2e: sendOptions.isEncrypt ? '1' : '0'
+          e2e: sendOptions.isEncrypt ? '' : '0',
+          ice: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer
         });
       }
     };
@@ -285,7 +291,7 @@
   </div>
 </Collapse>
 
-<Collapse title="2. Accept Answer" isOpen={!isConnecting}>
+<Collapse title="2. Accept Answer" isOpen={offerLink !== '' && !isConnecting}>
   {#if offerLink}
     <p class="mt-2">Copy the offer link and send to the receiver to connect between peer.</p>
     <div class="relative mt-2">
@@ -300,8 +306,6 @@
       </button>
     </div>
     <button class="btn btn-primary mt-2" on:click={copyOfferLink}>Copy Link</button>
-  {/if}
-  {#if offerLink}
     <p>Enter the Session Description Protocol (SDP) from the receiver to accept the answer.</p>
     <div class="relative mt-2">
       <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />

@@ -32,6 +32,7 @@ export interface ReceivingFile extends FileDetail {
 export interface SendOptions {
   isEncrypt: boolean;
   chunkSize: number;
+  iceServer: string;
 }
 
 export interface ReceiveOptions {

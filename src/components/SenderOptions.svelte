@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { defaultSendOptions } from '../configs';
+  import { defaultSendOptions, stunServers } from '../configs';
   import type { SendOptions } from '../type';
+  import CustomSelect from './CustomSelect.svelte';
 
   let encryptionEnabled = defaultSendOptions.isEncrypt ? 'true' : 'false';
   let chunkSize: number = defaultSendOptions.chunkSize;
+  let iceServer: string = defaultSendOptions.iceServer;
 
   function getEncryptionEnabled(): boolean {
     return encryptionEnabled === 'true';
@@ -14,13 +16,14 @@
   function onChange() {
     onUpdate({
       isEncrypt: getEncryptionEnabled(),
-      chunkSize
+      chunkSize,
+      iceServer
     });
   }
 </script>
 
-<div class="grid grid-cols-1 gap-2 md:grid-cols-2">
-  <label class="label">
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">
+  <div class="label">
     <div>
       <span class="text-sm">Encryption</span>
       <p class="text-xs text-gray-500">
@@ -31,11 +34,11 @@
       <option value="true">On</option>
       <option value="false">Off</option>
     </select>
-  </label>
+  </div>
 
-  <label class="label">
+  <div class="label">
     <div>
-      <span class="text-sm">Chunk size</span>
+      <span class="text-sm">Chunk Size</span>
       <p class="text-xs text-gray-500">
         Higher will make the file transfer faster but might cause buffer issues.
       </p>
@@ -47,5 +50,16 @@
       <option value={64 * 1024}>64kb</option>
       <option value={128 * 1024}>128kb</option>
     </select>
-  </label>
+  </div>
+
+  <div class="label">
+    <div>
+      <span class="text-sm">ICE Server</span>
+      <p class="text-xs text-gray-500">Choose the STUN/TURN server for connection establishment.</p>
+    </div>
+  </div>
+
+  <div class="label">
+    <CustomSelect options={stunServers} customTextEnabled={true} value={iceServer} />
+  </div>
 </div>

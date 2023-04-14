@@ -91,3 +91,9 @@ We welcome contributions from the community! If you'd like to contribute to the 
 6. Create a Pull Request on the original repository, describing the changes you've made and the problem they solve.
 
 For feature requests, please open an issue on the GitHub repository to discuss your ideas with the maintainers.
+
+## Known Issues
+
+1. There is a high percent chance that your internet will block the Google public STUN server.
+
+I recommend to check with this website <https://icetest.info/>

@@ -13,12 +13,15 @@ A secure P2P file sharing using WebRTC without a server.
 
 ## Usage
 
-1. Sender generate offer link, copy the offer link, and send it to the Receiver (using messenger eg. Telegram, WhatsApp)
-2. Receiver open the offer link, copy the Answer code, and send it to the Sender
-3. Sender paste the Answer code to the input box and Accept Answer
-4. Sender can select files and send files to the Receiver
+1. The sender go to <https://zero-share.github.io/>
+2. The sender generate offer link, copy the offer link, and send it to the receiver
+3. The receiver open the offer link, copy the answer code, and send it to the sender
+4. The sender paste the answer code to the input box and accept answer
+5. The sender can now select files and send files to the receiver
 
-## How it works?
+[demo](https://user-images.githubusercontent.com/8283616/232250894-e86213e7-17e6-449d-be22-0307ca929745.webm)
+
+## How it works
 
 Alice want to send a file to Bob
 
@@ -94,6 +97,5 @@ For feature requests, please open an issue on the GitHub repository to discuss y
 
 ## Known Issues
 
-1. There is a high percent chance that your internet will block the Google public STUN server.
-
-I recommend to check with this website <https://icetest.info/>
+1. There is a high percent chance that your internet will block the Google public STUN server. I recommend to check with this website <https://icetest.info/>.
+2. Sometimes gets blocked by the firewall during sending files.

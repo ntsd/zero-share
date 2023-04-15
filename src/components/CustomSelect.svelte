@@ -39,7 +39,7 @@
 
   {#if customTextEnabled}
     <div>
-      <button class="btn" on:click={toggleCustomText}>
+      <button class="btn btn-secondary" on:click={toggleCustomText}>
         {editingCustomText ? 'Select' : 'Custom'}
       </button>
     </div>

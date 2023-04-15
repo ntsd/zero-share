@@ -3,14 +3,14 @@ import type { ReceiveOptions, SendOptions } from './type';
 export const stunServers: string[] = [
   'stun:stun.l.google.com:19302',
   'stun:stun.l.google.com:19305',
-  'stun:stun1.l.google.com:19302',
-  'stun:stun1.l.google.com:19305',
-  'stun:stun2.l.google.com:19302',
-  'stun:stun2.l.google.com:19305',
-  'stun:stun3.l.google.com:19302',
-  'stun:stun3.l.google.com:19305',
   'stun:stun4.l.google.com:19302',
-  'stun:stun4.l.google.com:19305'
+  'stun:stun4.l.google.com:19305',
+  'stun:stun.sipgate.net:3478',
+  'stun:stun.sipgate.net:10000',
+  'stun.nextcloud.com:3478',
+  'stun.nextcloud.com:443',
+  'stun:stun.myvoipapp.com:3478',
+  'stun:stun.voipstunt.com:3478'
 ];
 
 export const pageDescription = 'A secure P2P file sharing using WebRTC without a server.';

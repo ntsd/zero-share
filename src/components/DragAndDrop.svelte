@@ -57,7 +57,7 @@
   }
 </script>
 
-<div
+<label
   class="relative flex flex-col border border-gray-900 border-dashed cursor-pointer"
   bind:this={dropArea}
 >
@@ -90,4 +90,4 @@
     <p class="m-0 hidden xl:block">Drop your files or click to this area</p>
     <p class="m-0 xl:hidden">Click to this area</p>
   </div>
-</div>
+</label>

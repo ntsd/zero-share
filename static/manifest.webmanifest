@@ -1,6 +1,6 @@
 {
     "name": "Zero Share",
-    "short_name": "zero-share",
+    "short_name": "Zero Share",
     "description": "A secure P2P file sharing using WebRTC without a server",
     "start_url": "/",
     "display": "standalone",

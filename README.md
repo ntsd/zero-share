@@ -1,6 +1,6 @@
 # Zero share
 
-A secure P2P file sharing using WebRTC without a server.
+A secure P2P file sharing using WebRTC.
 
 ## Features
 

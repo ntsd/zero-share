@@ -3,9 +3,8 @@
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
-const sw = /** @type {ServiceWorkerGlobalScope} */ /** @type {unknown} */ self;
+declare const self: ServiceWorkerGlobalScope;
 
-/// <reference types="@sveltejs/kit" />
 import { build, files, version } from '$service-worker';
 
 // Create a unique cache name for this deployment
@@ -41,13 +40,16 @@ self.addEventListener('fetch', (event) => {
   // ignore POST requests etc
   if (event.request.method !== 'GET') return;
 
-  async function respond() {
+  async function respond(): Promise<Response> {
     const url = new URL(event.request.url);
     const cache = await caches.open(CACHE);
 
     // `build`/`files` can always be served from the cache
     if (ASSETS.includes(url.pathname)) {
-      return cache.match(event.request);
+      const response = await cache.match(event.request);
+      if (response) {
+        return response;
+      }
     }
 
     // for everything else, try the network first, but
@@ -61,7 +63,11 @@ self.addEventListener('fetch', (event) => {
 
       return response;
     } catch {
-      return cache.match(event.request);
+      const response = await cache.match(event.request);
+      if (response) {
+        return response;
+      }
+      return new Response('offline and no cache available');
     }
   }
 

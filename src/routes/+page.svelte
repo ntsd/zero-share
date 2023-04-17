@@ -23,6 +23,7 @@
     generateAesKey,
     importRsaPublicKeyFromBase64
   } from '../utils/crypto';
+  import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
 
   let sendOptions = defaultSendOptions;
   let isConnecting = false;
@@ -72,7 +73,7 @@
 
     connection.onicecandidate = (event) => {
       if (!event.candidate && connection.localDescription) {
-        const sdp = connection.localDescription.sdp;
+        const sdp = sdpEncode(connection.localDescription.sdp);
         offerLink = buildURL(location.href.split('?')[0], 'receive', {
           sdp: sdp,
           e2e: sendOptions.isEncrypt ? '' : '0',
@@ -106,7 +107,7 @@
 
     const remoteDesc: RTCSessionDescriptionInit = {
       type: 'answer',
-      sdp: decodeURIComponent(sdp)
+      sdp: sdpDecode(sdp, false)
     };
     await connection.setRemoteDescription(remoteDesc);
   }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { defaultReceiveOptions, defaultSendOptions, stunServers } from '../../configs';
+  import { defaultReceiveOptions, defaultSendOptions } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { validateFileMetadata } from '../../utils/validator';
@@ -17,6 +17,7 @@
     exportRsaPublicKeyToBase64,
     generateRsaKeyPair
   } from '../../utils/crypto';
+  import { sdpDecode, sdpEncode } from '../../utils/sdpEncode';
 
   let receiveOptions: ReceiveOptions = defaultReceiveOptions;
   let iceServer = defaultSendOptions.iceServer;
@@ -68,7 +69,7 @@
   };
 
   async function setOfferSDP(sdpEncoded: string) {
-    const sdpDecoded = decodeURIComponent(sdpEncoded);
+    const sdpDecoded = sdpDecode(sdpEncoded, true);
     const sessionDesc: RTCSessionDescriptionInit = {
       type: 'offer',
       sdp: sdpDecoded
@@ -96,7 +97,7 @@
 
     connection.onicecandidate = (event) => {
       if (!event.candidate && connection.localDescription) {
-        answerSDP = encodeURIComponent(connection.localDescription.sdp) + '|' + publicKeyBase64;
+        answerSDP = sdpEncode(connection.localDescription.sdp) + '|' + publicKeyBase64;
       }
     };
 

@@ -24,6 +24,7 @@
     importRsaPublicKeyFromBase64
   } from '../utils/crypto';
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
+  import Spinner from '../components/Spinner.svelte';
 
   let sendOptions = defaultSendOptions;
   let isConnecting = false;
@@ -32,6 +33,7 @@
   let connection: RTCPeerConnection;
   let dataChannel: RTCDataChannel;
 
+  let generating = false;
   let offerLink = '';
   let showOfferLink = false;
   let answerSDP = '';
@@ -69,6 +71,7 @@
   }
 
   async function generateOfferLink() {
+    generating = true;
     await connectPeerAndCreateDataCannel();
 
     connection.onicecandidate = (event) => {
@@ -79,6 +82,7 @@
           e2e: sendOptions.isEncrypt ? '' : '0',
           ice: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer
         });
+        generating = false;
       }
     };
 
@@ -285,11 +289,18 @@
 </script>
 
 <Collapse title="1. Generate Offer" isOpen={!offerLink}>
-  <p>Generate local SDP and build the offer link to connect with the peer.</p>
-  <div class="mt-2">
-    <SenderOptions onUpdate={onOptionsUpdate} />
-    <button class="btn btn-primary mt-2" on:click={generateOfferLink}>Generate Offer</button>
-  </div>
+  {#if generating}
+    <div class="flex flex-col items-center justify-center gap-2">
+      <Spinner />
+      <div>Generating Offer</div>
+    </div>
+  {:else}
+    <p>Generate local SDP and build the offer link to connect with the peer.</p>
+    <div class="mt-2">
+      <SenderOptions onUpdate={onOptionsUpdate} />
+      <button class="btn btn-primary mt-2" on:click={generateOfferLink}>Generate Offer</button>
+    </div>
+  {/if}
 </Collapse>
 
 <Collapse title="2. Accept Answer" isOpen={offerLink !== '' && !isConnecting}>

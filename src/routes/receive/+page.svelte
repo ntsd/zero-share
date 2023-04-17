@@ -18,6 +18,7 @@
     generateRsaKeyPair
   } from '../../utils/crypto';
   import { sdpDecode, sdpEncode } from '../../utils/sdpEncode';
+  import Spinner from '../../components/Spinner.svelte';
 
   let receiveOptions: ReceiveOptions = defaultReceiveOptions;
   let iceServer = defaultSendOptions.iceServer;
@@ -308,6 +309,11 @@
       </button>
     </div>
     <button class="btn btn-primary mt-2" on:click={copyAnswerCode}>Copy Answer</button>
+  {:else}
+    <div class="flex flex-col items-center justify-center gap-2">
+      <Spinner />
+      <div>Generating Answer</div>
+    </div>
   {/if}
 </Collapse>
 <Collapse title="2. Receiving Files" isOpen={isConnecting}>

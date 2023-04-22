@@ -26,10 +26,8 @@
 
 <div class="flex flex-col h-screen">
   <Navbar />
-  <div class="flex-grow">
-    <div class="container mx-auto justify-items-center">
-      <slot />
-    </div>
+  <div class="flex-grow container mx-auto justify-items-center">
+    <slot />
   </div>
   <Footer />
 </div>

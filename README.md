@@ -6,7 +6,7 @@ A secure P2P file sharing using WebRTC.
 
 - Generate SDP connection for WebRTC data channel
 - Send multiple files peer to peer using WebRTC
-- Encrypt option for secure file
+- PGP Encryption
 - Responsive UI
 - Open-source license
 - Zero server side (only use public STUN servers)

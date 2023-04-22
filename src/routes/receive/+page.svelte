@@ -5,7 +5,7 @@
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { validateFileMetadata } from '../../utils/validator';
-  import { Message, EventMessage, ReceiverEvent } from '../../proto/message';
+  import { Message, ReceiveEvent } from '../../proto/message';
   import Collapse from '../../components/Collapse.svelte';
   import ReceivingFileList from '../../components/ReceivingFileList.svelte';
   import * as zip from '@zip.js/zip.js';
@@ -135,9 +135,9 @@
         addToastMessage(`${message.metaData.name} ${validateErr.message}`, 'error');
 
         dataChannel.send(
-          EventMessage.encode({
+          Message.encode({
             id: message.id,
-            event: ReceiverEvent.EVENT_VALIDATE_ERROR
+            receiveEvent: ReceiveEvent.EVENT_VALIDATE_ERROR
           }).finish()
         );
 
@@ -148,9 +148,9 @@
 
       if (receiveOptions.autoAccept) {
         dataChannel.send(
-          EventMessage.encode({
+          Message.encode({
             id: message.id,
-            event: ReceiverEvent.EVENT_RECEIVER_ACCEPT
+            receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT
           }).finish()
         );
 
@@ -165,9 +165,9 @@
       let arrayBuffer = message.chunk;
 
       dataChannel.send(
-        EventMessage.encode({
+        Message.encode({
           id: message.id,
-          event: ReceiverEvent.EVENT_RECEIVED_CHUNK
+          receiveEvent: ReceiveEvent.EVENT_RECEIVED_CHUNK
         }).finish()
       );
 
@@ -202,9 +202,9 @@
   function onRemove(key: string) {
     if (receivingFiles[key].status != FileStatus.Success) {
       dataChannel.send(
-        EventMessage.encode({
+        Message.encode({
           id: key,
-          event: ReceiverEvent.EVENT_RECEIVER_REJECT
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
         }).finish()
       );
     }
@@ -227,9 +227,9 @@
 
   function onAccept(key: string) {
     dataChannel.send(
-      EventMessage.encode({
+      Message.encode({
         id: key,
-        event: ReceiverEvent.EVENT_RECEIVER_ACCEPT
+        receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT
       }).finish()
     );
 
@@ -239,9 +239,9 @@
 
   function onDeny(key: string) {
     dataChannel.send(
-      EventMessage.encode({
+      Message.encode({
         id: key,
-        event: ReceiverEvent.EVENT_RECEIVER_REJECT
+        receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
       }).finish()
     );
     delete receivingFiles[key];

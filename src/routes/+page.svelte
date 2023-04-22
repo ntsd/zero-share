@@ -4,13 +4,7 @@
   import { defaultSendOptions } from '../configs';
   import Eye from '../components/Eye.svelte';
   import { validateFileMetadata } from '../utils/validator';
-  import {
-    Message,
-    MetaData,
-    EventMessage,
-    ReceiverEvent,
-    receiverEventToJSON
-  } from '../proto/message';
+  import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../proto/message';
   import DragAndDrop from '../components/DragAndDrop.svelte';
   import EventEmitter from 'eventemitter3';
   import Collapse from '../components/Collapse.svelte';
@@ -53,11 +47,13 @@
       isConnecting = true;
     };
     dataChannel.onmessage = (ev) => {
-      const eventData = EventMessage.decode(new Uint8Array(ev.data));
+      const message = Message.decode(new Uint8Array(ev.data));
 
-      const sendingFile = sendingFiles[eventData.id];
-      if (sendingFile && sendingFile.event) {
-        sendingFile.event.emit(receiverEventToJSON(eventData.event));
+      if (message.receiveEvent) {
+        const sendingFile = sendingFiles[message.id];
+        if (sendingFile && sendingFile.event) {
+          sendingFile.event.emit(receiveEventToJSON(message.receiveEvent));
+        }
       }
     };
     dataChannel.onerror = () => {
@@ -127,43 +123,40 @@
     sendingFiles[key].event = new EventEmitter();
 
     sendingFiles[key].event?.on(
-      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_ACCEPT),
+      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT),
       async () => {
         sendingFiles[key].status = FileStatus.Processing;
         sendingFiles[key].startTime = Date.now();
         await sendNextChunk();
       }
     );
-    sendingFiles[key].event?.on(
-      receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_CHUNK),
-      async () => {
-        if (sendingFiles[key].stop) {
-          return;
-        }
-        if (sendingFiles[key].error || sendingFiles[key].status != FileStatus.Processing) {
-          sendingFiles[key].progress = 0;
-          sendingFiles[key].status = FileStatus.Pending;
-          sendingFiles[key].stop = false;
-          return;
-        }
-
-        if (offset < sendingFile.metaData.size) {
-          await sendNextChunk();
-          return;
-        }
-
-        sendingFiles[key].status = FileStatus.Success;
-        addToastMessage(`File ${sendingFile.metaData.name} sent successfully`, 'success');
+    sendingFiles[key].event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK), async () => {
+      if (sendingFiles[key].stop) {
+        return;
       }
-    );
+      if (sendingFiles[key].error || sendingFiles[key].status != FileStatus.Processing) {
+        sendingFiles[key].progress = 0;
+        sendingFiles[key].status = FileStatus.Pending;
+        sendingFiles[key].stop = false;
+        return;
+      }
 
-    sendingFiles[key].event?.on(receiverEventToJSON(ReceiverEvent.EVENT_VALIDATE_ERROR), () => {
+      if (offset < sendingFile.metaData.size) {
+        await sendNextChunk();
+        return;
+      }
+
+      sendingFiles[key].status = FileStatus.Success;
+      addToastMessage(`File ${sendingFile.metaData.name} sent successfully`, 'success');
+    });
+
+    sendingFiles[key].event?.on(receiveEventToJSON(ReceiveEvent.EVENT_VALIDATE_ERROR), () => {
       addToastMessage('Receiver validate error', 'error');
       sendingFiles[key].error = new Error('Receiver validate error');
       sendingFiles[key].status = FileStatus.Pending;
     });
 
-    sendingFiles[key].event?.on(receiverEventToJSON(ReceiverEvent.EVENT_RECEIVER_REJECT), () => {
+    sendingFiles[key].event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_REJECT), () => {
       addToastMessage('Receiver reject the file', 'error');
       sendingFiles[key].error = new Error('Receiver reject the file');
       sendingFiles[key].status = FileStatus.Pending;
@@ -236,7 +229,7 @@
 
   async function onContinue(key: string) {
     sendingFiles[key].stop = false;
-    sendingFiles[key].event?.emit(receiverEventToJSON(ReceiverEvent.EVENT_RECEIVED_CHUNK));
+    sendingFiles[key].event?.emit(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK));
   }
 
   let sendingFiles: { [key: string]: SendingFile } = {};

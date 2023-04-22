@@ -7,18 +7,7 @@ message MetaData {
     bytes key = 4; // encrypted AES key
 }
 
-message Message {
-    // file id
-    string id = 1;
-    oneof data {
-        // use for sender to send file metadata
-        MetaData metaData = 2; 
-        // use for sender to send file chunk
-        bytes chunk = 3;
-    }
-}
-
-enum ReceiverEvent {
+enum ReceiveEvent {
     // event when the reveiver got metadata and accept
     EVENT_RECEIVER_ACCEPT = 0;
     // event when the reveiver rejected the file
@@ -29,10 +18,14 @@ enum ReceiverEvent {
     EVENT_VALIDATE_ERROR = 3;
 }
 
-// use for receiver to send back event
-message EventMessage {
-    // file id
-    string id = 1; 
-    // event
-    ReceiverEvent event = 2;
+message Message {
+    string id = 1; // file id
+    oneof data {
+        // use for sender to send file metadata
+        MetaData metaData = 2; 
+        // use for sender to send file chunk
+        bytes chunk = 3;
+        // respone event to tell the sender status
+        ReceiveEvent receiveEvent = 4;
+    }
 }

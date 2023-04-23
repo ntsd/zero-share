@@ -22,8 +22,8 @@
   }
 </script>
 
-<div class="grid grid-cols-1 xl:grid-cols-2 gap-2">
-  <div class="label">
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+  <div class="flex flex-row justify-between items-center">
     <div>
       <span class="text-sm">Encryption</span>
       <p class="text-xs text-gray-500">
@@ -36,7 +36,7 @@
     </select>
   </div>
 
-  <div class="label">
+  <div class="flex flex-row justify-between items-center">
     <div>
       <span class="text-sm">Chunk Size</span>
       <p class="text-xs text-gray-500">
@@ -52,14 +52,14 @@
     </select>
   </div>
 
-  <div class="label">
+  <div class="flex flex-row justify-between items-center">
     <div>
       <span class="text-sm">ICE Server</span>
       <p class="text-xs text-gray-500">Choose the STUN/TURN server for connection establishment.</p>
     </div>
   </div>
 
-  <div class="label">
+  <div class="flex flex-row justify-between items-center">
     <CustomSelect options={stunServers} customTextEnabled={true} value={iceServer} />
   </div>
 </div>

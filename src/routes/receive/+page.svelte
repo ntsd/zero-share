@@ -8,18 +8,30 @@
   import Collapse from '../../components/Collapse.svelte';
   import {
     exportRsaPublicKeyToBase64,
-    generateRsaKeyPair
+    generateRsaKeyPair,
+    importRsaPublicKeyFromBase64
   } from '../../utils/crypto';
   import { sdpDecode, sdpEncode } from '../../utils/sdpEncode';
   import Spinner from '../../components/Spinner.svelte';
   import Receiver from '../../components/Receiver.svelte';
+  import Sender from '../../components/Sender.svelte';
 
+  // options
+  let isEncrypt = defaultSendOptions.isEncrypt;
+  let chunkSize = defaultSendOptions.chunkSize;
+  let rsa: CryptoKeyPair; // private key
+  let rsaPub: CryptoKey; // public key from other peer
+
+  // webRTC
   let iceServer = defaultSendOptions.iceServer;
   let answerSDP = '';
   let showAnswerCode = false;
-  let isEncrypt = defaultSendOptions.isEncrypt;
-  let rsa: CryptoKeyPair;
+
+  // components
   let receiver: Receiver;
+  let sender: Sender;
+  let sendMode = true;
+  let showNewFile = false;
 
   // get url parameters
   const sdpEncoded = $page.url.searchParams.get('sdp');
@@ -27,13 +39,22 @@
     goto('/');
     throw new Error('no sdp found');
   }
-  const e2eParam = $page.url.searchParams.get('e2e');
-  if (e2eParam) {
-    isEncrypt = e2eParam === '1' ? true : false;
-  }
   const iceServerParam = $page.url.searchParams.get('ice');
   if (iceServerParam) {
     iceServer = iceServerParam;
+  }
+  const chunkSizeParam = $page.url.searchParams.get('cs');
+  if (chunkSizeParam) {
+    chunkSize = parseInt(chunkSizeParam);
+  }
+  const pubKeyParam = $page.url.searchParams.get('pub');
+  if (pubKeyParam) {
+    isEncrypt = true;
+    importRsaPublicKeyFromBase64(pubKeyParam).then((pub) => {
+      rsaPub = pub;
+    });
+  } else {
+    isEncrypt = false;
   }
 
   const connection = new RTCPeerConnection({
@@ -54,8 +75,11 @@
 
       if (message.metaData !== undefined) {
         receiver.onMetaData(message.id, message.metaData);
+        showNewFile = true;
       } else if (message.chunk !== undefined) {
         receiver.onChunkData(message.id, message.chunk);
+      } else if (message.receiveEvent !== undefined) {
+        sender.onReceiveEvent(message.id, message.receiveEvent);
       }
     };
     dataChannel.onerror = () => {
@@ -113,14 +137,13 @@
         value={answerSDP}
         readonly
       />
-      <button
-        class="absolute top-2 right-2 p-2"
-        on:click={() => {
-          showAnswerCode = !showAnswerCode;
-        }}
-      >
-        <Eye show={showAnswerCode} />
-      </button>
+      <div class="absolute top-0 right-0 p-1">
+        <Eye
+          onChange={(show) => {
+            showAnswerCode = show;
+          }}
+        />
+      </div>
     </div>
     <button class="btn btn-primary mt-2" on:click={copyAnswerCode}>Copy Answer</button>
   {:else}
@@ -130,6 +153,36 @@
     </div>
   {/if}
 </Collapse>
-<Collapse title="2. Receiving Files" isOpen={isConnecting}>
-  <Receiver bind:this={receiver} {dataChannel} {isEncrypt} {rsa} />
+<Collapse title="2. Transfer Files" isOpen={isConnecting}>
+  <div class="flex w-full mb-4 mt-2">
+    <button
+      class="btn {sendMode ? 'btn-primary' : 'btn-ghost'} flex-grow border-black border-dotted"
+      on:click={() => {
+        sendMode = true;
+      }}
+    >
+      <span class="btm-nav-label">Send</span>
+    </button>
+    <div class="indicator flex-grow">
+      <span
+        class="indicator-item badge badge-accent animate-bounce {showNewFile ? 'block' : 'hidden'}"
+        >New files</span
+      >
+      <button
+        class="btn {sendMode ? 'btn-ghost' : 'btn-primary'} w-full border-black border-dotted"
+        on:click={() => {
+          showNewFile = false;
+          sendMode = false;
+        }}
+      >
+        <span class="btm-nav-label">Receive</span>
+      </button>
+    </div>
+  </div>
+  <div hidden={!sendMode}>
+    <Sender bind:this={sender} {dataChannel} {rsaPub} {isEncrypt} {chunkSize} />
+  </div>
+  <div hidden={sendMode}>
+    <Receiver bind:this={receiver} {dataChannel} {isEncrypt} {rsa} />
+  </div>
 </Collapse>

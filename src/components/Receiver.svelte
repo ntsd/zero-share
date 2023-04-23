@@ -193,14 +193,14 @@
   }
 </script>
 
-<ReceiverOptions onUpdate={onOptionsUpdate} />
-<div class="grid gap-4 mt-2">
+<div class="grid gap-4">
+  <ReceiverOptions onUpdate={onOptionsUpdate} />
   {#if Object.keys(receivingFiles).length > 0}
     <ReceivingFileList {receivingFiles} {onRemove} {onDownload} {onAccept} {onDeny} />
     <button class="btn btn-primary mt-2" on:click={downloadAllFiles}
       >Download all files (zip)</button
     >
   {:else}
-    <p>Connecting, waiting for files...</p>
+    <p class="mt-4">Waiting for files...</p>
   {/if}
 </div>

@@ -6,25 +6,36 @@
   import { Message } from '../proto/message';
   import Collapse from '../components/Collapse.svelte';
   import SenderOptions from '../components/SenderOptions.svelte';
-  import { importRsaPublicKeyFromBase64 } from '../utils/crypto';
+  import {
+    exportRsaPublicKeyToBase64,
+    generateRsaKeyPair,
+    importRsaPublicKeyFromBase64
+  } from '../utils/crypto';
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
   import Spinner from '../components/Spinner.svelte';
   import type { SendOptions } from '../type';
   import Sender from '../components/Sender.svelte';
+  import Receiver from '../components/Receiver.svelte';
 
+  // options
   let sendOptions = defaultSendOptions;
-  let isConnecting = false;
-  let rsaPub: CryptoKey;
+  let rsa: CryptoKeyPair; // private key
+  let rsaPub: CryptoKey; // public key from other peer
 
+  // webRTC
   let connection: RTCPeerConnection;
   let dataChannel: RTCDataChannel;
-
+  let isConnecting = false;
   let generating = false;
   let offerLink = '';
   let showOfferLink = false;
   let answerSDP = '';
 
+  // components
+  let receiver: Receiver;
   let sender: Sender;
+  let sendMode = true;
+  let showNewFile = false;
 
   async function connectPeerAndCreateDataCannel() {
     connection = new RTCPeerConnection({
@@ -40,10 +51,15 @@
       addToastMessage('Connected', 'success');
       isConnecting = true;
     };
-    dataChannel.onmessage = (ev) => {
-      const message = Message.decode(new Uint8Array(ev.data));
+    dataChannel.onmessage = (event) => {
+      const message = Message.decode(new Uint8Array(event.data));
 
-      if (message.receiveEvent !== undefined) {
+      if (message.metaData !== undefined) {
+        receiver.onMetaData(message.id, message.metaData);
+        showNewFile = true;
+      } else if (message.chunk !== undefined) {
+        receiver.onChunkData(message.id, message.chunk);
+      } else if (message.receiveEvent !== undefined) {
         sender.onReceiveEvent(message.id, message.receiveEvent);
       }
     };
@@ -61,13 +77,23 @@
     generating = true;
     await connectPeerAndCreateDataCannel();
 
-    connection.onicecandidate = (event) => {
+    connection.onicecandidate = async (event) => {
       if (!event.candidate && connection.localDescription) {
+        let publicKeyBase64 = '';
+        if (sendOptions.isEncrypt) {
+          rsa = await generateRsaKeyPair();
+          publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
+        }
+
         const sdp = sdpEncode(connection.localDescription.sdp);
         offerLink = buildURL(location.href.split('?')[0], 'receive', {
           sdp: sdp,
-          e2e: sendOptions.isEncrypt ? '' : '0',
-          ice: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer
+          ice: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
+          cs:
+            defaultSendOptions.chunkSize === sendOptions.chunkSize
+              ? ''
+              : sendOptions.chunkSize.toString(),
+          pub: publicKeyBase64
         });
         generating = false;
       }
@@ -112,9 +138,9 @@
     </div>
   {:else}
     <p>Generate local SDP and build the offer link to connect with the peer.</p>
-    <div class="mt-2">
+    <div class="mt-4">
       <SenderOptions onUpdate={onOptionsUpdate} />
-      <button class="btn btn-primary mt-2" on:click={generateOfferLink}>Generate Offer</button>
+      <button class="btn btn-primary mt-4" on:click={generateOfferLink}>Generate Offer</button>
     </div>
   {/if}
 </Collapse>
@@ -129,17 +155,18 @@
         value={offerLink}
         readonly
       />
-      <button
-        class="absolute top-2 right-2 p-2"
-        on:click={() => {
-          showOfferLink = !showOfferLink;
-        }}
-      >
-        <Eye show={showOfferLink} />
-      </button>
+      <div class="absolute top-0 right-0 p-1">
+        <Eye
+          onChange={(show) => {
+            showOfferLink = show;
+          }}
+        />
+      </div>
     </div>
     <button class="btn btn-primary mt-2" on:click={copyOfferLink}>Copy Link</button>
-    <p>Enter the Session Description Protocol (SDP) from the receiver to accept the answer.</p>
+    <p class="mt-2">
+      Enter the Session Description Protocol (SDP) from the receiver to accept the answer.
+    </p>
     <div class="relative mt-2">
       <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
     </div>
@@ -147,6 +174,42 @@
   {/if}
 </Collapse>
 
-<Collapse title="3. Send Files" isOpen={isConnecting}>
-  <Sender bind:this={sender} {dataChannel} {rsaPub} {sendOptions} />
+<Collapse title="3. Transfer Files" isOpen={isConnecting}>
+  <div class="flex w-full mb-4 mt-2">
+    <button
+      class="btn {sendMode ? 'btn-primary' : 'btn-ghost'} flex-grow border-black border-dotted"
+      on:click={() => {
+        sendMode = true;
+      }}
+    >
+      <span class="btm-nav-label">Send</span>
+    </button>
+    <div class="indicator flex-grow">
+      <span
+        class="indicator-item badge badge-accent animate-bounce {showNewFile ? 'block' : 'hidden'}"
+        >New files</span
+      >
+      <button
+        class="btn {sendMode ? 'btn-ghost' : 'btn-primary'} w-full border-black border-dotted"
+        on:click={() => {
+          showNewFile = false;
+          sendMode = false;
+        }}
+      >
+        <span class="btm-nav-label">Receive</span>
+      </button>
+    </div>
+  </div>
+  <div hidden={!sendMode}>
+    <Sender
+      bind:this={sender}
+      {dataChannel}
+      {rsaPub}
+      isEncrypt={sendOptions.isEncrypt}
+      chunkSize={sendOptions.chunkSize}
+    />
+  </div>
+  <div hidden={sendMode}>
+    <Receiver bind:this={receiver} {dataChannel} isEncrypt={sendOptions.isEncrypt} {rsa} />
+  </div>
 </Collapse>

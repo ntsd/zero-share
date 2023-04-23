@@ -9,7 +9,8 @@
   import { addToastMessage } from '../stores/toastStore';
 
   export let dataChannel: RTCDataChannel;
-  export let sendOptions: SendOptions;
+  export let chunkSize: number;
+  export let isEncrypt: boolean;
   export let rsaPub: CryptoKey;
 
   let sendingFiles: { [key: string]: SendingFile } = {};
@@ -72,7 +73,7 @@
     });
 
     async function sendBuffer(buffer: ArrayBuffer) {
-      if (sendOptions.isEncrypt) {
+      if (isEncrypt) {
         const aesKey = sendingFiles[key].aesKey;
         if (aesKey) {
           const encrypted = await encryptAesGcm(aesKey, buffer);
@@ -95,7 +96,7 @@
     }
 
     async function sendNextChunk() {
-      const slice = sendingFile.file.slice(offset, offset + sendOptions.chunkSize);
+      const slice = sendingFile.file.slice(offset, offset + chunkSize);
       const buffer = await slice.arrayBuffer();
 
       await sendBuffer(buffer);
@@ -153,7 +154,7 @@
     Array.from(files).forEach(async (file) => {
       let aesKey;
       let aesEncrypted = new Uint8Array();
-      if (sendOptions.isEncrypt) {
+      if (isEncrypt) {
         aesKey = await generateAesKey();
         aesEncrypted = await encryptAesKeyWithRsaPublicKey(rsaPub, aesKey);
       }

@@ -16,6 +16,10 @@
   import type { SendOptions } from '../type';
   import Sender from '../components/Sender.svelte';
   import Receiver from '../components/Receiver.svelte';
+  import ClipboardIcon from '../components/ClipboardIcon.svelte';
+  import QrModal from '../components/QrModal.svelte';
+  import ScanQrModal from '../components/ScanQrModal.svelte';
+  import { ErrorCorrectionLevel } from '@nuintun/qrcode';
 
   // options
   let sendOptions = defaultSendOptions;
@@ -147,8 +151,8 @@
 
 <Collapse title="2. Accept Answer" isOpen={offerLink !== '' && !isConnecting}>
   {#if offerLink}
-    <p class="mt-2">Copy the offer link and send to the receiver to connect between peer.</p>
-    <div class="relative mt-2">
+    <p class="">Copy the offer link and send to the receiver to connect between peer.</p>
+    <div class="mt-2 relative">
       <input
         type={showOfferLink ? 'text' : 'password'}
         class="input input-bordered w-full"
@@ -163,14 +167,27 @@
         />
       </div>
     </div>
-    <button class="btn btn-primary mt-2" on:click={copyOfferLink}>Copy Link</button>
-    <p class="mt-2">
+    <div class="mt-4 flex gap-2">
+      <button class="btn btn-primary gap-2" on:click={copyOfferLink}>
+        <ClipboardIcon />Copy Link
+      </button>
+      <QrModal qrValue={offerLink} title="Offer QR Code" correctionLevel={ErrorCorrectionLevel.M} />
+    </div>
+    <p class="mt-4">
       Enter the Session Description Protocol (SDP) from the receiver to accept the answer.
     </p>
-    <div class="relative mt-2">
+    <div class="relative mt-4">
       <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
     </div>
-    <button class="btn btn-primary mt-2" on:click={acceptAnswer}>Accept Answer</button>
+    <div class="mt-4 flex gap-2">
+      <button class="btn btn-primary" on:click={acceptAnswer}>Accept Answer</button>
+      <ScanQrModal
+        onScanSuccess={(data) => {
+          answerSDP = data;
+          acceptAnswer();
+        }}
+      />
+    </div>
   {/if}
 </Collapse>
 

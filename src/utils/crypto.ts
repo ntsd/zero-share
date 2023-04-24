@@ -2,8 +2,8 @@
 export async function generateRsaKeyPair(): Promise<CryptoKeyPair> {
   const keyGenParams: RsaHashedKeyGenParams = {
     name: 'RSA-OAEP',
-    modulusLength: 2048,
-    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+    modulusLength: 1024,
+    publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // The most commonly used public exponent is 65537
     hash: 'SHA-256'
   };
 
@@ -15,7 +15,7 @@ export async function generateRsaKeyPair(): Promise<CryptoKeyPair> {
 export async function generateAesKey(): Promise<CryptoKey> {
   const keyGenParams: AesKeyGenParams = {
     name: 'AES-GCM',
-    length: 256
+    length: 128
   };
 
   const key = await crypto.subtle.generateKey(keyGenParams, true, ['encrypt', 'decrypt']);

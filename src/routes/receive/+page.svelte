@@ -15,6 +15,8 @@
   import Spinner from '../../components/Spinner.svelte';
   import Receiver from '../../components/Receiver.svelte';
   import Sender from '../../components/Sender.svelte';
+  import ClipboardIcon from '../../components/ClipboardIcon.svelte';
+  import QrModal from '../../components/QrModal.svelte';
 
   // options
   let isEncrypt = defaultSendOptions.isEncrypt;
@@ -32,6 +34,7 @@
   let sender: Sender;
   let sendMode = true;
   let showNewFile = false;
+  let qrModal: QrModal;
 
   // get url parameters
   const sdpEncoded = $page.url.searchParams.get('sdp');
@@ -69,6 +72,7 @@
     dataChannel.onopen = () => {
       addToastMessage('Connected', 'success');
       isConnecting = true;
+      qrModal.close();
     };
     dataChannel.onmessage = (event) => {
       const message = Message.decode(new Uint8Array(event.data));
@@ -145,7 +149,12 @@
         />
       </div>
     </div>
-    <button class="btn btn-primary mt-2" on:click={copyAnswerCode}>Copy Answer</button>
+    <div class="mt-2 flex gap-2">
+      <button class="btn btn-primary gap-2" on:click={copyAnswerCode}>
+        <ClipboardIcon />Copy Answer
+      </button>
+      <QrModal bind:this={qrModal} qrValue={answerSDP} title="Answer QR Code" />
+    </div>
   {:else}
     <div class="flex flex-col items-center justify-center gap-2">
       <Spinner />

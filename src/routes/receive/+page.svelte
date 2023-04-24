@@ -34,6 +34,7 @@
   let sender: Sender;
   let sendMode = true;
   let showNewFile = false;
+  let qrModal: QrModal;
 
   // get url parameters
   const sdpEncoded = $page.url.searchParams.get('sdp');
@@ -71,6 +72,7 @@
     dataChannel.onopen = () => {
       addToastMessage('Connected', 'success');
       isConnecting = true;
+      qrModal.close();
     };
     dataChannel.onmessage = (event) => {
       const message = Message.decode(new Uint8Array(event.data));
@@ -151,7 +153,7 @@
       <button class="btn btn-primary gap-2" on:click={copyAnswerCode}>
         <ClipboardIcon />Copy Answer
       </button>
-      <QrModal qrValue={answerSDP} title="Answer QR Code" />
+      <QrModal bind:this={qrModal} qrValue={answerSDP} title="Answer QR Code" />
     </div>
   {:else}
     <div class="flex flex-col items-center justify-center gap-2">

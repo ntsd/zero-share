@@ -66,6 +66,6 @@
     for=""
   >
     <h3 class="text-lg font-bold">Scan QR Code</h3>
-    <reader class="w-96 h-auto" id="reader" />
+    <reader class="w-96 max-w-full h-auto" id="reader" />
   </label>
 </label>

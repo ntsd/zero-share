@@ -4,6 +4,7 @@
 
   export let title: string;
   export let qrValue: string;
+  export let correctionLevel: ErrorCorrectionLevel = ErrorCorrectionLevel.L;
   export function close() {
     isModalOpen = false;
   }
@@ -12,12 +13,26 @@
   let qrcode: Encoder;
 
   function genQR() {
-    qrcode = new Encoder();
-    
-    qrcode.setEncodingHint(true);
-    qrcode.setErrorCorrectionLevel(ErrorCorrectionLevel.H);
+    qrcode = new Encoder({
+      encodingHint: true,
+      errorCorrectionLevel: correctionLevel,
+      version: 0 // 0 for automatic version
+    });
 
-    qrcode.write(new QRByte(qrValue));
+    qrcode.write(
+      new QRByte(qrValue, (data: string) => {
+        // The encoding value must a valid ECI value
+        // Custom ECI only support QRByte mode
+        // https://github.com/zxing/zxing/blob/master/core/src/main/java/com/google/zxing/common/CharacterSetECI.java
+        const bytes = data.split('').map((char) => char.charCodeAt(0));
+
+        return {
+          bytes: bytes,
+          encoding: 27 // 27 is US-ASCII
+        };
+      })
+    );
+
     qrcode.make();
   }
 

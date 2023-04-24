@@ -19,6 +19,7 @@
   import ClipboardIcon from '../components/ClipboardIcon.svelte';
   import QrModal from '../components/QrModal.svelte';
   import ScanQrModal from '../components/ScanQrModal.svelte';
+  import { ErrorCorrectionLevel } from '@nuintun/qrcode';
 
   // options
   let sendOptions = defaultSendOptions;
@@ -170,7 +171,7 @@
       <button class="btn btn-primary gap-2" on:click={copyOfferLink}>
         <ClipboardIcon />Copy Link
       </button>
-      <QrModal qrValue={offerLink} title="Offer QR Code" />
+      <QrModal qrValue={offerLink} title="Offer QR Code" correctionLevel={ErrorCorrectionLevel.M} />
     </div>
     <p class="mt-4">
       Enter the Session Description Protocol (SDP) from the receiver to accept the answer.

@@ -42,7 +42,7 @@ sequenceDiagram
     Bob-->>Bob: decrypt the file
 ```
 
-encryption: PGP (RSA-OAEP-2048, AES-256)
+encryption: PGP (RSA-OAEP-1024, AES-128)
 
 ## Development
 

@@ -4,7 +4,7 @@
   import Navbar from '../components/Navbar.svelte';
 
   import Toast from '../components/Toast.svelte';
-  import { githubLink, pageDescription } from '../configs';
+  import { pageDescription } from '../configs';
 
   if ('serviceWorker' in navigator) {
     addEventListener('load', function () {
@@ -29,13 +29,7 @@
   <div class="flex-grow container mx-auto justify-items-center">
     <div class="text-center mb-4 xl:mb-8">
       <p>
-        {pageDescription} See
-        <a
-          class="link"
-          href={githubLink + '#how-does-it-works'}
-          target="_blank"
-          rel="noopener noreferrer">How does it works?</a
-        >
+        {pageDescription}
       </p>
     </div>
     <slot />

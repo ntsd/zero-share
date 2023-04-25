@@ -23,7 +23,7 @@ A client-side secure P2P file sharing using WebRTC.
 4. The offer paste the answer code then click `Accept Answer`.
 5. The offer/answer can now select and send files.
 
-[demo](docs/example.webm)
+[example.webm](https://user-images.githubusercontent.com/8283616/234210465-7b20ad8d-9b1b-413b-ac4e-3919f9261b8e.webm)
 
 ## How does it work?
 

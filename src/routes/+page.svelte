@@ -1,7 +1,7 @@
 <script lang="ts">
   import { buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
-  import { defaultSendOptions } from '../configs';
+  import { defaultSendOptions, githubLink } from '../configs';
   import Eye from '../components/Eye.svelte';
   import { Message } from '../proto/message';
   import Collapse from '../components/Collapse.svelte';
@@ -141,7 +141,15 @@
       <div>Generating Offer</div>
     </div>
   {:else}
-    <p>Generate the SDP offer and build the offer link following the options.</p>
+    <p>
+      Generate the SDP offer and build the offer link following the options. See
+      <a
+        class="link"
+        href={githubLink + '#how-does-it-work'}
+        target="_blank"
+        rel="noopener noreferrer">How does it work?</a
+      >
+    </p>
     <div class="mt-4">
       <SenderOptions onUpdate={onOptionsUpdate} />
       <button class="btn btn-primary mt-4" on:click={generateOfferLink}>Generate Offer</button>

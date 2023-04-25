@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { defaultSendOptions } from '../../configs';
+  import { defaultSendOptions, githubLink } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { Message } from '../../proto/message';
@@ -133,8 +133,16 @@
 
 <Collapse title="1. Answer" isOpen={!isConnecting}>
   {#if answerSDP}
-    <p>Copy and send the answer code to the Offer or scan QR code to connect between peer.</p>
-    <div class="relative mt-2">
+    <p>
+      Copy and send the answer code to the Offer or scan QR code to connect between peer. See
+      <a
+        class="link"
+        href={githubLink + '#how-does-it-work'}
+        target="_blank"
+        rel="noopener noreferrer">How does it work?</a
+      >
+    </p>
+    <div class="relative mt-4">
       <input
         type={showAnswerCode ? 'text' : 'password'}
         class="input input-bordered w-full"
@@ -149,7 +157,7 @@
         />
       </div>
     </div>
-    <div class="mt-2 flex gap-2">
+    <div class="mt-4 flex gap-2">
       <button class="btn btn-primary gap-2" on:click={copyAnswerCode}>
         <ClipboardIcon />Copy Answer
       </button>

@@ -70,10 +70,12 @@
     dataChannel.onerror = () => {
       addToastMessage('WebRTC error', 'error');
       isConnecting = false;
+      offerLink = '';
     };
     dataChannel.onclose = () => {
       addToastMessage('Disconnected', 'error');
       isConnecting = false;
+      offerLink = '';
     };
   }
 

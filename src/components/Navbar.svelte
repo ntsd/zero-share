@@ -4,7 +4,7 @@
 
 <div class="navbar w-full">
   <div class="navbar-start" />
-  <div class="navbar-center text-xl">Zero Share</div>
+  <div class="navbar-center text-xl font-bold">Zero Share</div>
   <div class="navbar-end">
     <a
       aria-label="Github"

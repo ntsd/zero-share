@@ -27,7 +27,7 @@
     <div>
       <span class="text-sm">Encryption</span>
       <p class="text-xs text-gray-500">
-        Enable E2E encryption for a more secure but slower transfer process.
+        Enable E2E encryption for a more secure but slower transfer.
       </p>
     </div>
     <select bind:value={encryptionEnabled} on:change={onChange} class="select select-bordered">
@@ -40,7 +40,7 @@
     <div>
       <span class="text-sm">Chunk Size</span>
       <p class="text-xs text-gray-500">
-        Higher will make the file transfer faster but might cause buffer issues.
+        Higher make transfer faster but might cause buffer issue.
       </p>
     </div>
     <select bind:value={chunkSize} on:change={onChange} class="select select-bordered">

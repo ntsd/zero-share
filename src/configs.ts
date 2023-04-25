@@ -19,7 +19,7 @@ export const githubLink = 'https://github.com/ntsd/zero-share';
 
 export const defaultSendOptions: SendOptions = {
   chunkSize: 16 * 1024,
-  isEncrypt: true,
+  isEncrypt: false,
   iceServer: stunServers[0]
 };
 

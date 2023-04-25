@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { githubLink, pageDescription } from '../configs';
+  import { githubLink } from '../configs';
 </script>
 
 <div class="navbar w-full">
@@ -8,9 +8,9 @@
   <div class="navbar-end">
     <a
       aria-label="Github"
-      target="_blank"
       href={githubLink}
-      rel="noopener"
+      target="_blank"
+      rel="noopener noreferrer"
       class="btn btn-ghost drawer-button btn-square normal-case"
       ><svg
         width="20"
@@ -24,7 +24,4 @@
       ></a
     >
   </div>
-</div>
-<div class="text-center mb-4 xl:mb-8">
-  <p>{pageDescription}</p>
 </div>

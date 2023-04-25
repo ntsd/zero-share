@@ -22,12 +22,22 @@
       ></a
     >
   </div>
-  <div>
+  <div class="text-xs md:text-sm">
     <p>
-      This project is <a class="link" href={githubLink + '/blob/main/LICENSE'}
-        >Open-source License</a
-      >
-      by <a class="link" href="https://ntsd.dev">Jirawat Boonkumnerd</a>
+      This project is open-source
+      <a
+        class="link"
+        href={githubLink + '/blob/main/LICENSE'}
+        target="_blank"
+        rel="noopener noreferrer"
+      >License</a
+      >.
+    </p>
+    <p>
+      Copyright &copy; 2023
+      <a class="link" href="https://ntsd.dev" target="_blank" rel="noopener noreferrer">
+        Jirawat Boonkumnerd
+      </a>
     </p>
   </div>
 </footer>

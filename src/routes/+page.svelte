@@ -141,7 +141,7 @@
       <div>Generating Offer</div>
     </div>
   {:else}
-    <p>Generate local SDP and build the offer link to connect with the peer.</p>
+    <p>Generate the SDP offer and build the offer link following the options.</p>
     <div class="mt-4">
       <SenderOptions onUpdate={onOptionsUpdate} />
       <button class="btn btn-primary mt-4" on:click={generateOfferLink}>Generate Offer</button>
@@ -151,7 +151,7 @@
 
 <Collapse title="2. Accept Answer" isOpen={offerLink !== '' && !isConnecting}>
   {#if offerLink}
-    <p class="">Copy the offer link and send to the receiver to connect between peer.</p>
+    <p class="">Copy and send the offer link or scan QR Code to connect between peers.</p>
     <div class="mt-2 relative">
       <input
         type={showOfferLink ? 'text' : 'password'}
@@ -173,9 +173,7 @@
       </button>
       <QrModal qrValue={offerLink} title="Offer QR Code" correctionLevel={ErrorCorrectionLevel.M} />
     </div>
-    <p class="mt-4">
-      Enter the Session Description Protocol (SDP) from the receiver to accept the answer.
-    </p>
+    <p class="mt-4">Enter the Answer Code to accept the Answer or scan the QR Code.</p>
     <div class="relative mt-4">
       <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
     </div>

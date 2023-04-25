@@ -1,48 +1,73 @@
 # Zero share
 
-A secure P2P file sharing using WebRTC.
+[![website](https://img.shields.io/website?url=https%3A%2F%2Fzero-share.github.io)](https://zero-share.github.io/)
+[![workflow](https://img.shields.io/github/actions/workflow/status/zero-share/zero-share.github.io/static.yml)](https://github.com/zero-share/zero-share.github.io/actions/workflows/static.yml)
+
+A client-side secure P2P file sharing using WebRTC.
 
 ## Features
 
-- Generate SDP connection for WebRTC data channel
-- Send multiple files peer to peer using WebRTC
-- PGP Encryption
-- Responsive UI
-- Open-source license
-- Zero server side (only use public STUN servers)
+- Send multiple files in parallel.
+- Generate SDP connection for WebRTC data channel.
+- Zero server side (only use public STUN servers for ICE candidates).
+- PGP Encryption.
+- Responsive UI.
+- Open-source license.
+- QR Scan for SDP trade.
 
 ## Usage
 
-1. The sender go to <https://zero-share.github.io/>
-2. The sender generate offer link, copy the offer link, and send it to the receiver
-3. The receiver open the offer link, copy the answer code, and send it to the sender
-4. The sender paste the answer code to the input box and accept answer
-5. The sender can now select files and send files to the receiver
+1. The offer go to <https://zero-share.github.io/>.
+2. The offer generate offer link then send it to the answer.
+3. The answer open the offer link then send it to the offer.
+4. The offer paste the answer code then click `Accept Answer`.
+5. The offer/answer can now select and send files.
 
-[demo](https://user-images.githubusercontent.com/8283616/232250894-e86213e7-17e6-449d-be22-0307ca929745.webm)
+[demo](docs/example.webm)
 
-## How it works
+## How does it work?
 
-Alice want to send a file to Bob
+Zero share client will get ICE Candidate from STUN/TURN server and make a connections between peers.
+
+Thanks to the Interactive Connectivity Establishment (ICE) protocol, Two peers will have the shortest path to travel between them without caring the Network address translation (NAT).
+
+WebRTC protocol will secure by DTLS (Datagram Transport Layer Security) But DTLS can be vulnerable to man-in-the-middle (MITM), So we provide a second layer encryption using PGP (RSA-OAEP-1024, AES-128).
+
+```mermaid
+C4Context
+    Component(stun, "STUN Server")
+
+    Boundary(b, "", "") {
+        Person(bob, "Bob", "Bob Zero Share")
+        Person(alice, "Alice", "Alice Zero Share")
+    }
+
+    Rel(alice, stun, "get ice candidates")
+    UpdateRelStyle(alice, stun, $offsetX="-90", $offsetY="-40")
+
+    Rel(bob, stun, "get ice candidates")
+    UpdateRelStyle(bob, stun, $offsetX="-90", $offsetY="-40")
+
+    BiRel(alice, bob, "file transfer")
+    UpdateRelStyle(alice, bob, $offsetX="-30")
+```
+
+Example sequence, Alice want to send a file to Bob.
 
 ```mermaid
 sequenceDiagram
     actor Alice
     actor Bob
-    Alice-->>Alice: generate the offer sdp
-    Alice->>Bob: send the offer link
+    Alice-->>Alice: generate offer sdp
+    Alice->>Bob: send offer link
     Bob-->>Bob: generate RSA keypair
-    Bob-->>Bob: generate the answer sdp
-    Bob->>Alice: send the answer sdp + RSA public key
-    Alice-->>Alice: generate AES key
-    Alice-->>Alice: encrypt file with the AES key
-    Alice-->>Alice: encrypt AES key with the RSA public key
-    Alice->>Bob: send the encrypted file + encrypted AES key
-    Bob-->>Bob: decrypt the AES key
-    Bob-->>Bob: decrypt the file
+    Bob-->>Bob: generate answer sdp
+    Bob->>Alice: send answer sdp + RSA pub key
+    Alice-->>Alice: encrypt file with AES key
+    Alice-->>Alice: encrypt AES key with RSA pub key
+    Alice->>Bob: send encrypted file + encrypted AES key
+    Bob-->>Bob: decrypt file with decrypted AES key
 ```
-
-encryption: PGP (RSA-OAEP-1024, AES-128)
 
 ## Development
 
@@ -57,30 +82,28 @@ Installation
 npm install
 ```
 
-Run dev (hot reload)
+Run development (hot reload)
 
 ```sh
 npm run dev
 ```
 
-Tests
+Test (playwright)
 
 ```sh
 npm run test
 ```
 
-Lint and Format
-
-```sh
-npm run lint
-npm run format
-```
-
 ## Deployment
 
-The deployment will using this [Github Workflow](https://github.com/zero-share/zero-share.github.io/blob/main/.github/workflows/static.yml) to trigger the Github Action to build the Github Pages. Because we want to use the domain `zero-share.github.io` instead of my personal one.
+The deployment will using this [Github Workflow](https://github.com/zero-share/zero-share.github.io/blob/main/.github/workflows/static.yml) to trigger the Github Action to build the Github Pages.
 
-For self-host or local deployment, you can run `npm run build` to build the static files. This no need the server side of svelte.
+For self-host, you can run `npm run build` to build the static files. This no need the server side of svelte.
+
+## Known Issues
+
+1. Sometimes your internet will block the Google public STUN server and it may slow. I recommend to try to use a different STUN server, can check the list [here](https://github.com/pradt2/always-online-stun/blob/master/valid_hosts.txt).
+2. Sometimes gets blocked by the firewall during sending files.
 
 ## Contributing
 
@@ -95,7 +118,7 @@ We welcome contributions from the community! If you'd like to contribute to the 
 
 For feature requests, please open an issue on the GitHub repository to discuss your ideas with the maintainers.
 
-## Known Issues
+## License
 
-1. There is a high percent chance that your internet will block the Google public STUN server. I recommend to check with this website <https://icetest.info/>.
-2. Sometimes gets blocked by the firewall during sending files.
+This project is 100% open-source. 
+[MIT License](https://github.com/ntsd/zero-share/blob/main/LICENSE) - Copyright &copy; 2023 Jirawat Boonkumnerd.

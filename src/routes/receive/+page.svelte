@@ -133,7 +133,7 @@
 
 <Collapse title="1. Answer" isOpen={!isConnecting}>
   {#if answerSDP}
-    <p>Copy the answer code and send to the sender to connect between peer.</p>
+    <p>Copy and send the answer code to the Offer or scan QR code to connect between peer.</p>
     <div class="relative mt-2">
       <input
         type={showAnswerCode ? 'text' : 'password'}

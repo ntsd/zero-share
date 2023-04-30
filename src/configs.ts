@@ -27,3 +27,5 @@ export const defaultReceiveOptions: ReceiveOptions = {
   autoAccept: true,
   maxSize: 1024 * 1024 * 1024 // 1GB
 };
+
+export const waitIceCandidatesTimeout = 3000; // 3 seconds

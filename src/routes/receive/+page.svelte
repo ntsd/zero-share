@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { defaultSendOptions, githubLink } from '../../configs';
+  import { defaultSendOptions, githubLink, waitIceCandidatesTimeout } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { Message } from '../../proto/message';
@@ -127,6 +127,13 @@
 
     const answer = await connection.createAnswer();
     await connection.setLocalDescription(answer);
+
+    // stop waiting for ice candidates if longer than timeout
+    setTimeout(async () => {
+      if (!connection.localDescription || answerSDP) return;
+      addToastMessage('Timeout waiting ICE candidates');
+      answerSDP = sdpEncode(connection.localDescription.sdp) + '|' + publicKeyBase64;
+    }, waitIceCandidatesTimeout);
   }
   generateAnswerSDP();
 </script>

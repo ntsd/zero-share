@@ -1,7 +1,7 @@
 <script lang="ts">
   import { buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
-  import { defaultSendOptions, githubLink } from '../configs';
+  import { defaultSendOptions, githubLink, waitIceCandidatesTimeout } from '../configs';
   import Eye from '../components/Eye.svelte';
   import { Message } from '../proto/message';
   import Collapse from '../components/Collapse.svelte';
@@ -41,16 +41,45 @@
   let sendMode = true;
   let showNewFile = false;
 
-  async function connectPeerAndCreateDataCannel() {
+  async function createSDPLink(offer: RTCSessionDescription) {
+    let publicKeyBase64 = '';
+    if (sendOptions.isEncrypt) {
+      rsa = await generateRsaKeyPair();
+      publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
+    }
+
+    const sdp = sdpEncode(offer.sdp);
+    offerLink = buildURL(location.href.split('?')[0], 'receive', {
+      sdp: sdp,
+      ice: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
+      cs:
+        defaultSendOptions.chunkSize === sendOptions.chunkSize
+          ? ''
+          : sendOptions.chunkSize.toString(),
+      pub: publicKeyBase64
+    });
+  }
+
+  async function createPeerAndDataCannel() {
     connection = new RTCPeerConnection({
-      iceServers: [{ urls: sendOptions.iceServer }]
+      iceServers: [{ urls: sendOptions.iceServer }],
+      // "balanced": The ICE agent will bundle media streams
+      // if it determines  that it is more efficient to do so. This is the default value.
+      // "max-compat": The ICE agent will bundle media streams only
+      // if it is required for compatibility with legacy endpoints.
+      // "max-bundle": The ICE agent will always bundle media streams over a single ICE transport,
+      // regardless of compatibility or efficiency.
+      bundlePolicy: 'balanced',
+      iceCandidatePoolSize: 4 // somehow this doesn't work
     });
 
     connection.onicecandidateerror = () => {
-      addToastMessage('Ice candidate error', 'error');
+      addToastMessage('ICE Candidate error', 'error');
     };
 
-    dataChannel = connection.createDataChannel('data');
+    dataChannel = connection.createDataChannel('data', {
+      ordered: false // we handle the order by response status
+    });
     dataChannel.onopen = () => {
       addToastMessage('Connected', 'success');
       isConnecting = true;
@@ -81,26 +110,11 @@
 
   async function generateOfferLink() {
     generating = true;
-    await connectPeerAndCreateDataCannel();
+    await createPeerAndDataCannel();
 
     connection.onicecandidate = async (event) => {
       if (!event.candidate && connection.localDescription) {
-        let publicKeyBase64 = '';
-        if (sendOptions.isEncrypt) {
-          rsa = await generateRsaKeyPair();
-          publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
-        }
-
-        const sdp = sdpEncode(connection.localDescription.sdp);
-        offerLink = buildURL(location.href.split('?')[0], 'receive', {
-          sdp: sdp,
-          ice: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
-          cs:
-            defaultSendOptions.chunkSize === sendOptions.chunkSize
-              ? ''
-              : sendOptions.chunkSize.toString(),
-          pub: publicKeyBase64
-        });
+        await createSDPLink(connection.localDescription);
         generating = false;
       }
     };
@@ -110,6 +124,14 @@
       offerToReceiveAudio: false
     });
     await connection.setLocalDescription(offer);
+
+    // stop waiting for ice candidates if longer than timeout
+    setTimeout(async () => {
+      if (!connection.localDescription || !generating) return;
+      addToastMessage('timeout waiting ICE candidates');
+      await createSDPLink(connection.localDescription);
+      generating = false;
+    }, waitIceCandidatesTimeout);
   }
 
   async function copyOfferLink() {

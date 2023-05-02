@@ -3,7 +3,7 @@
   import QrIcon from './QrIcon.svelte';
 
   export let title: string;
-  export let qrValue: string;
+  export let qrData: string;
   export let correctionLevel: ErrorCorrectionLevel = ErrorCorrectionLevel.L;
   export function close() {
     isModalOpen = false;
@@ -20,7 +20,7 @@
     });
 
     qrcode.write(
-      new QRByte(qrValue, (data: string) => {
+      new QRByte(qrData, (data: string) => {
         // The encoding value must a valid ECI value
         // Custom ECI only support QRByte mode
         // https://github.com/zxing/zxing/blob/master/core/src/main/java/com/google/zxing/common/CharacterSetECI.java

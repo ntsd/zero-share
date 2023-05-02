@@ -37,20 +37,20 @@
   let qrModal: QrModal;
 
   // get url parameters
-  const sdpEncoded = $page.url.searchParams.get('sdp');
+  const sdpEncoded = $page.url.searchParams.get('s');
   if (sdpEncoded === null || !sdpEncoded) {
     goto('/');
     throw new Error('no sdp found');
   }
-  const iceServerParam = $page.url.searchParams.get('ice');
+  const iceServerParam = $page.url.searchParams.get('i');
   if (iceServerParam) {
     iceServer = iceServerParam;
   }
-  const chunkSizeParam = $page.url.searchParams.get('cs');
+  const chunkSizeParam = $page.url.searchParams.get('c');
   if (chunkSizeParam) {
     chunkSize = parseInt(chunkSizeParam);
   }
-  const pubKeyParam = $page.url.searchParams.get('pub');
+  const pubKeyParam = $page.url.searchParams.get('p');
   if (pubKeyParam) {
     isEncrypt = true;
     importRsaPublicKeyFromBase64(pubKeyParam).then((pub) => {
@@ -168,7 +168,7 @@
       <button class="btn btn-primary gap-2" on:click={copyAnswerCode}>
         <ClipboardIcon />Copy Answer
       </button>
-      <QrModal bind:this={qrModal} qrValue={answerSDP} title="Answer QR Code" />
+      <QrModal bind:this={qrModal} qrData={answerSDP} title="Answer QR Code" />
     </div>
   {:else}
     <div class="flex flex-col items-center justify-center gap-2">

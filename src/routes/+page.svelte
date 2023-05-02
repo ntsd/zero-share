@@ -50,13 +50,13 @@
 
     const sdp = sdpEncode(offer.sdp);
     offerLink = buildURL(location.href.split('?')[0], 'receive', {
-      sdp: sdp,
-      ice: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
-      cs:
+      s: sdp,
+      i: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
+      c:
         defaultSendOptions.chunkSize === sendOptions.chunkSize
           ? ''
           : sendOptions.chunkSize.toString(),
-      pub: publicKeyBase64
+      p: publicKeyBase64
     });
   }
 
@@ -203,7 +203,7 @@
       <button class="btn btn-primary gap-2" on:click={copyOfferLink}>
         <ClipboardIcon />Copy Link
       </button>
-      <QrModal qrValue={offerLink} title="Offer QR Code" correctionLevel={ErrorCorrectionLevel.M} />
+      <QrModal qrData={offerLink} title="Offer QR Code" correctionLevel={ErrorCorrectionLevel.M} />
     </div>
     <p class="mt-4">Enter the Answer Code to accept the Answer or scan the QR Code.</p>
     <div class="relative mt-4">

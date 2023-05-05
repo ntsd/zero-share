@@ -32,7 +32,7 @@
   // components
   let receiver: Receiver;
   let sender: Sender;
-  let sendMode = true;
+  let sendMode = false;
   let showNewFile = false;
   let qrModal: QrModal;
 

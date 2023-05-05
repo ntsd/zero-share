@@ -11,6 +11,8 @@
     {title}
   </div>
   <div class="collapse-content">
-    <slot />
+    {#if isOpen}
+      <slot />
+    {/if}
   </div>
 </div>

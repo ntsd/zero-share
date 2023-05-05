@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { addToastMessage } from '../stores/toastStore';
 
   let dropArea: HTMLElement;
   let fileInput: HTMLInputElement;
@@ -29,10 +30,6 @@
     dropArea.addEventListener('drop', handleDrop, false);
   }
 
-  onMount(() => {
-    setupDropAreaListeners();
-  });
-
   function highlight() {
     dropArea.classList.add('bg-blue-200');
   }
@@ -55,6 +52,70 @@
       fileInput.value = '';
     }
   }
+
+  function handleTextClipboard(text: string) {
+    const textBlob = new Blob([text], { type: 'text/plain' });
+    const textFile = new File([textBlob], 'clipboard.txt', { type: 'text/plain' });
+
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(textFile);
+    onFilesPick(dataTransfer.files);
+  }
+
+  function handleFileClipboard(file: File) {
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    onFilesPick(dataTransfer.files);
+  }
+
+  async function handlePastFromClipboardButton() {
+    const clipboardData = navigator.clipboard;
+    if (!clipboardData) return;
+
+    try {
+      const text = await clipboardData.readText();
+      if (text) {
+        handleTextClipboard(text);
+      }
+
+      const items = await clipboardData.read();
+      for (const item of items) {
+        for (const type of item.types) {
+          if (!type.startsWith('image/')) continue;
+          const blob = await item.getType(type);
+          const imageFile = new File([blob], `image.${type.replace('image/', '')}`, { type });
+          handleFileClipboard(imageFile);
+        }
+      }
+    } catch (e) {
+      addToastMessage('No data on clipboard');
+    }
+  }
+
+  function handlePasteEvent(event: ClipboardEvent): void {
+    const clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) return;
+
+    // Handle text data
+    const text = clipboardData.getData('Text');
+    if (text) {
+      handleTextClipboard(text);
+    }
+
+    // Handle image data
+    const items = clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      const file = items[i].getAsFile();
+      if (file) {
+        handleFileClipboard(file);
+      }
+    }
+  }
+
+  onMount(() => {
+    setupDropAreaListeners();
+    document.addEventListener('paste', handlePasteEvent);
+  });
 </script>
 
 <label
@@ -87,7 +148,12 @@
       />
     </svg>
 
-    <p class="m-0 hidden xl:block">Drop your files or click to this area</p>
+    <p class="m-0 hidden xl:block">
+      Drop your files, paste from clipboard (ctrl+v), or click to this area
+    </p>
     <p class="m-0 xl:hidden">Click to this area</p>
   </div>
 </label>
+<button class="btn btn-secondary xl:hidden" on:click={handlePastFromClipboardButton}
+  >Paste from clipboard</button
+>

@@ -14,6 +14,7 @@ A client-side secure P2P file sharing using WebRTC.
 - Responsive UI.
 - Open-source license.
 - QR Scan for SDP trade.
+- Past from clipboard.
 
 ## Usage
 

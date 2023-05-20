@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Encoder, QRByte, ErrorCorrectionLevel } from '@nuintun/qrcode';
-  import QrIcon from './QrIcon.svelte';
+  import QrIcon from '../icons/QrIcon.svelte';
 
   export let title: string;
   export let qrData: string;

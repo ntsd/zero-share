@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { defaultReceiveOptions } from '../configs';
-  import type { ReceiveOptions } from '../type';
+  import { defaultReceiveOptions } from '../../configs';
+  import type { ReceiveOptions } from '../../type';
 
   let autoAccept = defaultReceiveOptions.autoAccept ? 'true' : 'false';
   let maxSize = defaultReceiveOptions.maxSize;

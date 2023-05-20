@@ -4,8 +4,8 @@
   import { defaultSendOptions, githubLink, waitIceCandidatesTimeout } from '../configs';
   import Eye from '../components/Eye.svelte';
   import { Message } from '../proto/message';
-  import Collapse from '../components/Collapse.svelte';
-  import SenderOptions from '../components/SenderOptions.svelte';
+  import Collapse from '../components/layout/Collapse.svelte';
+  import OfferOptions from '../components/OfferOptions.svelte';
   import {
     exportRsaPublicKeyToBase64,
     generateRsaKeyPair,
@@ -14,11 +14,11 @@
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
   import Spinner from '../components/Spinner.svelte';
   import type { SendOptions } from '../type';
-  import Sender from '../components/Sender.svelte';
-  import Receiver from '../components/Receiver.svelte';
-  import ClipboardIcon from '../components/ClipboardIcon.svelte';
-  import QrModal from '../components/QrModal.svelte';
-  import ScanQrModal from '../components/ScanQrModal.svelte';
+  import Sender from '../components/sender/Sender.svelte';
+  import Receiver from '../components/receiver/Receiver.svelte';
+  import ClipboardIcon from '../components/icons/ClipboardIcon.svelte';
+  import QrModal from '../components/qr/QrModal.svelte';
+  import ScanQrModal from '../components/qr/ScanQrModal.svelte';
   import { ErrorCorrectionLevel } from '@nuintun/qrcode';
 
   // options
@@ -175,7 +175,7 @@
       >
     </p>
     <div class="mt-4">
-      <SenderOptions onUpdate={onOptionsUpdate} />
+      <OfferOptions onUpdate={onOptionsUpdate} />
       <button class="btn btn-primary mt-4" on:click={generateOfferLink}>Generate Offer</button>
     </div>
   {/if}

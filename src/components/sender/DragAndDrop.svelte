@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { addToastMessage } from '../stores/toastStore';
+  import { addToastMessage } from '../../stores/toastStore';
 
   let dropArea: HTMLElement;
   let fileInput: HTMLInputElement;

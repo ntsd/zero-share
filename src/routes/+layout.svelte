@@ -1,7 +1,7 @@
 <script lang="ts">
   import '../app.css';
-  import Footer from '../components/Footer.svelte';
-  import Navbar from '../components/Navbar.svelte';
+  import Footer from '../components/layout/Footer.svelte';
+  import Navbar from '../components/layout/Navbar.svelte';
 
   import Toast from '../components/Toast.svelte';
   import { pageDescription } from '../configs';

@@ -1,12 +1,12 @@
 <script lang="ts">
-  import DragAndDrop from '../components/DragAndDrop.svelte';
+  import DragAndDrop from './DragAndDrop.svelte';
   import EventEmitter from 'eventemitter3';
-  import { FileStatus, type SendOptions, type SendingFile } from '../type';
-  import SendingFileList from '../components/SendingFileList.svelte';
-  import { encryptAesGcm, encryptAesKeyWithRsaPublicKey, generateAesKey } from '../utils/crypto';
-  import { validateFileMetadata } from '../utils/validator';
-  import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../proto/message';
-  import { addToastMessage } from '../stores/toastStore';
+  import { FileStatus, type SendingFile } from '../../type';
+  import SendingFileList from './SendingFileList.svelte';
+  import { encryptAesGcm, encryptAesKeyWithRsaPublicKey, generateAesKey } from '../../utils/crypto';
+  import { validateFileMetadata } from '../../utils/validator';
+  import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../../proto/message';
+  import { addToastMessage } from '../../stores/toastStore';
 
   export let dataChannel: RTCDataChannel;
   export let chunkSize: number;

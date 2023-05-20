@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { FileStatus, type ReceivingFile } from '../type';
-  import FileCard from './FileCard.svelte';
+  import { FileStatus, type ReceivingFile } from '../../type';
+  import FileCard from '../FileCard.svelte';
 
   export let receivingFiles: { [key: string]: ReceivingFile };
   export let onRemove: (key: string) => void;

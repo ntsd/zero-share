@@ -1,15 +1,17 @@
 <script lang="ts">
-  import { githubLink } from '../configs';
+  import { githubLink } from '../../configs';
 </script>
 
-<footer class="footer footer-center pt-10 p-5 text-base-content gap-4">
-  <div class="grid grid-flow-col gap-4">
+<div class="navbar w-full">
+  <div class="navbar-start" />
+  <div class="navbar-center text-xl font-bold">Zero Share</div>
+  <div class="navbar-end">
     <a
       aria-label="Github"
-      target="_blank"
       href={githubLink}
-      rel="noopener"
-      class="drawer-button normal-case"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn btn-ghost drawer-button btn-square normal-case"
       ><svg
         width="20"
         height="20"
@@ -22,22 +24,4 @@
       ></a
     >
   </div>
-  <div class="text-xs md:text-sm">
-    <p>
-      This project is open-source
-      <a
-        class="link"
-        href={githubLink + '/blob/main/LICENSE'}
-        target="_blank"
-        rel="noopener noreferrer"
-      >License</a
-      >.
-    </p>
-    <p>
-      Copyright &copy; 2023
-      <a class="link" href="https://ntsd.dev" target="_blank" rel="noopener noreferrer">
-        Jirawat Boonkumnerd
-      </a>
-    </p>
-  </div>
-</footer>
+</div>

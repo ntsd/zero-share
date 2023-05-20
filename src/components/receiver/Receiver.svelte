@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { defaultReceiveOptions } from '../configs';
-  import { addToastMessage } from '../stores/toastStore';
-  import { validateFileMetadata } from '../utils/validator';
-  import { Message, MetaData, ReceiveEvent } from '../proto/message';
+  import { defaultReceiveOptions } from '../../configs';
+  import { addToastMessage } from '../../stores/toastStore';
+  import { validateFileMetadata } from '../../utils/validator';
+  import { Message, MetaData, ReceiveEvent } from '../../proto/message';
   import ReceivingFileList from './ReceivingFileList.svelte';
   import * as zip from '@zip.js/zip.js';
   import ReceiverOptions from './ReceiverOptions.svelte';
-  import { FileStatus, type ReceiveOptions, type ReceivingFile } from '../type';
-  import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../utils/crypto';
+  import { FileStatus, type ReceiveOptions, type ReceivingFile } from '../../type';
+  import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
 
   export let dataChannel: RTCDataChannel;
   export let isEncrypt: boolean;

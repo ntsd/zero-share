@@ -5,7 +5,7 @@
   import { addToastMessage } from '../../stores/toastStore';
   import Eye from '../../components/Eye.svelte';
   import { Message } from '../../proto/message';
-  import Collapse from '../../components/Collapse.svelte';
+  import Collapse from '../../components/layout/Collapse.svelte';
   import {
     exportRsaPublicKeyToBase64,
     generateRsaKeyPair,
@@ -13,10 +13,10 @@
   } from '../../utils/crypto';
   import { sdpDecode, sdpEncode } from '../../utils/sdpEncode';
   import Spinner from '../../components/Spinner.svelte';
-  import Receiver from '../../components/Receiver.svelte';
-  import Sender from '../../components/Sender.svelte';
-  import ClipboardIcon from '../../components/ClipboardIcon.svelte';
-  import QrModal from '../../components/QrModal.svelte';
+  import Receiver from '../../components/receiver/Receiver.svelte';
+  import Sender from '../../components/sender/Sender.svelte';
+  import ClipboardIcon from '../../components/icons/ClipboardIcon.svelte';
+  import QrModal from '../../components/qr/QrModal.svelte';
 
   // options
   let isEncrypt = defaultSendOptions.isEncrypt;

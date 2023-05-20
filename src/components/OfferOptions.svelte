@@ -44,7 +44,7 @@
       </p>
     </div>
     <select bind:value={chunkSize} on:change={onChange} class="select select-bordered">
-      <option value={8 * 1024}>16kb</option>
+      <option value={8 * 1024}>8kb</option>
       <option value={16 * 1024}>16kb</option>
       <option value={32 * 1024}>32kb</option>
       <option value={64 * 1024}>64kb</option>

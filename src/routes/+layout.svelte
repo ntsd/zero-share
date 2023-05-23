@@ -13,17 +13,6 @@
   }
 </script>
 
-<svelte:head>
-  <title>Zero Share</title>
-  <meta name="description" content={pageDescription} />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="theme-color" content="#fff" />
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="Zero Share" />
-  <meta property="og:description" content={pageDescription} />
-  <meta property="og:image" content="%sveltekit.assets%/cover.png" />
-</svelte:head>
-
 <div class="flex flex-col h-screen">
   <Navbar />
   <div class="flex-grow container mx-auto justify-items-center">

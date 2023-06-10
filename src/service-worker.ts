@@ -37,7 +37,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // ignore non httos and POST method
+  // ignore non https and POST method
   if (!event.request.url.startsWith('https') || event.request.method !== 'GET') return;
 
   async function respond(): Promise<Response> {

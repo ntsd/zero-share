@@ -3,7 +3,7 @@
   export let onChange: (show: boolean) => void;
 </script>
 
-<label class="swap bg-white p-2">
+<label class="swap bg-base-100 p-2">
   <input
     type="checkbox"
     bind:checked={show}

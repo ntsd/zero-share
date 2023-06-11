@@ -119,7 +119,7 @@
 </script>
 
 <label
-  class="relative flex flex-col border border-gray-900 border-dashed cursor-pointer"
+  class="relative flex flex-col border border-base-300 border-dashed cursor-pointer"
   bind:this={dropArea}
 >
   <input

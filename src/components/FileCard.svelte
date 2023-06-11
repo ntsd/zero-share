@@ -6,7 +6,7 @@
   export let isSender: boolean;
 </script>
 
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-lg shadow-base-300">
   <div class="card-body p-4 text-xs xl:text-sm">
     <div class="grid gap-2 grid-cols-4 items-center">
       <div class="col-span-4">

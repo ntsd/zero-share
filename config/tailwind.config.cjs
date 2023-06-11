@@ -5,9 +5,9 @@ module.exports = {
     extend: {}
   },
   plugins: [require('daisyui')],
+	darkMode: ["media"],
   daisyui: {
     styled: true,
-    themes: true,
     base: true,
     utils: true,
     logs: false,
@@ -15,24 +15,50 @@ module.exports = {
     prefix: '',
     themes: [
       {
-        ZeroShare: {
+        light: {
           'color-scheme': 'light',
           fontFamily:
             'SFMono-Regular, Consolas, Menlo, Monaco, Liberation Mono, Courier New, monospace',
           primary: '#3b5bfb',
-          'primary-content': '#ffffff',
-          secondary: '#7b92b2',
-          'secondary-content': '#181a2a',
+          'primary-content': '#fff',
+          secondary: '#5b7292',
+          'secondary-content': '#fff',
           accent: '#67cba0',
+					'accent-content': '#fff',
           neutral: '#181a2a',
-          'neutral-content': '#edf2f7',
-          'base-100': '#ffffff',
+          'neutral-content': '#fff',
+          'base-100': '#fff',
+					'base-200': '#eee',
+					'base-300': '#ddd',
           'base-content': '#181a2a',
           '--rounded-box': '0',
           '--rounded-btn': '0',
           '--rounded-badge': '0',
           '--tab-radius': '0'
-        }
+        },
+      },
+			{
+        dark: {
+          'color-scheme': 'dark',
+          fontFamily:
+            'SFMono-Regular, Consolas, Menlo, Monaco, Liberation Mono, Courier New, monospace',
+          primary: '#3b5bfb',
+          'primary-content': '#fff',
+          secondary: '#5b7292',
+          'secondary-content': '#fff',
+          accent: '#67cba0',
+					'accent-content': '#fff',
+          neutral: '#181a2a',
+          'neutral-content': '#fff',
+          'base-100': '#0d1117',
+					'base-200': '#1d2127',
+					'base-300': '#2d3137',
+          'base-content': '#fff',
+          '--rounded-box': '0',
+          '--rounded-btn': '0',
+          '--rounded-badge': '0',
+          '--tab-radius': '0'
+        },
       }
     ]
   }

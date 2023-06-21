@@ -1,9 +1,18 @@
 <script lang="ts">
   import { githubLink } from '../../configs';
+  import SunMoon from '../SunMoon.svelte';
+
+  const darkMode = window?.matchMedia?.('(prefers-color-scheme:dark)')?.matches || false;
+
+  function themeChange(darkMode: boolean) {
+    document?.querySelector('html')?.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  }
 </script>
 
 <div class="navbar w-full">
-  <div class="navbar-start" />
+  <div class="navbar-start">
+    <SunMoon onChange={themeChange} {darkMode} />
+  </div>
   <div class="navbar-center text-xl font-bold">Zero Share</div>
   <div class="navbar-end">
     <a

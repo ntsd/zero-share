@@ -1,6 +1,6 @@
 <script lang="ts">
   import { githubLink } from '../../configs';
-  import SunMoon from '../SunMoon.svelte';
+  import SunMoon from '../icons/SunMoon.svelte';
 
   const darkMode = window?.matchMedia?.('(prefers-color-scheme:dark)')?.matches || false;
 

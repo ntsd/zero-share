@@ -3,7 +3,7 @@
   import { page } from '$app/stores';
   import { defaultSendOptions, githubLink, waitIceCandidatesTimeout } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
-  import Eye from '../../components/Eye.svelte';
+  import Eye from '../../components/icons/Eye.svelte';
   import { Message } from '../../proto/message';
   import Collapse from '../../components/layout/Collapse.svelte';
   import {

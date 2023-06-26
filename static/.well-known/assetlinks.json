@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.zero_share",
+      "sha256_cert_fingerprints": [
+        "BE:7C:91:14:CB:EE:7A:29:97:31:E2:B4:98:49:01:91:0D:E1:C8:10:CC:81:40:A8:33:54:B0:FD:FA:50:5D:53"
+      ]
+    }
+  }
+]

@@ -9,12 +9,12 @@ A client-side secure P2P file sharing using WebRTC.
 
 - Send multiple files in parallel.
 - Generate SDP connection for WebRTC data channel.
-- Zero server side (only use public STUN servers for ICE candidates).
+- No server side (only use public STUN servers for ICE candidates).
 - PGP Encryption.
 - Responsive UI.
 - Open-source license.
 - QR Scan for SDP trade.
-- Paste from clipboard.
+- Paste from the clipboard.
 - short SDP by [sdp-compact](https://github.com/ntsd/sdp-compact).
 
 ## Usage

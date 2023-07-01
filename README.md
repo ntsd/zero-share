@@ -19,9 +19,9 @@ A client-side secure P2P file sharing using WebRTC.
 
 ## Usage
 
-1. The offer go to <https://zero-share.github.io/>.
-2. The offer generate offer link then send it to the answer.
-3. The answer open the offer link then send it to the offer.
+1. The offer goes to <https://zero-share.github.io/>.
+2. The offer generates an offer link and then sends it to the answer.
+3. The answer opens the offer link and then sends it to the offer.
 4. The offer paste the answer code then click `Accept Answer`.
 5. The offer/answer can now select and send files.
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   export let title: string;
-  export let isOpen: boolean;
+  export let isOpen: boolean = false;
 </script>
 
 <div

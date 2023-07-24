@@ -20,6 +20,7 @@
   import QrModal from '../components/qr/QrModal.svelte';
   import ScanQrModal from '../components/qr/ScanQrModal.svelte';
   import { ErrorCorrectionLevel } from '@nuintun/qrcode';
+  import Cog from '../components/icons/Cog.svelte';
 
   // options
   let sendOptions = defaultSendOptions;
@@ -40,6 +41,7 @@
   let sender: Sender;
   let sendMode = true;
   let showNewFile = false;
+  let showOfferOptions = false;
 
   async function createSDPLink(offer: RTCSessionDescription) {
     let publicKeyBase64 = '';
@@ -175,8 +177,22 @@
       >
     </p>
     <div class="mt-4">
-      <OfferOptions onUpdate={onOptionsUpdate} />
-      <button class="btn btn-primary mt-4" on:click={generateOfferLink}>Generate Offer</button>
+      {#if showOfferOptions}
+        <OfferOptions onUpdate={onOptionsUpdate} />
+      {/if}
+      <div class="mt-4 flex flex-row gap-2">
+        <button class="btn btn-primary" on:click={generateOfferLink}>Generate Offer</button>
+        {#if !showOfferOptions}
+          <button
+            class="btn btn-secondary gap-2"
+            on:click={() => {
+              showOfferOptions = true;
+            }}
+          >
+            Settings
+          </button>
+        {/if}
+      </div>
     </div>
   {/if}
 </Collapse>

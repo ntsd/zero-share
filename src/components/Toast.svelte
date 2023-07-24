@@ -31,7 +31,6 @@
   });
 </script>
 
-<span class="hidden alert-info alert-success alert-error"></span>
 <div class="fixed bottom-4 right-4 space-y-2">
   {#each toasts as toast}
     <div

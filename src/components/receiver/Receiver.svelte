@@ -201,6 +201,6 @@
       >Download all files (zip)</button
     >
   {:else}
-    <p class="mt-4">Waiting for files...</p>
+    <p class="mt-4">Connected, Waiting for files...</p>
   {/if}
 </div>

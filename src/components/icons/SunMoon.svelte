@@ -1,10 +1,13 @@
 <script lang="ts">
   export let darkMode = false;
   export let onChange: (darkMode: boolean) => void;
+
+  const id = 'sun-moon-input';
 </script>
 
-<label class="swap bg-base-100 p-2">
+<label class="swap bg-base-100 p-2" {id}>
   <input
+    {id}
     type="checkbox"
     bind:checked={darkMode}
     on:change={() => {

@@ -1,10 +1,13 @@
 <script lang="ts">
   let show = false;
   export let onChange: (show: boolean) => void;
+
+  const id = 'eye-input';
 </script>
 
-<label class="swap bg-base-100 p-2">
+<label class="swap bg-base-100 p-2" {id}>
   <input
+    {id}
     type="checkbox"
     bind:checked={show}
     on:change={() => {

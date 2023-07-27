@@ -24,7 +24,7 @@
   </div>
   <div class="text-xs md:text-sm">
     <p>
-      This project is open-source
+      This project is an open-source
       <a
         class="link"
         href={githubLink + '/blob/main/LICENSE'}

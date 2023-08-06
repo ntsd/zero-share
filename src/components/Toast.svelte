@@ -35,8 +35,8 @@
   {#each toasts as toast}
     <div
       class="alert alert-{toast.status}"
-      in:fade={{ duration: 300 }}
-      out:fade={{ duration: 300 }}
+      in:fade|global={{ duration: 300 }}
+      out:fade|global={{ duration: 300 }}
       style={toast.visible ? '' : 'display: none;'}
     >
       <div>

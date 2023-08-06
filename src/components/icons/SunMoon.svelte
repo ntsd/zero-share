@@ -1,20 +1,16 @@
 <script lang="ts">
   export let darkMode = false;
   export let onChange: (darkMode: boolean) => void;
-
-  const id = 'sun-moon-input';
 </script>
 
-<label class="swap bg-base-100 p-2" {id}>
-  <input
-    {id}
-    type="checkbox"
-    bind:checked={darkMode}
-    on:change={() => {
-      onChange(darkMode);
-    }}
-  />
-
+<button
+  class="swap swap-rotate bg-base-100 p-2 {darkMode && 'swap-active'}"
+  on:click={() => {
+    darkMode = !darkMode;
+    onChange(darkMode);
+  }}
+  aria-label="dark mode"
+>
   <div class="swap-on">
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -48,4 +44,4 @@
       />
     </svg>
   </div>
-</label>
+</button>

@@ -20,7 +20,6 @@
   import QrModal from '../components/qr/QrModal.svelte';
   import ScanQrModal from '../components/qr/ScanQrModal.svelte';
   import { ErrorCorrectionLevel } from '@nuintun/qrcode';
-  import Cog from '../components/icons/Cog.svelte';
 
   // options
   let sendOptions = defaultSendOptions;

@@ -1,0 +1,12 @@
+---
+import MainLayout from '../layouts/main.astro';
+
+import SvelteLayout from '../svelte/Layout.svelte';
+import ReceivePage from '../svelte/ReceivePage.svelte';
+---
+
+<MainLayout title="Zero Share" description="A client-side secure P2P file sharing using WebRTC.">
+	<SvelteLayout client:only="svelte">
+		<ReceivePage client:only="svelte" />
+	</SvelteLayout>
+</MainLayout>

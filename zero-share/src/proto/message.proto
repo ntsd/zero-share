@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+message MetaData {
+    string name = 1;
+    int32  size = 2;
+    string type = 3;
+    bytes key = 4; // encrypted AES key
+}
+
+enum ReceiveEvent {
+    // event when the reveiver got metadata and accept
+    EVENT_RECEIVER_ACCEPT = 0;
+    // event when the reveiver rejected the file
+    EVENT_RECEIVER_REJECT = 1;
+    // event when the reveiver got file chunk
+    EVENT_RECEIVED_CHUNK = 2;
+    // event when the reveiver got validate error
+    EVENT_VALIDATE_ERROR = 3;
+}
+
+message Message {
+    string id = 1; // file id
+    oneof data {
+        // use for sender to send file metadata
+        MetaData metaData = 2; 
+        // use for sender to send file chunk
+        bytes chunk = 3;
+        // respone event to tell the sender status
+        ReceiveEvent receiveEvent = 4;
+    }
+}

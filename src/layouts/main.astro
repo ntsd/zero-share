@@ -1,26 +1,40 @@
 ---
 const { title, description } = Astro.props;
+
+import Footer from '../components/layout/Footer.svelte';
+import Navbar from '../components/layout/Navbar.svelte';
+
+import Toast from '../components/Toast.svelte';
+import { pageDescription } from '../configs';
 ---
 
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#fff" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Zero Share" />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://zero-share.github.io/cover.png" />
+  </head>
 
-<head>
-  <meta charset="utf-8" />
-  <title>{title}</title>
-  <link rel="icon" href="/favicon.ico" />
-  <meta name="viewport" content="width=device-width" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="description" content={description} />
-  <meta name="theme-color" content="#fff" />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Zero Share" />
-  <meta property="og:description" content={description} />
-  <meta property="og:image" content='https://zero-share.github.io/cover.png' />
-</head>
-
-<body>
-	<slot />
-</body>
-
+  <body>
+    <div class="flex flex-col min-h-screen">
+      <Navbar client:load client:only="svelte" />
+      <div class="flex-grow container mx-auto justify-items-center">
+        <p class="text-center mb-4 xl:mb-8 p-1">
+          {pageDescription}
+        </p>
+        <slot />
+      </div>
+      <Footer client:visible />
+    </div>
+    <Toast client:visible />
+  </body>
 </html>

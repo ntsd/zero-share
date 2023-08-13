@@ -8,7 +8,6 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "playwright test",
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
     "format": "prettier --plugin-search-dir . --write .",
     "protogen": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=. ./src/proto/*.proto"

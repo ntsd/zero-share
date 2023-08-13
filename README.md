@@ -122,5 +122,5 @@ For feature requests, please open an issue on the GitHub repository to discuss y
 
 ## License
 
-This project is 100% open-source. 
+This project is 100% open-source.
 [MIT License](https://github.com/ntsd/zero-share/blob/main/LICENSE) - Copyright &copy; 2023 Jirawat Boonkumnerd.

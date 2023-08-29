@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { atom } from 'nanostores';
 
 interface ToastMessage {
   id: number;
@@ -6,15 +6,11 @@ interface ToastMessage {
   status: 'info' | 'success' | 'error';
 }
 
-const toastStore = writable<ToastMessage>();
+export const toastAtom = atom<ToastMessage | null>(null);
 
 export function addToastMessage(
   message: string,
   status: 'info' | 'success' | 'error' = 'info'
 ): void {
-  toastStore.update(() => {
-    return { id: Date.now(), message, status };
-  });
+  toastAtom.set({ id: Date.now(), message, status });
 }
-
-export default toastStore;

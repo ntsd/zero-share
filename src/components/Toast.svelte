@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { onDestroy } from 'svelte';
-  import toastStore from '../stores/toastStore';
+  import { toastAtom } from '../stores/toastStore';
 
   interface Toast {
     text: string;
@@ -22,7 +22,7 @@
     }, duration);
   }
 
-  const unsubscribe = toastStore.subscribe((t) => {
+  const unsubscribe = toastAtom.subscribe((t) => {
     if (t) addToast(t.message, t.status);
   });
 

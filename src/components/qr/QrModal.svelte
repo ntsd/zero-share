@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Encoder, QRByte, ErrorCorrectionLevel } from '@nuintun/qrcode';
+  import { QRByte, Encoder, ErrorCorrectionLevel } from '@nuintun/qrcode';
   import QrIcon from '../icons/QrIcon.svelte';
 
   export let title: string;
@@ -10,16 +10,13 @@
   }
 
   let isModalOpen = false;
-  let qrcode: Encoder;
 
-  function genQR() {
-    qrcode = new Encoder({
-      encodingHint: true,
-      errorCorrectionLevel: correctionLevel,
-      version: 0 // 0 for automatic version
-    });
-
-    qrcode.write(
+  const qrcode: Encoder = new Encoder({
+    encodingHint: true,
+    errorCorrectionLevel: correctionLevel,
+    version: 0 // 0 for automatic version
+  })
+    .write(
       new QRByte(qrData, (data: string) => {
         // The encoding value must a valid ECI value
         // Custom ECI only support QRByte mode
@@ -31,12 +28,8 @@
           encoding: 27 // 27 is US-ASCII
         };
       })
-    );
-
-    qrcode.make();
-  }
-
-  genQR();
+    )
+    .make();
 </script>
 
 <label for="qr-modal" class="btn gap-2">

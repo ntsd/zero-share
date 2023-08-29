@@ -2,23 +2,23 @@
   import { buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
   import { defaultSendOptions, githubLink, waitIceCandidatesTimeout } from '../configs';
-  import Eye from '../components/icons/Eye.svelte';
+  import Eye from './icons/Eye.svelte';
   import { Message } from '../proto/message';
-  import Collapse from '../components/layout/Collapse.svelte';
-  import OfferOptions from '../components/OfferOptions.svelte';
+  import Collapse from './layout/Collapse.svelte';
+  import OfferOptions from './OfferOptions.svelte';
   import {
     exportRsaPublicKeyToBase64,
     generateRsaKeyPair,
     importRsaPublicKeyFromBase64
   } from '../utils/crypto';
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
-  import Spinner from '../components/Spinner.svelte';
+  import Spinner from './Spinner.svelte';
   import type { SendOptions } from '../type';
-  import Sender from '../components/sender/Sender.svelte';
-  import Receiver from '../components/receiver/Receiver.svelte';
-  import ClipboardIcon from '../components/icons/ClipboardIcon.svelte';
-  import QrModal from '../components/qr/QrModal.svelte';
-  import ScanQrModal from '../components/qr/ScanQrModal.svelte';
+  import Sender from './sender/Sender.svelte';
+  import Receiver from './receiver/Receiver.svelte';
+  import ClipboardIcon from './icons/ClipboardIcon.svelte';
+  import QrModal from './qr/QrModal.svelte';
+  import ScanQrModal from './qr/ScanQrModal.svelte';
   import { ErrorCorrectionLevel } from '@nuintun/qrcode';
 
   // options

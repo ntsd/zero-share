@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Html5Qrcode, type QrcodeSuccessCallback, type QrcodeErrorCallback } from 'html5-qrcode';
+  import type { QrcodeSuccessCallback, QrcodeErrorCallback } from 'html5-qrcode';
+  import { Html5Qrcode } from 'html5-qrcode/esm/html5-qrcode';
   import { onMount } from 'svelte';
 
   let isModalOpen = false;

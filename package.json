@@ -14,7 +14,7 @@
     "protogen": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=. ./src/proto/*.proto"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^3.1.1",
+    "@astrojs/svelte": "^4.0.0",
     "@astrojs/tailwind": "^5.0.0",
     "@nuintun/qrcode": "^3.4.0",
     "@types/canvas-confetti": "^1.6.0",

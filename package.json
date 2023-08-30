@@ -14,14 +14,14 @@
     "protogen": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=. ./src/proto/*.proto"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^3.1.0",
-    "@astrojs/tailwind": "^4.0.0",
+    "@astrojs/svelte": "^3.1.1",
+    "@astrojs/tailwind": "^5.0.0",
     "@nuintun/qrcode": "^3.4.0",
     "@types/canvas-confetti": "^1.6.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "@zip.js/zip.js": "^2.7.24",
-    "astro": "^2.10.7",
+    "astro": "^3.0.2",
     "astrojs-service-worker": "^1.0.0",
     "autoprefixer": "^10.4.14",
     "canvas-confetti": "^1.6.0",

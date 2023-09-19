@@ -1,4 +1,8 @@
-<button id="darkmode-toggle" class="swap swap-rotate bg-base-100 p-2" aria-label="dark mode">
+<button
+  id="darkmode-toggle"
+  class="swap swap-rotate p-2"
+  aria-label="dark mode"
+>
   <div class="swap-on">
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -34,30 +38,45 @@
   </div>
 </button>
 
-<script>
-  import { darkModeAtom, getDarkMode, setDarkMode } from '../../stores/darkModeStore';
+<script is:inline>
+const localStorageKey = "darkMode";
+let localDarkMode = localStorage.getItem(localStorageKey);
+let darkMode = false;
+// initial dark mode from local storage or media
+switch (localDarkMode) {
+  case "true":
+    darkMode = true;
+    break;
+  case "false":
+    darkMode = false;
+    break;
+  case null:
+    darkMode =
+      window?.matchMedia?.("(prefers-color-scheme:dark)")?.matches || false;
+}
 
-  const button = document.getElementById('darkmode-toggle') as HTMLButtonElement;
+const button = document.getElementById("darkmode-toggle");
+const setToggleClass = (darkMode) => {
+  if (darkMode) {
+    button.classList.add("swap-active");
+  } else {
+    button.classList.remove("swap-active");
+  }
+};
 
-  let darkMode = getDarkMode();
-
-  const setToggleClass = (darkMode: boolean) => {
-    if (darkMode) {
-      button.classList.add('swap-active');
-    } else {
-      button.classList.remove('swap-active');
-    }
-  };
-
+function setTheme(darkMode) {
   setToggleClass(darkMode);
 
-  darkModeAtom.listen((darkMode) => {
-    darkMode = darkMode;
-  });
+  localStorage.setItem(localStorageKey, darkMode ? "true" : "false");
+  document
+    ?.querySelector("html")
+    ?.setAttribute("data-theme", darkMode ? "dark" : "light");
+}
 
-  button.onclick = () => {
-    darkMode = !darkMode;
-    setToggleClass(darkMode);
-    setDarkMode(darkMode);
-  };
+button.onclick = () => {
+  darkMode = !darkMode;
+  setTheme(darkMode);
+};
+
+setTheme(darkMode);
 </script>

@@ -12,7 +12,6 @@
     importRsaPublicKeyFromBase64
   } from '../utils/crypto';
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
-  import Spinner from './Spinner.svelte';
   import type { SendOptions } from '../type';
   import Sender from './sender/Sender.svelte';
   import Receiver from './receiver/Receiver.svelte';
@@ -162,7 +161,7 @@
 <Collapse title="1. Generate Offer" isOpen={!offerLink}>
   {#if generating}
     <div class="flex flex-col items-center justify-center gap-2">
-      <Spinner />
+      <span class="loading loading-spinner loading-lg" />
       <div>Generating Offer</div>
     </div>
   {:else}

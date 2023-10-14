@@ -10,7 +10,6 @@
     importRsaPublicKeyFromBase64
   } from '../utils/crypto';
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
-  import Spinner from '../components/Spinner.svelte';
   import Receiver from '../components/receiver/Receiver.svelte';
   import Sender from '../components/sender/Sender.svelte';
   import ClipboardIcon from '../components/icons/ClipboardIcon.svelte';
@@ -173,7 +172,7 @@
     </div>
   {:else}
     <div class="flex flex-col items-center justify-center gap-2">
-      <Spinner />
+      <span class="loading loading-spinner loading-lg" />
       <div>Generating Answer</div>
     </div>
   {/if}

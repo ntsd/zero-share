@@ -93,7 +93,7 @@
   }
 
   function handlePasteEvent(event: ClipboardEvent): void {
-    const clipboardData = event.clipboardData || window.clipboardData;
+    const clipboardData = event.clipboardData;
     if (!clipboardData) return;
 
     // Handle text data

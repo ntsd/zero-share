@@ -1,33 +1,23 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
-  import { onDestroy } from 'svelte';
-  import { toastAtom } from '../stores/toastStore';
+  import { toastAtom, type ToastMessage } from '../stores/toastStore';
 
-  interface Toast {
-    text: string;
+  interface Toast extends ToastMessage {
     visible: boolean;
-    status: 'info' | 'success' | 'error';
   }
 
-  const duration = 3000;
   let toasts: Toast[] = [];
 
-  function addToast(text: string, status: 'info' | 'success' | 'error'): void {
-    const toast = { text, visible: true, status };
-    toasts = [toast, ...toasts];
+  toastAtom.subscribe((toastMessage) => {
+    if (toastMessage) {
+      const toast = { ...toastMessage, visible: true };
+      toasts = [toast, ...toasts];
 
-    setTimeout(() => {
-      toast.visible = false;
-      toasts = toasts.filter((t) => t !== toast);
-    }, duration);
-  }
-
-  const unsubscribe = toastAtom.subscribe((t) => {
-    if (t) addToast(t.message, t.status);
-  });
-
-  onDestroy(() => {
-    unsubscribe();
+      setTimeout(() => {
+        toast.visible = false;
+        toasts = toasts.filter((t) => t !== toast);
+      }, toastMessage.duration);
+    }
   });
 </script>
 
@@ -40,7 +30,7 @@
       style={toast.visible ? '' : 'display: none;'}
     >
       <div>
-        <span>{toast.text}</span>
+        <span>{toast.message}</span>
       </div>
     </div>
   {/each}

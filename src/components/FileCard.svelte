@@ -2,8 +2,12 @@
   import { FileStatus, type FileDetail } from '../type';
   import { humanFileSize } from '../utils/humanFIleSize';
 
-  export let fileDetail: FileDetail;
-  export let isSender: boolean;
+  type Props = {
+    fileDetail: FileDetail;
+    isSender: boolean;
+    children: () => any;
+  };
+  const { fileDetail, isSender, children }: Props = $props();
 </script>
 
 <div class="card bg-base-100 shadow-lg shadow-base-300">
@@ -40,10 +44,10 @@
           value={isNaN(fileDetail.progress) ? 100 : fileDetail.progress}
           max="100"
           class="progress progress-accent"
-        />
+        ></progress>
       </div>
       <div class="col-span-4 flex justify-end">
-        <slot />
+        {@render children?.()}
       </div>
     </div>
   </div>

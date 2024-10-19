@@ -2,14 +2,19 @@
   import { QRByte, Encoder, ErrorCorrectionLevel } from '@nuintun/qrcode';
   import QrIcon from '../icons/QrIcon.svelte';
 
-  export let title: string;
-  export let qrData: string;
-  export let correctionLevel: ErrorCorrectionLevel = ErrorCorrectionLevel.L;
+  type Props = {
+    title: string;
+    qrData: string;
+    correctionLevel?: ErrorCorrectionLevel;
+  };
+
+  const { title, qrData, correctionLevel = ErrorCorrectionLevel.L }: Props = $props();
+
   export function close() {
     isModalOpen = false;
   }
 
-  let isModalOpen = false;
+  let isModalOpen = $state(false);
 
   const qrcode: Encoder = new Encoder({
     encodingHint: true,

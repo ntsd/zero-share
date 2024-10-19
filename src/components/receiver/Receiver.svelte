@@ -9,16 +9,20 @@
   import { FileStatus, type ReceiveOptions, type ReceivingFile } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
 
-  export let dataChannel: RTCDataChannel;
-  export let isEncrypt: boolean;
-  export let rsa: CryptoKeyPair;
+  type Props = {
+    dataChannel: RTCDataChannel;
+    isEncrypt: boolean;
+    rsa: CryptoKeyPair | undefined;
+  };
 
-  let receiveOptions: ReceiveOptions = defaultReceiveOptions;
-  let receivingFiles: { [key: string]: ReceivingFile } = {};
+  let { dataChannel, isEncrypt, rsa }: Props = $props();
+
+  let receiveOptions: ReceiveOptions = $state(defaultReceiveOptions);
+  let receivingFiles: { [key: string]: ReceivingFile } = $state({});
 
   export async function onMetaData(id: string, metaData: MetaData) {
     let aesKey: CryptoKey | undefined;
-    if (isEncrypt) {
+    if (isEncrypt && rsa) {
       aesKey = await decryptAesKeyWithRsaPrivateKey(rsa.privateKey, metaData.key);
     }
 
@@ -197,8 +201,7 @@
   <ReceiverOptions onUpdate={onOptionsUpdate} />
   {#if Object.keys(receivingFiles).length > 0}
     <ReceivingFileList {receivingFiles} {onRemove} {onDownload} {onAccept} {onDeny} />
-    <button class="btn btn-primary mt-2" on:click={downloadAllFiles}
-      >Download all files (zip)</button
+    <button class="btn btn-primary mt-2" onclick={downloadAllFiles}>Download all files (zip)</button
     >
   {:else}
     <p class="mt-4">Connected, Waiting for files...</p>

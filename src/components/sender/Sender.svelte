@@ -8,12 +8,16 @@
   import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../../proto/message';
   import { addToastMessage } from '../../stores/toastStore';
 
-  export let dataChannel: RTCDataChannel;
-  export let chunkSize: number;
-  export let isEncrypt: boolean;
-  export let rsaPub: CryptoKey;
+  type Props = {
+    dataChannel: RTCDataChannel;
+    chunkSize: number;
+    isEncrypt: boolean;
+    rsaPub: CryptoKey | undefined;
+  };
 
-  let sendingFiles: { [key: string]: SendingFile } = {};
+  const { dataChannel, chunkSize, isEncrypt, rsaPub }: Props = $props();
+
+  let sendingFiles: { [key: string]: SendingFile } = $state({});
 
   export function onReceiveEvent(id: string, receiveEvent: ReceiveEvent) {
     const sendingFile = sendingFiles[id];
@@ -154,7 +158,7 @@
     Array.from(files).forEach(async (file) => {
       let aesKey;
       let aesEncrypted = new Uint8Array();
-      if (isEncrypt) {
+      if (isEncrypt && rsaPub) {
         aesKey = await generateAesKey();
         aesEncrypted = await encryptAesKeyWithRsaPublicKey(rsaPub, aesKey);
       }
@@ -189,7 +193,7 @@
   <DragAndDrop {onFilesPick} />
   {#if Object.keys(sendingFiles).length > 0}
     <SendingFileList {sendingFiles} {onRemove} {onSend} {onStop} {onContinue} />
-    <button class="btn btn-primary mt-2" on:click={sendAllFiles}>Send all files</button>
+    <button class="btn btn-primary mt-2" onclick={sendAllFiles}>Send all files</button>
   {:else}
     <p class="mt-4">No files selected</p>
   {/if}

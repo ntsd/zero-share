@@ -2,10 +2,13 @@
   import { onMount } from 'svelte';
   import { addToastMessage } from '../../stores/toastStore';
 
+  type Props = {
+    onFilesPick: (files: FileList) => void;
+  };
+  const { onFilesPick }: Props = $props();
+
   let dropArea: HTMLElement;
   let fileInput: HTMLInputElement;
-
-  export let onFilesPick: (files: FileList) => void;
 
   function setupDropAreaListeners() {
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
@@ -129,7 +132,7 @@
     class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
     title=""
     bind:this={fileInput}
-    on:change={handleFileInputChange}
+    onchange={handleFileInputChange}
   />
 
   <div class="flex flex-col items-center justify-center py-10 text-center">
@@ -154,6 +157,6 @@
     <p class="m-0 xl:hidden">Click to this area</p>
   </div>
 </label>
-<button class="btn btn-secondary xl:hidden" on:click={handlePastFromClipboardButton}
+<button class="btn btn-secondary xl:hidden" onclick={handlePastFromClipboardButton}
   >Paste from clipboard</button
 >

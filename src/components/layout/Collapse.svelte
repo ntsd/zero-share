@@ -1,6 +1,10 @@
 <script lang="ts">
-  export let title: string;
-  export let isOpen: boolean = false;
+  type Props = {
+    title: string;
+    isOpen?: boolean;
+    children: () => any;
+  };
+  const { title, isOpen = false, children }: Props = $props();
 </script>
 
 <div
@@ -12,7 +16,7 @@
   </div>
   <div class="collapse-content">
     {#if isOpen}
-      <slot />
+      {@render children?.()}
     {/if}
   </div>
 </div>

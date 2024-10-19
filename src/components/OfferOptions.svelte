@@ -3,15 +3,18 @@
   import type { SendOptions } from '../type';
   import CustomSelect from './CustomSelect.svelte';
 
-  let encryptionEnabled = defaultSendOptions.isEncrypt ? 'true' : 'false';
-  let chunkSize: number = defaultSendOptions.chunkSize;
-  let iceServer: string = defaultSendOptions.iceServer;
+  type Props = {
+    onUpdate: (options: SendOptions) => void;
+  };
+  const { onUpdate }: Props = $props();
+
+  let encryptionEnabled = $state(defaultSendOptions.isEncrypt ? 'true' : 'false');
+  let chunkSize: number = $state(defaultSendOptions.chunkSize);
+  let iceServer: string = $state(defaultSendOptions.iceServer);
 
   function getEncryptionEnabled(): boolean {
     return encryptionEnabled === 'true';
   }
-
-  export let onUpdate: (options: SendOptions) => void;
 
   function onChange() {
     onUpdate({
@@ -30,7 +33,7 @@
         Enable E2E encryption for a more secure but slower transfer.
       </p>
     </div>
-    <select bind:value={encryptionEnabled} on:change={onChange} class="select select-bordered">
+    <select bind:value={encryptionEnabled} onchange={onChange} class="select select-bordered">
       <option value="true">On</option>
       <option value="false">Off</option>
     </select>
@@ -39,11 +42,9 @@
   <div class="flex flex-row justify-between items-center">
     <div>
       <span class="text-sm">Chunk Size</span>
-      <p class="text-xs text-gray-500">
-        Higher make transfer faster but might cause buffer issue.
-      </p>
+      <p class="text-xs text-gray-500">Higher make transfer faster but might cause buffer issue.</p>
     </div>
-    <select bind:value={chunkSize} on:change={onChange} class="select select-bordered">
+    <select bind:value={chunkSize} onchange={onChange} class="select select-bordered">
       <option value={8 * 1024}>8kb</option>
       <option value={16 * 1024}>16kb</option>
       <option value={32 * 1024}>32kb</option>
@@ -60,6 +61,6 @@
   </div>
 
   <div class="flex flex-row justify-between items-center">
-    <CustomSelect options={stunServers} customTextEnabled={true} value={iceServer} />
+    <CustomSelect options={stunServers} customTextEnabled={true} bind:value={iceServer} />
   </div>
 </div>

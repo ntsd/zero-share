@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { QrcodeSuccessCallback, QrcodeErrorCallback } from 'html5-qrcode';
-  import { Html5Qrcode } from 'html5-qrcode/esm/html5-qrcode';
+  import QrScanner from 'qr-scanner';
   import { onMount } from 'svelte';
 
   type Props = {
@@ -10,45 +9,26 @@
   const { onScanSuccess }: Props = $props();
 
   let isModalOpen = $state(false);
-  let html5Qrcode: Html5Qrcode | undefined = $state(undefined);
+  let qrScanner: QrScanner | undefined = $state(undefined);
 
   onMount(() => {
-    html5Qrcode = new Html5Qrcode('reader');
+    qrScanner = new QrScanner(
+      document.getElementById('reader') as any,
+      (decodedText: QrScanner.ScanResult) => {
+        isModalOpen = false;
+        onScanSuccess(decodedText.data);
+      },
+      {}
+    );
   });
 
-  // Square QR box with edge size = 70% of the smaller edge of the viewfinder.
-  let qrboxFunction = function (viewfinderWidth: number, viewfinderHeight: number) {
-    let minEdgePercentage = 0.7; // 70%
-    let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
-    let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
-    return {
-      width: qrboxSize,
-      height: qrboxSize
-    };
-  };
-
   function start() {
-    html5Qrcode?.start(
-      { facingMode: 'environment' },
-      {
-        fps: 10,
-        qrbox: qrboxFunction
-      },
-      onScanSuccessCallback,
-      onScanFailure
-    );
+    qrScanner?.start();
   }
 
   async function stop() {
-    await html5Qrcode?.stop();
+    await qrScanner?.stop();
   }
-
-  const onScanSuccessCallback: QrcodeSuccessCallback = (decodedText, result) => {
-    isModalOpen = false;
-    onScanSuccess(decodedText);
-  };
-
-  const onScanFailure: QrcodeErrorCallback = (errorMessage, error) => {};
 </script>
 
 <label for="scan-qr-modal" class="btn gap-2"> Scan QR Code </label>
@@ -72,6 +52,6 @@
     for=""
   >
     <h3 class="text-lg font-bold">Scan QR Code</h3>
-    <reader class="w-96 max-w-full h-auto" id="reader"> </reader>
+    <video class="w-96 max-w-full h-auto" id="reader"> </video>
   </label>
 </label>

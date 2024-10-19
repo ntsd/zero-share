@@ -15,9 +15,9 @@
   import type { SendOptions } from '../type';
   import Sender from './sender/Sender.svelte';
   import Receiver from './receiver/Receiver.svelte';
-  import ClipboardIcon from './icons/ClipboardIcon.svelte';
   import QrModal from './qr/QrModal.svelte';
   import ScanQrModal from './qr/ScanQrModal.svelte';
+  import Toast from './Toast.svelte';
 
   // options
   let sendOptions = $state(defaultSendOptions);
@@ -213,9 +213,7 @@
       </div>
     </div>
     <div class="mt-4 flex gap-2">
-      <button class="btn btn-primary gap-2" onclick={copyOfferLink}>
-        <ClipboardIcon />Copy Link
-      </button>
+      <button class="btn btn-primary gap-2" onclick={copyOfferLink}> Copy Link </button>
       <QrModal qrData={offerLink} title="Offer QR Code" />
     </div>
     <p class="mt-4">Enter the Answer Code to accept the Answer or scan the QR Code.</p>
@@ -276,3 +274,5 @@
     </div>
   {/if}
 </Collapse>
+
+<Toast />

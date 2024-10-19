@@ -2,7 +2,6 @@
 import Footer from '../components/layout/Footer.astro';
 import Navbar from '../components/layout/Navbar.astro';
 
-import Toast from '../components/Toast.svelte';
 import { pageDescription } from '../configs';
 
 interface Props {
@@ -40,6 +39,5 @@ const { title, description } = Astro.props;
       </div>
       <Footer />
     </div>
-    <Toast client:visible client:only="svelte" />
   </body>
 </html>

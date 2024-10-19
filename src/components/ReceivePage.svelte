@@ -12,8 +12,8 @@
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
   import Receiver from '../components/receiver/Receiver.svelte';
   import Sender from '../components/sender/Sender.svelte';
-  import ClipboardIcon from '../components/icons/ClipboardIcon.svelte';
   import QrModal from '../components/qr/QrModal.svelte';
+  import Toast from './Toast.svelte';
 
   // get url parameters
   const urlSearchParams = new URLSearchParams(window.location.search);
@@ -155,14 +155,12 @@
       </div>
     </div>
     <div class="mt-4 flex gap-2">
-      <button class="btn btn-primary gap-2" onclick={copyAnswerCode}>
-        <ClipboardIcon />Copy Answer
-      </button>
+      <button class="btn btn-primary gap-2" onclick={copyAnswerCode}> Copy Answer </button>
       <QrModal bind:this={qrModal} qrData={answerSDP} title="Answer QR Code" />
     </div>
   {:else}
     <div class="flex flex-col items-center justify-center gap-2">
-      <span class="loading loading-spinner loading-lg" />
+      <span class="loading loading-spinner loading-lg"></span>
       <div>Generating Answer</div>
     </div>
   {/if}
@@ -204,3 +202,5 @@
     </div>
   {/if}
 </Collapse>
+
+<Toast />

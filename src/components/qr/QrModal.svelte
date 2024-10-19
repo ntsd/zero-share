@@ -1,14 +1,12 @@
 <script lang="ts">
   import { QRByte, Encoder, ErrorCorrectionLevel } from '@nuintun/qrcode';
-  import QrIcon from '../icons/QrIcon.svelte';
 
   type Props = {
     title: string;
     qrData: string;
-    correctionLevel?: ErrorCorrectionLevel;
   };
 
-  const { title, qrData, correctionLevel = ErrorCorrectionLevel.L }: Props = $props();
+  const { title, qrData }: Props = $props();
 
   export function close() {
     isModalOpen = false;
@@ -18,7 +16,7 @@
 
   const qrcode: Encoder = new Encoder({
     encodingHint: true,
-    errorCorrectionLevel: correctionLevel,
+    errorCorrectionLevel: ErrorCorrectionLevel.M,
     version: 0 // 0 for automatic version
   })
     .write(
@@ -37,10 +35,7 @@
     .make();
 </script>
 
-<label for="qr-modal" class="btn gap-2">
-  <QrIcon />
-  QR Code
-</label>
+<label for="qr-modal" class="btn gap-2"> QR Code </label>
 
 <input type="checkbox" id="qr-modal" class="modal-toggle" bind:checked={isModalOpen} />
 <label for="qr-modal" class="modal cursor-pointer">

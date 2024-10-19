@@ -3,9 +3,14 @@
   import { Html5Qrcode } from 'html5-qrcode/esm/html5-qrcode';
   import { onMount } from 'svelte';
 
-  let isModalOpen = false;
-  let html5Qrcode: Html5Qrcode;
-  export let onScanSuccess: (data: string) => void;
+  type Props = {
+    onScanSuccess: (data: string) => void;
+  };
+
+  const { onScanSuccess }: Props = $props();
+
+  let isModalOpen = $state(false);
+  let html5Qrcode: Html5Qrcode | undefined = $state(undefined);
 
   onMount(() => {
     html5Qrcode = new Html5Qrcode('reader');
@@ -23,7 +28,7 @@
   };
 
   function start() {
-    html5Qrcode.start(
+    html5Qrcode?.start(
       { facingMode: 'environment' },
       {
         fps: 10,
@@ -35,7 +40,7 @@
   }
 
   async function stop() {
-    await html5Qrcode.stop();
+    await html5Qrcode?.stop();
   }
 
   const onScanSuccessCallback: QrcodeSuccessCallback = (decodedText, result) => {
@@ -53,7 +58,7 @@
   id="scan-qr-modal"
   class="modal-toggle"
   bind:checked={isModalOpen}
-  on:change={() => {
+  onchange={() => {
     if (isModalOpen) {
       start();
       return;
@@ -67,6 +72,6 @@
     for=""
   >
     <h3 class="text-lg font-bold">Scan QR Code</h3>
-    <reader class="w-96 max-w-full h-auto" id="reader" />
+    <reader class="w-96 max-w-full h-auto" id="reader"> </reader>
   </label>
 </label>

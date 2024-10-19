@@ -1,6 +1,10 @@
 <script lang="ts">
-  let show = false;
-  export let onChange: (show: boolean) => void;
+  type Props = {
+    onChange: (show: boolean) => void;
+  };
+  const { onChange }: Props = $props();
+
+  let show = $state(false);
 
   const id = 'eye-input';
 </script>
@@ -10,7 +14,7 @@
     {id}
     type="checkbox"
     bind:checked={show}
-    on:change={() => {
+    onchange={() => {
       onChange(show);
     }}
   />

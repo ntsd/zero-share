@@ -21,25 +21,25 @@
   import { ErrorCorrectionLevel } from '@nuintun/qrcode';
 
   // options
-  let sendOptions = defaultSendOptions;
-  let rsa: CryptoKeyPair; // private key
-  let rsaPub: CryptoKey; // public key from other peer
+  let sendOptions = $state(defaultSendOptions);
+  let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
+  let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
 
   // webRTC
   let connection: RTCPeerConnection;
-  let dataChannel: RTCDataChannel;
-  let isConnecting = false;
-  let generating = false;
-  let offerLink = '';
-  let showOfferLink = false;
-  let answerSDP = '';
+  let dataChannel: RTCDataChannel | undefined = $state(undefined);
+  let isConnecting = $state(false);
+  let generating = $state(false);
+  let offerLink = $state('');
+  let showOfferLink = $state(false);
+  let answerSDP = $state('');
 
   // components
-  let receiver: Receiver;
-  let sender: Sender;
-  let sendMode = true;
-  let showNewFile = false;
-  let showOfferOptions = false;
+  let receiver: Receiver | undefined = $state(undefined);
+  let sender: Sender | undefined = $state(undefined);
+  let sendMode = $state(true);
+  let showNewFile = $state(false);
+  let showOfferOptions = $state(false);
 
   async function createSDPLink(offer: RTCSessionDescription) {
     let publicKeyBase64 = '';
@@ -161,7 +161,7 @@
 <Collapse title="1. Generate Offer" isOpen={!offerLink}>
   {#if generating}
     <div class="flex flex-col items-center justify-center gap-2">
-      <span class="loading loading-spinner loading-lg" />
+      <span class="loading loading-spinner loading-lg"></span>
       <div>Generating Offer</div>
     </div>
   {:else}
@@ -179,11 +179,11 @@
         <OfferOptions onUpdate={onOptionsUpdate} />
       {/if}
       <div class="mt-4 flex flex-row gap-2">
-        <button class="btn btn-primary" on:click={generateOfferLink}>Generate Offer</button>
+        <button class="btn btn-primary" onclick={generateOfferLink}>Generate Offer</button>
         {#if !showOfferOptions}
           <button
             class="btn btn-secondary gap-2"
-            on:click={() => {
+            onclick={() => {
               showOfferOptions = true;
             }}
           >
@@ -214,7 +214,7 @@
       </div>
     </div>
     <div class="mt-4 flex gap-2">
-      <button class="btn btn-primary gap-2" on:click={copyOfferLink}>
+      <button class="btn btn-primary gap-2" onclick={copyOfferLink}>
         <ClipboardIcon />Copy Link
       </button>
       <QrModal qrData={offerLink} title="Offer QR Code" correctionLevel={ErrorCorrectionLevel.M} />
@@ -224,7 +224,7 @@
       <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
     </div>
     <div class="mt-4 flex gap-2">
-      <button class="btn btn-primary" on:click={acceptAnswer}>Accept Answer</button>
+      <button class="btn btn-primary" onclick={acceptAnswer}>Accept Answer</button>
       <ScanQrModal
         onScanSuccess={(data) => {
           answerSDP = data;
@@ -236,41 +236,44 @@
 </Collapse>
 
 <Collapse title="3. Transfer Files" isOpen={isConnecting}>
-  <div class="flex w-full mb-4 mt-2">
-    <button
-      class="btn {sendMode ? 'btn-primary' : 'btn-ghost'} flex-grow border-black border-dotted"
-      on:click={() => {
-        sendMode = true;
-      }}
-    >
-      <span class="btm-nav-label">Send</span>
-    </button>
-    <div class="indicator flex-grow">
-      <span
-        class="indicator-item badge badge-accent animate-bounce {showNewFile ? 'block' : 'hidden'}"
-        >New files</span
-      >
+  {#if dataChannel}
+    <div class="flex w-full mb-4 mt-2">
       <button
-        class="btn {sendMode ? 'btn-ghost' : 'btn-primary'} w-full border-black border-dotted"
-        on:click={() => {
-          showNewFile = false;
-          sendMode = false;
+        class="btn {sendMode ? 'btn-primary' : 'btn-ghost'} flex-grow border-black border-dotted"
+        onclick={() => {
+          sendMode = true;
         }}
       >
-        <span class="btm-nav-label">Receive</span>
+        <span class="btm-nav-label">Send</span>
       </button>
+      <div class="indicator flex-grow">
+        <span
+          class="indicator-item badge badge-accent animate-bounce {showNewFile
+            ? 'block'
+            : 'hidden'}">New files</span
+        >
+        <button
+          class="btn {sendMode ? 'btn-ghost' : 'btn-primary'} w-full border-black border-dotted"
+          onclick={() => {
+            showNewFile = false;
+            sendMode = false;
+          }}
+        >
+          <span class="btm-nav-label">Receive</span>
+        </button>
+      </div>
     </div>
-  </div>
-  <div hidden={!sendMode}>
-    <Sender
-      bind:this={sender}
-      {dataChannel}
-      {rsaPub}
-      isEncrypt={sendOptions.isEncrypt}
-      chunkSize={sendOptions.chunkSize}
-    />
-  </div>
-  <div hidden={sendMode}>
-    <Receiver bind:this={receiver} {dataChannel} isEncrypt={sendOptions.isEncrypt} {rsa} />
-  </div>
+    <div hidden={!sendMode}>
+      <Sender
+        bind:this={sender}
+        {dataChannel}
+        {rsaPub}
+        isEncrypt={sendOptions.isEncrypt}
+        chunkSize={sendOptions.chunkSize}
+      />
+    </div>
+    <div hidden={sendMode}>
+      <Receiver bind:this={receiver} {dataChannel} isEncrypt={sendOptions.isEncrypt} {rsa} />
+    </div>
+  {/if}
 </Collapse>

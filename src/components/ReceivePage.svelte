@@ -15,24 +15,6 @@
   import ClipboardIcon from '../components/icons/ClipboardIcon.svelte';
   import QrModal from '../components/qr/QrModal.svelte';
 
-  // options
-  let isEncrypt = defaultSendOptions.isEncrypt;
-  let chunkSize = defaultSendOptions.chunkSize;
-  let rsa: CryptoKeyPair; // private key
-  let rsaPub: CryptoKey; // public key from other peer
-
-  // webRTC
-  let iceServer = defaultSendOptions.iceServer;
-  let answerSDP = '';
-  let showAnswerCode = false;
-
-  // components
-  let receiver: Receiver;
-  let sender: Sender;
-  let sendMode = false;
-  let showNewFile = false;
-  let qrModal: QrModal;
-
   // get url parameters
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
@@ -42,29 +24,37 @@
     window.location.assign(window.location.origin);
     throw new Error('no sdp found');
   }
-  const iceServerParam = params['i'];
-  if (iceServerParam) {
-    iceServer = iceServerParam;
-  }
-  const chunkSizeParam = params['c'];
-  if (chunkSizeParam) {
-    chunkSize = parseInt(chunkSizeParam);
-  }
+
   const pubKeyParam = params['p'];
-  if (pubKeyParam) {
-    isEncrypt = true;
+
+  // options
+  const isEncrypt: boolean = pubKeyParam ? true : defaultSendOptions.isEncrypt;
+  const chunkSize = params['c'] || defaultSendOptions.chunkSize;
+  let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
+  let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
+  if (isEncrypt) {
     importRsaPublicKeyFromBase64(pubKeyParam).then((pub) => {
       rsaPub = pub;
     });
-  } else {
-    isEncrypt = false;
   }
+
+  // webRTC
+  const iceServer = params['i'] || defaultSendOptions.iceServer;
+  let answerSDP = $state('');
+  let showAnswerCode = $state(false);
+  let isConnecting = $state(false);
+  let dataChannel: RTCDataChannel | undefined = $state(undefined);
+
+  // components
+  let receiver: Receiver | undefined = $state(undefined);
+  let sender: Sender | undefined = $state(undefined);
+  let sendMode = $state(false);
+  let showNewFile = $state(false);
+  let qrModal: QrModal | undefined = $state(undefined);
 
   const connection = new RTCPeerConnection({
     iceServers: [{ urls: iceServer }]
   });
-  let isConnecting = false;
-  let dataChannel: RTCDataChannel;
 
   connection.ondatachannel = (event) => {
     dataChannel = event.channel;
@@ -165,7 +155,7 @@
       </div>
     </div>
     <div class="mt-4 flex gap-2">
-      <button class="btn btn-primary gap-2" on:click={copyAnswerCode}>
+      <button class="btn btn-primary gap-2" onclick={copyAnswerCode}>
         <ClipboardIcon />Copy Answer
       </button>
       <QrModal bind:this={qrModal} qrData={answerSDP} title="Answer QR Code" />
@@ -177,36 +167,40 @@
     </div>
   {/if}
 </Collapse>
+
 <Collapse title="2. Transfer Files" isOpen={isConnecting}>
-  <div class="flex w-full mb-4 mt-2">
-    <button
-      class="btn {sendMode ? 'btn-primary' : 'btn-ghost'} flex-grow border-black border-dotted"
-      on:click={() => {
-        sendMode = true;
-      }}
-    >
-      <span class="btm-nav-label">Send</span>
-    </button>
-    <div class="indicator flex-grow">
-      <span
-        class="indicator-item badge badge-accent animate-bounce {showNewFile ? 'block' : 'hidden'}"
-        >New files</span
-      >
+  {#if dataChannel}
+    <div class="flex w-full mb-4 mt-2">
       <button
-        class="btn {sendMode ? 'btn-ghost' : 'btn-primary'} w-full border-black border-dotted"
-        on:click={() => {
-          showNewFile = false;
-          sendMode = false;
+        class="btn {sendMode ? 'btn-primary' : 'btn-ghost'} flex-grow border-black border-dotted"
+        onclick={() => {
+          sendMode = true;
         }}
       >
-        <span class="btm-nav-label">Receive</span>
+        <span class="btm-nav-label">Send</span>
       </button>
+      <div class="indicator flex-grow">
+        <span
+          class="indicator-item badge badge-accent animate-bounce {showNewFile
+            ? 'block'
+            : 'hidden'}">New files</span
+        >
+        <button
+          class="btn {sendMode ? 'btn-ghost' : 'btn-primary'} w-full border-black border-dotted"
+          onclick={() => {
+            showNewFile = false;
+            sendMode = false;
+          }}
+        >
+          <span class="btm-nav-label">Receive</span>
+        </button>
+      </div>
     </div>
-  </div>
-  <div hidden={!sendMode}>
-    <Sender bind:this={sender} {dataChannel} {rsaPub} {isEncrypt} {chunkSize} />
-  </div>
-  <div hidden={sendMode}>
-    <Receiver bind:this={receiver} {dataChannel} {isEncrypt} {rsa} />
-  </div>
+    <div hidden={!sendMode}>
+      <Sender bind:this={sender} {dataChannel} {rsaPub} {isEncrypt} {chunkSize} />
+    </div>
+    <div hidden={sendMode}>
+      <Receiver bind:this={receiver} {dataChannel} {isEncrypt} {rsa} />
+    </div>
+  {/if}
 </Collapse>

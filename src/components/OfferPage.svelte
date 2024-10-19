@@ -18,7 +18,6 @@
   import ClipboardIcon from './icons/ClipboardIcon.svelte';
   import QrModal from './qr/QrModal.svelte';
   import ScanQrModal from './qr/ScanQrModal.svelte';
-  import { ErrorCorrectionLevel } from '@nuintun/qrcode';
 
   // options
   let sendOptions = $state(defaultSendOptions);
@@ -217,7 +216,7 @@
       <button class="btn btn-primary gap-2" onclick={copyOfferLink}>
         <ClipboardIcon />Copy Link
       </button>
-      <QrModal qrData={offerLink} title="Offer QR Code" correctionLevel={ErrorCorrectionLevel.M} />
+      <QrModal qrData={offerLink} title="Offer QR Code" />
     </div>
     <p class="mt-4">Enter the Answer Code to accept the Answer or scan the QR Code.</p>
     <div class="relative mt-4">

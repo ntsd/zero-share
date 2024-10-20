@@ -19,7 +19,6 @@
     "@nuintun/qrcode": "^3.4.0",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "@typescript-eslint/parser": "^8.10.0",
-    "@zip.js/zip.js": "^2.7.24",
     "astro": "^4.16.6",
     "astrojs-service-worker": "^2.0.0",
     "autoprefixer": "^10.4.14",

@@ -4,7 +4,6 @@
   import { validateFileMetadata } from '../../utils/validator';
   import { Message, MetaData, ReceiveEvent } from '../../proto/message';
   import ReceivingFileList from './ReceivingFileList.svelte';
-  import * as zip from '@zip.js/zip.js';
   import ReceiverOptions from './ReceiverOptions.svelte';
   import { FileStatus, type ReceiveOptions, type ReceivingFile } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
@@ -152,44 +151,12 @@
   }
 
   async function downloadAllFiles() {
-    const zipFileWriter = new zip.BlobWriter();
-    const zipWriter = new zip.ZipWriter(zipFileWriter);
-
-    let found = false;
-
     for (const key of Object.keys(receivingFiles)) {
       if (receivingFiles[key].status != FileStatus.Success || receivingFiles[key].error) {
         continue;
       }
-
-      const receivedFile = receivingFiles[key];
-      const blobFile = new Blob(receivedFile.receivedChunks, {
-        type: receivedFile.metaData.type
-      });
-      const name = receivedFile.metaData.name;
-
-      const blobReader = new zip.BlobReader(blobFile);
-
-      await zipWriter.add(name, blobReader);
-
-      found = true;
+      onDownload(key);
     }
-
-    await zipWriter.close();
-
-    if (found) {
-      const zipFileBlob = await zipFileWriter.getData();
-
-      const url = URL.createObjectURL(zipFileBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'zero-share.zip';
-      link.click();
-      URL.revokeObjectURL(url);
-      return;
-    }
-
-    addToastMessage('Not found files to download', 'error');
   }
 
   function onOptionsUpdate(options: ReceiveOptions) {

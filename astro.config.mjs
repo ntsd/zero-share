@@ -11,6 +11,9 @@ export default defineConfig({
   compressHTML: true,
   integrations: [tailwind(), svelte(), serviceWorker()],
   vite: {
-    plugins: []
+    plugins: [],
+    resolve: {
+      conditions: ['browser']
+    }
   }
 });

@@ -87,12 +87,12 @@
       const message = Message.decode(new Uint8Array(event.data));
 
       if (message.metaData !== undefined) {
-        receiver.onMetaData(message.id, message.metaData);
+        receiver?.onMetaData(message.id, message.metaData);
         showNewFile = true;
       } else if (message.chunk !== undefined) {
-        receiver.onChunkData(message.id, message.chunk);
+        receiver?.onChunkData(message.id, message.chunk);
       } else if (message.receiveEvent !== undefined) {
-        sender.onReceiveEvent(message.id, message.receiveEvent);
+        sender?.onReceiveEvent(message.id, message.receiveEvent);
       }
     };
     dataChannel.onerror = () => {

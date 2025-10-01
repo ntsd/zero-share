@@ -16,13 +16,9 @@
   });
 </script>
 
-<div class="fixed bottom-4 right-4 space-y-2">
+<div class="toast">
   {#each toasts as toast}
-    <div
-      class="alert alert-{toast.status}"
-      in:fade|global={{ duration: 300 }}
-      out:fade|global={{ duration: 300 }}
-    >
+    <div class="alert alert-{toast.status}">
       <div>
         <span>{toast.message}</span>
       </div>

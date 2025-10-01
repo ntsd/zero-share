@@ -13,7 +13,7 @@
 
   onMount(() => {
     qrScanner = new QrScanner(
-      document.getElementById('reader') as any,
+      document.getElementById('qr-reader') as any,
       (decodedText: QrScanner.ScanResult) => {
         isModalOpen = false;
         onScanSuccess(decodedText.data);
@@ -47,11 +47,8 @@
   }}
 />
 <label for="scan-qr-modal" class="modal cursor-pointer">
-  <label
-    class="modal-box relative flex flex-col justify-center items-center p-2 w-fit max-w-none"
-    for=""
-  >
+  <div class="modal-box relative flex flex-col justify-center items-center p-2 w-fit max-w-none">
     <h3 class="text-lg font-bold">Scan QR Code</h3>
-    <video class="w-96 max-w-full h-auto" id="reader"> </video>
-  </label>
+    <video class="w-96 max-w-full h-auto visible" id="qr-reader"> </video>
+  </div>
 </label>

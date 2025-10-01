@@ -29,7 +29,7 @@
 
   // options
   const isEncrypt: boolean = pubKeyParam ? true : defaultSendOptions.isEncrypt;
-  const chunkSize = params['c'] || defaultSendOptions.chunkSize;
+  const chunkSize = params['c'] ? parseInt(params['c']) : defaultSendOptions.chunkSize;
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
   if (isEncrypt) {
@@ -62,18 +62,18 @@
     dataChannel.onopen = () => {
       addToastMessage('Connected', 'success');
       isConnecting = true;
-      qrModal.close();
+      qrModal?.close();
     };
     dataChannel.onmessage = (event) => {
       const message = Message.decode(new Uint8Array(event.data));
 
       if (message.metaData !== undefined) {
-        receiver.onMetaData(message.id, message.metaData);
+        receiver?.onMetaData(message.id, message.metaData);
         showNewFile = true;
       } else if (message.chunk !== undefined) {
-        receiver.onChunkData(message.id, message.chunk);
+        receiver?.onChunkData(message.id, message.chunk);
       } else if (message.receiveEvent !== undefined) {
-        sender.onReceiveEvent(message.id, message.receiveEvent);
+        sender?.onReceiveEvent(message.id, message.receiveEvent);
       }
     };
     dataChannel.onerror = () => {

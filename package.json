@@ -15,15 +15,13 @@
   },
   "devDependencies": {
     "@astrojs/svelte": "^7.2.0",
-    "@astrojs/tailwind": "^5.1.2",
     "@nuintun/qrcode": "^3.4.0",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "@typescript-eslint/parser": "^8.10.0",
     "astro": "^5.14.1",
     "astrojs-service-worker": "^2.0.0",
-    "autoprefixer": "^10.4.14",
-    "daisyui": "^4.12.13",
-    "daisyui-ntsd": "1.0.10",
+    "autoprefixer": "^10.4.21",
+    "daisyui": "^5.1.25",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^2.45.1",
@@ -35,10 +33,13 @@
     "qr-scanner": "^1.4.2",
     "sdp-compact": "^0.0.6",
     "svelte": "^5.39.6",
-    "tailwindcss": "^3.4.14",
+    "tailwindcss": "^4.1.13",
     "ts-proto": "^1.156.3"
   },
   "overrides": {
     "@sveltejs/vite-plugin-svelte": "^4.0.0"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.13"
   }
 }

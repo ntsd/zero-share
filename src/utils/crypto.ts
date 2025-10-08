@@ -23,7 +23,10 @@ export async function generateAesKey(): Promise<CryptoKey> {
 }
 
 // encryptAesGcm to encrypt a message with an AES-256 key
-export async function encryptAesGcm(key: CryptoKey, message: ArrayBuffer): Promise<Uint8Array> {
+export async function encryptAesGcm(
+  key: CryptoKey,
+  message: ArrayBuffer
+): Promise<Uint8Array<ArrayBuffer>> {
   const iv = crypto.getRandomValues(new Uint8Array(12));
 
   const encryptedData = await crypto.subtle.encrypt({ name: aesGenParams.name, iv }, key, message);
@@ -41,7 +44,7 @@ export async function encryptAesGcm(key: CryptoKey, message: ArrayBuffer): Promi
 export async function encryptAesKeyWithRsaPublicKey(
   publicKey: CryptoKey,
   aesKey: CryptoKey
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   const exportedAesKey = await crypto.subtle.exportKey('raw', aesKey);
   const encryptedAesKey = await crypto.subtle.encrypt(
     { name: rsaGenParams.name },
@@ -54,7 +57,7 @@ export async function encryptAesKeyWithRsaPublicKey(
 // decryptAesKeyWithRsaPrivateKey to decrypt the AES-256 key using the RSA private key
 export async function decryptAesKeyWithRsaPrivateKey(
   privateKey: CryptoKey,
-  encryptedAesKey: Uint8Array
+  encryptedAesKey: Uint8Array<ArrayBuffer>
 ): Promise<CryptoKey> {
   const decryptedAesKey = await crypto.subtle.decrypt(
     { name: 'RSA-OAEP' },
@@ -74,8 +77,8 @@ export async function decryptAesKeyWithRsaPrivateKey(
 // decryptAesGcm to decrypt a message with an AES-256 key
 export async function decryptAesGcm(
   key: CryptoKey,
-  encryptedData: Uint8Array
-): Promise<Uint8Array> {
+  encryptedData: Uint8Array<ArrayBuffer>
+): Promise<Uint8Array<ArrayBuffer>> {
   // Extract the IV from the encrypted data
   const iv = encryptedData.slice(0, 12);
   const encryptedMessage = encryptedData.slice(12);

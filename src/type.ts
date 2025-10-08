@@ -26,7 +26,7 @@ export interface SendingFile extends FileDetail {
 
 export interface ReceivingFile extends FileDetail {
   receivedSize: number;
-  receivedChunks: Uint8Array[];
+  receivedChunks: Uint8Array<ArrayBuffer>[];
 }
 
 export interface SendOptions {

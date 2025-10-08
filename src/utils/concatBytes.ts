@@ -1,6 +1,9 @@
 // concatUint8Arrays concat 2 Uint8Array with split index to determine
 // split index (2 bytes) | array 1 | array 2
-function concatUint8Arrays(array1: Uint8Array, array2: Uint8Array): Uint8Array {
+function concatUint8Arrays(
+  array1: Uint8Array<ArrayBuffer>,
+  array2: Uint8Array<ArrayBuffer>
+): Uint8Array<ArrayBuffer> {
   const splitIndex = new Uint16Array([array1.length]);
   const splitIndexBytes = new Uint8Array(splitIndex.buffer);
 
@@ -14,7 +17,9 @@ function concatUint8Arrays(array1: Uint8Array, array2: Uint8Array): Uint8Array {
 
 // splitUint8Array split Uint8Array to 2 Uint8Array determine by splitIndex
 // split index (2 bytes) | array 1 | array 2
-function splitUint8Array(combinedArray: Uint8Array): [Uint8Array, Uint8Array] {
+function splitUint8Array(
+  combinedArray: Uint8Array<ArrayBuffer>
+): [Uint8Array<ArrayBuffer>, Uint8Array<ArrayBuffer>] {
   const splitIndexBytes = combinedArray.slice(0, 2);
   const splitIndex = new Uint16Array(splitIndexBytes.buffer)[0];
 

@@ -22,7 +22,10 @@
   export async function onMetaData(id: string, metaData: MetaData) {
     let aesKey: CryptoKey | undefined;
     if (isEncrypt && rsa) {
-      aesKey = await decryptAesKeyWithRsaPrivateKey(rsa.privateKey, metaData.key);
+      aesKey = await decryptAesKeyWithRsaPrivateKey(
+        rsa.privateKey,
+        metaData.key as Uint8Array<ArrayBuffer>
+      );
     }
 
     receivingFiles[id] = {
@@ -65,7 +68,7 @@
     }
   }
 
-  export async function onChunkData(id: string, chunk: Uint8Array) {
+  export async function onChunkData(id: string, chunk: Uint8Array<ArrayBuffer>) {
     let arrayBuffer = chunk;
 
     dataChannel.send(

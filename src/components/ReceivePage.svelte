@@ -71,7 +71,7 @@
         receiver?.onMetaData(message.id, message.metaData);
         showNewFile = true;
       } else if (message.chunk !== undefined) {
-        receiver?.onChunkData(message.id, message.chunk);
+        receiver?.onChunkData(message.id, message.chunk as Uint8Array<ArrayBuffer>);
       } else if (message.receiveEvent !== undefined) {
         sender?.onReceiveEvent(message.id, message.receiveEvent);
       }

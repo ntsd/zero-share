@@ -9,8 +9,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "prettier --plugin-search-dir . --check . && eslint .",
-    "format": "prettier --plugin-search-dir . --write .",
+    "lint": "prettier --check . && eslint .",
+    "format": "prettier --write .",
     "protogen": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=. ./src/proto/*.proto"
   },
   "devDependencies": {
@@ -34,7 +34,7 @@
     "sdp-compact": "^0.0.6",
     "svelte": "^5.39.6",
     "tailwindcss": "^4.1.13",
-    "ts-proto": "^1.156.3"
+    "ts-proto": "^2.7.7"
   },
   "overrides": {
     "@sveltejs/vite-plugin-svelte": "^4.0.0"

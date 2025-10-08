@@ -142,11 +142,11 @@
     <div class="relative mt-4">
       <input
         type={showAnswerCode ? 'text' : 'password'}
-        class="input input-bordered w-full"
+        class="input w-full pr-10"
         value={answerSDP}
         readonly
       />
-      <div class="absolute top-0 right-0 p-1">
+      <div class="absolute top-0 right-0">
         <Eye
           onChange={(show) => {
             showAnswerCode = show;
@@ -175,7 +175,7 @@
           sendMode = true;
         }}
       >
-        <span class="btm-nav-label">Send</span>
+        Send
       </button>
       <div class="indicator flex-grow">
         <span
@@ -190,7 +190,7 @@
             sendMode = false;
           }}
         >
-          <span class="btm-nav-label">Receive</span>
+          Receive
         </button>
       </div>
     </div>

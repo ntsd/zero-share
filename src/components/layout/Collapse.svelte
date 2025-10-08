@@ -9,7 +9,7 @@
 
 <div
   tabindex="-1"
-  class="collapse !isolation-auto border border-base-200 {isOpen
+  class="collapse !isolation-auto border border-base-200 overflow-visible {isOpen
     ? 'collapse-open bg-base-100'
     : 'collapse-close'}"
 >

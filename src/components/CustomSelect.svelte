@@ -28,18 +28,13 @@
 <div class="flex w-full">
   <div class="flex-grow">
     {#if !editingCustomText}
-      <select class="select select-bordered w-full" bind:value={selectedValue}>
+      <select class="select w-full" bind:value={selectedValue}>
         {#each options as option (option)}
           <option value={option}>{option}</option>
         {/each}
       </select>
     {:else}
-      <input
-        type="text"
-        class="input input-bordered w-full"
-        placeholder="Custom text"
-        bind:value={customText}
-      />
+      <input type="text" class="input w-full" placeholder="Custom text" bind:value={customText} />
     {/if}
   </div>
 

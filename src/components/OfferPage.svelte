@@ -200,11 +200,11 @@
     <div class="mt-2 relative">
       <input
         type={showOfferLink ? 'text' : 'password'}
-        class="input input-bordered w-full"
+        class="input w-full pr-10"
         value={offerLink}
         readonly
       />
-      <div class="absolute top-0 right-0 p-1">
+      <div class="absolute top-0 right-0">
         <Eye
           onChange={(show) => {
             showOfferLink = show;
@@ -218,7 +218,7 @@
     </div>
     <p class="mt-4">Enter the Answer Code to accept the Answer or scan the QR Code.</p>
     <div class="relative mt-4">
-      <input type="password" class="input input-bordered w-full" bind:value={answerSDP} />
+      <input type="password" class="input w-full" bind:value={answerSDP} />
     </div>
     <div class="mt-4 flex gap-2">
       <button class="btn btn-primary" onclick={acceptAnswer}>Accept Answer</button>
@@ -241,7 +241,7 @@
           sendMode = true;
         }}
       >
-        <span class="btm-nav-label">Send</span>
+        Send
       </button>
       <div class="indicator flex-grow">
         <span
@@ -256,7 +256,7 @@
             sendMode = false;
           }}
         >
-          <span class="btm-nav-label">Receive</span>
+          Receive
         </button>
       </div>
     </div>

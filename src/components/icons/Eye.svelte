@@ -9,7 +9,7 @@
   const id = 'eye-input';
 </script>
 
-<label class="swap bg-base-100 p-2" {id}>
+<label class="swap p-2" {id}>
   <input
     {id}
     type="checkbox"

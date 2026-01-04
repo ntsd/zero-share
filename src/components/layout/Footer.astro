@@ -1,5 +1,5 @@
 ---
-import { githubLink } from '../../configs';
+import { GITHUB_LINK } from '../../configs';
 import Github from '../icons/Github.astro';
 ---
 
@@ -8,7 +8,7 @@ import Github from '../icons/Github.astro';
     <a
       aria-label="Github"
       target="_blank"
-      href={githubLink}
+      href={GITHUB_LINK}
       rel="noopener"
       class="drawer-button normal-case"
     >
@@ -20,7 +20,7 @@ import Github from '../icons/Github.astro';
       This project is an open-source
       <a
         class="link"
-        href={githubLink + '/blob/main/LICENSE'}
+        href={GITHUB_LINK + '/blob/main/LICENSE'}
         target="_blank"
         rel="noopener noreferrer">License</a
       >.

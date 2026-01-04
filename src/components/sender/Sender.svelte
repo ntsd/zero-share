@@ -1,12 +1,13 @@
 <script lang="ts">
   import DragAndDrop from './DragAndDrop.svelte';
   import EventEmitter from 'eventemitter3';
-  import { FileStatus, type SendingFile } from '../../type';
+  import { FileStatus, type FileStats, type SendingFile } from '../../type';
   import SendingFileList from './SendingFileList.svelte';
   import { encryptAesGcm, encryptAesKeyWithRsaPublicKey, generateAesKey } from '../../utils/crypto';
   import { validateFileMetadata } from '../../utils/validator';
   import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../../proto/message';
   import { addToastMessage } from '../../stores/toastStore';
+  import { PROGRESS_UPDATE_UI_STEP } from '../../configs';
 
   type Props = {
     dataChannel: RTCDataChannel;
@@ -29,6 +30,12 @@
   async function onSend(key: string) {
     const sendingFile = sendingFiles[key];
     let offset = 0;
+
+    const fileStats: FileStats = {
+      progress: 0,
+      startTime: Date.now(),
+      nextProgressUpdate: 0
+    };
 
     // reset value
     sendingFiles[key].error = undefined;
@@ -108,12 +115,20 @@
       offset += buffer.byteLength;
 
       // calculate progress
-      sendingFiles[key].progress = Math.round((offset / sendingFile.metaData.size) * 100);
-
-      // calculate bitrate
-      sendingFiles[key].bitrate = Math.round(
-        offset / ((Date.now() - sendingFiles[key].startTime) / 1000)
-      );
+      fileStats.progress = Math.round((offset / sendingFile.metaData.size) * 100);
+      if (fileStats.progress >= fileStats.nextProgressUpdate) {
+        // update UI
+        sendingFiles[key].progress = fileStats.progress;
+        // calculate bitrate and update UI
+        sendingFiles[key].bitrate = Math.round(
+          offset / ((Date.now() - fileStats.startTime) / 1000)
+        );
+        // schedule next update
+        fileStats.nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
+        if (fileStats.nextProgressUpdate > 100) {
+          fileStats.nextProgressUpdate = 100;
+        }
+      }
     }
 
     // send meta data

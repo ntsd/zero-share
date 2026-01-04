@@ -1,6 +1,6 @@
 import type { ReceiveOptions, SendOptions } from './type';
 
-export const stunServers: string[] = [
+export const STUN_SERVERS: string[] = [
   'stun:stun.l.google.com:19302',
   'stun:stun.l.google.com:19305',
   'stun:stun4.l.google.com:19302',
@@ -13,19 +13,21 @@ export const stunServers: string[] = [
   'stun:stun.voipstunt.com:3478'
 ];
 
-export const pageDescription = 'A client-side secure P2P file sharing using WebRTC.';
+export const PAGE_DESCRIPTION = 'A client-side secure P2P file sharing using WebRTC.';
 
-export const githubLink = 'https://github.com/ntsd/zero-share';
+export const GITHUB_LINK = 'https://github.com/ntsd/zero-share';
 
-export const defaultSendOptions: SendOptions = {
-  chunkSize: 16 * 1024,
+export const DEFAULT_SEND_OPTIONS: SendOptions = {
+  chunkSize: 32 * 1024, // 32KB
   isEncrypt: false,
-  iceServer: stunServers[0]
+  iceServer: STUN_SERVERS[0]
 };
 
-export const defaultReceiveOptions: ReceiveOptions = {
+export const DEFAULT_RECEIVE_OPTIONS: ReceiveOptions = {
   autoAccept: true,
   maxSize: 1024 * 1024 * 1024 // 1GB
 };
 
-export const waitIceCandidatesTimeout = 3000; // 3 seconds
+export const WAIT_ICE_CANDIDATES_TIMEOUT = 3000; // 3 seconds
+
+export const PROGRESS_UPDATE_UI_STEP = 3; // percentage

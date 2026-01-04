@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { defaultSendOptions, githubLink, waitIceCandidatesTimeout } from '../configs';
+  import { DEFAULT_SEND_OPTIONS, GITHUB_LINK, WAIT_ICE_CANDIDATES_TIMEOUT } from '../configs';
   import { addToastMessage } from '../stores/toastStore';
   import Eye from '../components/icons/Eye.svelte';
   import { Message } from '../proto/message';
@@ -28,8 +28,8 @@
   const pubKeyParam = params['p'];
 
   // options
-  const isEncrypt: boolean = pubKeyParam ? true : defaultSendOptions.isEncrypt;
-  const chunkSize = params['c'] ? parseInt(params['c']) : defaultSendOptions.chunkSize;
+  const isEncrypt: boolean = pubKeyParam ? true : DEFAULT_SEND_OPTIONS.isEncrypt;
+  const chunkSize = params['c'] ? parseInt(params['c']) : DEFAULT_SEND_OPTIONS.chunkSize;
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
   if (isEncrypt) {
@@ -39,7 +39,7 @@
   }
 
   // webRTC
-  const iceServer = params['i'] || defaultSendOptions.iceServer;
+  const iceServer = params['i'] || DEFAULT_SEND_OPTIONS.iceServer;
   let answerSDP = $state('');
   let showAnswerCode = $state(false);
   let isConnecting = $state(false);
@@ -123,7 +123,7 @@
       if (!connection.localDescription || answerSDP) return;
       addToastMessage('Timeout waiting ICE candidates');
       answerSDP = sdpEncode(connection.localDescription.sdp) + '|' + publicKeyBase64;
-    }, waitIceCandidatesTimeout);
+    }, WAIT_ICE_CANDIDATES_TIMEOUT);
   }
   generateAnswerSDP();
 </script>
@@ -134,7 +134,7 @@
       Copy and send the answer code to the Offer or scan QR code to connect between peer. See
       <a
         class="link"
-        href={githubLink + '#how-does-it-work'}
+        href={GITHUB_LINK + '#how-does-it-work'}
         target="_blank"
         rel="noopener noreferrer">How does it work?</a
       >

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { FileStatus, type ReceivingFile } from '../../type';
+  import { FileStatus, type FileDetail } from '../../type';
   import FileCard from '../FileCard.svelte';
 
   type Props = {
-    receivingFiles: { [key: string]: ReceivingFile };
+    receivingFiles: { [key: string]: FileDetail };
     onRemove: (key: string) => void;
     onDownload: (key: string) => void;
     onAccept: (key: string) => void;

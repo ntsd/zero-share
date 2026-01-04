@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { defaultSendOptions, stunServers } from '../configs';
+  import { DEFAULT_SEND_OPTIONS, STUN_SERVERS } from '../configs';
   import type { SendOptions } from '../type';
   import CustomSelect from './CustomSelect.svelte';
 
@@ -8,9 +8,9 @@
   };
   const { onUpdate }: Props = $props();
 
-  let encryptionEnabled = $state(defaultSendOptions.isEncrypt ? 'true' : 'false');
-  let chunkSize: number = $state(defaultSendOptions.chunkSize);
-  let iceServer: string = $state(defaultSendOptions.iceServer);
+  let encryptionEnabled = $state(DEFAULT_SEND_OPTIONS.isEncrypt ? 'true' : 'false');
+  let chunkSize: number = $state(DEFAULT_SEND_OPTIONS.chunkSize);
+  let iceServer: string = $state(DEFAULT_SEND_OPTIONS.iceServer);
 
   function getEncryptionEnabled(): boolean {
     return encryptionEnabled === 'true';
@@ -61,6 +61,6 @@
   </div>
 
   <div class="flex flex-row justify-between items-center">
-    <CustomSelect options={stunServers} customTextEnabled={true} bind:value={iceServer} />
+    <CustomSelect options={STUN_SERVERS} customTextEnabled={true} bind:value={iceServer} />
   </div>
 </div>

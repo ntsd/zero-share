@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { defaultReceiveOptions } from '../../configs';
+  import { DEFAULT_RECEIVE_OPTIONS } from '../../configs';
   import type { ReceiveOptions } from '../../type';
 
   type Props = {
@@ -8,8 +8,8 @@
 
   let { onUpdate }: Props = $props();
 
-  let autoAccept = $state(defaultReceiveOptions.autoAccept ? 'true' : 'false');
-  let maxSize = $state(defaultReceiveOptions.maxSize);
+  let autoAccept = $state(DEFAULT_RECEIVE_OPTIONS.autoAccept ? 'true' : 'false');
+  let maxSize = $state(DEFAULT_RECEIVE_OPTIONS.maxSize);
 
   function getAutoAccept(): boolean {
     return autoAccept === 'true';

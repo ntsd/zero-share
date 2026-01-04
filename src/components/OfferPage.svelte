@@ -1,7 +1,7 @@
 <script lang="ts">
   import { buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
-  import { defaultSendOptions, githubLink, waitIceCandidatesTimeout } from '../configs';
+  import { DEFAULT_SEND_OPTIONS, GITHUB_LINK, WAIT_ICE_CANDIDATES_TIMEOUT } from '../configs';
   import Eye from './icons/Eye.svelte';
   import { Message } from '../proto/message';
   import Collapse from './layout/Collapse.svelte';
@@ -20,7 +20,7 @@
   import Toast from './Toast.svelte';
 
   // options
-  let sendOptions = $state(defaultSendOptions);
+  let sendOptions = $state(DEFAULT_SEND_OPTIONS);
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
 
@@ -50,9 +50,9 @@
     const sdp = sdpEncode(offer.sdp);
     offerLink = buildURL(location.href.split('?')[0], 'receive', {
       s: sdp,
-      i: defaultSendOptions.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
+      i: DEFAULT_SEND_OPTIONS.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
       c:
-        defaultSendOptions.chunkSize === sendOptions.chunkSize
+        DEFAULT_SEND_OPTIONS.chunkSize === sendOptions.chunkSize
           ? ''
           : sendOptions.chunkSize.toString(),
       p: publicKeyBase64
@@ -130,7 +130,7 @@
       addToastMessage('timeout waiting ICE candidates');
       await createSDPLink(connection.localDescription);
       generating = false;
-    }, waitIceCandidatesTimeout);
+    }, WAIT_ICE_CANDIDATES_TIMEOUT);
   }
 
   async function copyOfferLink() {
@@ -168,7 +168,7 @@
       Generate the SDP offer and build the offer link following the options. See
       <a
         class="link"
-        href={githubLink + '#how-does-it-work'}
+        href={GITHUB_LINK + '#how-does-it-work'}
         target="_blank"
         rel="noopener noreferrer">How does it work?</a
       >

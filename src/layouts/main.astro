@@ -3,7 +3,7 @@ import Footer from '../components/layout/Footer.astro';
 import Navbar from '../components/layout/Navbar.astro';
 import '../styles/global.css';
 
-import { pageDescription } from '../configs';
+import { PAGE_DESCRIPTION } from '../configs';
 
 interface Props {
   title: string;
@@ -34,7 +34,7 @@ const { title, description } = Astro.props;
       <Navbar />
       <div class="flex-grow container mx-auto justify-items-center">
         <p class="text-center mb-4 xl:mb-8 p-1">
-          {pageDescription}
+          {PAGE_DESCRIPTION}
         </p>
         <slot />
       </div>

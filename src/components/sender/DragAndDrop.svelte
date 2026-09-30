@@ -90,7 +90,7 @@
           handleFileClipboard(imageFile);
         }
       }
-    } catch (e) {
+    } catch {
       addToastMessage('No data on clipboard');
     }
   }

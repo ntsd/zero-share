@@ -5,7 +5,7 @@
   type Props = {
     fileDetail: FileDetail;
     isSender: boolean;
-    children: () => any;
+    children: () => unknown;
   };
   const { fileDetail, isSender, children }: Props = $props();
 </script>

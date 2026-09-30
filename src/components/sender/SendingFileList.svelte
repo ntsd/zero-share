@@ -13,7 +13,7 @@
 </script>
 
 <div class="grid gap-4">
-  {#each Object.entries(sendingFiles) as [key, sendingFile], index (key)}
+  {#each Object.entries(sendingFiles) as [key, sendingFile] (key)}
     <FileCard fileDetail={sendingFile} isSender={true}>
       <div class="flex-none">
         {#if sendingFile.error}

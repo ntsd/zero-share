@@ -3,6 +3,7 @@
     CHUNK_SIZE_OPTIONS,
     DEFAULT_SEND_OPTIONS,
     GITHUB_LINK,
+    STUN_SERVERS,
     WAIT_ICE_CANDIDATES_TIMEOUT
   } from '../configs';
   import { addToastMessage } from '../stores/toastStore';
@@ -33,7 +34,7 @@
   const pubKeyParam = params['p'];
 
   // options
-  const isEncrypt: boolean = pubKeyParam ? true : DEFAULT_SEND_OPTIONS.isEncrypt;
+  let isEncrypt: boolean = $state(pubKeyParam ? true : DEFAULT_SEND_OPTIONS.isEncrypt);
   // validate `c` (user-controllable via the shared link): NaN, 0, negative or
   // non-allowed values all fall back to the default chunk size
   const parsedChunkSize = params['c'] ? parseInt(params['c'], 10) : NaN;
@@ -42,14 +43,30 @@
     : DEFAULT_SEND_OPTIONS.chunkSize;
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
-  if (isEncrypt) {
-    importRsaPublicKeyFromBase64(pubKeyParam).then((pub) => {
-      rsaPub = pub;
-    });
-  }
+  // validate `p` (user-controllable via the shared link): the presence of a
+  // non-empty `p` param is not enough to trust the key — a malformed base64
+  // string or damaged SPKI DER makes the import throw/reject. On failure
+  // downgrade to plaintext instead of silently sending with an undefined
+  // public key (which would advertise encryption while sending nothing
+  // usable), and surface the error to the user. The promise resolves to
+  // `undefined` on failure so `generateAnswerSDP` can await the outcome
+  // before deciding what to advertise to the peer.
+  const rsaPubPromise: Promise<CryptoKey | undefined> = isEncrypt
+    ? importRsaPublicKeyFromBase64(pubKeyParam).catch(() => {
+        isEncrypt = false;
+        addToastMessage('Invalid encryption key in link, falling back to plaintext', 'error');
+        return undefined;
+      })
+    : Promise.resolve(undefined);
 
   // webRTC
-  const iceServer = params['i'] || DEFAULT_SEND_OPTIONS.iceServer;
+  // validate `i` (user-controllable via the shared link): only accept a server
+  // from the known STUN allowlist — anything else falls back to the default so
+  // the peer's WebRTC stack is never pointed at an attacker-controlled
+  // endpoint.
+  const iceParam = params['i'];
+  const iceServer =
+    iceParam && STUN_SERVERS.includes(iceParam) ? iceParam : DEFAULT_SEND_OPTIONS.iceServer;
   let answerSDP = $state('');
   let showAnswerCode = $state(false);
   let isConnecting = $state(false);
@@ -114,6 +131,11 @@
 
   async function generateAnswerSDP() {
     let publicKeyBase64 = '';
+    // await the `p` param key import first: if the param was malformed the
+    // import was downgraded to plaintext above — generating the answer now
+    // would otherwise advertise encryption to the peer (which would import an
+    // empty key and fail the same way)
+    rsaPub = await rsaPubPromise;
     if (isEncrypt) {
       rsa = await generateRsaKeyPair();
       publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);

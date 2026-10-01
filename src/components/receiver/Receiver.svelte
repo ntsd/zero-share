@@ -111,6 +111,13 @@
     }
 
     if (receivingFileStatsMap[id].receivedSize >= receivingFile.metaData.size) {
+      // Build the Blob immediately so the raw per-chunk buffers can be released;
+      // holding them would keep the entire received file resident in memory.
+      receivingFiles[id].blob = new Blob(receivingFileChunkMap[id].receivedChunks, {
+        type: receivingFile.metaData.type
+      });
+      delete receivingFileChunkMap[id];
+      delete receivingFileStatsMap[id];
       receivingFiles[id].status = FileStatus.Success;
       addToastMessage(`Received ${receivingFiles[id].metaData.name}`, 'success');
     }
@@ -125,15 +132,18 @@
         }).finish()
       );
     }
+    delete receivingFileChunkMap[key];
+    delete receivingFileStatsMap[key];
     delete receivingFiles[key];
     receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   async function onDownload(key: string) {
     const receivedFile = receivingFiles[key];
-    const blobFile = new Blob(receivingFileChunkMap[key].receivedChunks, {
-      type: receivedFile.metaData.type
-    });
+    const blobFile = receivedFile.blob;
+    if (!blobFile) {
+      return;
+    }
     const url = URL.createObjectURL(blobFile);
     const link = document.createElement('a');
     link.href = url;
@@ -172,6 +182,8 @@
         receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
       }).finish()
     );
+    delete receivingFileChunkMap[key];
+    delete receivingFileStatsMap[key];
     delete receivingFiles[key];
     receivingFiles = receivingFiles; // do this to trigger update the map
   }

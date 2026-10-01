@@ -16,6 +16,8 @@ export interface FileDetail {
   startTime: number;
   status: FileStatus;
   aesKey?: CryptoKey;
+  // assembled file, built once on completion so the raw per-chunk buffers can be freed
+  blob?: Blob;
 }
 
 export interface SendingFile extends FileDetail {

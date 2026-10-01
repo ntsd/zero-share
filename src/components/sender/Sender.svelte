@@ -90,7 +90,7 @@
           const encrypted = await encryptAesGcm(aesKey, buffer);
           dataChannel.send(
             Message.encode({
-              id: sendingFile.metaData.name,
+              id: key,
               chunk: encrypted
             }).finish()
           );
@@ -100,7 +100,7 @@
 
       dataChannel.send(
         Message.encode({
-          id: sendingFile.metaData.name,
+          id: key,
           chunk: new Uint8Array(buffer)
         }).finish()
       );
@@ -144,7 +144,7 @@
     // send meta data
     dataChannel.send(
       Message.encode({
-        id: sendingFile.metaData.name,
+        id: key,
         metaData: sendingFile.metaData
       }).finish()
     );
@@ -199,7 +199,8 @@
         addToastMessage(`${file.name} ${validateErr.message}`, 'error');
       }
 
-      sendingFiles[file.name] = {
+      const id = crypto.randomUUID();
+      sendingFiles[id] = {
         file: file,
         metaData: fileMetaData,
         progress: 0,

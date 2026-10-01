@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DEFAULT_SEND_OPTIONS, STUN_SERVERS } from '../configs';
+  import { CHUNK_SIZE_OPTIONS, DEFAULT_SEND_OPTIONS, STUN_SERVERS } from '../configs';
   import type { SendOptions } from '../type';
   import CustomSelect from './CustomSelect.svelte';
 
@@ -45,11 +45,9 @@
       <p class="text-xs text-gray-500">Higher make transfer faster but might cause buffer issue.</p>
     </div>
     <select bind:value={chunkSize} onchange={onChange} class="select select-bordered">
-      <option value={8 * 1024}>8kb</option>
-      <option value={16 * 1024}>16kb</option>
-      <option value={32 * 1024}>32kb</option>
-      <option value={64 * 1024}>64kb</option>
-      <option value={128 * 1024}>128kb</option>
+      {#each CHUNK_SIZE_OPTIONS as size}
+        <option value={size}>{size / 1024}kb</option>
+      {/each}
     </select>
   </div>
 

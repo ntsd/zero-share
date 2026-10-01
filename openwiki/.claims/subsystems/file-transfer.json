@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:a4dc887ea72215055a3223778d586e67f4ddcd3c69bdf196e92fa862dd7bd4e9",
+  "claims": [
+    {
+      "id": "claim_3369f40c8d314d63a420a5470f5510e6",
+      "statement": "Every data-channel message is a protobuf Message (ts-proto-generated from src/proto/message.proto) carrying a file id plus exactly one payload: metaData, chunk, or receiveEvent (ACCEPT/REJECT/RECEIVED_CHUNK/VALIDATE_ERROR).",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L14-L14",
+          "version": "repo-lines-v1:sha256:6c770b505f1052aced7b5390d52620c6c823d1d26889b5a183370fb23b46348b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmM3NzBiNTA1ZjEwNTJhY2VkN2I1MzkwZDUyNjIwYzZjODIzZDFkMjY4ODliNWExODMzNzBmYjIzYjQ2MzQ4YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmM3NzBiNTA1ZjEwNTJhY2VkN2I1MzkwZDUyNjIwYzZjODIzZDFkMjY4ODliNWExODMzNzBmYjIzYjQ2MzQ4YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODlkOGM4NjQxN2MyMWIzMjBkOGY3N2Q0NjJhZjE0NzM4YjhkZGU1MTVhMGYyOTllZWZiZGQxNTNlMDdkOGVjNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmNlNjA4ZGE3N2JlNmU0MTc2OGE5OGM5N2IzZjI5YzIwNTdmNDQ2YzVlZmNiZDIxNmY5ZTAyZDhjNWQ2NGYxYiJ9"
+        },
+        {
+          "resource": "repo://src/proto/message.proto#L1-L31",
+          "version": "repo-lines-v1:sha256:fdafb47242078c3d044df4b81ad5c4be1663a715156923729f59c410a407df35:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2Njk1OTY1Y2Q2OTJkOWRjZTA4ZWZlMGIyZTFmNzQ1YzNiZTdjMTk2MzFiNTY4NzNjODk1NmI4ZDQ4NmNmMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d169d7f279a84b80aefc309c6ab36c09",
+      "statement": "File ids are crypto.randomUUID() values rather than filenames, so same-named files in one session keep distinct ids and their chunks never cross-wire; metaData.name is used for display only.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L202-L213",
+          "version": "repo-lines-v1:sha256:5119ef49a552fde66bb040242a0d38801417b7426d7cbc99165cba4f7c64ea87:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3ODAzYTBiYjZhMWJmZGQxNGQ2ZGM3YTIyNDcyNTFkOTdjNTUzMTY2NzNmOTBlNjUzM2FjOTgyOTY5OWNkMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzNkYzczMWU3ZDA3YjFmMGMwNWNmZWJkN2UxOTIyMDIzZTYwNzdiYzBhZTdiYTMwMTQ4ZjUwODMzYTI1YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyOTIwYjRkYjczZWUzODc4Yjg4YWU2YjE0YzVmNjJlYjQ1NTlmZGJlMGNjYjMxMzNmYTEyMDZhZWRmNzQxYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZWZiNDgxMDYxZjE4MTdmZDk1ODc4ZmU2NmE3MjdiYzhhNjEzNmM1OThkZDU4ZWJlYTllMzRkOTRkZmRhNWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0489f3cde91743e7b351af897e8841ab",
+      "statement": "The sender maintains per-file state in a reactive map with lifecycle Pending -> WaitingAccept -> Processing -> Success; on ACCEPT it starts the chunk loop, on REJECT or VALIDATE_ERROR it records the error and resets the file to Pending (retryable).",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L46-L84",
+          "version": "repo-lines-v1:sha256:f3a38db575ead4a8e155b569fb21fd2b1b4bb03b75e167d1f6300130da961b0b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0YzEwODg2ZTQ5MTU2MGI0YjZhMWM0MTRlMTk0NzA4YmJiNTJmZjBlM2EzYmM5MGYyMDM3NmNhNTVjMWI3N2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwZGI1OWZjZmQ4MjE3OGRiNzA5YzBhNTcxY2NlMDgzMTNkOGZhMzBmZjg0Y2RkODA4ZjcxZjZhZjIxOTQ2ODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2Y2I1ZDNmMjEzZjU3YjAxZDA4YTNhMmI2NjA3NTMxZDFlOTVlMTg1NGRhNjNhMzhlNTQyYjM2ZGJhOTFjYWEifQ"
+        },
+        {
+          "resource": "repo://src/type.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:91a5537e90fc962018cc021cbc2a7ff1c1abc74c3803bcc31d39ab33003b9c9f:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQ5ZDA3YzJmYmY3MTQwODRmZTJkOWQxYTQzNzk2OGY5YTFlYzhlOWIwOTRjYWQ2ODM5MDhkZDFiNDI4ZWIwYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTIxYmU2ZjcxNGVmNzA0YTQ1YTg0NGJjMGUzNzQ5YzAzNjdjNjZlMjg3OGNiMDIwYWZiNmRlNjNmYTY5Zjc1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTk4Y2JjNDI0MGM0MGZiNzI2OTkwOGFhM2FiMmFmMjNjY2NiMTA4MTU1YTUwZWM5ZmJlM2I3Mjc4MjY5ZDY1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fa837c572a3542b392cf3d6ec0f34834",
+      "statement": "The transfer protocol is receiver-ack chunking: the receiver sends EVENT_RECEIVED_CHUNK immediately on receiving a chunk, and the sender sends at most one next chunk per ack until offset reaches metaData.size — backpressure pacing the transfer.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L74-L82",
+          "version": "repo-lines-v1:sha256:de3ee391bd5eadd808c5d20dca2ce854b1464968ee66f89acecd141f845fb1b6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzU1NjYyNTU3OWU1NzVhZGNlNWUzYTNhMzkyZGFiZmI3MzU3ODEzYzU5ODQxNWU2ODE2MTM3NDgzNjg0ZDMxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODRlNDIwOGNkNmZmYjhjNGEzNTQ3YjJmNTRhZGExOTk3OGMzZjM2NWU3OGY5NTAyZWY1MTQ1Y2RkMmFhODU0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTdkODYzMmU1NGU5Mjk4YWJiOTU4NzI3ZTJkNTE0MDhhYmFmMTM2NjAzNTM3OTEwMTQwYWJmNjViMzBhYjYxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzQyZGM0MTEyYmRlY2VhYjZjNDI5ZDc2Y2FiMjE1NWEyZTZkNjE3NGQ0MmFjN2Q5OGFmMTUyMjQ1MDlhYWQxMyJ9"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L54-L72",
+          "version": "repo-lines-v1:sha256:eaadcb71c57d02039c5a0546c72b3589959f7b905cd799748a7410545a338b27:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJiZjcxYmI3M2QyZTVmNjVlNTc4ZjVkYWRhNDg2NzNlNDJkYTgxMzJiNzE0YzM0MGI5ZGJjZDBlMTY3ODY0N2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0OGY1YzM4NTVlYjdlZGRhNzM2NzZiMDA5OWYwYTQzZTdmYzM3ODQ4MWU1ODJlMmYzNzE4ZjczMWRkNzExN2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhNWM2ZTE1MDc1NDYzMjY5NmNjODU3YmMwN2NkNDBjY2I0NmZjOGUxNGMwZWJlN2UxODY0NmRlM2VhNWQxY2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6db6ca55760d4a5dbdf53c81700b8f96",
+      "statement": "A defensive empty-chunk guard aborts the send with an 'Invalid chunk size' error when a chunk reads 0 bytes while bytes remain, preventing an infinite loop of empty sends caused by an invalid chunkSize (e.g. a crafted 'c' URL param).",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L109-L121",
+          "version": "repo-lines-v1:sha256:812cf14172a7ce32f44385f18a5e45a68666d89ffa9c9ec8d5344b0e646debee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYTdmNDA4MWRlMzU1YzM5MmIwYzFkOTZjMTdiYzQ0MTg3ZDllOTlmZTMzMWFiN2FlYWI3NmNhZTc1Njg5ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU3MWNkZGViYzQwMzllY2Y1ODQ1NWU1MDM1MTA2Yzk0NDFlZTA4MGE0MzA5NWU4YjA3NGNlNDNlNzc5OGFiMGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_390ca4161cab44d1a713439e1d4b2172",
+      "statement": "Progress and bitrate UI updates are throttled by PROGRESS_UPDATE_UI_STEP (3 percentage points) using non-reactive stats mirrors, and pause/resume is implemented via a per-file stop flag where onContinue re-emits a synthetic RECEIVED_CHUNK event to restart the chunk loop.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L127-L141",
+          "version": "repo-lines-v1:sha256:c18d2b572062cc144d46f9c38c1ae8d0fbf8364d8eadb9b76c82fd155b153d64:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZTU5ZDIxYWRiZjcyZmY3MDY3OTU1NjI3NmViZTQ4ZmNlMTQ1MWExMmRlODY1ZmMzNTU0M2Q0NzRlNTRkMTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2NzJiMDY4MzlkODExZGIzMmFkOTgwZDAzY2U3ZWE0Yzc2ZTBlOGQxZGM1NDc0NjdiMDQzODYwZjk5MmI4ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5Mjk4MzBkMWMyYWFkM2M3MGE2ZWMzYTNhOTQwYzQ3MjNmYzU0YTJkYzU2ZDVmZWI0NWZkYTljZTkxYTJhOTgifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L34-L41",
+          "version": "repo-lines-v1:sha256:141c1228c094feeae2cea69a3f7d724a61947666f29eb2a3cdd5aa5198ae4a81:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWFlMjg0ZTg4M2Y4YzRiYzQzNjM0OGEzOGNlMTEyYTc0YzM5Yjc5MjIwNmY4YWE3NjVhMzc3ZGE5OWZiMGViZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDlkNWJhNzE1MmU1Y2RiYjg2NDAwYTM5YTZjNGY0MjRlMGMyN2U2MGNjNTBhMmM5NzM5MzA2M2FiOGU0ZTllMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWE5NjMyOGVlOGI2NDhhYzViNDc4MzRkYWRhMTU1MWQ0YzZkY2RmN2Q1ZGRmNjFlM2VjNGYwNzgyYTg1MjhjNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjRlMjVmOWRlZTJiZTYxNjhjMWU0YzQ2NWU1YjBlODkzOTAzMjgyMjFkNmI0YjM2NDNjZmYzYjVmYTY0MzJlYiJ9"
+        },
+        {
+          "resource": "repo://src/configs.ts#L35-L37",
+          "version": "repo-lines-v1:sha256:bff0a315e37195b47f073d25d4f3f56733e449a3ee7623ec874a76803a601d3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjUxYjNkYjY1ZmVlZWJiOTQ2ODkyYmQ3Nzk3ZTRlZjdmMDkyNmQxZTQ0N2NmMDBkMjQxYzhhMmU5OTUzMzVmNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTQ2NDNlNDcxOGRlOTUyYzNkNDNjN2JhZDMxNDNkMWM1Y2Y1MTY3NWQ0ZGQ2ZDVmMmJjMzFiOGY1ODE4MWY5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWZjNWY5NWNkNzZmZmMwZjI5ZDkwY2NlMjgyM2U2MTIzODdlYjIyZWRhZTNiMDU1OGRlNzE2YjFjOTAyYWQ0MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1f6139294f964ab68235b8677a480e74",
+      "statement": "The receiver keeps per-file chunk buffers and byte counters in deliberately non-reactive plain objects (receivingFileChunkMap/receivingFileStatsMap) so chunk arrival does not trigger Svelte re-renders; only the reactive receivingFiles map is flushed at the 3-point progress step.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L25-L33",
+          "version": "repo-lines-v1:sha256:4b11cf32989e859666fb5cd7c6f2e3d1838522557fba59d957c85cf0f67afb0f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzgzZmU3MzA0OTc4MWI0MWMxZjk1ZmYyMmIwMDJhOTA5Mzc4ZmYwODhlYmNkOTdjYTFmMWFjOWM1ZjY3NjI3MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FiODRkMGJlMjY1NWVmZWU5OTEwYTNhZTZiMjVmMGIwZGY0ZGY2MzNlN2I0Y2Y5ODU2MWYzYmJjNDgzNDA1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjc0Yjg3M2IwMmE2ZmI1YTg0MjVhYjI5Y2FjMGZmOWU3YTI1Yjk4MTAwZGNmNDgyM2NkOTBmYjk5ODNmYzM1MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjdjNzBlOGRlNDk4Mjg0ZTBjZDk4OGEzYThmNmIxM2EzYzVlMzhmNTMwZmZmMjg1ZjFhN2UzM2MxZjEyMDVkZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5024585bc4fd4034b5c20dcd04ae50c2",
+      "statement": "On completion (receivedSize >= declared size) the receiver builds the file Blob immediately and deletes both per-file maps, releasing the raw per-chunk buffers so a large file is not held twice in memory.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L113-L123",
+          "version": "repo-lines-v1:sha256:15372dc308ea56c561c5911a79963a41bd22399adb756629194290254397320a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0MzUwZjMzMjRjYTg1ODI4YTg4ZTFjNWEzZGFmYmJjNzdlN2M0ZmZiYjY5NDI0MDkzYTE2NjBkODMwODI4ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiY2Y2YzM0NzZjYmI3NWIxMTk3ZWY0YmQ3NmFmNGRmMjc1OGE3MWY1YzhkOGQ0M2FmNzk1NDViOTYwZjFhNjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_17336969115a4b90826859e4e681616a",
+      "statement": "validateFileMetadata is the single size gate (maxSize, default 1 GB via DEFAULT_RECEIVE_OPTIONS); receiver-side validation failure sends EVENT_VALIDATE_ERROR back to the sender and records the error on the file, while autoAccept (default true) makes the receiver accept valid files without user action.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L53-L67",
+          "version": "repo-lines-v1:sha256:505fc4e1440d2cb80d6a978a43d25dfaadea4a0707898aa6d4af640d71ee999f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkYTZkNTMxMjhkNDdjZjFhN2RjZjAxYzg0ZTJlYzg0OGEwMzU2NzZhZmY2NjFiZjgwZjBmNDkwNDRhYmNjMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExNjVjNGE1NDE5N2JkYzY0MzczODgyYTNiYWQzMTEyYzcwZjE3ZTc5OTUzNmJiNGI4NjkzMDQ0M2M4Yzk4NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjZjczZmI3NDQyN2ZkOTlkMjhlMTFjYTM4MmM4OGU5NzVmZmQyMWM1Y2Y3MmEwNTIyZmNhY2ZmMDA1YTlkMDkifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L30-L33",
+          "version": "repo-lines-v1:sha256:25c615703510b77d3e8eb29a5fee2e09a1065f92553cd23e9ea0fa31782ac271:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY1NTc5NTJjM2U1NjA5MzQ5NzhiZWY2MGUxYzNhNjU4MzRhNTRiODlmYTdiMWI0MjhhMGJmYTMzZWUzODQ5OSJ9"
+        },
+        {
+          "resource": "repo://src/utils/validator.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:ad27d17d5aafde83dd0ae1f6cc3f544e74e2924855dfe0180af9e31f8c6379df:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjYxY2YwYzhkMzllNmZjYmM1MDkzZmM4ODA1ZjYwMmIyZTYxNDk0ZDA3ZTc0ODcyODNkNjdkYWU5NjEyMTIwNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b91ab451f2e647d0bdd2a420508107cb",
+      "statement": "The data channel is created ordered:false, so chunk ordering is enforced by the protocol (one receiver ack drives one sender chunk, isolated per file id) rather than by channel-level ordering; completion is exact-declared-size based with no trailer or checksum.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L79-L81",
+          "version": "repo-lines-v1:sha256:0daa128a34ea03dc4e2f3563db9318266f8b286c7ff7f4ce1a286ae7e273ba67:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI0YzlkZDhiNWNlYjI4NDA4YWJkYmZiZDQ3YmM5YjQ1ODZkNzRjZTI5OWUzZDk5NDlkNDllYmQ0Njk3ZjczYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjJkMTFjYWY0M2U5N2VmMzY5ZTZiZWVkMWEyNjhiZDA1ODM4ZjI5YjlkZDI1NGJmNjliYTY0ODg0MTQ3MjM0YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzgxYTYxYzJmNWRmMmI1MjdlNWYzNGE4ZjQ1ODA5MzdjMGQ0NTJlNjIzYWRiOGQ2ZTRiM2Q2ZTRkNTUwYzM4MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWI2OTgxNzNhOTJlMjI2NWJhNzY0MmQ5NmE2ZTI3N2EyNTczODQyNmIzYmFjMTYyYjY1YzI5ODczOTJjNjdmNiJ9"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L54-L72",
+          "version": "repo-lines-v1:sha256:eaadcb71c57d02039c5a0546c72b3589959f7b905cd799748a7410545a338b27:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJiZjcxYmI3M2QyZTVmNjVlNTc4ZjVkYWRhNDg2NzNlNDJkYTgxMzJiNzE0YzM0MGI5ZGJjZDBlMTY3ODY0N2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0OGY1YzM4NTVlYjdlZGRhNzM2NzZiMDA5OWYwYTQzZTdmYzM3ODQ4MWU1ODJlMmYzNzE4ZjczMWRkNzExN2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhNWM2ZTE1MDc1NDYzMjY5NmNjODU3YmMwN2NkNDBjY2I0NmZjOGUxNGMwZWJlN2UxODY0NmRlM2VhNWQxY2QifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T19:50:36.439Z"
+  }
+}

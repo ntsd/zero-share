@@ -7,7 +7,7 @@ const rsaGenParams: RsaHashedKeyGenParams = {
 
 const aesGenParams: AesKeyGenParams = {
   name: 'AES-GCM',
-  length: 128
+  length: 256
 };
 
 // generateRsaKeyPair to generate an RSA key pair

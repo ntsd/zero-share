@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
   import { toastAtom, type ToastMessage } from '../stores/toastStore';
 
   let toasts: ToastMessage[] = $state([]);

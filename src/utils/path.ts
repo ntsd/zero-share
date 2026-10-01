@@ -4,7 +4,7 @@ export function joinPath(...paths: string[]): string {
 
 export function buildURLParams(obj: { [key: string]: string }): string {
   const queryParams = Object.entries(obj)
-    .filter(([_, value]) => {
+    .filter(([, value]) => {
       return value !== '';
     })
     .map(([key, value]) => {

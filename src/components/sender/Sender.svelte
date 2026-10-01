@@ -110,6 +110,16 @@
       const slice = sendingFile.file.slice(offset, offset + chunkSize);
       const buffer = await slice.arrayBuffer();
 
+      // defensive guard: an empty chunk while bytes remain means chunkSize is
+      // invalid (e.g. NaN/0 from a crafted `c` URL param); aborting here
+      // prevents an infinite loop of empty chunk sends
+      if (buffer.byteLength === 0 && offset < sendingFile.metaData.size) {
+        sendingFiles[key].error = new Error('Invalid chunk size');
+        sendingFiles[key].status = FileStatus.Pending;
+        addToastMessage(`File ${sendingFile.metaData.name} failed: invalid chunk size`, 'error');
+        return;
+      }
+
       await sendBuffer(buffer);
 
       offset += buffer.byteLength;

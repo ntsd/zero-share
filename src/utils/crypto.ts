@@ -1,6 +1,6 @@
 const rsaGenParams: RsaHashedKeyGenParams = {
   name: 'RSA-OAEP',
-  modulusLength: 1024,
+  modulusLength: 2048,
   publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // The most commonly used public exponent is 65537
   hash: 'SHA-256'
 };
@@ -16,13 +16,13 @@ export async function generateRsaKeyPair(): Promise<CryptoKeyPair> {
   return keyPair;
 }
 
-// generateAesKey to generate an AES-256 key
+// generateAesKey to generate an AES-128 key
 export async function generateAesKey(): Promise<CryptoKey> {
   const key = await crypto.subtle.generateKey(aesGenParams, true, ['encrypt', 'decrypt']);
   return key;
 }
 
-// encryptAesGcm to encrypt a message with an AES-256 key
+// encryptAesGcm to encrypt a message with an AES-128 key
 export async function encryptAesGcm(
   key: CryptoKey,
   message: ArrayBuffer
@@ -40,7 +40,7 @@ export async function encryptAesGcm(
   return result;
 }
 
-// encryptAesKeyWithRsaPublicKey to encrypt an AES-256 key with an RSA public key
+// encryptAesKeyWithRsaPublicKey to encrypt an AES-128 key with an RSA public key
 export async function encryptAesKeyWithRsaPublicKey(
   publicKey: CryptoKey,
   aesKey: CryptoKey
@@ -54,7 +54,7 @@ export async function encryptAesKeyWithRsaPublicKey(
   return new Uint8Array(encryptedAesKey);
 }
 
-// decryptAesKeyWithRsaPrivateKey to decrypt the AES-256 key using the RSA private key
+// decryptAesKeyWithRsaPrivateKey to decrypt the AES-128 key using the RSA private key
 export async function decryptAesKeyWithRsaPrivateKey(
   privateKey: CryptoKey,
   encryptedAesKey: Uint8Array<ArrayBuffer>
@@ -74,7 +74,7 @@ export async function decryptAesKeyWithRsaPrivateKey(
   return aesKey;
 }
 
-// decryptAesGcm to decrypt a message with an AES-256 key
+// decryptAesGcm to decrypt a message with an AES-128 key
 export async function decryptAesGcm(
   key: CryptoKey,
   encryptedData: Uint8Array<ArrayBuffer>

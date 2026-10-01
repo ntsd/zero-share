@@ -13,7 +13,7 @@
 
   onMount(() => {
     qrScanner = new QrScanner(
-      document.getElementById('qr-reader') as any,
+      document.getElementById('qr-reader') as HTMLVideoElement,
       (decodedText: QrScanner.ScanResult) => {
         isModalOpen = false;
         onScanSuccess(decodedText.data);

@@ -4,19 +4,28 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
-  plugins: ['svelte3', '@typescript-eslint'],
+  plugins: ['svelte', '@typescript-eslint'],
   overrides: [
     {
       files: ['*.svelte'],
-      processor: 'svelte3/svelte3',
+      parser: 'svelte-eslint-parser',
+      parserOptions: {
+        parser: '@typescript-eslint/parser'
+      },
       rules: {
-        'no-undef': 'off'
+        'no-undef': 'off',
+        // eslint core rules with known false positives in `.svelte` (per eslint-plugin-svelte base config)
+        'no-inner-declarations': 'off',
+        'no-self-assign': 'off'
+      }
+    },
+    {
+      files: ['*.d.ts'],
+      rules: {
+        '@typescript-eslint/triple-slash-reference': 'off'
       }
     }
   ],
-  settings: {
-    'svelte3/typescript': () => require('typescript')
-  },
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 2020

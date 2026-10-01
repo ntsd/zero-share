@@ -23,6 +23,10 @@ export const DEFAULT_SEND_OPTIONS: SendOptions = {
   iceServer: STUN_SERVERS[0]
 };
 
+// Allowed chunk sizes offered in the UI — single source of truth for the
+// sender options and for validating the `c` URL param on the receive page.
+export const CHUNK_SIZE_OPTIONS: number[] = [8 * 1024, 16 * 1024, 32 * 1024, 64 * 1024, 128 * 1024];
+
 export const DEFAULT_RECEIVE_OPTIONS: ReceiveOptions = {
   autoAccept: true,
   maxSize: 1024 * 1024 * 1024 // 1GB

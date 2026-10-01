@@ -2,7 +2,7 @@
   type Props = {
     title: string;
     isOpen?: boolean;
-    children: () => any;
+    children: () => unknown;
   };
   const { title, isOpen = false, children }: Props = $props();
 </script>

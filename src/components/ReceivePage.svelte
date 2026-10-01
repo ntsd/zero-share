@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { DEFAULT_SEND_OPTIONS, GITHUB_LINK, WAIT_ICE_CANDIDATES_TIMEOUT } from '../configs';
+  import {
+    CHUNK_SIZE_OPTIONS,
+    DEFAULT_SEND_OPTIONS,
+    GITHUB_LINK,
+    WAIT_ICE_CANDIDATES_TIMEOUT
+  } from '../configs';
   import { addToastMessage } from '../stores/toastStore';
   import Eye from '../components/icons/Eye.svelte';
   import { Message } from '../proto/message';
@@ -29,7 +34,12 @@
 
   // options
   const isEncrypt: boolean = pubKeyParam ? true : DEFAULT_SEND_OPTIONS.isEncrypt;
-  const chunkSize = params['c'] ? parseInt(params['c']) : DEFAULT_SEND_OPTIONS.chunkSize;
+  // validate `c` (user-controllable via the shared link): NaN, 0, negative or
+  // non-allowed values all fall back to the default chunk size
+  const parsedChunkSize = params['c'] ? parseInt(params['c'], 10) : NaN;
+  const chunkSize = CHUNK_SIZE_OPTIONS.includes(parsedChunkSize)
+    ? parsedChunkSize
+    : DEFAULT_SEND_OPTIONS.chunkSize;
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
   if (isEncrypt) {

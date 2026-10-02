@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/architecture.md": {
+      "pageVersion": "sha256:cff2f337719d13b1ae205fe683fd7581b888acbb0aa4fe5e66efb980723b9ce6",
+      "completedBy": "hermes",
+      "completedRunId": "1e5eb8f5-3a28-4cc1-87c2-6212615a54f5",
+      "gitHead": "af479a4cdac19d056592c1f482388b6068392cc4",
+      "sourceFingerprint": "sha256:9e47820bb35cc2476c45064ffb92292381a40476fae9acdb36f0d06c026d85ec"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:ba8cfbb359c599b7f8cb6cf37df4418bd5d5850be9966be170265f12afcc3ac6",
+      "completedBy": "hermes",
+      "completedRunId": "1e5eb8f5-3a28-4cc1-87c2-6212615a54f5",
+      "gitHead": "af479a4cdac19d056592c1f482388b6068392cc4",
+      "sourceFingerprint": "sha256:9e47820bb35cc2476c45064ffb92292381a40476fae9acdb36f0d06c026d85ec"
+    },
+    "/openwiki/subsystems/encryption.md": {
+      "pageVersion": "sha256:adcd07d2c84fb331831524b1a0a86bc5f29fff807f001b9b185585e98b524a4f",
+      "completedBy": "hermes",
+      "completedRunId": "1e5eb8f5-3a28-4cc1-87c2-6212615a54f5",
+      "gitHead": "af479a4cdac19d056592c1f482388b6068392cc4",
+      "sourceFingerprint": "sha256:9e47820bb35cc2476c45064ffb92292381a40476fae9acdb36f0d06c026d85ec"
+    },
+    "/openwiki/subsystems/file-transfer.md": {
+      "pageVersion": "sha256:a4dc887ea72215055a3223778d586e67f4ddcd3c69bdf196e92fa862dd7bd4e9",
+      "completedBy": "hermes",
+      "completedRunId": "1e5eb8f5-3a28-4cc1-87c2-6212615a54f5",
+      "gitHead": "af479a4cdac19d056592c1f482388b6068392cc4",
+      "sourceFingerprint": "sha256:9e47820bb35cc2476c45064ffb92292381a40476fae9acdb36f0d06c026d85ec"
+    },
+    "/openwiki/subsystems/peering.md": {
+      "pageVersion": "sha256:1104456c7eaf2ca4e098db96aa477fe79e7d648ea12ae97865c1a75737b597a6",
+      "completedBy": "hermes",
+      "completedRunId": "1e5eb8f5-3a28-4cc1-87c2-6212615a54f5",
+      "gitHead": "af479a4cdac19d056592c1f482388b6068392cc4",
+      "sourceFingerprint": "sha256:9e47820bb35cc2476c45064ffb92292381a40476fae9acdb36f0d06c026d85ec"
+    }
+  }
+}

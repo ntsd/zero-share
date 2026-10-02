@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:adcd07d2c84fb331831524b1a0a86bc5f29fff807f001b9b185585e98b524a4f",
+  "claims": [
+    {
+      "id": "claim_6e2e967350044918ae012dec264dff6b",
+      "statement": "The crypto configuration as of HEAD is RSA-OAEP with modulusLength 1024 and AES-GCM with key length 256; application-layer encryption is optional and off by default (isEncrypt: false).",
+      "evidence": [
+        {
+          "resource": "repo://src/configs.ts#L20-L24",
+          "version": "repo-lines-v1:sha256:dfdd10aaef98f4e6994caaa6e040249793a45f337ce1f56028cc09f4f1388111:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTljOWVjMzhkNzlmOTgyMDdjOWM3YTA4OTI5NDNlNTg3MzA1OTkyNjBkYTAwZWI0ODAxMTIxNzQwODdmNjA5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDE5Y2MyNmY4YjY2NDRhN2UzMGY1NDI5MjU5OTlkNDIzNTU3ZmQ2OWIwNGJjNjdiZWRmYzY4OTBhODYxY2RkNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODBmYjk3MjE4ODEyMjg3NTAyYjRiNTdhOGZlNmM2MjgyY2ZhZTQzZTBiYmRjOGQ5MjQwMTU0YzIxMTZmYjg0ZCJ9"
+        },
+        {
+          "resource": "repo://src/utils/crypto.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:8b214e3e94fc5ff6942b1459eae33cf03ef9d24d03366e473bea8ec67c5c3813:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhMjk5ZmZkZmU2NGUzNzBkYjNlNTk3MzQwMmI4MGNmOGFkZTA4OGU3ZWE5NjNjMTQ2MjhkNDQ3MjdkY2U4YTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8c47e3fe2aca4ce79f9978224cb17f6f",
+      "statement": "Each peer generates its own RSA-OAEP-1024 key pair when creating its outgoing artifact (offer link or answer code), holding the private key in page state; the receiver's RSA public key is imported from the counterparty's artifact.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L43-L48",
+          "version": "repo-lines-v1:sha256:1aec21e248eca9a1a403f300a236a6e7699379747aad692a21596bceddce8b1a:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODNkNmNmYWY5ZWMwOTAyNTU1YzcyNTU5MzQ5Nzc4NWRmMmI4OTJhYWM3ZWMwNDEyZmFjMGQ4MWZhYTUyMWQ5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODYwNTVjOGFlNjYwNGQ3NDFiYzVmNWQ5YTNlMmI4ZjRmYmZjNDE4Y2Y0YTI5NTBhOTkyNmU2MDRkMWVjZjIyYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjM3NzJiMzE4NGU4ZWYwMDdlZjc2Zjk4NzZjNjM4NDdkNzE4YTFkODEwOTA4MjI4MTg1MGMzZmVhNzIyYzk3MyJ9"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L115-L120",
+          "version": "repo-lines-v1:sha256:b4abd4baf0af00f1adc84eef73e85cd4c64e6210ca6bc383b855504e7cd6eacf:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjgzZDgwMWEyN2M0YTA5Yjk0MGQyY2QxOTAyMGI4OTdmMjVhNWUxYTc4ODA0MDRlNjNkYzVmNGEzYzg0MzJiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTk4NTAzMWMwODM4NmYyNzFlNmJjNmNlYmZjNjcxNTUwNzc5ZDU3YzU0MmZjMWU0MjkxNWQ3YmMwMmYxYzdhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzdjM2QzNTFhNDU1MzFkZjI0NWFjYmMyZjMzYmFmZjFiNmU2M2ZkOWY5N2EzYTE4M2M0NjE2YmI2NDVlOWVhMyJ9"
+        },
+        {
+          "resource": "repo://src/utils/crypto.ts#L1-L17",
+          "version": "repo-lines-v1:sha256:464a02db19e4da4366839de788b881ea9cf708e4732bb6c384c49927c0ec659d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5MDk2ZDRmNjhhYjU4OTFiMjFlNjc4MzU3ZjM5ZDAyMzNkOThmZDZkMGJlZTIyZmFlNmY2OTliNGE5ODdkMTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_22d82f7aa254463c9ef178c846c2080f",
+      "statement": "RSA public keys are exchanged through the shared artifacts: the offer peer's base64 SPKI public key is the 'p' query param of the offer link, and the answer peer's base64 SPKI public key is appended after '|' in the answer code; the receive page derives isEncrypt from the presence of 'p' so the encryption mode propagates from the offer side.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L141-L146",
+          "version": "repo-lines-v1:sha256:9d4470d4cc5670cf27ce1f9ffb7d9b5c09c1d946fb86c3e96cf37d5c4297d9ac:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2IyOTBmOTdhYzk2YjNjZThmYmZiMzRiNzBhMjM5MDY3MzUyOGM5ZWE1M2QwM2E0YWJlMmMxZjgyZWM5N2M4MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTk4NTAzMWMwODM4NmYyNzFlNmJjNmNlYmZjNjcxNTUwNzc5ZDU3YzU0MmZjMWU0MjkxNWQ3YmMwMmYxYzdhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODhkYjYyZTJiMDIyZjE1ZmExMmEwNjE2ZWJmMDgyY2YxY2QyNzE2YTFiNTE1OTkzNjkyYmI3Y2E4OTA4MDIyZCJ9"
+        },
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L43-L59",
+          "version": "repo-lines-v1:sha256:c5ee5ab49d9cc7d092cfd6ce478a6aa7b182ba5b79dbd0ac41a3cfea4dffb9cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZDZjZmFmOWVjMDkwMjU1NWM3MjU1OTM0OTc3ODVkZjJiODkyYWFjN2VjMDQxMmZhYzBkODFmYWE1MjFkOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjMDdiNTc1YzFmZDVhNDIwMTM3NGI1NjEyZjU5NzM4ZWVhOTNhZTRlYjRjNjgyNDdhOTQwNzRiNTEwZDA4YTAifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L33-L49",
+          "version": "repo-lines-v1:sha256:f5e5aedd172544a7f400c947b88f50049b025f090395e0b5d84a1aa5a36422f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5OTUzNTllMjVjNTdkY2FlMDkzMjJhZGYwZDMxN2M3Yjk4OWFlZThiMDAzY2Y5MjQ3NjRhZDlkMmM4YWVkZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4NjJkMmJmMjZkNDcyMWQ3NzAxMjhjYThkOWFjYzViN2M1MzU2NGUxZmVmYWNmNjZkZTUyNGNhYjllNTE4M2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViNTEyYzY0YjdmZjVhYzBiMmVjMjZiNWQyNjM2NjU4NmZkYjQwNWY4ZTMxNzhkOGU3NjM1YWZjYzg2NTMxODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5712564d44244197a155ef4bdc054f9f",
+      "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key; the wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L35-L42",
+          "version": "repo-lines-v1:sha256:e10a642325a950ad2f996818edd7b04ec999ebe91e6c019ed0c1b718940431c1:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2U5ZTUyYjViZTkxZTQyNzdjMjc0NjQxNjczMTM0YzYxOTZmNjQ5YWNiMDIwMWRiYmE4OTY0OWEyNTkwY2U3ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODkyZDZlMjM5NzA4NjQ4YmUwYTE5NWI2MTAzNWU1MjVmM2MwN2NjN2NjNjQxNTU2NzAzMzk0MmMxY2Y4Y2IyNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWIzYWE2ZWE0ZmFkMDQxMzIzYWVhODNkNTk4NDE5ZTJmMTIyODA1YTRmOGRlMDIxOGZmNzNmOGI4YmMxNWVhNSJ9"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L182-L215",
+          "version": "repo-lines-v1:sha256:cb9acebec7bd68747856cfd353b146e9fbb251e7671f6be3f786ca2e32f0012f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyMzhkMWExZDYzN2M4M2M1NTRlNjk0YzI2MGEwMTMxN2M5MGNmMWY1Y2RjNDBmZjY2Zjk2N2M5MjlkOTNkOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE2YTZkYzVmZjk2MzNhZjFiZjAwMTllZTQzOWI0YWQ2OTRjMmNkNzRmMWRiNDQwYWU3NTM3MTEzMjAxZjNlODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkMjRhYzYzMTEzMWFlNjcwYTgyZmIzMDNmZmVjYzE2MWEwMGExYWFiMmJlZGE0NWE5MjM2ODY3NDZjZDY1ODEifQ"
+        },
+        {
+          "resource": "repo://src/utils/crypto.ts#L44-L75",
+          "version": "repo-lines-v1:sha256:679fab845981def7a05a06231d3e4a6b6fc3df54ffacef057f7b5961e95aaa0e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3MWQ4N2ZkNzFmMWQwYTQ1OGQ3NjBhMDk3MGQ1ZDE4YTc5MTExMDA1ZTA4NWEyOWYzZjY4ZjgwMjY0YWRmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzOGEwYWRiNzkzMDRjNGU4ZjZkMmI0YmE3NGMzNDZjNTkzZTk5ZGI0N2MzMTc2MWJkNzQ4NzVmODU2ZWFjNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMDM2MjY4NGNmNDAzN2VjODgwNTA1M2IwNzY5YTc1NjJmZWE5MmFhZGU0ZTI5MGJlNDAyMzk2NzY5NzU2ZWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8667dbdd503444ae80a6ed368d17f68b",
+      "statement": "AES-256-GCM payload encryption uses a fresh random 12-byte IV per chunk: encryptAesGcm returns IV || ciphertext and decryptAesGcm splits the first 12 bytes as the IV, so each chunk is encrypted with a unique nonce.",
+      "evidence": [
+        {
+          "resource": "repo://src/utils/crypto.ts#L26-L41",
+          "version": "repo-lines-v1:sha256:dd197c9b7a94aaef5ec09e918db69d29863b723b5ea44a22e73113ae131e22e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMThlMGExZDFkM2I0MzhlMjM3Y2VlYTdiMmU5YTY3NmQzOWIyOGM2NTU3MjU5OWUzOThkZGFlYzY1YzllMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwOWYyMWMwZjMwMDE2M2I5ZDRkM2ZkZTFiNzg1NjNjMTg1YzI3MjM0YjQ2YWFkYmRhZTc5MTM1MDQ2NDUwYzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwZWQzZTAzZWE1NzRjNDc4NDZhOWNlYTc1ZTQ5NGU1M2MwMGM5Y2ZjMWQ0OWQyNmE0NDJhZjg0YWU1YWNjMWIifQ"
+        },
+        {
+          "resource": "repo://src/utils/crypto.ts#L78-L93",
+          "version": "repo-lines-v1:sha256:18918b50699db25d2f73aa6b51c8742d27575aee6597c7e3837ae64a4a5315b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYzI3NjljNjI4NDI2YTFhOWJjNjA4MDIzNjVmZTk2N2Q5ZjEyYWU0NTNmZjM2MDcyZWM1MDA2ZDhkODk3NDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkODJiZTU2ODI4NjBmNDY1NTQzYTk3MGRlMzBmM2FlMWQ1MTgzYmE5OTBkY2VjYmViNDVhZmY4YjA5NTEzZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzZWM0NTBhZTYzMDQ4ODUxZjUyYjBiYzA4ODhkZTQxYzJlNjMyOWQzYjdiMmYyYzBiZDdjNWI5ZmQxZjMzMTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_df6f737c2b7647a996d1311ce7f78e3a",
+      "statement": "Chunk-level encryption wraps the transfer framing: the sender encrypts each chunk buffer before Message-encoding it as a chunk, and the receiver decrypts each decoded chunk (only when isEncrypt and the per-file aesKey are both present) before accumulating bytes toward the declared file size.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L74-L92",
+          "version": "repo-lines-v1:sha256:221b7eba2b105da15ef45cfa48b7a2e40d482f11a426800e071e2a7e6ba35529:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1NTY2MjU1NzllNTc1YWRjZTVlM2EzYTM5MmRhYmZiNzM1NzgxM2M1OTg0MTVlNjgxNjEzNzQ4MzY4NGQzMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNzY4ZjQyODZiZTY2ZGU0MjJhNmQxZTMyZGUwNDBjOTg4ZDk3ZGNlNzUzYzMzYWQ3ZmI1MTFmNWMzYzFiM2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1NzY2OTViMDI0NGQ2MTM3NzU3ODU5Nzk2ZWM3MmJmZGJlMWU2YjBlMjYyMTk2MjBlMjBiYTAyODdlNzBkOGYifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L86-L107",
+          "version": "repo-lines-v1:sha256:d92af564a061a2ee66c50c65ff3afad81142253da0f1b76a7c46c5123e45ed33:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhYjMwNGI3ZTJkYWNjMWJkYzE5OWE5MzQ4YjVhNGFlMDIxOWM1NTY5ZmM5OGNlMTllYzI5YWM2NTZkYjdjZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyNGM5YmZhNTQwYmFkNGFmNDY1YThkZDdiZTlmZjAzMTNjM2YyZDI3MjE0N2VlZWRjMzNiNDM1ZTQxYzE0YTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_27f3b298aa6c4a19baa06c00bd22106c",
+      "statement": "RSA public keys are serialized as base64-encoded SPKI DER (exportKey/importKey 'spki' with the RSA-OAEP params, encrypt-only usage) via the arrayBufferToBase64/base64ToArrayBuffer helpers.",
+      "evidence": [
+        {
+          "resource": "repo://src/utils/crypto.ts#L96-L126",
+          "version": "repo-lines-v1:sha256:953c7b89d90f582ef25038d8a2477b758b6a7c3990d2420ccc1865b4548823c6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3NzVlYzNiMjdjMDdhMzllNDhlMTg0MDk4M2IzOTBkYzQxMDA2NTYyMjM5YTM2NmE1Zjg5MzYwODZiZWNiYmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyMTE2YjEwM2U1MDA0YmQ2NGM2OThhN2VmMGZkNDg3OTM0Mzk4Mjc0ZTdjZTczZDU4NDgxYTAzOTA3OTBlNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c5d863ce334a49c989924000c2fb6a3c",
+      "statement": "Failure behavior is degraded-not-crashing: a missing per-file aesKey makes the sender fall back to sending that chunk plaintext, a malformed 'p' param leaves rsaPub undefined (skipping the key-wrap step), and encryption off means no keys are generated and all chunks are sent unframed by crypto.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L45-L49",
+          "version": "repo-lines-v1:sha256:915fe0e3ca2e7edad14d6836f4c57cb44763d7797b7bcaf6aacafb7a72863d77:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWE5YjdhNDcxZmVhNTk3OWY4ZTk0ZDMzZWVkN2M5Y2M0MTJkYjMwNmFkMjA1MjdkMDJmNDU5MDNlMmU5MzNhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjVjMmZhZDE1N2I5MTZkMDI3N2E4NDY5NGE1MTk5NjM2Yjg2OWUxODQ4OWJiMjQwYmIzZjhlNmZhNzk2OWM5NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWI1MTJjNjRiN2ZmNWFjMGIyZWMyNmI1ZDI2MzY2NTg2ZmRiNDA1ZjhlMzE3OGQ4ZTc2MzVhZmNjODY1MzE4MyJ9"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L86-L107",
+          "version": "repo-lines-v1:sha256:d92af564a061a2ee66c50c65ff3afad81142253da0f1b76a7c46c5123e45ed33:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhYjMwNGI3ZTJkYWNjMWJkYzE5OWE5MzQ4YjVhNGFlMDIxOWM1NTY5ZmM5OGNlMTllYzI5YWM2NTZkYjdjZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyNGM5YmZhNTQwYmFkNGFmNDY1YThkZDdiZTlmZjAzMTNjM2YyZDI3MjE0N2VlZWRjMzNiNDM1ZTQxYzE0YTQifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T19:50:36.439Z"
+  }
+}

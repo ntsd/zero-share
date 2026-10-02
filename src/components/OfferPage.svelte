@@ -142,7 +142,16 @@
     const [sdp, pubKeyB64] = answerSDP.split('|');
 
     if (sendOptions.isEncrypt) {
-      rsaPub = await importRsaPublicKeyFromBase64(pubKeyB64);
+      // validate the answer's public key: a malformed/truncated answer code
+      // (e.g. missing the `|` separator or a damaged key) would otherwise
+      // reject here, skipping setRemoteDescription and leaving a
+      // half-configured connection with no error shown
+      try {
+        rsaPub = await importRsaPublicKeyFromBase64(pubKeyB64);
+      } catch {
+        addToastMessage('Invalid encryption key in answer code', 'error');
+        return;
+      }
     }
 
     const remoteDesc: RTCSessionDescriptionInit = {

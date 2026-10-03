@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:1104456c7eaf2ca4e098db96aa477fe79e7d648ea12ae97865c1a75737b597a6",
+  "pageVersion": "sha256:df810590a758e6f1d00ab9ed4c9ad7b6481a1e198e2770d1584adde1cba0f9fc",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
@@ -42,15 +42,15 @@
     },
     {
       "id": "claim_80c165723d094986bff45bde70e5e214",
-      "statement": "The answer-code wire format is sdpEncode(localAnswerSdp) + '|' + publicKeyBase64 (public key empty unless encryption is on); the offer peer splits on '|', imports the RSA public key when isEncrypt, and applies the decoded answer via setRemoteDescription.",
+      "statement": "The answer-code wire format is sdpEncode(localAnswerSdp) + '|' + publicKeyBase64 (public key empty unless encryption is on); the offer peer splits on '|', imports the RSA public key when isEncrypt inside a try/catch that toasts 'Invalid encryption key in answer code' and aborts on failure, and applies the decoded answer via setRemoteDescription on success.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L141-L153",
-          "version": "repo-lines-v1:sha256:91d98b23abf6c7952554c4ebc1d86505c7836b4b20490bd133194fdabd757505:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L141-L162",
+          "version": "repo-lines-v1:sha256:df61f6a9441813b2169be08c5b2ee2ec52999ac12fe299ac427521f10c7b65a4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L115-L138",
-          "version": "repo-lines-v1:sha256:093fc5392db590aa4c06820807e01f0c95af0df11016d55b149907f543f81ccb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4M2Q4MDFhMjdjNGEwOWI5NDBkMmNkMTkwMjBiODk3ZjI1YTVlMWE3ODgwNDA0ZTYzZGM1ZjRhM2M4NDMyYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MWUwNDg4MDBiNWJlYmI2YjU1NjhmNGNjMzljNTE5ZGU3NjMwYTg0OGE0ZWQyOWYzYWRlN2ViMDY0ZWVlN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMWRkYTE2ZDMzYTljYjJmYjE0NTEzYjAwOTdjYmNjYTVjNTI2NWFjYzQzNzgyZTgyNzJiOTk0MWI4ZjY0Y2MifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L116-L158",
+          "version": "repo-lines-v1:sha256:0b4d0b3e0b249810e6a293b1d80cab32400ed2c2f525656189e7b496da288a82:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZGE3OWRhZDg3MTg3ZDkwOWQ3ZDM0NzFjYjNlNGQyZjM4YzA2YTg4MDRlMTVkODEyMGU2NzI2OGM1M2U1ZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlOTkwNWZiYjU5OWVmYmMzNDU2ZTYwZWU4OWY0Y2JiYmFiOWQ5NWI2OGIxMjQyMjkzMTFkNTlmY2QzMThhMjIifQ"
         }
       ]
     },
@@ -88,11 +88,11 @@
     },
     {
       "id": "claim_0353b2cee9c84ee0aef157512da079a9",
-      "statement": "STUN configuration uses a built-in list of public STUN servers (Google, sipgate, nextcloud, myvoipapp) with the selected single URL as the only iceServers entry, overridable via the 'i' param; no TURN server is configured anywhere.",
+      "statement": "STUN configuration uses a built-in allowlist of public STUN servers (Google, sipgate, nextcloud, myvoipapp, voipstunt) with the allowlist-validated 'i' value as the only iceServers entry, falling back to the default for any non-allowlisted value; no TURN server is configured anywhere.",
       "evidence": [
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L52-L67",
-          "version": "repo-lines-v1:sha256:c19d7b3a8f334e04a88f3fcfa51c747fffb1ed90f18ba0d6ef8e71538261846b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwN2ZiMjU5ZTcxMmY5YzUxNTdhMjA3MGQ1MDUxZTYwZWIyYjdhZjNjMjhhYzQ1YjBiNWEyZTIyNWY1ZGY1ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFhMTZlZWI3ODE5YmU4MjBiMDU0N2Y3NGY5NjkyNzI5MDI3ODY3YTc4NjVlZDkwNWE2OGY4YmEyMDM0OGNmNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU2MDk2OGI1ZGMzNzQxZWE1ODVhNGIwNDNiY2JhZWQ0MDFkNmNjOWZmMzJhZjk2N2NhNzZlZjkzN2E4Zjk4ODYifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L62-L69",
+          "version": "repo-lines-v1:sha256:f2b3b0eb77e1df3aa0125bf304f7e68f28d317c0a639aefaed5dbde0a52718f7:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWMzOTU0OTk1NGY1NmVhOGYwNzQ3MWNhNmZiZmRiYzRhYjQzMjUyOTE2YWU1ZGI1MGE4MGFjMGY0ODE3ZDZlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2NkZDY2MDRhNGViZDA0NzU0ZDgwNmE4MmYyOGQ4ZmM4OTgyZmEzNDliMjc4YzQ1OGM2M2I5ZjA4YzEyM2QwZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzRhNmI0ODBiMTQ3YzIxODZkMWY4MTc2ODM2YjNjMjdhOTNiZWFhMjQ1ODQ5ZDA0OTc1ODk2Yjg2ZWRiZTZiZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDMxM2QzZGJhYWUxYzdkN2I0NmUyNDAzNmM0MTY3ZDRjNjczNjIyMWVjNDdmOTk0MjE3MTFjNTIxY2EyMTI3ZCJ9"
         },
         {
           "resource": "repo://src/configs.ts#L3-L14",
@@ -135,6 +135,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-01T19:50:36.439Z"
+    "at": "2026-10-03T07:07:26.852Z"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ba8cfbb359c599b7f8cb6cf37df4418bd5d5850be9966be170265f12afcc3ac6",
+  "pageVersion": "sha256:2ed88b9df4f1e5d07a90d8bbdc18b23a1691378bd86b62be12987912c1b17559",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -22,15 +22,15 @@
     },
     {
       "id": "claim_0d8574c6717049c2b9b514639210ae5f",
-      "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (STUN override), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>.",
+      "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (STUN override, accepted only when in the STUN_SERVERS allowlist), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only; a malformed key downgrades the session to plaintext with an error toast); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>.",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L43-L60",
           "version": "repo-lines-v1:sha256:3bdd1ad599ab8a0f57235736ad7534adfd7c3b151028980895f2795a990f81cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZDZjZmFmOWVjMDkwMjU1NWM3MjU1OTM0OTc3ODVkZjJiODkyYWFjN2VjMDQxMmZhYzBkODFmYWE1MjFkOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1YzIxNTE1ZDUzMzYzMDk1M2M2ZTQ2MzA5YTZhYWI3ZWE3ODZjZWYwYjc3ZDQ5MTA0NzFmYTQxNTEwMzI2NTEifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L33-L49",
-          "version": "repo-lines-v1:sha256:f5e5aedd172544a7f400c947b88f50049b025f090395e0b5d84a1aa5a36422f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5OTUzNTllMjVjNTdkY2FlMDkzMjJhZGYwZDMxN2M3Yjk4OWFlZThiMDAzY2Y5MjQ3NjRhZDlkMmM4YWVkZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4NjJkMmJmMjZkNDcyMWQ3NzAxMjhjYThkOWFjYzViN2M1MzU2NGUxZmVmYWNmNjZkZTUyNGNhYjllNTE4M2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViNTEyYzY0YjdmZjVhYzBiMmVjMjZiNWQyNjM2NjU4NmZkYjQwNWY4ZTMxNzhkOGU3NjM1YWZjYzg2NTMxODMifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L33-L69",
+          "version": "repo-lines-v1:sha256:553b3faf455d30e1beed0fa79bb5106f578118c39df222925c447a986c343496:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjZGQ2NjA0YTRlYmQwNDc1NGQ4MDZhODJmMjhkOGZjODk4MmZhMzQ5YjI3OGM0NThjNjNiOWYwOGMxMjNkMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmM2RjMGU0ZTFkYjczYjg5ZThmNjZhMWMzMDA3MDAzOWIwYzZiMWRlMzFjN2UwZjI5ZWU2MTk5YjMzNTZjMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAzMTNkM2RiYWFlMWM3ZDdiNDZlMjQwMzZjNDE2N2Q0YzY3MzYyMjFlYzQ3Zjk5NDIxNzExYzUyMWNhMjEyN2QifQ"
         },
         {
           "resource": "repo://src/utils/sdpEncode.ts#L1-L12",
@@ -40,15 +40,15 @@
     },
     {
       "id": "claim_02260b9d041440448fda65b10f4bc46c",
-      "statement": "Connection setup is offer-link driven: the offer peer generates an RTCPeerConnection, data channel, and SDP offer (waiting up to 3 seconds for ICE candidates), while the answer peer decodes the offer from the URL, generates the answer plus RSA key pair (when encrypted), and returns the answer code; the channel opens on both sides once the offer peer accepts it.",
+      "statement": "Connection setup is offer-link driven: the offer peer generates an RTCPeerConnection, data channel, and SDP offer (waiting up to 3 seconds for ICE candidates), while the answer peer decodes the offer from the URL, awaits the validated p-param key import, generates the answer plus its RSA key pair (when encrypted), and returns the answer code; the channel opens on both sides once the offer peer accepts it.",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L62-L134",
           "version": "repo-lines-v1:sha256:a63b7a78e4adac8bcd20d2fce09e289aefda03b4efbb420058c91a9a8f9fdce7:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNDgzNTZlMTYzMTViMGVhOGQ5NjA2Y2U5NWZmOWZhMzVmYWRjYTljNGE4MzIxOTA2NjJkMTM2OGIzYmRjOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMDk4NTM5YjI1NjM2ZTVjZDJmZWJkZjc0Y2JmZGNlY2U2YWE0MzRkOWEyZWJmZjcwZThlNGU1YTMwNjc4YTAifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L65-L138",
-          "version": "repo-lines-v1:sha256:adeccdfd6a7b086c6959f3dfd3610b1c3c2737b6f88867a1f83fb29011ea3afb:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMWU1ZmMxZWE4ZTQ1MzRjZDQ5OTUzOTk1MjY5NmI3NjMxZTJjYTgxNzZkMTJjMzdiZDQ5Zjg1ODY0ZmMyMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MWUwNDg4MDBiNWJlYmI2YjU1NjhmNGNjMzljNTE5ZGU3NjMwYTg0OGE0ZWQyOWYzYWRlN2ViMDY0ZWVlN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0Yzk2YWMxNjIxNjRhYTYzNWQ0OGU3ODkwYjBmNzFlZjA3ZjU3ZGY2OTQ0MTZiNmM5OTY5YjFlYTVmYzBiNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMWRkYTE2ZDMzYTljYjJmYjE0NTEzYjAwOTdjYmNjYTVjNTI2NWFjYzQzNzgyZTgyNzJiOTk0MWI4ZjY0Y2MifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L82-L160",
+          "version": "repo-lines-v1:sha256:a40dd39bcccb3da1751fc1cf6f6931d5dc573a85757322333af7ad1a66670d6d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMWU1ZmMxZWE4ZTQ1MzRjZDQ5OTUzOTk1MjY5NmI3NjMxZTJjYTgxNzZkMTJjMzdiZDQ5Zjg1ODY0ZmMyMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MWUwNDg4MDBiNWJlYmI2YjU1NjhmNGNjMzljNTE5ZGU3NjMwYTg0OGE0ZWQyOWYzYWRlN2ViMDY0ZWVlN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0Yzk2YWMxNjIxNjRhYTYzNWQ0OGU3ODkwYjBmNzFlZjA3ZjU3ZGY2OTQ0MTZiNmM5OTY5YjFlYTVmYzBiNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMWRkYTE2ZDMzYTljYjJmYjE0NTEzYjAwOTdjYmNjYTVjNTI2NWFjYzQzNzgyZTgyNzJiOTk0MWI4ZjY0Y2MifQ"
         }
       ]
     },
@@ -101,6 +101,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-01T19:50:36.439Z"
+    "at": "2026-10-03T07:07:26.852Z"
   }
 }

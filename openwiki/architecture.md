@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-01T19:50:36.439Z
+    at: 2026-10-03T07:07:26.852Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -28,7 +28,7 @@ sources:
     resource: repo://src/type.ts
   - id: openwiki-source-825971ed9c72d5969af1b150
     resource: repo://src/utils/crypto.ts
-generated: { by: 'hermes', at: '2026-10-01T19:50:36.439Z' }
+generated: { by: 'hermes', at: '2026-10-03T07:07:26.852Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -40,13 +40,13 @@ Zero Share is a **serverless, client-side P2P file-sharing web app**: two browse
 - **Static frontend, no server.** The app is an Astro site built in `output: 'static'` mode with Svelte (`client:only`) interactive components; deployment produces plain static files (GitHub Pages or `npm run build`). There is no server-side code and no relay server of any kind. [`repo://astro.config.mjs#L8-L13`]
 - **Two routes, two roles.** `/` renders `OfferPage` (the initiator) and `/receive` renders `ReceivePage` (the responder). Both routes are thin Astro pages that mount a single Svelte component under the shared `MainLayout`. [`repo://src/pages/index.astro#L1-L10`], [`repo://src/pages/receive.astro#L1-L10`]
 - **Dual-role transfer UI.** After the data channel opens, _each_ page mounts **both** a `Sender` and a `Receiver` and the user toggles between Send/Receive modes — either peer can transfer files in either direction over the same channel. [`repo://src/components/OfferPage.svelte#L232-L276`], [`repo://src/components/ReceivePage.svelte#L179-L214`]
-- **Public STUN only.** Peer connections are configured with a single STUN URL (default `stun:stun.l.google.com:19302`, selectable from a built-in list, overridable via the `i` URL param). There is no TURN fallback in the codebase. [`repo://src/configs.ts#L3-L14`], [`repo://src/configs.ts#L20-L24`], [`repo://src/components/ReceivePage.svelte#L52-L52`]
+- **Public STUN only.** Peer connections are configured with a single STUN URL (default `stun:stun.l.google.com:19302`, selectable from a built-in list, overridable via the `i` URL param). The receive side accepts `i` only when it is in the `STUN_SERVERS` allowlist — any other value falls back to the default so a shared link can never point the peer's WebRTC stack at an attacker-controlled endpoint. There is no TURN fallback in the codebase. [`repo://src/configs.ts#L3-L14`], [`repo://src/configs.ts#L20-L24`], [`repo://src/components/ReceivePage.svelte#L62-L69`]
 
 ## Control flow (connection establishment)
 
 1. The **offer** peer creates an `RTCPeerConnection`, opens a data channel (`ordered: false` — ordering is handled by the message protocol), generates a local offer, and encodes the SDP into a shareable `?s=...` link on the `/receive` route. Link generation waits for ICE candidates to finish, with a 3-second timeout fallback. [`repo://src/components/OfferPage.svelte#L62-L134`]
-2. The **answer** peer opens the offer link, decodes the SDP from the URL, sets it as the remote offer, creates a local answer, and produces an **answer code** = `sdpEncode(answerSdp) + '|' + base64(RSA public key)`. [`repo://src/components/ReceivePage.svelte#L99-L138`]
-3. The offer peer pastes (or QR-scans) the answer code, imports the RSA public key, and applies the answer as the remote description. Once `dataChannel.onopen` fires, the transfer UI unlocks on both sides. [`repo://src/components/OfferPage.svelte#L141-L153`]
+2. The **answer** peer opens the offer link, decodes the SDP from the URL, sets it as the remote offer, creates a local answer, and produces an **answer code** = `sdpEncode(answerSdp) + '|' + base64(RSA public key)`. Before freezing the answer, it awaits the import of the offer peer's RSA key from the `p` param; a malformed key downgrades the session to plaintext (with an error toast) so the answer never advertises encryption the peer cannot honor. [`repo://src/components/ReceivePage.svelte#L46-L59`], [`repo://src/components/ReceivePage.svelte#L132-L142`]
+3. The offer peer pastes (or QR-scans) the answer code, and when encryption is on, validates the answer's RSA public key (malformed/truncated code → error toast and abort, instead of a half-configured connection); then applies the answer as the remote description. Once `dataChannel.onopen` fires, the transfer UI unlocks on both sides. [`repo://src/components/OfferPage.svelte#L141-L162`]
 
 SDP text is made URL-safe by `sdp-compact` compaction plus character substitutions (`/`→`_`, `+`→`~`, `=`→`-`), keeping share links short and safe. See `subsystems/peering.md` for the full link and code formats.
 

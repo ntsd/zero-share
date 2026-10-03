@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:adcd07d2c84fb331831524b1a0a86bc5f29fff807f001b9b185585e98b524a4f",
+  "pageVersion": "sha256:c226dee3a1eb7ee426f8d4e33f2d2227db584867842cab16b15ef155b5dfd644",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -18,15 +18,15 @@
     },
     {
       "id": "claim_8c47e3fe2aca4ce79f9978224cb17f6f",
-      "statement": "Each peer generates its own RSA-OAEP-1024 key pair when creating its outgoing artifact (offer link or answer code), holding the private key in page state; the receiver's RSA public key is imported from the counterparty's artifact.",
+      "statement": "Each peer generates its own RSA-OAEP-1024 key pair when creating its outgoing artifact (offer link or answer code), holding the private key in page state; the receive page awaits the validated p-param import before generating the answer's pair. The receiver's RSA public key is imported from the counterparty's artifact with explicit try/catch validation.",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L43-L48",
           "version": "repo-lines-v1:sha256:1aec21e248eca9a1a403f300a236a6e7699379747aad692a21596bceddce8b1a:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODNkNmNmYWY5ZWMwOTAyNTU1YzcyNTU5MzQ5Nzc4NWRmMmI4OTJhYWM3ZWMwNDEyZmFjMGQ4MWZhYTUyMWQ5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODYwNTVjOGFlNjYwNGQ3NDFiYzVmNWQ5YTNlMmI4ZjRmYmZjNDE4Y2Y0YTI5NTBhOTkyNmU2MDRkMWVjZjIyYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjM3NzJiMzE4NGU4ZWYwMDdlZjc2Zjk4NzZjNjM4NDdkNzE4YTFkODEwOTA4MjI4MTg1MGMzZmVhNzIyYzk3MyJ9"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L115-L120",
-          "version": "repo-lines-v1:sha256:b4abd4baf0af00f1adc84eef73e85cd4c64e6210ca6bc383b855504e7cd6eacf:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjgzZDgwMWEyN2M0YTA5Yjk0MGQyY2QxOTAyMGI4OTdmMjVhNWUxYTc4ODA0MDRlNjNkYzVmNGEzYzg0MzJiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTk4NTAzMWMwODM4NmYyNzFlNmJjNmNlYmZjNjcxNTUwNzc5ZDU3YzU0MmZjMWU0MjkxNWQ3YmMwMmYxYzdhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzdjM2QzNTFhNDU1MzFkZjI0NWFjYmMyZjMzYmFmZjFiNmU2M2ZkOWY5N2EzYTE4M2M0NjE2YmI2NDVlOWVhMyJ9"
+          "resource": "repo://src/components/ReceivePage.svelte#L138-L142",
+          "version": "repo-lines-v1:sha256:8a1955a4b54f26e25b2f58e025ecf63e41f6cb145fe7d9f3385fde52b8cf03b1:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTg2NzExZDFmYmZmNDNhMDgwN2I3ZmE4ZmZlNWFjZGFmZjhlMmFiZjU0YjI1N2I4M2MxN2VjNTc0MGQ2YjQxNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTg4MjYwMWI5MTBmNTU4ZTVkNjY5OTg1ZTkwNGZkMjA1MzAzYjc2NTM3YmVjODBlODc3MWZlOThmYWZkYzA0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzdjM2QzNTFhNDU1MzFkZjI0NWFjYmMyZjMzYmFmZjFiNmU2M2ZkOWY5N2EzYTE4M2M0NjE2YmI2NDVlOWVhMyJ9"
         },
         {
           "resource": "repo://src/utils/crypto.ts#L1-L17",
@@ -36,19 +36,19 @@
     },
     {
       "id": "claim_22d82f7aa254463c9ef178c846c2080f",
-      "statement": "RSA public keys are exchanged through the shared artifacts: the offer peer's base64 SPKI public key is the 'p' query param of the offer link, and the answer peer's base64 SPKI public key is appended after '|' in the answer code; the receive page derives isEncrypt from the presence of 'p' so the encryption mode propagates from the offer side.",
+      "statement": "RSA public keys are exchanged through the shared artifacts: the offer peer's base64 SPKI public key is the 'p' query param of the offer link, and the answer peer's base64 SPKI public key is appended after '|' in the answer code; the receive page derives isEncrypt from the presence of 'p' (as reactive state that the validated import can downgrade to false) so the encryption mode propagates from the offer side.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L141-L146",
-          "version": "repo-lines-v1:sha256:9d4470d4cc5670cf27ce1f9ffb7d9b5c09c1d946fb86c3e96cf37d5c4297d9ac:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2IyOTBmOTdhYzk2YjNjZThmYmZiMzRiNzBhMjM5MDY3MzUyOGM5ZWE1M2QwM2E0YWJlMmMxZjgyZWM5N2M4MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTk4NTAzMWMwODM4NmYyNzFlNmJjNmNlYmZjNjcxNTUwNzc5ZDU3YzU0MmZjMWU0MjkxNWQ3YmMwMmYxYzdhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODhkYjYyZTJiMDIyZjE1ZmExMmEwNjE2ZWJmMDgyY2YxY2QyNzE2YTFiNTE1OTkzNjkyYmI3Y2E4OTA4MDIyZCJ9"
+          "resource": "repo://src/components/OfferPage.svelte#L141-L155",
+          "version": "repo-lines-v1:sha256:4e64a1306a71bdf58f0a8b378b484f2d701990ebe4e3025c74cc48e2030799c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4ZGI2MmUyYjAyMmYxNWZhMTJhMDYxNmViZjA4MmNmMWNkMjcxNmExYjUxNTk5MzY5MmJiN2NhODkwODAyMmQifQ"
         },
         {
           "resource": "repo://src/components/OfferPage.svelte#L43-L59",
           "version": "repo-lines-v1:sha256:c5ee5ab49d9cc7d092cfd6ce478a6aa7b182ba5b79dbd0ac41a3cfea4dffb9cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZDZjZmFmOWVjMDkwMjU1NWM3MjU1OTM0OTc3ODVkZjJiODkyYWFjN2VjMDQxMmZhYzBkODFmYWE1MjFkOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjMDdiNTc1YzFmZDVhNDIwMTM3NGI1NjEyZjU5NzM4ZWVhOTNhZTRlYjRjNjgyNDdhOTQwNzRiNTEwZDA4YTAifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L33-L49",
-          "version": "repo-lines-v1:sha256:f5e5aedd172544a7f400c947b88f50049b025f090395e0b5d84a1aa5a36422f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5OTUzNTllMjVjNTdkY2FlMDkzMjJhZGYwZDMxN2M3Yjk4OWFlZThiMDAzY2Y5MjQ3NjRhZDlkMmM4YWVkZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4NjJkMmJmMjZkNDcyMWQ3NzAxMjhjYThkOWFjYzViN2M1MzU2NGUxZmVmYWNmNjZkZTUyNGNhYjllNTE4M2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViNTEyYzY0YjdmZjVhYzBiMmVjMjZiNWQyNjM2NjU4NmZkYjQwNWY4ZTMxNzhkOGU3NjM1YWZjYzg2NTMxODMifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L34-L37",
+          "version": "repo-lines-v1:sha256:52d2362a6d985e94fbcc0a463eb153715089d24cda300887501d629104d5222d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTk5NTM1OWUyNWM1N2RjYWUwOTMyMmFkZjBkMzE3YzdiOTg5YWVlOGIwMDNjZjkyNDc2NGFkOWQyYzhhZWRlMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUxM2Q3ODYyZDAxOWNmYTZkYjJmMjMxZTVlNTAxZTczM2Q2YmRkOTRmYjc0ZGQxYWQ5ZWIwMmEyNjE0YTExNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDg2MmQyYmYyNmQ0NzIxZDc3MDEyOGNhOGQ5YWNjNWI3YzUzNTY0ZTFmZWZhY2Y2NmRlNTI0Y2FiOWU1MTgzYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2FkNWQ3ZmQxYTAxYjE2ZDRhNzk3MGI0YmEyZTZiZDA5NGMwYTQ5NzIyOTEzNzFjN2VlYzU2MTU5Njg0ODgzYiJ9"
         }
       ]
     },
@@ -110,11 +110,15 @@
     },
     {
       "id": "claim_c5d863ce334a49c989924000c2fb6a3c",
-      "statement": "Failure behavior is degraded-not-crashing: a missing per-file aesKey makes the sender fall back to sending that chunk plaintext, a malformed 'p' param leaves rsaPub undefined (skipping the key-wrap step), and encryption off means no keys are generated and all chunks are sent unframed by crypto.",
+      "statement": "Failure behavior is degraded-not-crashing: a missing per-file aesKey makes the sender fall back to sending that chunk plaintext, a malformed 'p' param downgrades isEncrypt to false with an error toast (the answer no longer advertises encryption), a malformed answer-code key aborts acceptance with an error toast, and encryption off means no keys are generated and all chunks are sent without crypto.",
       "evidence": [
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L45-L49",
-          "version": "repo-lines-v1:sha256:915fe0e3ca2e7edad14d6836f4c57cb44763d7797b7bcaf6aacafb7a72863d77:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWE5YjdhNDcxZmVhNTk3OWY4ZTk0ZDMzZWVkN2M5Y2M0MTJkYjMwNmFkMjA1MjdkMDJmNDU5MDNlMmU5MzNhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjVjMmZhZDE1N2I5MTZkMDI3N2E4NDY5NGE1MTk5NjM2Yjg2OWUxODQ4OWJiMjQwYmIzZjhlNmZhNzk2OWM5NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWI1MTJjNjRiN2ZmNWFjMGIyZWMyNmI1ZDI2MzY2NTg2ZmRiNDA1ZjhlMzE3OGQ4ZTc2MzVhZmNjODY1MzE4MyJ9"
+          "resource": "repo://src/components/OfferPage.svelte#L141-L155",
+          "version": "repo-lines-v1:sha256:4e64a1306a71bdf58f0a8b378b484f2d701990ebe4e3025c74cc48e2030799c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4ZGI2MmUyYjAyMmYxNWZhMTJhMDYxNmViZjA4MmNmMWNkMjcxNmExYjUxNTk5MzY5MmJiN2NhODkwODAyMmQifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L46-L59",
+          "version": "repo-lines-v1:sha256:beb4bb39c1dddf77a42917df9af0f1ad04c45e889a31bdafdf41e85a556fb236:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyMzIxNjBjM2M0ZDg3ZDZiZDE0MmJmNmQ4ZTJjMzY0YTkwODM2YWEwNWFkN2ZmNjAwZGRjNGYxMjg0MDU3ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4MzU1MmFiNTcxNDk0YjM5OWIxODE5OTYyMmRiZTNiMzgyNmViNjFmY2QxZjc0Y2ZiMTJhYmNmODhlNGY3MjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1YzJmYWQxNTdiOTE2ZDAyNzdhODQ2OTRhNTE5OTYzNmI4NjllMTg0ODliYjI0MGJiM2Y4ZTZmYTc5NjljOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhODJkYmVhNzdkNTI5MmU2ZjdhNmJmZWIxNjcxYmYzYjYxMTE3OGMwMzc4NTAzMzkzNzQ1OWMyNTg4MWJhYmYifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L86-L107",
@@ -125,6 +129,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-01T19:50:36.439Z"
+    "at": "2026-10-03T07:07:26.852Z"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:cff2f337719d13b1ae205fe683fd7581b888acbb0aa4fe5e66efb980723b9ce6",
+  "pageVersion": "sha256:448ac1293c68434a3e14719f961cd581f98a09cae87f4572a04386a29aae0aaa",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -46,15 +46,15 @@
     },
     {
       "id": "claim_500ea4007b4e4a9aaee2b504b668c323",
-      "statement": "Peer connections are configured with a single STUN URL only (default stun:stun.l.google.com:19302, selectable from a built-in list, overridable via the 'i' URL param); no TURN server or fallback is configured.",
+      "statement": "Peer connections are configured with a single STUN URL only (default stun:stun.l.google.com:19302, selectable from a built-in list, overridable via the 'i' URL param, which the receive side accepts only when in the STUN_SERVERS allowlist); no TURN server or fallback is configured.",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L62-L73",
           "version": "repo-lines-v1:sha256:7545da0ee0ee2991ed12571dfb8a9b7198b95cdd937f5c73aead5583cfdb828a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNDgzNTZlMTYzMTViMGVhOGQ5NjA2Y2U5NWZmOWZhMzVmYWRjYTljNGE4MzIxOTA2NjJkMTM2OGIzYmRjOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxZjg3Y2Y4ZDYyM2QxM2YzODljYWUzOTJkZjUzY2ViNDdlNzY1N2ZmMjBjMTU0ZDFkNTFiNDNjZDBmNTg4MzcifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L52-L67",
-          "version": "repo-lines-v1:sha256:c19d7b3a8f334e04a88f3fcfa51c747fffb1ed90f18ba0d6ef8e71538261846b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwN2ZiMjU5ZTcxMmY5YzUxNTdhMjA3MGQ1MDUxZTYwZWIyYjdhZjNjMjhhYzQ1YjBiNWEyZTIyNWY1ZGY1ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFhMTZlZWI3ODE5YmU4MjBiMDU0N2Y3NGY5NjkyNzI5MDI3ODY3YTc4NjVlZDkwNWE2OGY4YmEyMDM0OGNmNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU2MDk2OGI1ZGMzNzQxZWE1ODVhNGIwNDNiY2JhZWQ0MDFkNmNjOWZmMzJhZjk2N2NhNzZlZjkzN2E4Zjk4ODYifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L62-L69",
+          "version": "repo-lines-v1:sha256:f2b3b0eb77e1df3aa0125bf304f7e68f28d317c0a639aefaed5dbde0a52718f7:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWMzOTU0OTk1NGY1NmVhOGYwNzQ3MWNhNmZiZmRiYzRhYjQzMjUyOTE2YWU1ZGI1MGE4MGFjMGY0ODE3ZDZlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2NkZDY2MDRhNGViZDA0NzU0ZDgwNmE4MmYyOGQ4ZmM4OTgyZmEzNDliMjc4YzQ1OGM2M2I5ZjA4YzEyM2QwZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzRhNmI0ODBiMTQ3YzIxODZkMWY4MTc2ODM2YjNjMjdhOTNiZWFhMjQ1ODQ5ZDA0OTc1ODk2Yjg2ZWRiZTZiZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDMxM2QzZGJhYWUxYzdkN2I0NmUyNDAzNmM0MTY3ZDRjNjczNjIyMWVjNDdmOTk0MjE3MTFjNTIxY2EyMTI3ZCJ9"
         },
         {
           "resource": "repo://src/configs.ts#L3-L24",
@@ -74,11 +74,11 @@
     },
     {
       "id": "claim_168fa874ca494eb0b49c143450d46e27",
-      "statement": "The answer peer decodes the offer SDP from the URL into setRemoteDescription, creates a local answer, and produces an answer code of the form sdpEncode(answerSdp) + '|' + base64(RSA public key), with the same 3-second ICE candidate timeout fallback.",
+      "statement": "The answer peer decodes the offer SDP from the URL into setRemoteDescription, awaits the validated p-param key import, creates a local answer, and produces an answer code of the form sdpEncode(answerSdp) + '|' + base64(RSA public key), with the same 3-second ICE candidate timeout fallback.",
       "evidence": [
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L99-L138",
-          "version": "repo-lines-v1:sha256:b1b61c4d7e782e63128a279361d1139fc1751d74f80470ff530b53f602e58eee:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MWUwNDg4MDBiNWJlYmI2YjU1NjhmNGNjMzljNTE5ZGU3NjMwYTg0OGE0ZWQyOWYzYWRlN2ViMDY0ZWVlN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMWRkYTE2ZDMzYTljYjJmYjE0NTEzYjAwOTdjYmNjYTVjNTI2NWFjYzQzNzgyZTgyNzJiOTk0MWI4ZjY0Y2MifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L116-L158",
+          "version": "repo-lines-v1:sha256:0b4d0b3e0b249810e6a293b1d80cab32400ed2c2f525656189e7b496da288a82:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZGE3OWRhZDg3MTg3ZDkwOWQ3ZDM0NzFjYjNlNGQyZjM4YzA2YTg4MDRlMTVkODEyMGU2NzI2OGM1M2U1ZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlOTkwNWZiYjU5OWVmYmMzNDU2ZTYwZWU4OWY0Y2JiYmFiOWQ5NWI2OGIxMjQyMjkzMTFkNTlmY2QzMThhMjIifQ"
         }
       ]
     },
@@ -122,15 +122,15 @@
     },
     {
       "id": "claim_6ae27ef5450f44fab921f7e1e98da446",
-      "statement": "Application-layer encryption is optional and off by default: when enabled, each file gets its own AES-256-GCM key wrapped with the receiver's RSA-OAEP-1024 public key, with the wrapped key delivered inside the metaData message, protecting file content from SDP-exchange MITM on top of DTLS.",
+      "statement": "Application-layer encryption is optional and off by default: when enabled, each file gets its own AES-256-GCM key wrapped with the receiver's RSA-OAEP-1024 public key, with the wrapped key delivered inside the metaData message, protecting file content from SDP-exchange MITM on top of DTLS. The answer peer awaits the validated p-param import before generating its own RSA pair for the answer code.",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L43-L48",
           "version": "repo-lines-v1:sha256:1aec21e248eca9a1a403f300a236a6e7699379747aad692a21596bceddce8b1a:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODNkNmNmYWY5ZWMwOTAyNTU1YzcyNTU5MzQ5Nzc4NWRmMmI4OTJhYWM3ZWMwNDEyZmFjMGQ4MWZhYTUyMWQ5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODYwNTVjOGFlNjYwNGQ3NDFiYzVmNWQ5YTNlMmI4ZjRmYmZjNDE4Y2Y0YTI5NTBhOTkyNmU2MDRkMWVjZjIyYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjM3NzJiMzE4NGU4ZWYwMDdlZjc2Zjk4NzZjNjM4NDdkNzE4YTFkODEwOTA4MjI4MTg1MGMzZmVhNzIyYzk3MyJ9"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L115-L120",
-          "version": "repo-lines-v1:sha256:b4abd4baf0af00f1adc84eef73e85cd4c64e6210ca6bc383b855504e7cd6eacf:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjgzZDgwMWEyN2M0YTA5Yjk0MGQyY2QxOTAyMGI4OTdmMjVhNWUxYTc4ODA0MDRlNjNkYzVmNGEzYzg0MzJiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTk4NTAzMWMwODM4NmYyNzFlNmJjNmNlYmZjNjcxNTUwNzc5ZDU3YzU0MmZjMWU0MjkxNWQ3YmMwMmYxYzdhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzdjM2QzNTFhNDU1MzFkZjI0NWFjYmMyZjMzYmFmZjFiNmU2M2ZkOWY5N2EzYTE4M2M0NjE2YmI2NDVlOWVhMyJ9"
+          "resource": "repo://src/components/ReceivePage.svelte#L138-L142",
+          "version": "repo-lines-v1:sha256:8a1955a4b54f26e25b2f58e025ecf63e41f6cb145fe7d9f3385fde52b8cf03b1:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTg2NzExZDFmYmZmNDNhMDgwN2I3ZmE4ZmZlNWFjZGFmZjhlMmFiZjU0YjI1N2I4M2MxN2VjNTc0MGQ2YjQxNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTg4MjYwMWI5MTBmNTU4ZTVkNjY5OTg1ZTkwNGZkMjA1MzAzYjc2NTM3YmVjODBlODc3MWZlOThmYWZkYzA0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzdjM2QzNTFhNDU1MzFkZjI0NWFjYmMyZjMzYmFmZjFiNmU2M2ZkOWY5N2EzYTE4M2M0NjE2YmI2NDVlOWVhMyJ9"
         },
         {
           "resource": "repo://src/utils/crypto.ts#L1-L23",
@@ -173,6 +173,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-01T19:50:36.439Z"
+    "at": "2026-10-03T07:07:26.852Z"
   }
 }

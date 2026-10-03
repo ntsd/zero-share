@@ -2,9 +2,6 @@
 type: 'Reference'
 title: 'Subsystem: WebRTC Peering and SDP Links'
 openwiki_generated: true
-verified:
-  - by: openwiki/0.6.0
-    at: 2026-10-01T19:50:36.439Z
 sources:
   - id: openwiki-source-f582d8a11a0cfc8a438a5ae2
     resource: repo://src/components/OfferPage.svelte
@@ -20,7 +17,10 @@ sources:
     resource: repo://src/utils/path.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
-generated: { by: 'hermes', at: '2026-10-01T19:50:36.439Z' }
+generated: { by: 'hermes', at: '2026-10-03T07:07:26.852Z' }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-10-03T07:07:26.852Z
 ---
 
 # Subsystem: WebRTC Peering and SDP Links
@@ -36,25 +36,25 @@ Raw SDP is not URL-safe and is long. `sdpEncode` compacts it with `sdp-compact` 
 The offer page builds the link with `buildURL`, which joins the base URL, the `receive` path, and query params (empty values are omitted): [`repo://src/utils/path.ts#L5-L23`], [`repo://src/components/OfferPage.svelte#L43-L60`]
 
 - **`s`** — the `sdpEncode`d local offer SDP. Required; the receive page redirects to origin and throws if absent. [`repo://src/components/ReceivePage.svelte#L27-L31`]
-- **`i`** — STUN server override. Omitted when equal to the default; the receive page falls back to `DEFAULT_SEND_OPTIONS.iceServer` when absent. [`repo://src/components/OfferPage.svelte#L51-L59`], [`repo://src/components/ReceivePage.svelte#L52-L52`]
+- **`i`** — STUN server override. Omitted when equal to the default; the receive page accepts it **only when it is in the `STUN_SERVERS` allowlist** — anything else falls back to `DEFAULT_SEND_OPTIONS.iceServer`, so a shared link can never point the peer's WebRTC stack at an attacker-controlled endpoint. [`repo://src/components/OfferPage.svelte#L51-L59`], [`repo://src/components/ReceivePage.svelte#L62-L69`]
 - **`c`** — chunk size. Omitted when equal to the default 32 KB.
-- **`p`** — base64 RSA public key (SPKI) of the offer peer, present only when encryption is on.
+- **`p`** — base64 RSA public key (SPKI) of the offer peer, present only when encryption is on. The receive side does not trust the param blindly: the import is caught, and a malformed base64/SPKI value downgrades the session to plaintext with an error toast instead of rejecting or silently sending with an undefined key. [`repo://src/components/ReceivePage.svelte#L46-L59`]
 
-STUN config comes from the built-in `STUN_SERVERS` list (Google/sipgate/nextcloud/myvoipapp); the peer connection is created with a single `iceServers` entry from the selected `i` value. No TURN is used. [`repo://src/configs.ts#L3-L14`], [`repo://src/components/OfferPage.svelte#L62-L73`], [`repo://src/components/ReceivePage.svelte#L65-L67`]
+STUN config comes from the built-in `STUN_SERVERS` list (Google/sipgate/nextcloud/myvoipapp/voipstunt); the peer connection is created with a single `iceServers` entry from the allowlist-validated `i` value. No TURN is used. [`repo://src/configs.ts#L3-L14`], [`repo://src/components/OfferPage.svelte#L62-L73`], [`repo://src/components/ReceivePage.svelte#L62-L69`]
 
 **`c` validation (user-controllable input).** Because the link is shared and `c` is attacker-influenceable, the receive page does not trust it blindly: it `parseInt`s `c` and accepts it **only if it is in `CHUNK_SIZE_OPTIONS`** (8/16/32/64/128 KB); NaN, 0, negative, or any other value falls back to the 32 KB default. This single source of truth (`CHUNK_SIZE_OPTIONS`) is also what the sender options UI offers. [`repo://src/components/ReceivePage.svelte#L37-L42`], [`repo://src/configs.ts#L26-L28`]
 
 ## Answer-code wire format
 
-The answer page produces `answerSDP = sdpEncode(localAnswerSdp) + '|' + publicKeyBase64`. The `|` delimiter is unambiguous because the encoded SDP character set excludes it. `publicKeyBase64` is empty unless encryption is on. The offer page's `acceptAnswer` splits on `|`, imports the RSA public key (when `isEncrypt`), and `setRemoteDescription` with the decoded answer. [`repo://src/components/ReceivePage.svelte#L115-L138`], [`repo://src/components/OfferPage.svelte#L141-L153`]
+The answer page produces `answerSDP = sdpEncode(localAnswerSdp) + '|' + publicKeyBase64`. The `|` delimiter is unambiguous because the encoded SDP character set excludes it. `publicKeyBase64` is empty unless encryption is on. The offer page's `acceptAnswer` splits on `|` and, when `isEncrypt`, imports the RSA public key inside a `try/catch` — a malformed or truncated answer code toasts "Invalid encryption key in answer code" and returns before `setRemoteDescription`, instead of leaving a half-configured connection with no visible error; on success it applies the decoded answer as the remote description. [`repo://src/components/ReceivePage.svelte#L116-L158`], [`repo://src/components/OfferPage.svelte#L141-L162`]
 
 ## ICE candidate wait + timeout fallback
 
-Both sides wait for ICE candidates to drain before freezing the SDP, but cap the wait at `WAIT_ICE_CANDIDATES_TIMEOUT` (3 s). If candidates don't finish in time, a `setTimeout` builds the link/code from the current `localDescription` anyway and shows a toast — the connection still forms (possibly slower) rather than hanging. [`repo://src/components/OfferPage.svelte#L114-L134`], [`repo://src/components/ReceivePage.svelte#L122-L137`]
+Both sides wait for ICE candidates to drain before freezing the SDP, but cap the wait at `WAIT_ICE_CANDIDATES_TIMEOUT` (3 s). If candidates don't finish in time, a `setTimeout` builds the link/code from the current `localDescription` anyway and shows a toast — the connection still forms (possibly slower) rather than hanging. [`repo://src/components/OfferPage.svelte#L114-L134`], [`repo://src/components/ReceivePage.svelte#L144-L158`]
 
 ## Data channel role swap
 
-The **offer** side is the data-channel creator (`createDataChannel('data', { ordered: false })`); the **answer** side receives it via `ondatachannel`. Both then install the identical message-dispatch handlers. After `onopen`, the transfer UI (Send/Receive toggle) unlocks on both sides. [`repo://src/components/OfferPage.svelte#L79-L97`], [`repo://src/components/ReceivePage.svelte#L69-L97`]
+The **offer** side is the data-channel creator (`createDataChannel('data', { ordered: false })`); the **answer** side receives it via `ondatachannel`. Both then install the identical message-dispatch handlers. After `onopen`, the transfer UI (Send/Receive toggle) unlocks on both sides. [`repo://src/components/OfferPage.svelte#L79-L97`], [`repo://src/components/ReceivePage.svelte#L86-L114`]
 
 ## QR exchange
 
@@ -64,4 +64,4 @@ The **offer** side is the data-channel creator (`createDataChannel('data', { ord
 
 - Missing/empty `s` on the receive page: redirect to origin + throw (no offer to answer). [`repo://src/components/ReceivePage.svelte#L28-L31`]
 - `onicecandidateerror`, `dataChannel.onerror`, `onclose`: toast an error, clear `isConnecting`, and (offer side) blank the offer link so a stale link isn't reused. [`repo://src/components/OfferPage.svelte#L75-L107`]
-- Encryption off: `p`/public key are absent, `isEncrypt` derives false on the receive side, and peering is unencrypted end-to-end at this layer. [`repo://src/components/ReceivePage.svelte#L33-L49`]
+- Encryption off: `p`/public key are absent, `isEncrypt` derives false on the receive side, and peering is unencrypted end-to-end at this layer. A malformed `p` (or `i` outside the allowlist) is likewise downgraded/fallen-back-to-default so the session never advertises what it cannot honor. [`repo://src/components/ReceivePage.svelte#L34-L37`], [`repo://src/components/ReceivePage.svelte#L46-L69`]

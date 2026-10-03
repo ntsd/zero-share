@@ -2,9 +2,6 @@
 type: 'Reference'
 title: 'Quickstart: Zero Share P2P File Sharing'
 openwiki_generated: true
-verified:
-  - by: openwiki/0.6.0
-    at: 2026-10-01T19:50:36.439Z
 sources:
   - id: openwiki-source-9ab161c6e9774cf771b19ced
     resource: repo://.zerofactory/precommit.sh
@@ -26,7 +23,10 @@ sources:
     resource: repo://src/type.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
-generated: { by: 'hermes', at: '2026-10-01T19:50:36.439Z' }
+generated: { by: 'hermes', at: '2026-10-03T07:07:26.852Z' }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-10-03T07:07:26.852Z
 ---
 
 # Quickstart: Zero Share P2P File Sharing
@@ -43,7 +43,7 @@ generated: { by: 'hermes', at: '2026-10-01T19:50:36.439Z' }
 ### Wire formats
 
 - **SDP encoding:** `sdp-compact` compaction + URL-safe substitutions `/`→`_`, `+`→`~`, `=`→`-` (reversed on decode). [`repo://src/utils/sdpEncode.ts#L1-L12`]
-- **Offer link:** `?s=<offerSDP>` + optional `i=<stunUrl>` (STUN override), `c=<chunkBytes>` (validated against `CHUNK_SIZE_OPTIONS` on the receive side; anything else falls back to the 32 KB default), `p=<base64 RSA public key>` (encryption only).
+- **Offer link:** `?s=<offerSDP>` + optional `i=<stunUrl>` (accepted only when in the `STUN_SERVERS` allowlist, else the default is used), `c=<chunkBytes>` (validated against `CHUNK_SIZE_OPTIONS` on the receive side; anything else falls back to the 32 KB default), `p=<base64 RSA public key>` (encryption only; a malformed key downgrades the session to plaintext with an error toast).
 - **Answer code:** `<encoded answer SDP>|<base64 RSA public key or empty>`.
 
 ## Where things live
@@ -80,7 +80,7 @@ npm run format     # prettier --write .
 npm run protogen   # regenerate src/proto/message.ts from message.proto (needs protoc)
 ```
 
-**Verification gates for changes:** the repo has **no test suite** (no test script in `package.json`); `tsc --noEmit` typechecking plus `npm run build` plus `prettier --check` are the effective gates (see `operations.md`). Note: `astro check` is _not_ configured (no `@astrojs/check`/`typescript` devDeps) and its install prompt hangs non-interactive shells — do not run it.
+**Verification gates for changes:** the repo has **no test suite** (no test script in `package.json`); `tsc --noEmit` typechecking plus `npm run build` plus `prettier --check` are the effective gates, run by `./.zerofactory/precommit.sh`. Note: `astro check` is _not_ configured (no `@astrojs/check`/`typescript` devDeps) and its install prompt hangs non-interactive shells — do not run it.
 
 **Conventions:** TypeScript strict, Svelte 5 runes style (`$state`/`$props`), Tailwind 4 + DaisyUI classes, Conventional Commits. Zero Factory's precommit hook runs `./.zerofactory/precommit.sh` (format → typecheck+build → test [none]).
 

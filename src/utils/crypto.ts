@@ -1,6 +1,6 @@
 const rsaGenParams: RsaHashedKeyGenParams = {
   name: 'RSA-OAEP',
-  modulusLength: 1024,
+  modulusLength: 2048,
   publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // The most commonly used public exponent is 65537
   hash: 'SHA-256'
 };

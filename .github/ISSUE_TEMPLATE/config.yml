@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/ntsd/zero-share/discussions
+    about: Please ask questions, share ideas, and engage with the community in Discussions instead of opening an issue.
+  - name: Zero Factory Documentation
+    url: https://github.com/hotcode-dev/zerofactory
+    about: Learn how Zero Factory AI agents triage and resolve issues.

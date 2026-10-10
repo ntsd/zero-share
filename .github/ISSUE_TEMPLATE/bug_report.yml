@@ -1,0 +1,49 @@
+name: '🐛 Bug Report (Zero Factory)'
+description: Report a bug for Zero Factory AI to investigate, triage, and fix.
+title: '[Bug]: '
+labels: ['bug', 'zerofactory']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Zero Factory AI Bug Report
+        Issues labeled `zerofactory` are automatically picked up by Zero Factory's AI orchestrator into a human-gated **Triage** task.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Description
+      description: What happened? Please provide a clear and concise description of the bug.
+      placeholder: Describe the defect or error encountered...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Exact steps to reproduce the behavior so the AI and developer can inspect and test.
+      placeholder: |
+        1. Run '...'
+        2. Execute '...'
+        3. See error '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs Actual Behavior
+      description: What did you expect to happen versus what actually happened?
+      placeholder: Expected ... but got ...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: ai_investigate
+    attributes:
+      label: Zero Factory AI Investigation
+      description: Explicit human request for AI assistance.
+      options:
+        - label: 'Request Zero Factory AI to investigate, reproduce, and prepare triage task'
+          required: false

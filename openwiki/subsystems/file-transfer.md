@@ -2,9 +2,6 @@
 type: 'Reference'
 title: 'Subsystem: File Transfer Engine'
 openwiki_generated: true
-verified:
-  - by: openwiki/0.6.0
-    at: 2026-10-01T19:50:36.439Z
 sources:
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
     resource: repo://package.json
@@ -23,6 +20,9 @@ sources:
   - id: openwiki-source-7273c5aba858442dede2d981
     resource: repo://src/utils/validator.ts
 generated: { by: 'hermes', at: '2026-10-01T19:50:36.439Z' }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-10-10T12:04:55.961Z
 ---
 
 # Subsystem: File Transfer Engine

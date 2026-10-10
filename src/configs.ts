@@ -34,4 +34,10 @@ export const DEFAULT_RECEIVE_OPTIONS: ReceiveOptions = {
 
 export const WAIT_ICE_CANDIDATES_TIMEOUT = 3000; // 3 seconds
 
+// How long the sender waits for the receiver's ACCEPT/REJECT after sending
+// metadata. The receiver only replies via data channel events, so without this
+// guard a receiver that fails key decryption (or closes the tab) leaves the
+// sender in WaitingAccept forever.
+export const WAIT_ACCEPT_TIMEOUT = 30000; // 30 seconds
+
 export const PROGRESS_UPDATE_UI_STEP = 3; // percentage

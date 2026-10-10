@@ -95,7 +95,7 @@ function waitSuccess(state, timeoutMs = 2000) {
   const state = newState(ID, SIZE);
 
   // Mirror of Receiver.svelte#onChunkData + #processChunk (decrypt mocked).
-  function onChunkData(id, chunk) {
+  const onChunkData = (id, chunk) => {
     const receivingFile = state.receivingFiles[id];
     if (!receivingFile || !state.receivingFileChunkMap[id]) {
       return;
@@ -123,7 +123,7 @@ function waitSuccess(state, timeoutMs = 2000) {
     }).catch(() => {
       /* a failed chunk must not stall the per-file queue */
     });
-  }
+  };
 
   // All chunks arrive synchronously in order, exactly like the data channel
   // message handler; only the mocked decryption completes out of order.
@@ -145,7 +145,7 @@ function waitSuccess(state, timeoutMs = 2000) {
   const state = newState(ID, SIZE);
 
   // Pre-fix shape: fire-and-forget async handler, await decrypt, then push.
-  function onChunkDataUnserialized(id, chunk) {
+  const onChunkDataUnserialized = (id, chunk) => {
     const receivingFile = state.receivingFiles[id];
     (async () => {
       let arrayBuffer = chunk;
@@ -155,7 +155,7 @@ function waitSuccess(state, timeoutMs = 2000) {
       state.receivingFileChunkMap[id].receivedChunks.push(arrayBuffer);
       state.receivingFileStatsMap[id].receivedSize += arrayBuffer.byteLength;
     })();
-  }
+  };
 
   chunks.forEach((c) => onChunkDataUnserialized(ID, c));
   await delay(200); // let every mocked decrypt finish

@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "test": "node tests/crypto.test.mjs && node tests/zip.test.mjs",
+    "test": "node tests/crypto.test.mjs && node tests/zip.test.mjs && node tests/receiver-chunk-order.test.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "prettier --check . && eslint .",

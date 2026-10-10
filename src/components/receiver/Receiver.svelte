@@ -14,6 +14,7 @@
   } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
   import { createZipStoreOnly } from '../../utils/zip';
+  import { serializeTask } from '../../utils/serialize';
 
   type Props = {
     dataChannel: RTCDataChannel;
@@ -34,22 +35,34 @@
   } = {};
 
   export async function onMetaData(id: string, metaData: MetaData) {
-    let aesKey: CryptoKey | undefined;
-    if (isEncrypt && rsa) {
-      aesKey = await decryptAesKeyWithRsaPrivateKey(
-        rsa.privateKey,
-        metaData.key as Uint8Array<ArrayBuffer>
-      );
-    }
-
+    // Register the file entry before the async key decryption so the file is
+    // visible (and removable) throughout; chunk processing stays safe because
+    // the chunk map only exists after the file is accepted.
     receivingFiles[id] = {
       metaData: metaData,
       progress: 0,
       bitrate: 0,
       startTime: 0,
-      status: FileStatus.WaitingAccept,
-      aesKey: aesKey
+      status: FileStatus.WaitingAccept
     };
+
+    let aesKey: CryptoKey | undefined;
+    if (isEncrypt && rsa) {
+      try {
+        aesKey = await decryptAesKeyWithRsaPrivateKey(
+          rsa.privateKey,
+          metaData.key as Uint8Array<ArrayBuffer>
+        );
+      } catch {
+        // Key decryption failed: mark the entry so it can be seen and removed
+        // instead of the file silently never appearing and the sender waiting
+        // for an accept that will not come.
+        receivingFiles[id].error = new Error('Failed to decrypt the file key');
+        addToastMessage(`${metaData.name} failed to decrypt the file key`, 'error');
+        return;
+      }
+    }
+    receivingFiles[id].aesKey = aesKey;
 
     const validateErr = validateFileMetadata(metaData, receiveOptions.maxSize);
     if (validateErr) {
@@ -72,7 +85,35 @@
     }
   }
 
-  export async function onChunkData(id: string, chunk: Uint8Array<ArrayBuffer>) {
+  // non state per-file promise chains: serialize chunk processing so the
+  // post-await work (decrypt, push, stats, blob on complete) runs strictly in
+  // arrival order, even when WebCrypto decrypt calls complete out of order
+  const chunkQueue: { [fileId: string]: Promise<unknown> } = {};
+
+  export function onChunkData(id: string, chunk: Uint8Array<ArrayBuffer>) {
+    // Drop chunks for unknown or uninitialized files (metadata never registered,
+    // file removed/denied, or file already completed) instead of throwing on a
+    // missing entry inside the queued processing.
+    const receivingFile = receivingFiles[id];
+    if (!receivingFile || !receivingFileChunkMap[id]) {
+      return;
+    }
+
+    // Enqueue onto the per-file chain: processChunk for chunk N+1 cannot start
+    // before chunk N's processing has settled, so the ack is still sent in
+    // arrival order (sender stays one round-trip ahead) and the decrypted
+    // chunks are pushed in the exact order they were received.
+    serializeTask(chunkQueue, id, () => processChunk(id, receivingFile, chunk)).catch(() => {
+      // A failed chunk (e.g. corrupt chunk failing AES-GCM auth) must not stall
+      // the per-file queue; later chunks keep processing as before.
+    });
+  }
+
+  async function processChunk(
+    id: string,
+    receivingFile: FileDetail,
+    chunk: Uint8Array<ArrayBuffer>
+  ) {
     let arrayBuffer = chunk;
 
     dataChannel.send(
@@ -82,14 +123,18 @@
       }).finish()
     );
 
-    const receivingFile = receivingFiles[id];
-
     if (isEncrypt && receivingFile.aesKey) {
       arrayBuffer = await decryptAesGcm(receivingFile.aesKey, arrayBuffer);
     }
     const receivingSize = arrayBuffer.byteLength;
 
-    receivingFileChunkMap[id].receivedChunks.push(arrayBuffer);
+    // The file may have been removed/denied while this chunk was in flight;
+    // the chunk map is cleaned up at removal, so drop the result.
+    const chunkMap = receivingFileChunkMap[id];
+    if (!chunkMap) {
+      return;
+    }
+    chunkMap.receivedChunks.push(arrayBuffer);
     receivingFileStatsMap[id].receivedSize += receivingSize;
 
     // calculate progress
@@ -121,6 +166,8 @@
       delete receivingFileStatsMap[id];
       receivingFiles[id].status = FileStatus.Success;
       addToastMessage(`Received ${receivingFiles[id].metaData.name}`, 'success');
+      // No more chunks will arrive for this file; release the chain entry.
+      delete chunkQueue[id];
     }
   }
 
@@ -135,6 +182,7 @@
     }
     delete receivingFileChunkMap[key];
     delete receivingFileStatsMap[key];
+    delete chunkQueue[key];
     delete receivingFiles[key];
     receivingFiles = receivingFiles; // do this to trigger update the map
   }
@@ -181,6 +229,7 @@
       nextProgressUpdate: 0,
       receivedSize: 0
     };
+    delete chunkQueue[id];
   }
 
   function onDeny(key: string) {
@@ -192,6 +241,7 @@
     );
     delete receivingFileChunkMap[key];
     delete receivingFileStatsMap[key];
+    delete chunkQueue[key];
     delete receivingFiles[key];
     receivingFiles = receivingFiles; // do this to trigger update the map
   }

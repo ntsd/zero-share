@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:249d95e1cbb359b5db582a49ad0a8c8a22b3c541737d2c7e3f449ea240ef77b5",
+  "pageVersion": "sha256:48559e9ddcc97a21d0cc22a14c389ee1cb4c22bcd2c0d49643de81a4308191b0",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -16,7 +16,7 @@
         },
         {
           "resource": "repo://package.json#L1-L40",
-          "version": "repo-lines-v1:sha256:38deffe8dd6824eeb0fc1d82d3dd817c498cd38a466cb154c4ec7c2f19aab196:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NWJjMTA1NzYxNzcyYTIyZjVlYjU1NmI4YzhmYTU5OGNmOTQzMTI4Njk1ZTVkNTU5YzIzMjQ5ZTBlYmVjYjMifQ"
+          "version": "repo-lines-v1:sha256:0db01b1e3a0db4f17583393ac1d6d7bdc7058b14cac25cb3dfb4bf97154a87ab:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NWJjMTA1NzYxNzcyYTIyZjVlYjU1NmI4YzhmYTU5OGNmOTQzMTI4Njk1ZTVkNTU5YzIzMjQ5ZTBlYmVjYjMifQ"
         }
       ]
     },
@@ -54,15 +54,19 @@
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts); the repo defines no test suite, so tsc --noEmit typecheck plus build plus prettier --check (as run by ./.zerofactory/precommit.sh) are the effective verification gates.",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node tests/crypto.test.mjs — a regression guard asserting the RSA-OAEP modulus is 2048 bits), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts); tsc --noEmit typecheck plus build plus prettier --check plus npm test (as run by ./.zerofactory/precommit.sh) are the effective verification gates.",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh",
           "version": "repo-file-v1:sha256:5e117d7af109789a400effc19693cfe9a3e7556ec143ebf2d898d13b8e54198c"
         },
         {
-          "resource": "repo://package.json#L6-L15",
-          "version": "repo-lines-v1:sha256:a86d841365e422a8e537bb60af2d5e0da91dd9fa0191531616e6b5df7bee8443:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
+          "resource": "repo://package.json#L6-L16",
+          "version": "repo-lines-v1:sha256:f84739fe3db7c24dc29615967e5c11bc49d784f669eb5f437b30e65896ea2ea0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
+        },
+        {
+          "resource": "repo://tests/crypto.test.mjs#L6-L21",
+          "version": "repo-lines-v1:sha256:1697f208971e11020d9e512ffd105d949fcebe91581d1240c940117848be2606:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MzM2ZDMzMGI1M2MxNGRiOWI0MDE4YmEyNGE3MGUzMzg4ODk5MDEzYzZlN2JjZjMxYjlmNjdhNDBjMDc0MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyODA4NjkwMTlmYzExMzU5N2EwNDFmNjMyNmU5ZDM4MWI2MzJhZTc5MjM4NmY2OTgwNDMwMmJiMTM1NzMxM2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1ZjI4NzAxOWYzOTA4NzkzYzhhOTNiZmYwNzVjN2IyYTdkYjU4NTVjMGNlNDU1Mjk2YmMwYjU2MjBlNWQ1MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlMWI0OGU5OThiOGJkNzhmOTEyOTNhZTUxODk4OWM4MDM1NGMyNDk4YjM0OWI5MzgyNmNlMTRkODBiNDBjMTYifQ"
         }
       ]
     },
@@ -101,6 +105,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-03T07:07:26.852Z"
+    "at": "2026-10-10T12:04:55.961Z"
   }
 }

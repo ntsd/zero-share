@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:36389e36946a36c8c93626a1dfa35c0a13354ab435121e4253bbdf3f6bf5594a",
+  "pageVersion": "sha256:0d16a710b1089302a8396d0cd774c980f835ea53bdac98804f80f240997b2841",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
-      "statement": "The crypto configuration as of HEAD is RSA-OAEP with modulusLength 1024 and AES-GCM with key length 256; application-layer encryption is optional and off by default (isEncrypt: false).",
+      "statement": "The crypto configuration as of HEAD is RSA-OAEP with modulusLength 2048 and AES-GCM with key length 256; application-layer encryption is optional and off by default (isEncrypt: false).",
       "evidence": [
         {
           "resource": "repo://src/configs.ts#L20-L24",
@@ -12,13 +12,13 @@
         },
         {
           "resource": "repo://src/utils/crypto.ts#L1-L11",
-          "version": "repo-lines-v1:sha256:8b214e3e94fc5ff6942b1459eae33cf03ef9d24d03366e473bea8ec67c5c3813:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhMjk5ZmZkZmU2NGUzNzBkYjNlNTk3MzQwMmI4MGNmOGFkZTA4OGU3ZWE5NjNjMTQ2MjhkNDQ3MjdkY2U4YTkifQ"
+          "version": "repo-lines-v1:sha256:0f7f3441dcf83c8431f5bb41ad6fd0d987040b099fb1b835823759b5bdd98539:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhMjk5ZmZkZmU2NGUzNzBkYjNlNTk3MzQwMmI4MGNmOGFkZTA4OGU3ZWE5NjNjMTQ2MjhkNDQ3MjdkY2U4YTkifQ"
         }
       ]
     },
     {
       "id": "claim_8c47e3fe2aca4ce79f9978224cb17f6f",
-      "statement": "Each peer generates its own RSA-OAEP-1024 key pair when creating its outgoing artifact (offer link or answer code), holding the private key in page state; the receive page awaits the validated p-param import before generating the answer's pair. The receiver's RSA public key is imported from the counterparty's artifact with explicit try/catch validation.",
+      "statement": "Each peer generates its own RSA-OAEP-2048 key pair when creating its outgoing artifact (offer link or answer code), holding the private key in page state; the receive page awaits the validated p-param import before generating the answer's pair. The receiver's RSA public key is imported from the counterparty's artifact with explicit try/catch validation.",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L43-L48",
@@ -30,7 +30,7 @@
         },
         {
           "resource": "repo://src/utils/crypto.ts#L1-L17",
-          "version": "repo-lines-v1:sha256:464a02db19e4da4366839de788b881ea9cf708e4732bb6c384c49927c0ec659d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5MDk2ZDRmNjhhYjU4OTFiMjFlNjc4MzU3ZjM5ZDAyMzNkOThmZDZkMGJlZTIyZmFlNmY2OTliNGE5ODdkMTgifQ"
+          "version": "repo-lines-v1:sha256:4233feab5c24be9161354a837f5be25fb0ca00e3c73c304c2da3ecb4999f0c79:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5MDk2ZDRmNjhhYjU4OTFiMjFlNjc4MzU3ZjM5ZDAyMzNkOThmZDZkMGJlZTIyZmFlNmY2OTliNGE5ODdkMTgifQ"
         }
       ]
     },
@@ -125,10 +125,24 @@
           "version": "repo-lines-v1:sha256:d92af564a061a2ee66c50c65ff3afad81142253da0f1b76a7c46c5123e45ed33:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhYjMwNGI3ZTJkYWNjMWJkYzE5OWE5MzQ4YjVhNGFlMDIxOWM1NTY5ZmM5OGNlMTllYzI5YWM2NTZkYjdjZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyNGM5YmZhNTQwYmFkNGFmNDY1YThkZDdiZTlmZjAzMTNjM2YyZDI3MjE0N2VlZWRjMzNiNDM1ZTQxYzE0YTQifQ"
         }
       ]
+    },
+    {
+      "id": "claim_85040d6ca22c4a45981a13d163065e72",
+      "statement": "tests/crypto.test.mjs is a regression guard (run via `npm test`) that asserts the RSA-OAEP modulusLength constant in src/utils/crypto.ts is 2048 and that a freshly generated RSA public key exports as a 2048-bit modulus — any future silent revert of the constant to 1024 fails the test.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L6-L16",
+          "version": "repo-lines-v1:sha256:f84739fe3db7c24dc29615967e5c11bc49d784f669eb5f437b30e65896ea2ea0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
+        },
+        {
+          "resource": "repo://tests/crypto.test.mjs#L6-L21",
+          "version": "repo-lines-v1:sha256:1697f208971e11020d9e512ffd105d949fcebe91581d1240c940117848be2606:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MzM2ZDMzMGI1M2MxNGRiOWI0MDE4YmEyNGE3MGUzMzg4ODk5MDEzYzZlN2JjZjMxYjlmNjdhNDBjMDc0MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyODA4NjkwMTlmYzExMzU5N2EwNDFmNjMyNmU5ZDM4MWI2MzJhZTc5MjM4NmY2OTgwNDMwMmJiMTM1NzMxM2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1ZjI4NzAxOWYzOTA4NzkzYzhhOTNiZmYwNzVjN2IyYTdkYjU4NTVjMGNlNDU1Mjk2YmMwYjU2MjBlNWQ1MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlMWI0OGU5OThiOGJkNzhmOTEyOTNhZTUxODk4OWM4MDM1NGMyNDk4YjM0OWI5MzgyNmNlMTRkODBiNDBjMTYifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-03T07:07:26.852Z"
+    "at": "2026-10-10T12:04:55.961Z"
   }
 }

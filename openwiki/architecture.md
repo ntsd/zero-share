@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-03T07:07:26.852Z
+    at: 2026-10-10T12:04:55.961Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -28,7 +28,7 @@ sources:
     resource: repo://src/type.ts
   - id: openwiki-source-825971ed9c72d5969af1b150
     resource: repo://src/utils/crypto.ts
-generated: { by: 'hermes', at: '2026-10-03T07:07:26.852Z' }
+generated: { by: 'hermes', at: '2026-10-10T12:04:55.961Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -65,7 +65,7 @@ The transfer protocol is **receiver-ack chunking**: the sender emits metadata, w
 ## Security layering
 
 1. **DTLS** — inherent to WebRTC; protects the data channel in transit but is exposed to MITM on the SDP offer/answer exchange (the links are unauthenticated).
-2. **Optional application-layer encryption** — when enabled, each file is encrypted with its own **AES-256-GCM** key, and that key is wrapped with the receiver's **RSA-OAEP-1024** public key and delivered inside the `metaData` message. This makes file content confidential even if the SDP exchange is intercepted. It is off by default (`isEncrypt: false`). [`repo://src/utils/crypto.ts#L1-L23`], [`repo://src/components/OfferPage.svelte#L43-L48`], [`repo://src/configs.ts#L20-L24`]. See `subsystems/encryption.md`.
+2. **Optional application-layer encryption** — when enabled, each file is encrypted with its own **AES-256-GCM** key, and that key is wrapped with the receiver's **RSA-OAEP-2048** public key and delivered inside the `metaData` message. This makes file content confidential even if the SDP exchange is intercepted. It is off by default (`isEncrypt: false`). [`repo://src/utils/crypto.ts#L1-L23`], [`repo://src/components/OfferPage.svelte#L43-L48`], [`repo://src/configs.ts#L20-L24`]. See `subsystems/encryption.md`.
 
 ## State model
 

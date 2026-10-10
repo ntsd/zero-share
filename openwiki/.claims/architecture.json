@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:c15cab8566198a505a7017b68814f71f9da98216a783b3483cd2d5c620ae2c1a",
+  "pageVersion": "sha256:66dc76f8745fcea28d6f0c31fea25084e5fd34aedea47db1e3618a81d78ed912",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -122,7 +122,7 @@
     },
     {
       "id": "claim_6ae27ef5450f44fab921f7e1e98da446",
-      "statement": "Application-layer encryption is optional and off by default: when enabled, each file gets its own AES-256-GCM key wrapped with the receiver's RSA-OAEP-1024 public key, with the wrapped key delivered inside the metaData message, protecting file content from SDP-exchange MITM on top of DTLS. The answer peer awaits the validated p-param import before generating its own RSA pair for the answer code.",
+      "statement": "Application-layer encryption is optional and off by default: when enabled, each file gets its own AES-256-GCM key wrapped with the receiver's RSA-OAEP-2048 public key, with the wrapped key delivered inside the metaData message, protecting file content from SDP-exchange MITM on top of DTLS. The answer peer awaits the validated p-param import before generating its own RSA pair for the answer code.",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L43-L48",
@@ -134,7 +134,7 @@
         },
         {
           "resource": "repo://src/utils/crypto.ts#L1-L23",
-          "version": "repo-lines-v1:sha256:8ae068c46debabe0e50df6ab919e24298780c84a191d56b29fee021b64c64e53:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5NWIwNzAxMWM3MDM5MjU3NzVmY2JjNjMzMDRiOGU3NWVjNzNkMmI2NmZhNTliNjE0YWZmNjZmY2E0ZDJmMmYifQ"
+          "version": "repo-lines-v1:sha256:c49fdb7c8e9e55c2c875fb45e7be9113324aa270d4d9f9f94a32551775d3a845:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYWQ3NWI1ZjdkZjUzMjc4YWEyYWYyYjZlY2I5ZDViNTQzMmJmZmU5ZmZkZDA0NDNlNDdkZmQ1OTc5MjU5MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5NWIwNzAxMWM3MDM5MjU3NzVmY2JjNjMzMDRiOGU3NWVjNzNkMmI2NmZhNTliNjE0YWZmNjZmY2E0ZDJmMmYifQ"
         }
       ]
     },
@@ -173,6 +173,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-03T07:07:26.852Z"
+    "at": "2026-10-10T12:04:55.961Z"
   }
 }

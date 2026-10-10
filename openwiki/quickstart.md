@@ -23,10 +23,12 @@ sources:
     resource: repo://src/type.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
-generated: { by: 'hermes', at: '2026-10-03T07:07:26.852Z' }
+  - id: openwiki-source-c71f006df30e67d6d4f288ab
+    resource: repo://tests/crypto.test.mjs
+generated: { by: 'hermes', at: '2026-10-10T12:04:55.961Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-03T07:07:26.852Z
+    at: 2026-10-10T12:04:55.961Z
 ---
 
 # Quickstart: Zero Share P2P File Sharing
@@ -78,11 +80,12 @@ npm run build      # typecheck-free static build to ./build
 npm run lint       # prettier --check . && eslint .
 npm run format     # prettier --write .
 npm run protogen   # regenerate src/proto/message.ts from message.proto (needs protoc)
+npm test           # crypto regression guard: asserts RSA-OAEP modulus is 2048 bits
 ```
 
-**Verification gates for changes:** the repo has **no test suite** (no test script in `package.json`); `tsc --noEmit` typechecking plus `npm run build` plus `prettier --check` are the effective gates, run by `./.zerofactory/precommit.sh`. Note: `astro check` is _not_ configured (no `@astrojs/check`/`typescript` devDeps) and its install prompt hangs non-interactive shells — do not run it.
+**Verification gates for changes:** `npm test` runs a crypto regression guard (`tests/crypto.test.mjs`) that pins the RSA-OAEP modulus at 2048 bits. `tsc --noEmit` typechecking plus `npm run build` plus `prettier --check` plus `npm test` are the effective gates, run by `./.zerofactory/precommit.sh`. Note: `astro check` is _not_ configured (no `@astrojs/check` devDep) and its install prompt hangs non-interactive shells — do not run it.
 
-**Conventions:** TypeScript strict, Svelte 5 runes style (`$state`/`$props`), Tailwind 4 + DaisyUI classes, Conventional Commits. Zero Factory's precommit hook runs `./.zerofactory/precommit.sh` (format → typecheck+build → test [none]).
+**Conventions:** TypeScript strict, Svelte 5 runes style (`$state`/`$props`), Tailwind 4 + DaisyUI classes, Conventional Commits. Zero Factory's precommit hook runs `./.zerofactory/precommit.sh` (format → typecheck+build → test).
 
 ## Known operational issues (from README)
 

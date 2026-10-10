@@ -3,6 +3,8 @@ type: 'Reference'
 title: 'Subsystem: Encryption (WebCrypto)'
 openwiki_generated: true
 sources:
+  - id: openwiki-source-5b54a58d1b51cd490b0e7162
+    resource: repo://package.json
   - id: openwiki-source-f582d8a11a0cfc8a438a5ae2
     resource: repo://src/components/OfferPage.svelte
   - id: openwiki-source-ea57456033ae6393e62158ed
@@ -15,21 +17,23 @@ sources:
     resource: repo://src/configs.ts
   - id: openwiki-source-825971ed9c72d5969af1b150
     resource: repo://src/utils/crypto.ts
-generated: { by: 'hermes', at: '2026-10-03T07:07:26.852Z' }
+  - id: openwiki-source-c71f006df30e67d6d4f288ab
+    resource: repo://tests/crypto.test.mjs
+generated: { by: 'hermes', at: '2026-10-10T12:04:55.961Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-03T07:07:26.852Z
+    at: 2026-10-10T12:04:55.961Z
 ---
 
 # Subsystem: Encryption (WebCrypto)
 
 Zero Share layers **optional application-layer file encryption** on top of WebRTC's DTLS. The motivation (per the README): DTLS secures the channel, but the unauthenticated SDP offer/answer link exchange is exposed to man-in-the-middle attack, so file content gets a second, independent encryption layer. All crypto uses the browser-native WebCrypto API (`crypto.subtle`) — no crypto dependencies are installed. [`repo://README.md#L30-L36`], [`repo://src/utils/crypto.ts#L1-L23`]
 
-> **Factual state at HEAD:** the configuration is **RSA-OAEP with `modulusLength: 1024`** and **AES-GCM with `length: 256`**. (The 2026-10 commit that bumped the symmetric key changed AES 128→256; the RSA modulus remains 1024.) The README's "PGP" label is informal — the implementation is pure WebCrypto RSA-OAEP + AES-GCM. [`repo://src/utils/crypto.ts#L1-L11`]
+> **Factual state at HEAD:** the configuration is **RSA-OAEP with `modulusLength: 2048`** and **AES-GCM with `length: 256`**. (The 2026-10 commit that bumped the symmetric key changed AES 128→256; a follow-up commit raised the RSA modulus 1024→2048, and `tests/crypto.test.mjs` pins the 2048-bit modulus so any future revert fails `npm test`.) The README's "PGP" label is informal — the implementation is pure WebCrypto RSA-OAEP + AES-GCM. [`repo://src/utils/crypto.ts#L1-L11`], [`repo://tests/crypto.test.mjs#L6-L21`]
 
 ## Key management: one RSA pair per peer, one AES key per file
 
-- Each peer generates **its own RSA-OAEP-1024 key pair** (`publicExponent 65537`, SHA-256 hash) when it creates its outgoing artifact — the offer peer inside `createSDPLink`, the answer peer inside `generateAnswerSDP`, which first awaits the validated import of the `p`-param key so a malformed key downgrades the session to plaintext before any answer is advertised. The key pair is held in page-level state (`rsa` private + `rsaPub` imported). [`repo://src/utils/crypto.ts#L1-L17`], [`repo://src/components/OfferPage.svelte#L43-L48`], [`repo://src/components/ReceivePage.svelte#L138-L142`]
+- Each peer generates **its own RSA-OAEP-2048 key pair** (`publicExponent 65537`, SHA-256 hash) when it creates its outgoing artifact — the offer peer inside `createSDPLink`, the answer peer inside `generateAnswerSDP`, which first awaits the validated import of the `p`-param key so a malformed key downgrades the session to plaintext before any answer is advertised. The key pair is held in page-level state (`rsa` private + `rsaPub` imported). [`repo://src/utils/crypto.ts#L1-L17`], [`repo://src/components/OfferPage.svelte#L43-L48`], [`repo://src/components/ReceivePage.svelte#L138-L142`]
 - The peers exchange **public keys through the shared artifacts**: the offer peer's base64 public key is embedded in the offer link's `p` query param, and the answer peer's base64 public key is appended after `|` in the answer code. The answer page _derives_ `isEncrypt` from the presence of `p`, so encryption mode propagates from the offer side automatically. [`repo://src/components/OfferPage.svelte#L51-L59`], [`repo://src/components/ReceivePage.svelte#L33-L49`], [`repo://src/components/OfferPage.svelte#L141-L146`]
 - When the sender picks files, **each file gets a fresh AES-256-GCM key**; that key is exported raw and wrapped (`encrypt`) with the receiver's RSA public key. The wrapped key bytes ride in the `MetaData.key` field of the first `metaData` message. The receiver unwraps it with its private key in `onMetaData` and keeps the resulting `CryptoKey` on the file detail. [`repo://src/components/sender/Sender.svelte#L182-L215`], [`repo://src/utils/crypto.ts#L44-L55`], [`repo://src/components/receiver/Receiver.svelte#L35-L42`]
 
@@ -53,4 +57,4 @@ Zero Share layers **optional application-layer file encryption** on top of WebRT
 ## Threat model notes
 
 - This layer protects **file content confidentiality and integrity against SDP-link interception** (passive MITM), not against an active attacker who can modify the shared link or answer code end-to-end (they could swap public keys).
-- RSA-OAEP-1024 key wrapping caps the wrapped key size and limits brute-force resistance vs. 2048-bit RSA; the payload security is bounded by AES-256-GCM. [`repo://src/utils/crypto.ts#L1-L6`]
+- RSA-OAEP-2048 key wrapping provides the standard 2048-bit modulus (the same strength as widely deployed RSA), and the per-file AES-256-GCM payload security is bounded by that symmetric algorithm. [`repo://src/utils/crypto.ts#L1-L6`], [`repo://tests/crypto.test.mjs#L6-L21`]

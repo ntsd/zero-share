@@ -1,0 +1,46 @@
+name: '🚀 Feature Request (Zero Factory)'
+description: Propose a new feature for Zero Factory AI to investigate and implement.
+title: '[Feature]: '
+labels: ['feature', 'zerofactory']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Zero Factory AI Feature Proposal
+        Issues labeled `zerofactory` are triaged by Zero Factory's AI orchestrator to design architecture and decompose implementation tasks.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary & Motivation
+      description: What problem does this solve, or what value does it bring?
+      placeholder: As a developer / user, I want ... so that ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution / User Experience
+      description: How should this work from a developer or end-user perspective?
+      placeholder: Describe the desired interface, API, or workflow...
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Technical Constraints & Acceptance Criteria
+      description: Any architectural boundaries, performance requirements, or acceptance criteria?
+      placeholder: Must conform to ...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: ai_investigate
+    attributes:
+      label: Zero Factory AI Investigation
+      description: Explicit human request for AI assistance.
+      options:
+        - label: 'Request Zero Factory AI to investigate, plan architecture, and prepare triage task'
+          required: false

@@ -13,6 +13,7 @@
     type ReceivingFileStats
   } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
+  import { createZipStoreOnly } from '../../utils/zip';
 
   type Props = {
     dataChannel: RTCDataChannel;
@@ -138,18 +139,25 @@
     receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
-  async function onDownload(key: string) {
+  function triggerDownload(blob: Blob, name: string) {
+    // The download is async in most engines; revoking the object URL in the
+    // same tick can abort it (Firefox in particular may start the fetch after
+    // the revoke). Defer the revoke until the download has had time to start.
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function onDownload(key: string) {
     const receivedFile = receivingFiles[key];
     const blobFile = receivedFile.blob;
     if (!blobFile) {
       return;
     }
-    const url = URL.createObjectURL(blobFile);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = receivedFile.metaData.name;
-    link.click();
-    URL.revokeObjectURL(url);
+    triggerDownload(blobFile, receivedFile.metaData.name);
   }
 
   function onAccept(id: string) {
@@ -189,12 +197,26 @@
   }
 
   async function downloadAllFiles() {
-    for (const key of Object.keys(receivingFiles)) {
-      if (receivingFiles[key].status != FileStatus.Success || receivingFiles[key].error) {
-        continue;
-      }
-      onDownload(key);
+    const files = Object.entries(receivingFiles)
+      .filter(([key]) => receivingFiles[key].status == FileStatus.Success)
+      .filter(([, file]) => !file.error && file.blob)
+      .map(([, file]) => ({
+        name: file.metaData.name,
+        data: file.blob as Blob
+      }));
+
+    // No files to download yet — nothing to do.
+    if (files.length === 0) {
+      return;
     }
+
+    // A single archive: one click, one download — no browser auto-download
+    // blocking (which breaks sequential per-file programmatic downloads).
+    const zipBytes = await createZipStoreOnly(files);
+    triggerDownload(
+      new Blob([zipBytes as BlobPart], { type: 'application/zip' }),
+      'zero-share-files.zip'
+    );
   }
 
   function onOptionsUpdate(options: ReceiveOptions) {

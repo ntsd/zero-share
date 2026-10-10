@@ -104,6 +104,7 @@
       addToastMessage('Disconnected', 'error');
       isConnecting = false;
       offerLink = '';
+      sender?.onChannelClose();
     };
   }
 

@@ -110,6 +110,7 @@
     dataChannel.onclose = () => {
       addToastMessage('Disconnected', 'error');
       isConnecting = false;
+      sender?.onChannelClose();
     };
   };
 

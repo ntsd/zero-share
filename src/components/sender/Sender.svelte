@@ -7,7 +7,7 @@
   import { validateFileMetadata } from '../../utils/validator';
   import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../../proto/message';
   import { addToastMessage } from '../../stores/toastStore';
-  import { PROGRESS_UPDATE_UI_STEP } from '../../configs';
+  import { PROGRESS_UPDATE_UI_STEP, WAIT_ACCEPT_TIMEOUT } from '../../configs';
 
   type Props = {
     dataChannel: RTCDataChannel;
@@ -19,6 +19,54 @@
   const { dataChannel, chunkSize, isEncrypt, rsaPub }: Props = $props();
 
   let sendingFiles: { [key: string]: SendingFile } = $state({});
+
+  // Per-file timers started in WaitingAccept; a file must clear its timer on
+  // any exit from that status (accept/reject/validate error/remove/close) so
+  // the timeout never fires for a file that already moved on.
+  let waitAcceptTimers: { [key: string]: ReturnType<typeof setTimeout> } = {};
+
+  function clearWaitAcceptTimer(key: string) {
+    if (waitAcceptTimers[key]) {
+      clearTimeout(waitAcceptTimers[key]);
+      delete waitAcceptTimers[key];
+    }
+  }
+
+  // Fail a file stuck in WaitingAccept back to Pending so the Send/Resend
+  // buttons reappear in SendingFileList; mirrors the REJECT/VALIDATE_ERROR
+  // handlers below.
+  function failWaitingAccept(key: string, message: string) {
+    sendingFiles[key].error = new Error(message);
+    sendingFiles[key].status = FileStatus.Pending;
+    addToastMessage(`File ${sendingFiles[key].metaData.name} failed: ${message}`, 'error');
+  }
+
+  // The sender's only way out of WaitingAccept is a receiver event on the data
+  // channel; if the receiver fails RSA key decryption it replies with nothing
+  // local-only, and a closed tab replies with nothing at all — so a reply that
+  // never arrives is indistinguishable from a receiver that gave up. This
+  // timeout bounds that wait.
+  function startWaitAcceptTimer(key: string) {
+    clearWaitAcceptTimer(key);
+    waitAcceptTimers[key] = setTimeout(() => {
+      delete waitAcceptTimers[key];
+      if (sendingFiles[key]?.status !== FileStatus.WaitingAccept) {
+        return; // accepted/rejected/removed in the meantime
+      }
+      failWaitingAccept(key, 'No response from receiver (timed out waiting for accept)');
+    }, WAIT_ACCEPT_TIMEOUT);
+  }
+
+  // Data channel went down (receiver tab closed / WebRTC disconnected): fail
+  // every pending WaitingAccept file the same way the timeout does.
+  export function onChannelClose() {
+    for (const key of Object.keys(waitAcceptTimers)) {
+      clearWaitAcceptTimer(key);
+      if (sendingFiles[key]?.status === FileStatus.WaitingAccept) {
+        failWaitingAccept(key, 'Disconnected from receiver');
+      }
+    }
+  }
 
   export function onReceiveEvent(id: string, receiveEvent: ReceiveEvent) {
     const sendingFile = sendingFiles[id];
@@ -46,6 +94,7 @@
     sendingFiles[key].event?.on(
       receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT),
       async () => {
+        clearWaitAcceptTimer(key);
         sendingFiles[key].status = FileStatus.Processing;
         sendingFiles[key].startTime = Date.now();
         await sendNextChunk();
@@ -72,12 +121,14 @@
     });
 
     sendingFiles[key].event?.on(receiveEventToJSON(ReceiveEvent.EVENT_VALIDATE_ERROR), () => {
+      clearWaitAcceptTimer(key);
       addToastMessage('Receiver validate error', 'error');
       sendingFiles[key].error = new Error('Receiver validate error');
       sendingFiles[key].status = FileStatus.Pending;
     });
 
     sendingFiles[key].event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_REJECT), () => {
+      clearWaitAcceptTimer(key);
       addToastMessage('Receiver reject the file', 'error');
       sendingFiles[key].error = new Error('Receiver reject the file');
       sendingFiles[key].status = FileStatus.Pending;
@@ -150,6 +201,7 @@
     );
 
     sendingFiles[key].status = FileStatus.WaitingAccept;
+    startWaitAcceptTimer(key);
     // TODO: wait finish to send 1 by 1 file (success, error)
   }
 
@@ -172,6 +224,7 @@
   }
 
   function onRemove(key: string) {
+    clearWaitAcceptTimer(key);
     if (sendingFiles[key].status === FileStatus.Processing) {
       sendingFiles[key].stop = true;
     }

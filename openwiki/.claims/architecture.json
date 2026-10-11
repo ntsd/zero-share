@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:66dc76f8745fcea28d6f0c31fea25084e5fd34aedea47db1e3618a81d78ed912",
+  "pageVersion": "sha256:eb86045f1698a06fcaab65e100bba06762fd245e6281a2a6791736f1d7b8020c",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -111,8 +111,8 @@
       "statement": "The file transfer protocol is receiver-ack chunking: the sender emits metaData, waits for EVENT_RECEIVER_ACCEPT, then sends one chunk per EVENT_RECEIVED_CHUNK acknowledgment sent by the receiver — a simple backpressure loop pacing the transfer.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L74-L82",
-          "version": "repo-lines-v1:sha256:de3ee391bd5eadd808c5d20dca2ce854b1464968ee66f89acecd141f845fb1b6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzU1NjYyNTU3OWU1NzVhZGNlNWUzYTNhMzkyZGFiZmI3MzU3ODEzYzU5ODQxNWU2ODE2MTM3NDgzNjg0ZDMxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODRlNDIwOGNkNmZmYjhjNGEzNTQ3YjJmNTRhZGExOTk3OGMzZjM2NWU3OGY5NTAyZWY1MTQ1Y2RkMmFhODU0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTdkODYzMmU1NGU5Mjk4YWJiOTU4NzI3ZTJkNTE0MDhhYmFmMTM2NjAzNTM3OTEwMTQwYWJmNjViMzBhYjYxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzQyZGM0MTEyYmRlY2VhYjZjNDI5ZDc2Y2FiMjE1NWEyZTZkNjE3NGQ0MmFjN2Q5OGFmMTUyMjQ1MDlhYWQxMyJ9"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L119-L124",
+          "version": "repo-lines-v1:sha256:02b3f1df535970c554616e3e3b67562305f1c18643a11f5b377240e17a725827:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTNiNjM4YWQ5MWQ3MjUyYTBhMjk1MzZmOTE0NDNlODE4NjgyMDQyNjlhZDk3YjBlYjUxOWYyMjVmZWUxNDEzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODRlNDIwOGNkNmZmYjhjNGEzNTQ3YjJmNTRhZGExOTk3OGMzZjM2NWU3OGY5NTAyZWY1MTQ1Y2RkMmFhODU0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmZlNjhmYzdhYTM1Njg3Y2EzM2I1MmM5MmVhMmJjMDNkZTQ3ZDA4YzdhN2UzYjc5ZTUxNGY0YTE1ODU2NzE3MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGY5NDliZGQ4YWEyM2EzZDE5N2EzNzNiNzljOTQ1MDQ2NGNlMmI5NDI4OWM5MDlmZGQwMmRjYmUzMDg3MDVjMSJ9"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L46-L72",
@@ -158,21 +158,25 @@
     },
     {
       "id": "claim_a530e77583644a6b98346465f460aa0d",
-      "statement": "The app has no persistence: received files are assembled into an in-memory Blob once the declared size is reached and downloaded on demand via an object URL; nothing is stored in IndexedDB, localStorage, or any server.",
+      "statement": "The app has no persistence: received files are assembled into an in-memory Blob once the declared size is reached and downloaded on demand via an object URL (single files and a bulk store-only ZIP export); nothing is stored in IndexedDB, localStorage, or any server.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L113-L123",
-          "version": "repo-lines-v1:sha256:15372dc308ea56c561c5911a79963a41bd22399adb756629194290254397320a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0MzUwZjMzMjRjYTg1ODI4YTg4ZTFjNWEzZGFmYmJjNzdlN2M0ZmZiYjY5NDI0MDkzYTE2NjBkODMwODI4ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiY2Y2YzM0NzZjYmI3NWIxMTk3ZWY0YmQ3NmFmNGRmMjc1OGE3MWY1YzhkOGQ0M2FmNzk1NDViOTYwZjFhNjMifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L159-L171",
+          "version": "repo-lines-v1:sha256:2e2c4208b7d56cc018b64cb98d7ca4222b237003410b9a68889529a24292e811:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0MzUwZjMzMjRjYTg1ODI4YTg4ZTFjNWEzZGFmYmJjNzdlN2M0ZmZiYjY5NDI0MDkzYTE2NjBkODMwODI4ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiY2Y2YzM0NzZjYmI3NWIxMTk3ZWY0YmQ3NmFmNGRmMjc1OGE3MWY1YzhkOGQ0M2FmNzk1NDViOTYwZjFhNjMifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L141-L153",
-          "version": "repo-lines-v1:sha256:a1ead45806bd895176b61a2fc1b31fe38c452010c4bb0493866774b9d22d9c9a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiYTAzYzI5OTliNjJhMjRjYTYwOWZhZGU0OTFjMjI2NDdjOGNmNDA4NjBjMDRhNjQ3YzIwOTRhMjg0OGFlMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4NGRkZjc4YjI3YTBmZGY0YjU5MWUyNTZkODEzMWY2YjgwZjE3ODIxYjJlMGI4MzBkM2NmZWU2MGVkYTUxZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIxOTdkNzczZTY4MmZkMzk5ODM2NDlmNjUwMTg1NWUxMmFlYWRiNDY3NjEwYzBmYWI4MDNhNDY0MzYzZTU4OWYifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L190-L200",
+          "version": "repo-lines-v1:sha256:96221702e590f6402510d494de88f8e36ed78927124e8361ac74b9c791180829:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2M2VjM2QzYjkxMjcxMTE0ZTRiYmRjMjg5ZTgzMGIwMjUwNzA3YjVkYjRiM2UwMTRiMzkwZDg1M2RlNTM3OWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4NGRkZjc4YjI3YTBmZGY0YjU5MWUyNTZkODEzMWY2YjgwZjE3ODIxYjJlMGI4MzBkM2NmZWU2MGVkYTUxZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkNTQyODVjODI1MjdlZDIzOWE2ZGIwMTk4YjBiOWIyYzBmMTkxYWVmM2NkMDIwYThlM2ZjNTFlYmY5ZTE0YmUifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L249-L270",
+          "version": "repo-lines-v1:sha256:f892f89efff7609cf2b3ff663c50fd148749d0dc7de751483bb52602b5d8c847:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjlkOTNjZDU1NDNhNWViMWU0YTNiYjc1NDZkYmJhYzBlYmFkMDhlNjZjMWU5NDZjMWJhMzFkMjM4MDZkYzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4NGRkZjc4YjI3YTBmZGY0YjU5MWUyNTZkODEzMWY2YjgwZjE3ODIxYjJlMGI4MzBkM2NmZWU2MGVkYTUxZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzODQxYzU4ZjI3NDU1NDE3MjY5MTJmYjJlYWUwMTdjYTgyMTA4OTRlMWZhODE1MzY2ZmJmZjNjYzM4NTQ3NDYifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-10T12:04:55.961Z"
+    "at": "2026-10-11T12:06:56.728Z"
   }
 }

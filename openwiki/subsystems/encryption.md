@@ -19,10 +19,10 @@ sources:
     resource: repo://src/utils/crypto.ts
   - id: openwiki-source-c71f006df30e67d6d4f288ab
     resource: repo://tests/crypto.test.mjs
-generated: { by: 'hermes', at: '2026-10-10T12:04:55.961Z' }
+generated: { by: 'hermes', at: '2026-10-11T12:06:56.728Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-10T12:04:55.961Z
+    at: 2026-10-11T12:06:56.728Z
 ---
 
 # Subsystem: Encryption (WebCrypto)
@@ -35,12 +35,12 @@ Zero Share layers **optional application-layer file encryption** on top of WebRT
 
 - Each peer generates **its own RSA-OAEP-2048 key pair** (`publicExponent 65537`, SHA-256 hash) when it creates its outgoing artifact — the offer peer inside `createSDPLink`, the answer peer inside `generateAnswerSDP`, which first awaits the validated import of the `p`-param key so a malformed key downgrades the session to plaintext before any answer is advertised. The key pair is held in page-level state (`rsa` private + `rsaPub` imported). [`repo://src/utils/crypto.ts#L1-L17`], [`repo://src/components/OfferPage.svelte#L43-L48`], [`repo://src/components/ReceivePage.svelte#L138-L142`]
 - The peers exchange **public keys through the shared artifacts**: the offer peer's base64 public key is embedded in the offer link's `p` query param, and the answer peer's base64 public key is appended after `|` in the answer code. The answer page _derives_ `isEncrypt` from the presence of `p`, so encryption mode propagates from the offer side automatically. [`repo://src/components/OfferPage.svelte#L51-L59`], [`repo://src/components/ReceivePage.svelte#L33-L49`], [`repo://src/components/OfferPage.svelte#L141-L146`]
-- When the sender picks files, **each file gets a fresh AES-256-GCM key**; that key is exported raw and wrapped (`encrypt`) with the receiver's RSA public key. The wrapped key bytes ride in the `MetaData.key` field of the first `metaData` message. The receiver unwraps it with its private key in `onMetaData` and keeps the resulting `CryptoKey` on the file detail. [`repo://src/components/sender/Sender.svelte#L182-L215`], [`repo://src/utils/crypto.ts#L44-L55`], [`repo://src/components/receiver/Receiver.svelte#L35-L42`]
+- When the sender picks files, **each file gets a fresh AES-256-GCM key**; that key is exported raw and wrapped (`encrypt`) with the receiver's RSA public key. The wrapped key bytes ride in the `MetaData.key` field of the first `metaData` message. The receiver unwraps it with its private key in `onMetaData` and keeps the resulting `CryptoKey` on the file detail. The entry is **registered in `receivingFiles` at `WaitingAccept` before the async key decryption** — so a key-unwrap failure surfaces as a visible error entry instead of the file silently never appearing while the sender waits for an accept that will not come: `onMetaData` catches the `decryptAesKeyWithRsaPrivateKey` rejection, sets `error` on the entry, toasts `<name> failed to decrypt the file key`, and returns without accepting. [`repo://src/components/sender/Sender.svelte#L182-L215`], [`repo://src/utils/crypto.ts#L44-L55`], [`repo://src/components/receiver/Receiver.svelte#L37-L65`]
 
 ## Payload encryption: AES-256-GCM with prepended IV
 
 - `encryptAesGcm` generates a **random 12-byte IV per chunk**, encrypts the chunk, and returns `IV || ciphertext` as a single buffer. `decryptAesGcm` splits the first 12 bytes as the IV and decrypts the remainder. Per-chunk IVs mean each chunk's nonce is unique. [`repo://src/utils/crypto.ts#L26-L41`], [`repo://src/utils/crypto.ts#L78-L93`]
-- The sender encrypts each chunk before framing it as a `Message` with the file id; the receiver decrypts each chunk after decoding, before accumulating bytes into the file blob. [`repo://src/components/sender/Sender.svelte#L86-L107`], [`repo://src/components/receiver/Receiver.svelte#L74-L92`]
+- The sender encrypts each chunk before framing it as a `Message` with the file id; the receiver decrypts each chunk after decoding, on its per-file serialized chunk queue (inside `processChunk`), before accumulating bytes into the file blob. [`repo://src/components/sender/Sender.svelte#L86-L107`], [`repo://src/components/receiver/Receiver.svelte#L126-L137`]
 - GCM provides authenticated encryption: a corrupted or tampered chunk fails `decrypt` and surfaces as a channel error rather than silently producing corrupt output.
 
 ## Key serialization
@@ -51,8 +51,9 @@ Zero Share layers **optional application-layer file encryption** on top of WebRT
 ## Opt-out and failure behavior
 
 - **Encryption is off by default** (`DEFAULT_SEND_OPTIONS.isEncrypt: false`). When off, no RSA keys are generated, `MetaData.key` stays empty, and `sendBuffer` sends plaintext chunks — the code paths simply skip every crypto call. [`repo://src/configs.ts#L20-L24`], [`repo://src/components/sender/Sender.svelte#L86-L107`]
-- Defensive fallbacks: `sendBuffer` sends a plaintext chunk if `isEncrypt` is true but the per-file `aesKey` is somehow missing; the receiver decrypts only when both `isEncrypt` and the file's `aesKey` are present. [`repo://src/components/sender/Sender.svelte#L86-L99`], [`repo://src/components/receiver/Receiver.svelte#L86-L88`]
+- Defensive fallbacks: `sendBuffer` sends a plaintext chunk if `isEncrypt` is true but the per-file `aesKey` is somehow missing; the receiver decrypts only when both `isEncrypt` and the file's `aesKey` are present. [`repo://src/components/sender/Sender.svelte#L86-L107`], [`repo://src/components/receiver/Receiver.svelte#L126-L128`]
 - **Key-exchange validation is explicit, not fire-and-forget.** The receive page imports the `p`-param key with a `catch` that downgrades `isEncrypt` to `false`, toasts "Invalid encryption key in link, falling back to plaintext", and resolves `undefined` — so the session silently degrades instead of advertising encryption while sending nothing usable. The offer page wraps its answer-code key import in `try/catch`: a malformed or truncated answer code toasts "Invalid encryption key in answer code" and aborts before `setRemoteDescription`, instead of leaving a half-configured connection. [`repo://src/components/ReceivePage.svelte#L46-L59`], [`repo://src/components/OfferPage.svelte#L141-L155`]
+- **Receiver key-unwrap failure is visible, not silent.** If `decryptAesKeyWithRsaPrivateKey` rejects for an incoming file (corrupt wrapped key, missing/undefined private key), the already-registered entry gets `error` set, an error toast fires, and the handler returns without accepting — the sender then sees a file that never gets accepted and can react, instead of waiting indefinitely on an invisible file. [`repo://src/components/receiver/Receiver.svelte#L49-L65`]
 
 ## Threat model notes
 

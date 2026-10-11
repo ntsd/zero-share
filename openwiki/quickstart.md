@@ -25,10 +25,14 @@ sources:
     resource: repo://src/utils/sdpEncode.ts
   - id: openwiki-source-c71f006df30e67d6d4f288ab
     resource: repo://tests/crypto.test.mjs
-generated: { by: 'hermes', at: '2026-10-10T12:04:55.961Z' }
+  - id: openwiki-source-c4b2cf9b87c8a0dd3815ff97
+    resource: repo://tests/receiver-chunk-order.test.mjs
+  - id: openwiki-source-408384ecc13a9dc3929f90a4
+    resource: repo://tests/zip.test.mjs
+generated: { by: 'hermes', at: '2026-10-11T12:06:56.728Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-10T12:04:55.961Z
+    at: 2026-10-11T12:06:56.728Z
 ---
 
 # Quickstart: Zero Share P2P File Sharing
@@ -57,9 +61,12 @@ verified:
 | Sender / Receiver transfer engines                      | `src/components/sender/`, `src/components/receiver/` |
 | Wire protocol (proto3 + ts-proto generated code)        | `src/proto/message.proto`, `src/proto/message.ts`    |
 | Crypto (WebCrypto)                                      | `src/utils/crypto.ts`                                |
+| Store-only ZIP writer (bulk download)                   | `src/utils/zip.ts`                                   |
+| Per-key task serializer (chunk-order fix)               | `src/utils/serialize.ts`                             |
 | Constants: STUN list, defaults, chunk options, timeouts | `src/configs.ts`                                     |
 | Shared types & file lifecycle enums                     | `src/type.ts`                                        |
 | Astro build config                                      | `astro.config.mjs`                                   |
+| Regression tests (crypto / zip / chunk order)           | `tests/`                                             |
 
 ### Task routing map
 
@@ -80,10 +87,10 @@ npm run build      # typecheck-free static build to ./build
 npm run lint       # prettier --check . && eslint .
 npm run format     # prettier --write .
 npm run protogen   # regenerate src/proto/message.ts from message.proto (needs protoc)
-npm test           # crypto regression guard: asserts RSA-OAEP modulus is 2048 bits
+npm test           # three regression guards: node tests/crypto.test.mjs && node tests/zip.test.mjs && node tests/receiver-chunk-order.test.mjs
 ```
 
-**Verification gates for changes:** `npm test` runs a crypto regression guard (`tests/crypto.test.mjs`) that pins the RSA-OAEP modulus at 2048 bits. `tsc --noEmit` typechecking plus `npm run build` plus `prettier --check` plus `npm test` are the effective gates, run by `./.zerofactory/precommit.sh`. Note: `astro check` is _not_ configured (no `@astrojs/check` devDep) and its install prompt hangs non-interactive shells — do not run it.
+**Verification gates for changes:** `npm test` runs three regression guards in sequence — `node tests/crypto.test.mjs && node tests/zip.test.mjs && node tests/receiver-chunk-order.test.mjs` — pinning the RSA-OAEP modulus at 2048 bits, the store-only ZIP writer (`createZipStoreOnly` CRC-32 vectors + external-unzip round-trip), and the per-file chunk-order serialization (`serializeTask` driven exactly as `onChunkData` wires it, with out-of-order mocked decryption). Note: `./.zerofactory/precommit.sh`'s `run_test()` is still hard-coded to _skip_ the test suite, so `npm test` must be run manually or in CI; the hook's effective gates are `prettier --write`/`eslint --fix` + `tsc --noEmit` + `astro build`. Also note: `astro check` is _not_ configured (no `@astrojs/check` devDep) and its install prompt hangs non-interactive shells — do not run it.
 
 **Conventions:** TypeScript strict, Svelte 5 runes style (`$state`/`$props`), Tailwind 4 + DaisyUI classes, Conventional Commits. Zero Factory's precommit hook runs `./.zerofactory/precommit.sh` (format → typecheck+build → test).
 

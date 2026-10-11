@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:0d16a710b1089302a8396d0cd774c980f835ea53bdac98804f80f240997b2841",
+  "pageVersion": "sha256:b9fafd29fa7637ab1b875c18138373ccd0f37c44f7aecef6faf4454c9f3d5d3f",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -54,19 +54,19 @@
     },
     {
       "id": "claim_5712564d44244197a155ef4bdc054f9f",
-      "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key; the wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption.",
+      "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key; the wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption. The receiver registers the file entry at WaitingAccept BEFORE the async key decryption, and on unwrap failure sets a visible error on the entry, toasts, and returns without accepting.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L35-L42",
-          "version": "repo-lines-v1:sha256:e10a642325a950ad2f996818edd7b04ec999ebe91e6c019ed0c1b718940431c1:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2U5ZTUyYjViZTkxZTQyNzdjMjc0NjQxNjczMTM0YzYxOTZmNjQ5YWNiMDIwMWRiYmE4OTY0OWEyNTkwY2U3ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODkyZDZlMjM5NzA4NjQ4YmUwYTE5NWI2MTAzNWU1MjVmM2MwN2NjN2NjNjQxNTU2NzAzMzk0MmMxY2Y4Y2IyNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWIzYWE2ZWE0ZmFkMDQxMzIzYWVhODNkNTk4NDE5ZTJmMTIyODA1YTRmOGRlMDIxOGZmNzNmOGI4YmMxNWVhNSJ9"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L37-L65",
+          "version": "repo-lines-v1:sha256:81a2a0d84a26fa787275e0f483e70787fbc6a0e7a0ba4eb8d51514fe38ecd515:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4YTMwODY0N2Q5OTY0Y2JkNGYzNzRmNTEyYmI4NzBkMjU3NzlkZjM0ZWFkZjQxMTk3YjM0NmU4Mzk1MmUyYjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4MTAwMDBjYjQyZWJlZWM1ZjQyOTA0MWM2ZDI4ZTMxOTE1M2Y1ZTFkNWM1ZGM4ODE3YzA1YTQ5MTU1MDc1NzQifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L182-L215",
           "version": "repo-lines-v1:sha256:cb9acebec7bd68747856cfd353b146e9fbb251e7671f6be3f786ca2e32f0012f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyMzhkMWExZDYzN2M4M2M1NTRlNjk0YzI2MGEwMTMxN2M5MGNmMWY1Y2RjNDBmZjY2Zjk2N2M5MjlkOTNkOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE2YTZkYzVmZjk2MzNhZjFiZjAwMTllZTQzOWI0YWQ2OTRjMmNkNzRmMWRiNDQwYWU3NTM3MTEzMjAxZjNlODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkMjRhYzYzMTEzMWFlNjcwYTgyZmIzMDNmZmVjYzE2MWEwMGExYWFiMmJlZGE0NWE5MjM2ODY3NDZjZDY1ODEifQ"
         },
         {
-          "resource": "repo://src/utils/crypto.ts#L44-L75",
-          "version": "repo-lines-v1:sha256:679fab845981def7a05a06231d3e4a6b6fc3df54ffacef057f7b5961e95aaa0e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3MWQ4N2ZkNzFmMWQwYTQ1OGQ3NjBhMDk3MGQ1ZDE4YTc5MTExMDA1ZTA4NWEyOWYzZjY4ZjgwMjY0YWRmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzOGEwYWRiNzkzMDRjNGU4ZjZkMmI0YmE3NGMzNDZjNTkzZTk5ZGI0N2MzMTc2MWJkNzQ4NzVmODU2ZWFjNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMDM2MjY4NGNmNDAzN2VjODgwNTA1M2IwNzY5YTc1NjJmZWE5MmFhZGU0ZTI5MGJlNDAyMzk2NzY5NzU2ZWMifQ"
+          "resource": "repo://src/utils/crypto.ts#L44-L55",
+          "version": "repo-lines-v1:sha256:19f63ea836eceb29be5cafd6a3e1f412322ca9705f7901c423c331ec31d36f95:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3MWQ4N2ZkNzFmMWQwYTQ1OGQ3NjBhMDk3MGQ1ZDE4YTc5MTExMDA1ZTA4NWEyOWYzZjY4ZjgwMjY0YWRmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzOGEwYWRiNzkzMDRjNGU4ZjZkMmI0YmE3NGMzNDZjNTkzZTk5ZGI0N2MzMTc2MWJkNzQ4NzVmODU2ZWFjNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2YzQzODQ1YWU1ZmYyOTk0MGJjOTE4YzA1OTdmMjE4YTM0MzhkOTdlNDMxOTI3NWYxZWE2MjgxNmEyNDNhYzIifQ"
         }
       ]
     },
@@ -86,11 +86,11 @@
     },
     {
       "id": "claim_df6f737c2b7647a996d1311ce7f78e3a",
-      "statement": "Chunk-level encryption wraps the transfer framing: the sender encrypts each chunk buffer before Message-encoding it as a chunk, and the receiver decrypts each decoded chunk (only when isEncrypt and the per-file aesKey are both present) before accumulating bytes toward the declared file size.",
+      "statement": "Chunk-level encryption wraps the transfer framing: the sender encrypts each chunk buffer before Message-encoding it as a chunk, and the receiver decrypts each decoded chunk (only when isEncrypt and the per-file aesKey are both present), inside the per-file serialized processChunk task, before accumulating bytes toward the declared file size.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L74-L92",
-          "version": "repo-lines-v1:sha256:221b7eba2b105da15ef45cfa48b7a2e40d482f11a426800e071e2a7e6ba35529:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1NTY2MjU1NzllNTc1YWRjZTVlM2EzYTM5MmRhYmZiNzM1NzgxM2M1OTg0MTVlNjgxNjEzNzQ4MzY4NGQzMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNzY4ZjQyODZiZTY2ZGU0MjJhNmQxZTMyZGUwNDBjOTg4ZDk3ZGNlNzUzYzMzYWQ3ZmI1MTFmNWMzYzFiM2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1NzY2OTViMDI0NGQ2MTM3NzU3ODU5Nzk2ZWM3MmJmZGJlMWU2YjBlMjYyMTk2MjBlMjBiYTAyODdlNzBkOGYifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L126-L137",
+          "version": "repo-lines-v1:sha256:53e81112a56e165aa3a551cf5f042c707ff53e4ae58f83b75688ee9d581375e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNzg3OTY1NjViZmMxMmQwMzBjMTNiZWExNDZmOWUxYjQxMGRkZTYxZDJkY2ViNGQ3YzM5ZmZjOWMxYzM1YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1OWQ3N2EyZWI2OWFhY2EwMjFhMjExNmMyOWUwMzM3MmE3ZTk3Y2EwMDZmNTU3MWY5ZjE3ZTIzOWRkNzFiZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmYzEyMDFiMWU2ZDg1ZDQxNTM0ZjQ1MzM3ZWExMzZjMTAxZDM2ZjEwMmIyMGViMmZmMWZkMzgxNWE4YjZiMjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0MzY1ZWE3NDM4NDY0MzBmOGVlYjUxNzA2OGY0ZTI4ODgwZWMyNGIzODE3MDU0NzFmYTBiYjUwZWVjN2I3M2IifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L86-L107",
@@ -128,21 +128,31 @@
     },
     {
       "id": "claim_85040d6ca22c4a45981a13d163065e72",
-      "statement": "tests/crypto.test.mjs is a regression guard (run via `npm test`) that asserts the RSA-OAEP modulusLength constant in src/utils/crypto.ts is 2048 and that a freshly generated RSA public key exports as a 2048-bit modulus — any future silent revert of the constant to 1024 fails the test.",
+      "statement": "tests/crypto.test.mjs is a regression guard (the first in the `npm test` chain) that asserts the RSA-OAEP modulusLength constant in src/utils/crypto.ts is 2048 and that a freshly generated RSA public key exports as a 2048-bit modulus — any future silent revert of the constant to 1024 fails the test.",
       "evidence": [
         {
-          "resource": "repo://package.json#L6-L16",
-          "version": "repo-lines-v1:sha256:f84739fe3db7c24dc29615967e5c11bc49d784f669eb5f437b30e65896ea2ea0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
+          "resource": "repo://package.json#L10-L10",
+          "version": "repo-lines-v1:sha256:ff6b2a259f83ac2032bbb2eea25300bc294eb76c915300bb2921bd3ee94c4817:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY2YjJhMjU5ZjgzYWMyMDMyYmJiMmVlYTI1MzAwYmMyOTRlYjc2YzkxNTMwMGJiMjkyMWJkM2VlOTRjNDgxNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY2YjJhMjU5ZjgzYWMyMDMyYmJiMmVlYTI1MzAwYmMyOTRlYjc2YzkxNTMwMGJiMjkyMWJkM2VlOTRjNDgxNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmMyYjdmN2EzMDBmMTRiOWI0OGI2NmE5ZTA0ZTc2YjUwMzJlNjEyNmU3MjEzNTBmMGU3ZTE4NDUwYThkYmU5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTk4ZjQ0OWJlMzNhOGFkOGJiZjg1YjcyOWQ0OTEzYWRkZGZhZWVkZWFhMWM3ZmNlNDk2MjhkMWQyZjA4ZGJmNiJ9"
         },
         {
           "resource": "repo://tests/crypto.test.mjs#L6-L21",
           "version": "repo-lines-v1:sha256:1697f208971e11020d9e512ffd105d949fcebe91581d1240c940117848be2606:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MzM2ZDMzMGI1M2MxNGRiOWI0MDE4YmEyNGE3MGUzMzg4ODk5MDEzYzZlN2JjZjMxYjlmNjdhNDBjMDc0MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyODA4NjkwMTlmYzExMzU5N2EwNDFmNjMyNmU5ZDM4MWI2MzJhZTc5MjM4NmY2OTgwNDMwMmJiMTM1NzMxM2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1ZjI4NzAxOWYzOTA4NzkzYzhhOTNiZmYwNzVjN2IyYTdkYjU4NTVjMGNlNDU1Mjk2YmMwYjU2MjBlNWQ1MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlMWI0OGU5OThiOGJkNzhmOTEyOTNhZTUxODk4OWM4MDM1NGMyNDk4YjM0OWI5MzgyNmNlMTRkODBiNDBjMTYifQ"
         }
       ]
+    },
+    {
+      "id": "claim_22ae504e43e447edb1467001c15014f4",
+      "statement": "Receiver key-unwrap failure is visible, not silent: if decryptAesKeyWithRsaPrivateKey rejects for an incoming file, the already-registered entry gets an error set, an error toast fires, and onMetaData returns without accepting, so the sender does not wait forever on an invisible file.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L49-L65",
+          "version": "repo-lines-v1:sha256:d6c791e2938f35d9b939cde86650b73a59aa2b317203e69341c14beb5c879329:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2YjA1MzY4YjJhODYwOTc5NDI2MjAzOGY0M2ZiYTE2Y2M5NTJiODhhM2Y1ODQ3MjAzMTkzYWQxODBjYWZiNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4YTMwODY0N2Q5OTY0Y2JkNGYzNzRmNTEyYmI4NzBkMjU3NzlkZjM0ZWFkZjQxMTk3YjM0NmU4Mzk1MmUyYjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MmE2YmNjOGQzNjE0MjkxYzZlMjQ4YzBkNmQ2ZDM3NzVhZGM0NjIyMzhlM2U4YmVhNWNkNWQ5YTNkMTBhNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4MTAwMDBjYjQyZWJlZWM1ZjQyOTA0MWM2ZDI4ZTMxOTE1M2Y1ZTFkNWM1ZGM4ODE3YzA1YTQ5MTU1MDc1NzQifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-10T12:04:55.961Z"
+    "at": "2026-10-11T12:56:40.975Z"
   }
 }

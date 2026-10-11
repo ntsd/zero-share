@@ -142,14 +142,20 @@
     }
 
     // send meta data
-    dataChannel.send(
-      Message.encode({
-        id: key,
-        metaData: sendingFile.metaData
-      }).finish()
-    );
-
-    sendingFiles[key].status = FileStatus.WaitingAccept;
+    try {
+      dataChannel.send(
+        Message.encode({
+          id: key,
+          metaData: sendingFile.metaData
+        }).finish()
+      );
+      sendingFiles[key].status = FileStatus.WaitingAccept;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      sendingFiles[key].error = new Error(`Failed to encode file metadata: ${message}`);
+      sendingFiles[key].status = FileStatus.Pending;
+      addToastMessage(`File ${sendingFile.metaData.name} failed: ${message}`, 'error');
+    }
     // TODO: wait finish to send 1 by 1 file (success, error)
   }
 

@@ -4,13 +4,13 @@
 # Runs the project's own tooling (see package.json scripts):
 #   format  -> prettier --write . && eslint . --fix
 #   build   -> tsc --noEmit && astro build
-#   test    -> no test suite is defined for this repository
+#   test    -> npm test
 #
 # Usage:
 #   ./.zerofactory/precommit.sh            run all phases
 #   ./.zerofactory/precommit.sh format     formatting & lint auto-fix only
 #   ./.zerofactory/precommit.sh build      typecheck & build only
-#   ./.zerofactory/precommit.sh test       test suite (informational: none)
+#   ./.zerofactory/precommit.sh test       test suite
 #   ./.zerofactory/precommit.sh install-hook
 #       link .git/hooks/pre-commit to this script for developers
 
@@ -40,7 +40,8 @@ run_build() {
 }
 
 run_test() {
-  echo "==> [test] no test suite is defined for this repository (no test script in package.json) — skipping."
+  echo "==> [test] npm test"
+  npm test
 }
 
 install_hook() {

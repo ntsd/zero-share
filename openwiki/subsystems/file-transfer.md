@@ -23,14 +23,16 @@ sources:
     resource: repo://src/utils/validator.ts
   - id: openwiki-source-8439c153cd0cf35493f27a86
     resource: repo://src/utils/zip.ts
+  - id: openwiki-source-edd2d815ffc75024b7c21d45
+    resource: repo://tests/protocol-size.test.mjs
   - id: openwiki-source-c4b2cf9b87c8a0dd3815ff97
     resource: repo://tests/receiver-chunk-order.test.mjs
   - id: openwiki-source-408384ecc13a9dc3929f90a4
     resource: repo://tests/zip.test.mjs
-generated: { by: 'hermes', at: '2026-10-11T12:06:56.728Z' }
+generated: { by: 'hermes', at: '2026-10-11T12:56:40.975Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-11T12:06:56.728Z
+    at: 2026-10-11T12:56:40.975Z
 ---
 
 # Subsystem: File Transfer Engine
@@ -41,7 +43,7 @@ The transfer engine is the `Sender` and `Receiver` Svelte components plus the `s
 
 Every data-channel message is a protobuf `Message`: a `file id` plus exactly one of three payloads — [`repo://src/proto/message.proto#L1-L31`]
 
-- `metaData` (`MetaData {name, size, type, key}`) — announced by the sender before any bytes; `key` holds the RSA-wrapped per-file AES key (empty when encryption is off).
+- `metaData` (`MetaData {name, size, type, key}`) — announced by the sender before any bytes; `key` holds the RSA-wrapped per-file AES key (empty when encryption is off). `size` is `int64` on the wire (PR #42 / commit 721c502 widened it from `int32`), so files ≥ 2 GiB no longer throw `invalid int32` during `Message.encode`.
 - `chunk` — one slice of file body (raw or encrypted).
 - `receiveEvent` — receiver→sender control: `EVENT_RECEIVER_ACCEPT`, `EVENT_RECEIVER_REJECT`, `EVENT_RECEIVED_CHUNK`, `EVENT_VALIDATE_ERROR`.
 
@@ -105,4 +107,5 @@ Single-file and bulk download both route through `triggerDownload`, which create
 - A receiver ack for a stopped/idle file resets the sender file to `Pending` with progress 0 rather than erroring.
 - **Late/stray chunks are dropped, not fatal**: chunks for unknown/uninitialized file ids are ignored at the `onChunkData` guard, and `processChunk` re-checks the chunk map after the decrypt await (a file may be removed/denied mid-flight); a failing chunk cannot stall its file's queue.
 - Completion is exact-size based: both sides stop when the declared `metaData.size` is fully sent/received; there is no file trailer or checksum, so integrity relies on GCM authentication (encryption on) or DTLS data integrity.
-- **Regression coverage**: `tests/receiver-chunk-order.test.mjs` drives `serializeTask` exactly as `onChunkData` wires it (mocked decrypt resolving the first chunk slowest) and asserts strict arrival-order assembly; `tests/zip.test.mjs` checks CRC-32 vectors and round-trips `createZipStoreOnly` output through an external unzip. [`repo://tests/receiver-chunk-order.test.mjs`], [`repo://tests/zip.test.mjs`]
+- **`MetaData.size` is `int64` on the wire** (PR #42 / commit 721c502; was `int32`): the widened field means files of 2 GiB or larger no longer throw `invalid int32` during `Message.encode`, so the exact-size completion invariant now holds for arbitrarily large files (up to JS's safe-integer limit) rather than only below the 2 GiB `int32` ceiling. [`repo://src/proto/message.proto#L1-L8`], [`repo://tests/protocol-size.test.mjs#L33-L52`]
+- **Regression coverage**: `tests/receiver-chunk-order.test.mjs` drives `serializeTask` exactly as `onChunkData` wires it (mocked decrypt resolving the first chunk slowest) and asserts strict arrival-order assembly; `tests/zip.test.mjs` checks CRC-32 vectors and round-trips `createZipStoreOnly` output through an external unzip; `tests/protocol-size.test.mjs` pins the `int64` `MetaData.size` wire encoding by encoding and round-tripping 3 GiB and `MAX_SAFE_INTEGER` sizes through the generated proto. [`repo://tests/receiver-chunk-order.test.mjs`], [`repo://tests/zip.test.mjs`], [`repo://tests/protocol-size.test.mjs`]

@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-11T12:06:56.728Z
+    at: 2026-10-11T12:56:40.975Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -28,7 +28,9 @@ sources:
     resource: repo://src/type.ts
   - id: openwiki-source-825971ed9c72d5969af1b150
     resource: repo://src/utils/crypto.ts
-generated: { by: 'hermes', at: '2026-10-10T12:04:55.961Z' }
+  - id: openwiki-source-edd2d815ffc75024b7c21d45
+    resource: repo://tests/protocol-size.test.mjs
+generated: { by: 'hermes', at: '2026-10-11T12:56:40.975Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -54,7 +56,7 @@ SDP text is made URL-safe by `sdp-compact` compaction plus character substitutio
 
 All traffic on the data channel is **proto3-framed `Message` bytes** — no ad-hoc text protocol. A `Message` carries a `file id` plus exactly one of:
 
-- `metaData` — file name, size, MIME type, and the RSA-wrapped per-file AES key (encryption mode only);
+- `metaData` — file name, size (int64 on the wire — commit 721c502 / PR #42 widened it from int32 so files ≥ 2 GiB no longer throw `invalid int32` during `Message.encode`), MIME type, and the RSA-wrapped per-file AES key (encryption mode only);
 - `chunk` — a raw (or encrypted) slice of the file body;
 - `receiveEvent` — receiver→sender control events (`ACCEPT`, `REJECT`, `RECEIVED_CHUNK`, `VALIDATE_ERROR`). [`repo://src/proto/message.proto#L1-L31`]
 

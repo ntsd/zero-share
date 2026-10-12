@@ -23,10 +23,13 @@
   let sendOptions = $state(DEFAULT_SEND_OPTIONS);
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
-  // effective encryption mode for this session. Starts as the user's setting;
-  // acceptAnswer flips it to false when the peer's answer code signals the
-  // receiver's intentional plaintext downgrade (empty key portion), so the
-  // Sender/Receiver sub-components never encrypt/decrypt with an undefined key
+  // Effective encryption mode for this session. Initialized from the user's
+  // setting, but a plain $state initializer is NOT a live binding: the Settings
+  // panel stays open and mutable while the offer is active, so the value would
+  // go stale when the user toggles encryption after the downgrade branch (or
+  // an encrypted accept) last wrote to it. onOptionsUpdate — the only place
+  // sendOptions is mutated — re-syncs it on every change; the downgrade branch
+  // may still override it to false for the current handshake.
   let effectiveEncrypt = $state(sendOptions.isEncrypt);
 
   // webRTC
@@ -209,6 +212,19 @@
 
   function onOptionsUpdate(options: SendOptions) {
     sendOptions = options;
+    // effectiveEncrypt is a plain $state, not a live binding off sendOptions,
+    // so the Settings panel (open and mutable while the offer is active) could
+    // otherwise leave it stale after the downgrade branch or an encrypted
+    // accept last wrote to it: re-enabling encryption post-downgrade would
+    // keep Sender at isEncrypt=false with no AES key, and toggling off post-
+    // encrypted-accept would leave rsaPub set while Sender no longer encrypts.
+    // Re-sync here on every options change; the downgrade branch may still
+    // override it to false for the current handshake.
+    effectiveEncrypt = sendOptions.isEncrypt;
+    // Clear any imported peer key so a re-enabled encryption session after a
+    // downgrade starts from a clean state instead of carrying the previous
+    // peer's public key.
+    rsaPub = undefined;
   }
 </script>
 

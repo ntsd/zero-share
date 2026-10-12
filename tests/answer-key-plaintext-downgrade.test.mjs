@@ -251,6 +251,32 @@ function extractFunction(src, name) {
     'OfferPage must not pass sendOptions.isEncrypt to Sender/Receiver anymore'
   );
 
+  // 3d2. effectiveEncrypt must stay in sync with the user's setting. A plain
+  //      $state initializer is NOT a live binding in Svelte 5: the value would
+  //      go stale when the user toggles encryption in Settings after the
+  //      downgrade branch (or an encrypted accept) last wrote to it — e.g.
+  //      re-enabling encryption after a downgrade would leave Sender with
+  //      isEncrypt=false and no AES key. Because this component is in runes
+  //      mode (uses $state) a `$:` reactive re-sync is NOT allowed; instead
+  //      onOptionsUpdate — the only place sendOptions is mutated — re-syncs
+  //      effectiveEncrypt on every options change.
+  const onOptionsBody = extractFunction(source, 'onOptionsUpdate');
+  assert.ok(
+    /effectiveEncrypt\s*=\s*sendOptions\.isEncrypt/.test(onOptionsBody),
+    'onOptionsUpdate must re-sync effectiveEncrypt = sendOptions.isEncrypt (a plain $state init is not a live binding)'
+  );
+  assert.ok(
+    /rsaPub\s*=\s*undefined/.test(onOptionsBody),
+    'onOptionsUpdate must reset rsaPub so a re-enabled session after a downgrade does not carry the previous peer key'
+  );
+  // The downgrade branch still overrides the re-synced value to false.
+  assert.ok(
+    /if\s*\(\s*hasSeparator\s*&&\s*key\s*===\s*''\s*\)[\s\S]*?effectiveEncrypt\s*=\s*false/.test(
+      acceptBody
+    ),
+    'downgrade branch must still override effectiveEncrypt to false'
+  );
+
   // 3e. The SDP guard still runs on every path: the setRemoteDescription
   //     try/catch with the 'Invalid answer code' toast survives.
   assert.ok(

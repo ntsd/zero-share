@@ -16,9 +16,12 @@
   }
 
   function onChange() {
+    // bind:value on a <select> yields the DOM option value (a string); coerce
+    // back to a number so ReceiveOptions.maxSize stays a number at runtime.
+    const parsed = Number(maxSize);
     onUpdate({
       autoAccept: getAutoAccept(),
-      maxSize: maxSize
+      maxSize: Number.isFinite(parsed) ? parsed : DEFAULT_RECEIVE_OPTIONS.maxSize
     });
   }
 </script>
@@ -41,8 +44,8 @@
       <p class="text-xs text-gray-500">The max file size to allow to send.</p>
     </div>
     <select bind:value={maxSize} onchange={onChange} class="select select-bordered">
-      <option value={10 * 1024}>10 MB</option>
-      <option value={100 * 1024}>100 MB</option>
+      <option value={10 * 1024 * 1024}>10 MB</option>
+      <option value={100 * 1024 * 1024}>100 MB</option>
       <option value={1024 * 1024 * 1024}>1 GB</option>
       <option value={10 * 1024 * 1024 * 1024}>10 GB</option>
       <option value={1024 * 1024 * 1024 * 1024}>Unlimit</option>

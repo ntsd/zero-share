@@ -23,6 +23,11 @@
   let sendOptions = $state(DEFAULT_SEND_OPTIONS);
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
+  // effective encryption mode for this session. Starts as the user's setting;
+  // acceptAnswer flips it to false when the peer's answer code signals the
+  // receiver's intentional plaintext downgrade (empty key portion), so the
+  // Sender/Receiver sub-components never encrypt/decrypt with an undefined key
+  let effectiveEncrypt = $state(sendOptions.isEncrypt);
 
   // webRTC
   let connection: RTCPeerConnection;
@@ -147,19 +152,43 @@
     addToastMessage('Copied to clipboard', 'info');
   }
 
+  // parse the answer code (`sdp|<public key base64>`): the encoded SDP part
+  // is a URL-safe base64 alphabet (never contains `|`), so splitting on the
+  // LAST `|` is safe even if the key portion ever contains one.
+  // `hasSeparator` tells a truly malformed code (no `|` at all) apart from
+  // the receiver's deliberate plaintext downgrade (well-formed code with an
+  // empty key portion — it dropped encryption because the `p` key in its
+  // link was malformed, so it answers with an empty key by design).
+  function parseAnswerCode(answerCode: string) {
+    const sep = answerCode.lastIndexOf('|');
+    if (sep === -1) return { sdp: answerCode, key: '', hasSeparator: false };
+    return { sdp: answerCode.slice(0, sep), key: answerCode.slice(sep + 1), hasSeparator: true };
+  }
+
   async function acceptAnswer() {
-    const [sdp, pubKeyB64] = answerSDP.split('|');
+    const { sdp, key, hasSeparator } = parseAnswerCode(answerSDP);
 
     if (sendOptions.isEncrypt) {
-      // validate the answer's public key: a malformed/truncated answer code
-      // (e.g. missing the `|` separator or a damaged key) would otherwise
-      // reject here, skipping setRemoteDescription and leaving a
-      // half-configured connection with no error shown
-      try {
-        rsaPub = await importRsaPublicKeyFromBase64(pubKeyB64);
-      } catch {
-        addToastMessage('Invalid encryption key in answer code', 'error');
-        return;
+      if (hasSeparator && key === '') {
+        // the receiver deliberately downgraded to plaintext: importing an
+        // empty key would reject and the handshake would never complete, so
+        // follow the receiver into plaintext instead of bailing
+        effectiveEncrypt = false;
+        addToastMessage(
+          'Peer could not use the encryption key — continuing without encryption',
+          'info'
+        );
+      } else {
+        // validate the answer's public key: a malformed/truncated answer code
+        // (e.g. missing the `|` separator or a damaged non-empty key) would
+        // otherwise reject here, skipping setRemoteDescription and leaving a
+        // half-configured connection with no error shown
+        try {
+          rsaPub = await importRsaPublicKeyFromBase64(key);
+        } catch {
+          addToastMessage('Invalid encryption key in answer code', 'error');
+          return;
+        }
       }
     }
 
@@ -291,12 +320,12 @@
         bind:this={sender}
         {dataChannel}
         {rsaPub}
-        isEncrypt={sendOptions.isEncrypt}
+        isEncrypt={effectiveEncrypt}
         chunkSize={sendOptions.chunkSize}
       />
     </div>
     <div hidden={sendMode}>
-      <Receiver bind:this={receiver} {dataChannel} isEncrypt={sendOptions.isEncrypt} {rsa} />
+      <Receiver bind:this={receiver} {dataChannel} isEncrypt={effectiveEncrypt} {rsa} />
     </div>
   {/if}
 </Collapse>

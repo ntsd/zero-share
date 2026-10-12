@@ -92,7 +92,16 @@
       qrModal?.close();
     };
     dataChannel.onmessage = (event) => {
-      const message = Message.decode(new Uint8Array(event.data));
+      // data-channel bytes are peer-controlled: a malformed/truncated protobuf
+      // frame makes Message.decode throw synchronously, which would otherwise
+      // escape as an uncaught error and stall the transfer with no feedback
+      let message;
+      try {
+        message = Message.decode(new Uint8Array(event.data));
+      } catch {
+        addToastMessage('Invalid message from peer', 'error');
+        return;
+      }
 
       if (message.metaData !== undefined) {
         receiver?.onMetaData(message.id, message.metaData);

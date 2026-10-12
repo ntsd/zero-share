@@ -1,7 +1,12 @@
 <script lang="ts">
   import { buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
-  import { DEFAULT_SEND_OPTIONS, GITHUB_LINK, WAIT_ICE_CANDIDATES_TIMEOUT } from '../configs';
+  import {
+    DEFAULT_SEND_OPTIONS,
+    GITHUB_LINK,
+    WAIT_ICE_CANDIDATES_TIMEOUT,
+    resolveIceServer
+  } from '../configs';
   import Eye from './icons/Eye.svelte';
   import { Message } from '../proto/message';
   import Collapse from './layout/Collapse.svelte';
@@ -48,9 +53,13 @@
     }
 
     const sdp = sdpEncode(offer.sdp);
+    // resolve the ICE server through the shared predicate so the link's `i`
+    // param always matches what this peer's RTCPeerConnection actually uses —
+    // the receiver honors exactly this value (same predicate in configs)
+    const iceServer = resolveIceServer(sendOptions.iceServer);
     offerLink = buildURL(location.href.split('?')[0], 'receive', {
       s: sdp,
-      i: DEFAULT_SEND_OPTIONS.iceServer === sendOptions.iceServer ? '' : sendOptions.iceServer,
+      i: DEFAULT_SEND_OPTIONS.iceServer === iceServer ? '' : iceServer,
       c:
         DEFAULT_SEND_OPTIONS.chunkSize === sendOptions.chunkSize
           ? ''
@@ -60,8 +69,11 @@
   }
 
   async function createPeerAndDataCannel() {
+    // same shared resolver as the `i` link param in createSDPLink: this peer
+    // must use the exact server the receiver will honor (see configs)
+    const iceServer = resolveIceServer(sendOptions.iceServer);
     connection = new RTCPeerConnection({
-      iceServers: [{ urls: sendOptions.iceServer }],
+      iceServers: [{ urls: iceServer }],
       // "balanced": The ICE agent will bundle media streams
       // if it determines  that it is more efficient to do so. This is the default value.
       // "max-compat": The ICE agent will bundle media streams only
@@ -117,6 +129,16 @@
   }
 
   async function generateOfferLink() {
+    // surface a visible warning when the user's custom ICE server value is
+    // rejected by the shared predicate — the link and this peer both fall
+    // back to the default, and staying silent would advertise a server that
+    // is not actually used
+    if (sendOptions.iceServer !== resolveIceServer(sendOptions.iceServer)) {
+      addToastMessage(
+        `Invalid ICE server, using default (${DEFAULT_SEND_OPTIONS.iceServer})`,
+        'error'
+      );
+    }
     generating = true;
     try {
       // `new RTCPeerConnection` / `createDataChannel` can throw synchronously

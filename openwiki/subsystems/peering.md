@@ -17,10 +17,12 @@ sources:
     resource: repo://src/utils/path.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
-generated: { by: 'hermes', at: '2026-10-03T07:07:26.852Z' }
+  - id: openwiki-source-cc4834bd7be0e4e06ab95a6b
+    resource: repo://tests/sdp-robustness.test.mjs
+generated: { by: 'hermes', at: '2026-10-12T12:05:53.851Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-11T12:56:40.975Z
+    at: 2026-10-12T12:05:53.851Z
 ---
 
 # Subsystem: WebRTC Peering and SDP Links
@@ -29,7 +31,7 @@ Peering is the connection-establishment layer: it turns two browsers into connec
 
 ## SDP encoding for URL transport
 
-Raw SDP is not URL-safe and is long. `sdpEncode` compacts it with `sdp-compact` (`compactSDP`) and substitutes RFC-3986-unsafe characters: `/`→`_`, `+`→`~`, `=`→`-`. `sdpDecode` reverses the substitutions before `decompactSDP`, with an `isOffer` flag matching the SDP role. This keeps links short and copy/paste/QR friendly. [`repo://src/utils/sdpEncode.ts#L1-L12`]
+Raw SDP is not URL-safe and is long. `sdpEncode` compacts it with `sdp-compact` (`compactSDP`) and substitutes RFC-3986-unsafe characters: `/`→`_`, `+`→`~`, `=`→`-`. `sdpDecode` reverses the substitutions before `decompactSDP`, with an `isOffer` flag matching the SDP role. This keeps links short and copy/paste/QR friendly. `sdpDecode` **throws synchronously** on malformed input — empty string, invalid base64, or a decompressed payload that is not SDP (PR #45 documented the contract in source; `tests/sdp-robustness.test.mjs` pins that sdp-compact v0.0.8 still throws), so every caller of user-controllable input must guard it with `try/catch`. [`repo://src/utils/sdpEncode.ts#L1-L14`], [`repo://tests/sdp-robustness.test.mjs`]
 
 ## Offer link contract (`/receive?s=...&i=...&c=...&p=...`)
 
@@ -46,7 +48,7 @@ STUN config comes from the built-in `STUN_SERVERS` list (Google/sipgate/nextclou
 
 ## Answer-code wire format
 
-The answer page produces `answerSDP = sdpEncode(localAnswerSdp) + '|' + publicKeyBase64`. The `|` delimiter is unambiguous because the encoded SDP character set excludes it. `publicKeyBase64` is empty unless encryption is on. The offer page's `acceptAnswer` splits on `|` and, when `isEncrypt`, imports the RSA public key inside a `try/catch` — a malformed or truncated answer code toasts "Invalid encryption key in answer code" and returns before `setRemoteDescription`, instead of leaving a half-configured connection with no visible error; on success it applies the decoded answer as the remote description. [`repo://src/components/ReceivePage.svelte#L116-L158`], [`repo://src/components/OfferPage.svelte#L141-L162`]
+The answer page produces `answerSDP = sdpEncode(localAnswerSdp) + '|' + publicKeyBase64`. The `|` delimiter is unambiguous because the encoded SDP character set excludes it. `publicKeyBase64` is empty unless encryption is on. The offer page's `acceptAnswer` splits on `|` and, when `isEncrypt`, imports the RSA public key inside a `try/catch` — a malformed or truncated answer code toasts "Invalid encryption key in answer code" and returns before `setRemoteDescription`, instead of leaving a half-configured connection with no visible error; on success the SDP decode + `setRemoteDescription` runs inside its own `try/catch` (PR #45): the answer code is user-pasted or QR-scanned with no validation, and `sdpDecode` throwing on a damaged payload would otherwise escape as an unhandled rejection, so it toasts "Invalid answer code" instead. [`repo://src/components/ReceivePage.svelte#L116-L132`], [`repo://src/components/OfferPage.svelte#L141-L170`]
 
 ## ICE candidate wait + timeout fallback
 
@@ -63,5 +65,7 @@ The **offer** side is the data-channel creator (`createDataChannel('data', { ord
 ## Failure behavior
 
 - Missing/empty `s` on the receive page: redirect to origin + throw (no offer to answer). [`repo://src/components/ReceivePage.svelte#L28-L31`]
+- **Malformed `s` on the receive page (PR #45):** the `s` param of a shared link is user-controllable; `sdpDecode` + `setRemoteDescription` in `setOfferSDP` run inside `try/catch`, so a crafted/truncated link toasts "Invalid SDP in link" instead of crashing the whole page during load. [`repo://src/components/ReceivePage.svelte#L116-L132`], [`repo://tests/sdp-robustness.test.mjs`]
+- **Malformed answer code on the offer page (PR #45):** the pasted/scanned answer SDP is decoded inside `try/catch` in `acceptAnswer`; a damaged payload toasts "Invalid answer code" instead of an unhandled rejection with no visible error. [`repo://src/components/OfferPage.svelte#L157-L169`], [`repo://tests/sdp-robustness.test.mjs`]
 - `onicecandidateerror`, `dataChannel.onerror`, `onclose`: toast an error, clear `isConnecting`, and (offer side) blank the offer link so a stale link isn't reused. [`repo://src/components/OfferPage.svelte#L75-L107`]
 - Encryption off: `p`/public key are absent, `isEncrypt` derives false on the receive side, and peering is unencrypted end-to-end at this layer. A malformed `p` (or `i` outside the allowlist) is likewise downgraded/fallen-back-to-default so the session never advertises what it cannot honor. [`repo://src/components/ReceivePage.svelte#L34-L37`], [`repo://src/components/ReceivePage.svelte#L46-L69`]

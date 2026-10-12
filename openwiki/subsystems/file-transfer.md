@@ -9,6 +9,8 @@ sources:
     resource: repo://src/components/OfferPage.svelte
   - id: openwiki-source-b44a738391e0dd972a16a1ef
     resource: repo://src/components/receiver/Receiver.svelte
+  - id: openwiki-source-42050754cc86d3d555b1aa6e
+    resource: repo://src/components/receiver/ReceiverOptions.svelte
   - id: openwiki-source-d6db73741d251c8c754ff256
     resource: repo://src/components/sender/Sender.svelte
   - id: openwiki-source-578f160ff71c06304de2a610
@@ -27,12 +29,14 @@ sources:
     resource: repo://tests/protocol-size.test.mjs
   - id: openwiki-source-c4b2cf9b87c8a0dd3815ff97
     resource: repo://tests/receiver-chunk-order.test.mjs
+  - id: openwiki-source-4a9f54b4f4a2e988b0daae2f
+    resource: repo://tests/receiver-options-size.test.mjs
   - id: openwiki-source-408384ecc13a9dc3929f90a4
     resource: repo://tests/zip.test.mjs
-generated: { by: 'hermes', at: '2026-10-11T12:56:40.975Z' }
+generated: { by: 'hermes', at: '2026-10-12T12:05:53.851Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-11T12:56:40.975Z
+    at: 2026-10-12T12:05:53.851Z
 ---
 
 # Subsystem: File Transfer Engine
@@ -101,6 +105,8 @@ Single-file and bulk download both route through `triggerDownload`, which create
 
 `validateFileMetadata` is the single size gate (returns an `Error` with a `humanFileSize`-rendered limit message; undefined when OK). Sender-side validation runs at pick time without a limit; receiver-side enforces `maxSize` in `onMetaData` after key handling. Errors surface through the nanostores `toastAtom` via `addToastMessage`, which both components import. [`repo://src/utils/validator.ts#L1-L8`], [`repo://src/components/receiver/Receiver.svelte#L67-L81`], [`repo://src/stores/toastStore.ts`]
 
+**Max Size options must be true byte values (PR #44).** `ReceiverOptions.svelte`'s "Max Size" dropdown options used to carry values 1024x smaller than their labels — "10 MB" was `10 * 1024` (10 KB), so selecting it rejected nearly every real file. The options now carry the values their labels mean: 10 MB → `10 * 1024 * 1024`, 100 MB → `100 * 1024 * 1024`, 1 GB, 10 GB, and "Unlimit" → 1 TiB (`DEFAULT_RECEIVE_OPTIONS.maxSize` stays 1 GB when nothing is selected). A second, silent bug was fixed in the same pass: `bind:value` on a `<select>` yields the DOM option value as a **string** after user interaction, and the raw string broke `humanFileSize` rendering (`Number.isFinite` fails → "0 B" in error toasts); `onChange` therefore coerces with `Number(maxSize)` and falls back to `DEFAULT_RECEIVE_OPTIONS.maxSize` when the parse is not finite, keeping `ReceiveOptions.maxSize` a number at runtime. [`repo://src/components/receiver/ReceiverOptions.svelte#L16-L23`], [`repo://src/components/receiver/ReceiverOptions.svelte#L44-L51`]
+
 ## Invariants & failure behavior
 
 - **Chunk order is protocol- and runtime-enforced, not channel-ordered**: the data channel is created `ordered: false`; correctness now rests on two layers — the single-writer sender loop per file (one `RECEIVED_CHUNK` → one chunk, sender stays one round-trip ahead) AND the receiver's per-file promise-chain serialization (`serializeTask`), which guarantees receiver-side assembly happens in strict arrival order even when WebCrypto decrypt completions are out of order. [`repo://src/components/OfferPage.svelte#L79-L81`], [`repo://src/utils/serialize.ts#L1-L20`], [`repo://src/components/receiver/Receiver.svelte#L88-L110`]
@@ -108,4 +114,4 @@ Single-file and bulk download both route through `triggerDownload`, which create
 - **Late/stray chunks are dropped, not fatal**: chunks for unknown/uninitialized file ids are ignored at the `onChunkData` guard, and `processChunk` re-checks the chunk map after the decrypt await (a file may be removed/denied mid-flight); a failing chunk cannot stall its file's queue.
 - Completion is exact-size based: both sides stop when the declared `metaData.size` is fully sent/received; there is no file trailer or checksum, so integrity relies on GCM authentication (encryption on) or DTLS data integrity.
 - **`MetaData.size` is `int64` on the wire** (PR #42 / commit 721c502; was `int32`): the widened field means files of 2 GiB or larger no longer throw `invalid int32` during `Message.encode`, so the exact-size completion invariant now holds for arbitrarily large files (up to JS's safe-integer limit) rather than only below the 2 GiB `int32` ceiling. [`repo://src/proto/message.proto#L1-L8`], [`repo://tests/protocol-size.test.mjs#L33-L52`]
-- **Regression coverage**: `tests/receiver-chunk-order.test.mjs` drives `serializeTask` exactly as `onChunkData` wires it (mocked decrypt resolving the first chunk slowest) and asserts strict arrival-order assembly; `tests/zip.test.mjs` checks CRC-32 vectors and round-trips `createZipStoreOnly` output through an external unzip; `tests/protocol-size.test.mjs` pins the `int64` `MetaData.size` wire encoding by encoding and round-tripping 3 GiB and `MAX_SAFE_INTEGER` sizes through the generated proto. [`repo://tests/receiver-chunk-order.test.mjs`], [`repo://tests/zip.test.mjs`], [`repo://tests/protocol-size.test.mjs`]
+- **Regression coverage**: `tests/receiver-chunk-order.test.mjs` drives `serializeTask` exactly as `onChunkData` wires it (mocked decrypt resolving the first chunk slowest) and asserts strict arrival-order assembly; `tests/zip.test.mjs` checks CRC-32 vectors and round-trips `createZipStoreOnly` output through an external unzip; `tests/protocol-size.test.mjs` pins the `int64` `MetaData.size` wire encoding by encoding and round-tripping 3 GiB and `MAX_SAFE_INTEGER` sizes through the generated proto; `tests/receiver-options-size.test.mjs` (PR #44) statically asserts every "Max Size" `<option value={...}>label</option>` pair carries the byte value its label names, the "Unlimit" option is 1 TiB, and `onChange` coerces the select value to a number before emitting `ReceiveOptions.maxSize`. [`repo://tests/receiver-chunk-order.test.mjs`], [`repo://tests/zip.test.mjs`], [`repo://tests/protocol-size.test.mjs`], [`repo://tests/receiver-options-size.test.mjs`]

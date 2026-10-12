@@ -19,17 +19,17 @@ sources:
     resource: repo://src/utils/crypto.ts
   - id: openwiki-source-c71f006df30e67d6d4f288ab
     resource: repo://tests/crypto.test.mjs
-generated: { by: 'hermes', at: '2026-10-11T12:56:40.975Z' }
+generated: { by: 'hermes', at: '2026-10-12T12:05:53.851Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-11T12:56:40.975Z
+    at: 2026-10-12T12:05:53.851Z
 ---
 
 # Subsystem: Encryption (WebCrypto)
 
 Zero Share layers **optional application-layer file encryption** on top of WebRTC's DTLS. The motivation (per the README): DTLS secures the channel, but the unauthenticated SDP offer/answer link exchange is exposed to man-in-the-middle attack, so file content gets a second, independent encryption layer. All crypto uses the browser-native WebCrypto API (`crypto.subtle`) — no crypto dependencies are installed. [`repo://README.md#L30-L36`], [`repo://src/utils/crypto.ts#L1-L23`]
 
-> **Factual state at HEAD:** the configuration is **RSA-OAEP with `modulusLength: 2048`** and **AES-GCM with `length: 256`**. (The 2026-10 commit that bumped the symmetric key changed AES 128→256; a follow-up commit raised the RSA modulus 1024→2048, and `tests/crypto.test.mjs` — the first of the four `npm test` regression guards — pins the 2048-bit modulus so any future revert fails `npm test`.) The README's "PGP" label is informal — the implementation is pure WebCrypto RSA-OAEP + AES-GCM. [`repo://src/utils/crypto.ts#L1-L11`], [`repo://tests/crypto.test.mjs#L6-L21`]
+> **Factual state at HEAD:** the configuration is **RSA-OAEP with `modulusLength: 2048`** and **AES-GCM with `length: 256`**. (The 2026-10 commit that bumped the symmetric key changed AES 128→256; a follow-up commit raised the RSA modulus 1024→2048, and `tests/crypto.test.mjs` — the first of the six `npm test` regression guards — pins the 2048-bit modulus so any future revert fails `npm test`.) The README's "PGP" label is informal — the implementation is pure WebCrypto RSA-OAEP + AES-GCM. [`repo://src/utils/crypto.ts#L1-L11`], [`repo://tests/crypto.test.mjs#L6-L21`]
 
 ## Key management: one RSA pair per peer, one AES key per file
 

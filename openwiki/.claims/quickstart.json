@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e237f1b6dc500583dc3be7ef06922d8b0f77d2999c5aa008e40439812733b241",
+  "pageVersion": "sha256:cad41c9932d8ffe8e68eb3e6993b7aa6060e38cd6d387b11fec9d37b3b62c38b",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -16,13 +16,13 @@
         },
         {
           "resource": "repo://package.json#L1-L40",
-          "version": "repo-lines-v1:sha256:dd7f16c9ebcaa6eb9a656a47e5449867e4bea59214e0ae16681a894790a70f95:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NWJjMTA1NzYxNzcyYTIyZjVlYjU1NmI4YzhmYTU5OGNmOTQzMTI4Njk1ZTVkNTU5YzIzMjQ5ZTBlYmVjYjMifQ"
+          "version": "repo-lines-v1:sha256:ea8f7c3b46da1e9fc4e6abc5787b75792cb0ff2373072a5a1875742eb56ec615:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NWJjMTA1NzYxNzcyYTIyZjVlYjU1NmI4YzhmYTU5OGNmOTQzMTI4Njk1ZTVkNTU5YzIzMjQ5ZTBlYmVjYjMifQ"
         }
       ]
     },
     {
       "id": "claim_0d8574c6717049c2b9b514639210ae5f",
-      "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (STUN override, accepted only when in the STUN_SERVERS allowlist), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only; a malformed key downgrades the session to plaintext with an error toast); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>.",
+      "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (STUN override, accepted only when in the STUN_SERVERS allowlist), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only; a malformed key downgrades the session to plaintext with an error toast); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>. sdpDecode throws synchronously on empty, invalid-base64, or non-SDP input, so both user-controllable decode sites (the s link param and the answer code) are guarded with try/catch and surface an error toast instead of crashing the page (PR #45).",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L43-L60",
@@ -33,14 +33,14 @@
           "version": "repo-lines-v1:sha256:553b3faf455d30e1beed0fa79bb5106f578118c39df222925c447a986c343496:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjZGQ2NjA0YTRlYmQwNDc1NGQ4MDZhODJmMjhkOGZjODk4MmZhMzQ5YjI3OGM0NThjNjNiOWYwOGMxMjNkMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmM2RjMGU0ZTFkYjczYjg5ZThmNjZhMWMzMDA3MDAzOWIwYzZiMWRlMzFjN2UwZjI5ZWU2MTk5YjMzNTZjMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAzMTNkM2RiYWFlMWM3ZDdiNDZlMjQwMzZjNDE2N2Q0YzY3MzYyMjFlYzQ3Zjk5NDIxNzExYzUyMWNhMjEyN2QifQ"
         },
         {
-          "resource": "repo://src/utils/sdpEncode.ts#L1-L12",
-          "version": "repo-lines-v1:sha256:545d814f469b6c8746e1fba2c9e30ab6d9ede9a49de321a84fc2270c8028ba08:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZmUyOWI3N2Y3M2M2N2VmMjFmOThiNzBhNTU4NjVlMWMyNmM4YTc4ZWJhOWNjODVkMjgwZDg4OGEwZTVlOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/utils/sdpEncode.ts#L1-L14",
+          "version": "repo-lines-v1:sha256:09ef7b5faf799f49424b876f746592ad7607e9fd4f59131fa790fa286c5884a7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZmUyOWI3N2Y3M2M2N2VmMjFmOThiNzBhNTU4NjVlMWMyNmM4YTc4ZWJhOWNjODVkMjgwZDg4OGEwZTVlOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
     {
       "id": "claim_02260b9d041440448fda65b10f4bc46c",
-      "statement": "Connection setup is offer-link driven: the offer peer generates an RTCPeerConnection, data channel, and SDP offer (waiting up to 3 seconds for ICE candidates), while the answer peer decodes the offer from the URL, awaits the validated p-param key import, generates the answer plus its RSA key pair (when encrypted), and returns the answer code; the channel opens on both sides once the offer peer accepts it.",
+      "statement": "Connection setup is offer-link driven: the offer peer generates an RTCPeerConnection, data channel, and SDP offer (waiting up to 3 seconds for ICE candidates), while the answer peer decodes the user-controllable offer SDP from the URL inside a try/catch (toast 'Invalid SDP in link' instead of a page crash, PR #45), awaits the validated p-param key import, generates the answer plus its RSA key pair (when encrypted), and returns the answer code; the channel opens on both sides once the offer peer accepts it (answer SDP decode also guarded with try/catch, toast 'Invalid answer code', PR #45).",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L62-L134",
@@ -48,13 +48,13 @@
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L82-L160",
-          "version": "repo-lines-v1:sha256:a40dd39bcccb3da1751fc1cf6f6931d5dc573a85757322333af7ad1a66670d6d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMWU1ZmMxZWE4ZTQ1MzRjZDQ5OTUzOTk1MjY5NmI3NjMxZTJjYTgxNzZkMTJjMzdiZDQ5Zjg1ODY0ZmMyMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MWUwNDg4MDBiNWJlYmI2YjU1NjhmNGNjMzljNTE5ZGU3NjMwYTg0OGE0ZWQyOWYzYWRlN2ViMDY0ZWVlN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0Yzk2YWMxNjIxNjRhYTYzNWQ0OGU3ODkwYjBmNzFlZjA3ZjU3ZGY2OTQ0MTZiNmM5OTY5YjFlYTVmYzBiNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMWRkYTE2ZDMzYTljYjJmYjE0NTEzYjAwOTdjYmNjYTVjNTI2NWFjYzQzNzgyZTgyNzJiOTk0MWI4ZjY0Y2MifQ"
+          "version": "repo-lines-v1:sha256:e017dabfb6142d23f6942878689777669ac356a882ef349145cbd08f670cf30f:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMWU1ZmMxZWE4ZTQ1MzRjZDQ5OTUzOTk1MjY5NmI3NjMxZTJjYTgxNzZkMTJjMzdiZDQ5Zjg1ODY0ZmMyMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MWUwNDg4MDBiNWJlYmI2YjU1NjhmNGNjMzljNTE5ZGU3NjMwYTg0OGE0ZWQyOWYzYWRlN2ViMDY0ZWVlN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0Yzk2YWMxNjIxNjRhYTYzNWQ0OGU3ODkwYjBmNzFlZjA3ZjU3ZGY2OTQ0MTZiNmM5OTY5YjFlYTVmYzBiNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMWRkYTE2ZDMzYTljYjJmYjE0NTEzYjAwOTdjYmNjYTVjNTI2NWFjYzQzNzgyZTgyNzJiOTk0MWI4ZjY0Y2MifQ"
         }
       ]
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (four regression guards in sequence: node tests/crypto.test.mjs && node tests/zip.test.mjs && node tests/receiver-chunk-order.test.mjs && node tests/protocol-size.test.mjs — RSA-OAEP 2048-bit modulus, store-only ZIP writer round-trip, per-file chunk-order serialization, and MetaData.size int64 wire encoding), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (prettier --write + eslint --fix), then build (tsc --noEmit + astro build), then test (npm test — all four guards).",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (six regression guards in sequence: node tests/crypto.test.mjs && node tests/zip.test.mjs && node tests/receiver-chunk-order.test.mjs && node tests/protocol-size.test.mjs && node tests/receiver-options-size.test.mjs && node --no-warnings tests/sdp-robustness.test.mjs — RSA-OAEP 2048-bit modulus, store-only ZIP writer round-trip, per-file chunk-order serialization, MetaData.size int64 wire encoding, receiver Max Size option values/numeric coercion per PR #44, and guarded sdpDecode call sites per PR #45), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (prettier --write . + eslint . --fix), then build (tsc --noEmit + astro build), then test (npm test — all six guards).",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh#L28-L45",
@@ -66,7 +66,7 @@
         },
         {
           "resource": "repo://package.json#L6-L16",
-          "version": "repo-lines-v1:sha256:e01c8871cdeea93197c2a6f5dcbfc18c7699950800e70d7665d9c5893e5b386c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
+          "version": "repo-lines-v1:sha256:783c89078af05a12feb5addf0ca99b5576e5068343a89f8c61c948aec79633ec:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
         },
         {
           "resource": "repo://tests/crypto.test.mjs#L6-L21",
@@ -79,6 +79,14 @@
         {
           "resource": "repo://tests/receiver-chunk-order.test.mjs",
           "version": "repo-file-v1:sha256:639b4f0d287aff5af80df649a19b701ea7c67e09e86242a8a0befae36e74f9a4"
+        },
+        {
+          "resource": "repo://tests/receiver-options-size.test.mjs",
+          "version": "repo-file-v1:sha256:394fa85500dcf2169d945212140a6248cc3f4da2364b74957275c5df00b54028"
+        },
+        {
+          "resource": "repo://tests/sdp-robustness.test.mjs",
+          "version": "repo-file-v1:sha256:f92f84690baf871b2ba5d1e0638acdb6bf58f2a12de24c4bc0810f3d9db85651"
         },
         {
           "resource": "repo://tests/zip.test.mjs",
@@ -121,6 +129,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-11T12:56:40.975Z"
+    "at": "2026-10-12T12:05:53.851Z"
   }
 }

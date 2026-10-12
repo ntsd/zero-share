@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:af03dd5b90c75fc3ebdb72c5e73eb89c281393351e1f382b6540a76d03de4be0",
+  "pageVersion": "sha256:be7099797cf8cd8f5868ee50e1671f8d859e794a778054784136d55de4176500",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -74,11 +74,11 @@
     },
     {
       "id": "claim_168fa874ca494eb0b49c143450d46e27",
-      "statement": "The answer peer decodes the offer SDP from the URL into setRemoteDescription, awaits the validated p-param key import, creates a local answer, and produces an answer code of the form sdpEncode(answerSdp) + '|' + base64(RSA public key), with the same 3-second ICE candidate timeout fallback.",
+      "statement": "The answer peer decodes the attacker-controllable `s` URL param via sdpDecode (which throws synchronously on empty, invalid-base64, or non-SDP input) inside a try/catch that surfaces an 'Invalid SDP in link' error toast instead of crashing the page during load (PR #45), awaits the validated p-param key import, creates a local answer, and produces an answer code of the form sdpEncode(answerSdp) + '|' + base64(RSA public key), with the same 3-second ICE candidate timeout fallback.",
       "evidence": [
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L116-L158",
-          "version": "repo-lines-v1:sha256:0b4d0b3e0b249810e6a293b1d80cab32400ed2c2f525656189e7b496da288a82:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZGE3OWRhZDg3MTg3ZDkwOWQ3ZDM0NzFjYjNlNGQyZjM4YzA2YTg4MDRlMTVkODEyMGU2NzI2OGM1M2U1ZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlOTkwNWZiYjU5OWVmYmMzNDU2ZTYwZWU4OWY0Y2JiYmFiOWQ5NWI2OGIxMjQyMjkzMTFkNTlmY2QzMThhMjIifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L116-L132",
+          "version": "repo-lines-v1:sha256:23e4ffa4615576a8bdf315aa3fd11d35228c8372c48b0b2215152c78117c9082:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0ZTM1Yjk5YmJlNWUxYjZjNzYyYTk1Yzg0NWFjOGRjMzhmMmYzMDE5MzRmNTc4NzQ3Mzc3OWEwYzZjOTVmNDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxY2I5OWJjNmM0NTUzNWEzNjM2ZmU4MmU2NzlhZTA5YWRkNDkwMWJlNzVjYzBmMDAzOWJkMzI4NTQ2ZGMxNzIifQ"
         }
       ]
     },
@@ -191,6 +191,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-11T12:56:40.975Z"
+    "at": "2026-10-12T12:05:53.851Z"
   }
 }

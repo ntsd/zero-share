@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-11T12:56:40.975Z
+    at: 2026-10-12T12:05:53.851Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -30,7 +30,7 @@ sources:
     resource: repo://src/utils/crypto.ts
   - id: openwiki-source-edd2d815ffc75024b7c21d45
     resource: repo://tests/protocol-size.test.mjs
-generated: { by: 'hermes', at: '2026-10-11T12:56:40.975Z' }
+generated: { by: 'hermes', at: '2026-10-12T12:05:53.851Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -47,10 +47,10 @@ Zero Share is a **serverless, client-side P2P file-sharing web app**: two browse
 ## Control flow (connection establishment)
 
 1. The **offer** peer creates an `RTCPeerConnection`, opens a data channel (`ordered: false` — ordering is handled by the message protocol), generates a local offer, and encodes the SDP into a shareable `?s=...` link on the `/receive` route. Link generation waits for ICE candidates to finish, with a 3-second timeout fallback. [`repo://src/components/OfferPage.svelte#L62-L134`]
-2. The **answer** peer opens the offer link, decodes the SDP from the URL, sets it as the remote offer, creates a local answer, and produces an **answer code** = `sdpEncode(answerSdp) + '|' + base64(RSA public key)`. Before freezing the answer, it awaits the import of the offer peer's RSA key from the `p` param; a malformed key downgrades the session to plaintext (with an error toast) so the answer never advertises encryption the peer cannot honor. [`repo://src/components/ReceivePage.svelte#L46-L59`], [`repo://src/components/ReceivePage.svelte#L132-L142`]
-3. The offer peer pastes (or QR-scans) the answer code, and when encryption is on, validates the answer's RSA public key (malformed/truncated code → error toast and abort, instead of a half-configured connection); then applies the answer as the remote description. Once `dataChannel.onopen` fires, the transfer UI unlocks on both sides. [`repo://src/components/OfferPage.svelte#L141-L162`]
+2. The **answer** peer opens the offer link, decodes the SDP from the URL, sets it as the remote offer, creates a local answer, and produces an **answer code** = `sdpEncode(answerSdp) + '|' + base64(RSA public key)`. Before freezing the answer, it awaits the import of the offer peer's RSA key from the `p` param; a malformed key downgrades the session to plaintext (with an error toast) so the answer never advertises encryption the peer cannot honor. The offer-SDP decode + `setRemoteDescription` step is wrapped in `try/catch`: `s` is user-controllable via the shared link and `sdpDecode` throws synchronously on empty, invalid-base64, or non-SDP input, so a crafted link surfaces an "Invalid SDP in link" error toast instead of crashing the whole page during load (PR #45). [`repo://src/components/ReceivePage.svelte#L46-L59`], [`repo://src/components/ReceivePage.svelte#L116-L132`]
+3. The offer peer pastes (or QR-scans) the answer code, and when encryption is on, validates the answer's RSA public key (malformed/truncated code → error toast and abort, instead of a half-configured connection); then applies the answer as the remote description — likewise inside a `try/catch`, since the pasted/scanned SDP may be malformed and would otherwise escape as an unhandled rejection with no visible error (PR #45). Once `dataChannel.onopen` fires, the transfer UI unlocks on both sides. [`repo://src/components/OfferPage.svelte#L141-L170`]
 
-SDP text is made URL-safe by `sdp-compact` compaction plus character substitutions (`/`→`_`, `+`→`~`, `=`→`-`), keeping share links short and safe. See `subsystems/peering.md` for the full link and code formats.
+SDP text is made URL-safe by `sdp-compact` compaction plus character substitutions (`/`→`_`, `+`→`~`, `=`→`-`), keeping share links short and safe. `sdpDecode` throws synchronously on malformed input (empty, invalid base64, or a decompressed payload that is not SDP), so every caller must guard with `try/catch`. See `subsystems/peering.md` for the full link and code formats.
 
 ## Data flow (file transfer)
 

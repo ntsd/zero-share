@@ -140,28 +140,38 @@
       );
     }
     generating = true;
-    await createPeerAndDataCannel();
+    try {
+      // `new RTCPeerConnection` / `createDataChannel` can throw synchronously
+      // (e.g. SecurityError for an invalid iceServers config,
+      // NotFoundError) and `createOffer` / `setLocalDescription` can reject —
+      // surface any of them instead of an unhandled rejection that leaves the
+      // "Generating Offer" spinner stuck forever, and re-enable the button
+      await createPeerAndDataCannel();
 
-    connection.onicecandidate = async (event) => {
-      if (!event.candidate && connection.localDescription) {
+      connection.onicecandidate = async (event) => {
+        if (!event.candidate && connection.localDescription) {
+          await createSDPLink(connection.localDescription);
+          generating = false;
+        }
+      };
+
+      const offer = await connection.createOffer({
+        offerToReceiveVideo: false,
+        offerToReceiveAudio: false
+      });
+      await connection.setLocalDescription(offer);
+
+      // stop waiting for ice candidates if longer than timeout
+      setTimeout(async () => {
+        if (!connection.localDescription || !generating) return;
+        addToastMessage('timeout waiting ICE candidates');
         await createSDPLink(connection.localDescription);
         generating = false;
-      }
-    };
-
-    const offer = await connection.createOffer({
-      offerToReceiveVideo: false,
-      offerToReceiveAudio: false
-    });
-    await connection.setLocalDescription(offer);
-
-    // stop waiting for ice candidates if longer than timeout
-    setTimeout(async () => {
-      if (!connection.localDescription || !generating) return;
-      addToastMessage('timeout waiting ICE candidates');
-      await createSDPLink(connection.localDescription);
+      }, WAIT_ICE_CANDIDATES_TIMEOUT);
+    } catch {
       generating = false;
-    }, WAIT_ICE_CANDIDATES_TIMEOUT);
+      addToastMessage('Could not generate the offer', 'error');
+    }
   }
 
   async function copyOfferLink() {

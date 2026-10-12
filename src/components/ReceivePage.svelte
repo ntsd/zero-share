@@ -114,13 +114,20 @@
   };
 
   async function setOfferSDP(sdpEncoded: string) {
-    const sdpDecoded = sdpDecode(sdpEncoded, true);
-    const sessionDesc: RTCSessionDescriptionInit = {
-      type: 'offer',
-      sdp: sdpDecoded
-    };
+    // validate `s` (user-controllable via the shared link): `sdpDecode` throws
+    // synchronously on empty, invalid-base64, or non-SDP input, which would
+    // otherwise crash the whole page during load instead of surfacing an error
+    try {
+      const sdpDecoded = sdpDecode(sdpEncoded, true);
+      const sessionDesc: RTCSessionDescriptionInit = {
+        type: 'offer',
+        sdp: sdpDecoded
+      };
 
-    await connection.setRemoteDescription(sessionDesc);
+      await connection.setRemoteDescription(sessionDesc);
+    } catch {
+      addToastMessage('Invalid SDP in link', 'error');
+    }
   }
   setOfferSDP(sdpEncoded);
 

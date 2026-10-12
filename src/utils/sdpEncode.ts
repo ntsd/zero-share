@@ -7,6 +7,8 @@ export function sdpEncode(s: string): string {
   return compactSDP(s).replace(/\//g, '_').replace(/\+/g, '~').replace(/=/g, '-');
 }
 
+// Throws synchronously on malformed input (empty string, invalid base64, or
+// a decompressed payload that is not SDP) — callers must guard with try/catch.
 export function sdpDecode(s: string, isOffer: boolean): string {
   return decompactSDP(s.replace(/_/g, '/').replace(/~/g, '+').replace(/-/g, '='), isOffer);
 }

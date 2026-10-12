@@ -3,7 +3,7 @@
     CHUNK_SIZE_OPTIONS,
     DEFAULT_SEND_OPTIONS,
     GITHUB_LINK,
-    STUN_SERVERS,
+    isSupportedIceServer,
     WAIT_ICE_CANDIDATES_TIMEOUT
   } from '../configs';
   import { addToastMessage } from '../stores/toastStore';
@@ -60,13 +60,21 @@
     : Promise.resolve(undefined);
 
   // webRTC
-  // validate `i` (user-controllable via the shared link): only accept a server
-  // from the known STUN allowlist — anything else falls back to the default so
-  // the peer's WebRTC stack is never pointed at an attacker-controlled
-  // endpoint.
+  // validate `i` (user-controllable via the shared link): use the same
+  // isSupportedIceServer predicate the sender uses to emit the value, so a
+  // server the sender chose (including a custom TURN URL) is always honored
+  // here — the two peers must agree on their ICE server or NAT traversal and
+  // TURN relaying break. Only well-formed `stun:`/`turn:` URLs are accepted;
+  // anything else downgrades to the default and a toast surfaces the downgrade
+  // instead of failing silently.
   const iceParam = params['i'];
-  const iceServer =
-    iceParam && STUN_SERVERS.includes(iceParam) ? iceParam : DEFAULT_SEND_OPTIONS.iceServer;
+  const iceServer = isSupportedIceServer(iceParam) ? iceParam : DEFAULT_SEND_OPTIONS.iceServer;
+  if (iceParam && iceServer !== iceParam) {
+    addToastMessage(
+      `Invalid ICE server in link, using default (${DEFAULT_SEND_OPTIONS.iceServer})`,
+      'error'
+    );
+  }
   let answerSDP = $state('');
   // set when the remote offer could not be applied (invalid `s` param or a
   // rejected setRemoteDescription): the answer can never be generated, so the

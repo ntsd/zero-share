@@ -1,14 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:1cdcea9a2f62501474995a3f957d24363dadb289c3db867fe8b37c7c6a7ce915",
+  "pageVersion": "sha256:da5e6c5eec3a7fae3a190b9da8b7c481eac8e4801658f9d4aa48c4cd20b79df7",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
-      "statement": "SDP is made URL-safe for link transport via sdp-compact compaction plus character substitutions (/ -> _, + -> ~, = -> -) on encode and their reversal on decode, with an isOffer flag matching the SDP role.",
+      "statement": "SDP is made URL-safe for link transport via sdp-compact compaction plus character substitutions (/ -> _, + -> ~, = -> -) on encode and their reversal on decode, with an isOffer flag matching the SDP role; sdpDecode throws synchronously on malformed input (empty string, invalid base64, or a decompressed payload that is not SDP), so callers of user-controllable input must guard with try/catch (documented in source at PR #45; tests/sdp-robustness.test.mjs pins the throw behavior).",
       "evidence": [
         {
-          "resource": "repo://src/utils/sdpEncode.ts#L1-L12",
-          "version": "repo-lines-v1:sha256:545d814f469b6c8746e1fba2c9e30ab6d9ede9a49de321a84fc2270c8028ba08:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZmUyOWI3N2Y3M2M2N2VmMjFmOThiNzBhNTU4NjVlMWMyNmM4YTc4ZWJhOWNjODVkMjgwZDg4OGEwZTVlOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/utils/sdpEncode.ts#L1-L14",
+          "version": "repo-lines-v1:sha256:09ef7b5faf799f49424b876f746592ad7607e9fd4f59131fa790fa286c5884a7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZmUyOWI3N2Y3M2M2N2VmMjFmOThiNzBhNTU4NjVlMWMyNmM4YTc4ZWJhOWNjODVkMjgwZDg4OGEwZTVlOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/sdp-robustness.test.mjs",
+          "version": "repo-file-v1:sha256:f92f84690baf871b2ba5d1e0638acdb6bf58f2a12de24c4bc0810f3d9db85651"
         }
       ]
     },
@@ -42,15 +46,15 @@
     },
     {
       "id": "claim_80c165723d094986bff45bde70e5e214",
-      "statement": "The answer-code wire format is sdpEncode(localAnswerSdp) + '|' + publicKeyBase64 (public key empty unless encryption is on); the offer peer splits on '|', imports the RSA public key when isEncrypt inside a try/catch that toasts 'Invalid encryption key in answer code' and aborts on failure, and applies the decoded answer via setRemoteDescription on success.",
+      "statement": "The answer-code wire format is sdpEncode(localAnswerSdp) + '|' + publicKeyBase64 (public key empty unless encryption is on); the offer peer splits on '|', imports the RSA public key when isEncrypt inside a try/catch that toasts 'Invalid encryption key in answer code' and aborts on failure, and applies the decoded answer via setRemoteDescription inside its own try/catch that toasts 'Invalid answer code' on malformed SDP (PR #45). The receive page likewise decodes the user-controllable s param and calls setRemoteDescription inside a try/catch that toasts 'Invalid SDP in link' instead of crashing the page during load (PR #45).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L141-L162",
-          "version": "repo-lines-v1:sha256:df61f6a9441813b2169be08c5b2ee2ec52999ac12fe299ac427521f10c7b65a4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L141-L170",
+          "version": "repo-lines-v1:sha256:d84ca2250f0b0ab30b9b58a5ef6a86167d39abe263d7cd508ef6618148de93b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L116-L158",
-          "version": "repo-lines-v1:sha256:0b4d0b3e0b249810e6a293b1d80cab32400ed2c2f525656189e7b496da288a82:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZGE3OWRhZDg3MTg3ZDkwOWQ3ZDM0NzFjYjNlNGQyZjM4YzA2YTg4MDRlMTVkODEyMGU2NzI2OGM1M2U1ZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlOTkwNWZiYjU5OWVmYmMzNDU2ZTYwZWU4OWY0Y2JiYmFiOWQ5NWI2OGIxMjQyMjkzMTFkNTlmY2QzMThhMjIifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L116-L132",
+          "version": "repo-lines-v1:sha256:23e4ffa4615576a8bdf315aa3fd11d35228c8372c48b0b2215152c78117c9082:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0ZTM1Yjk5YmJlNWUxYjZjNzYyYTk1Yzg0NWFjOGRjMzhmMmYzMDE5MzRmNTc4NzQ3Mzc3OWEwYzZjOTVmNDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxY2I5OWJjNmM0NTUzNWEzNjM2ZmU4MmU2NzlhZTA5YWRkNDkwMWJlNzVjYzBmMDAzOWJkMzI4NTQ2ZGMxNzIifQ"
         }
       ]
     },
@@ -135,6 +139,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-11T12:56:40.975Z"
+    "at": "2026-10-12T12:05:53.851Z"
   }
 }

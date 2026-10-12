@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:b9fafd29fa7637ab1b875c18138373ccd0f37c44f7aecef6faf4454c9f3d5d3f",
+  "pageVersion": "sha256:87bc246e850e22f93b8069feec0eb3b15884799016bf7274d16d3ee9536d807a",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -128,11 +128,11 @@
     },
     {
       "id": "claim_85040d6ca22c4a45981a13d163065e72",
-      "statement": "tests/crypto.test.mjs is a regression guard (the first in the `npm test` chain) that asserts the RSA-OAEP modulusLength constant in src/utils/crypto.ts is 2048 and that a freshly generated RSA public key exports as a 2048-bit modulus — any future silent revert of the constant to 1024 fails the test.",
+      "statement": "tests/crypto.test.mjs is the first of the six `npm test` regression guards (node tests/crypto.test.mjs && node tests/zip.test.mjs && node tests/receiver-chunk-order.test.mjs && node tests/protocol-size.test.mjs && node tests/receiver-options-size.test.mjs && node --no-warnings tests/sdp-robustness.test.mjs); it asserts the RSA-OAEP modulusLength constant in src/utils/crypto.ts is 2048 and that a freshly generated RSA public key exports as a 2048-bit modulus, so any future silent revert of the constant to 1024 fails the test.",
       "evidence": [
         {
-          "resource": "repo://package.json#L10-L10",
-          "version": "repo-lines-v1:sha256:ff6b2a259f83ac2032bbb2eea25300bc294eb76c915300bb2921bd3ee94c4817:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY2YjJhMjU5ZjgzYWMyMDMyYmJiMmVlYTI1MzAwYmMyOTRlYjc2YzkxNTMwMGJiMjkyMWJkM2VlOTRjNDgxNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY2YjJhMjU5ZjgzYWMyMDMyYmJiMmVlYTI1MzAwYmMyOTRlYjc2YzkxNTMwMGJiMjkyMWJkM2VlOTRjNDgxNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmMyYjdmN2EzMDBmMTRiOWI0OGI2NmE5ZTA0ZTc2YjUwMzJlNjEyNmU3MjEzNTBmMGU3ZTE4NDUwYThkYmU5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTk4ZjQ0OWJlMzNhOGFkOGJiZjg1YjcyOWQ0OTEzYWRkZGZhZWVkZWFhMWM3ZmNlNDk2MjhkMWQyZjA4ZGJmNiJ9"
+          "resource": "repo://package.json#L1-L40",
+          "version": "repo-lines-v1:sha256:b0348de48a57d9cc063f51374ea1f5f6c7975288e0c39d733f563f350e95b5fc:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NWY5YjVhYjM5NTFlMjcyMGYyNTZjNmYzNzllOGU1ZmU5ZWY5NzE4YTFlNTQ1MGViMzlkNDc1OWNhYTg1ZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMmJjMDliYWY5MGI4MDk4MDg2YmNlYzE2NjRlMGU1OWZjZmJmNjc1YjE5MTMyYzg1MmZlZjg3YzFiMGZlOGUifQ"
         },
         {
           "resource": "repo://tests/crypto.test.mjs#L6-L21",
@@ -153,6 +153,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-11T12:56:40.975Z"
+    "at": "2026-10-12T12:05:53.851Z"
   }
 }

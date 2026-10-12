@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:398d87e9baeed57903d668df207be1ad7afc9097799fd77d1d20086cffd542d8",
+  "pageVersion": "sha256:31351fc25677b5750f0160851736cfce469705e3b083a0b7024f1d11c7d6dbdd",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -221,10 +221,24 @@
           "version": "repo-lines-v1:sha256:a5ce965e4b1e0d6647d41bd793ebf8d846c40ec1151e2d23ae24218b35d2fd4f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjNGY5MjlmODczYjIzYmNjMzZlZTY1NWRiOTY3NDE4YTVmN2Y4Mjk3M2M1NmVhZGNmYmQ5YWIwMTU3NmEwMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmZTYzN2E4OWJmYzYwZGQ3MTc3MDA1NjBlMTM4NTZjNjM3Yzc0NWU2MzFlMzE2MzQ4OTdmNmQ0YzQxNWNlZGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2YjUyY2NiMDRjYWM5NTNlNzExMWZiZTE2MmY0ODVmODQ5ZjM0NTk0ZjljNDBhMzIzZjcwYjNiNTI3NDFmMjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4Zjk0OTZhOTg0NTQ1M2I5MWI4ZThlODExYzlkZDIyNzZiYWJiYzU2NjgzODk4OGYyMzQ3NGZjZjFmMThlMTQifQ"
         }
       ]
+    },
+    {
+      "id": "claim_11213eddf7234cdebeadcbe06e9cfeda",
+      "statement": "The receiver 'Max Size' dropdown options carry true byte values matching their labels (10 MB = 10 * 1024 * 1024, 100 MB = 100 * 1024 * 1024, 'Unlimit' = 1 TiB); previously the 10/100 MB options were 1024x smaller than their labels and enforced KB limits (PR #44). onChange coerces the select value with Number(maxSize) and falls back to DEFAULT_RECEIVE_OPTIONS.maxSize when not finite, because bind:value on a <select> yields a string after user interaction, so ReceiveOptions.maxSize stays a number at runtime. tests/receiver-options-size.test.mjs statically pins these option values and the coercion.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/ReceiverOptions.svelte",
+          "version": "repo-file-v1:sha256:227969a7ce7a6b0f9a7436de893ba5f01edb92f0e5c41e7048dc0017c48b6290"
+        },
+        {
+          "resource": "repo://tests/receiver-options-size.test.mjs",
+          "version": "repo-file-v1:sha256:394fa85500dcf2169d945212140a6248cc3f4da2364b74957275c5df00b54028"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-11T12:56:40.975Z"
+    "at": "2026-10-12T12:05:53.851Z"
   }
 }

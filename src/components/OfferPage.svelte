@@ -154,11 +154,19 @@
       }
     }
 
-    const remoteDesc: RTCSessionDescriptionInit = {
-      type: 'answer',
-      sdp: sdpDecode(sdp, false)
-    };
-    await connection.setRemoteDescription(remoteDesc);
+    // validate the SDP in the answer code (user-pasted or QR-scanned):
+    // `sdpDecode` throws synchronously on empty, invalid-base64, or non-SDP
+    // input, which would otherwise escape as an unhandled rejection with no
+    // error shown to the user
+    try {
+      const remoteDesc: RTCSessionDescriptionInit = {
+        type: 'answer',
+        sdp: sdpDecode(sdp, false)
+      };
+      await connection.setRemoteDescription(remoteDesc);
+    } catch {
+      addToastMessage('Invalid answer code', 'error');
+    }
   }
 
   function onOptionsUpdate(options: SendOptions) {

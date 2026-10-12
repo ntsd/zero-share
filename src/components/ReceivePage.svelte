@@ -68,6 +68,11 @@
   const iceServer =
     iceParam && STUN_SERVERS.includes(iceParam) ? iceParam : DEFAULT_SEND_OPTIONS.iceServer;
   let answerSDP = $state('');
+  // set when the remote offer could not be applied (invalid `s` param or a
+  // rejected setRemoteDescription): the answer can never be generated, so the
+  // "Generating Answer" spinner must be replaced with an error state instead
+  // of spinning forever
+  let offerFailed = $state(false);
   let showAnswerCode = $state(false);
   let isConnecting = $state(false);
   let dataChannel: RTCDataChannel | undefined = $state(undefined);
@@ -136,9 +141,16 @@
       await connection.setRemoteDescription(sessionDesc);
     } catch {
       addToastMessage('Invalid SDP in link', 'error');
+      offerFailed = true;
     }
   }
-  setOfferSDP(sdpEncoded);
+  // keep the promise: `generateAnswerSDP` awaits it before calling
+  // `createAnswer`, so the answer is never queued against a connection whose
+  // offer has not been applied. WebRTC serializes queued operations — a
+  // `createAnswer` that runs after a rejected `setRemoteDescription` rejects
+  // with InvalidStateError as an unhandled rejection and leaves the
+  // "Generating Answer" spinner stuck forever.
+  const setOfferPromise: Promise<void> = setOfferSDP(sdpEncoded);
 
   async function copyAnswerCode() {
     await navigator.clipboard.writeText(answerSDP);
@@ -146,6 +158,17 @@
   }
 
   async function generateAnswerSDP() {
+    // await the offer-settling before creating the answer: if the remote
+    // offer was invalid or rejected, `connection.signalingState` is still
+    // `stable` and `createAnswer()` would reject with InvalidStateError as an
+    // unhandled rejection, leaving the "Generating Answer" spinner stuck
+    // forever. `offerFailed` is set by `setOfferSDP` on that same failure.
+    await setOfferPromise;
+    if (offerFailed || connection.signalingState !== 'have-remote-offer') {
+      addToastMessage('Could not connect: offer from the sender is invalid', 'error');
+      return;
+    }
+
     let publicKeyBase64 = '';
     // await the `p` param key import first: if the param was malformed the
     // import was downgraded to plaintext above — generating the answer now
@@ -173,7 +196,13 @@
       answerSDP = sdpEncode(connection.localDescription.sdp) + '|' + publicKeyBase64;
     }, WAIT_ICE_CANDIDATES_TIMEOUT);
   }
-  generateAnswerSDP();
+  // fire-and-forget, but never unhandled: if anything still rejects (e.g.
+  // `createAnswer`/`setLocalDescription`), surface it instead of leaving the
+  // spinner running with zero feedback
+  generateAnswerSDP().catch(() => {
+    offerFailed = true;
+    addToastMessage('Could not connect: offer from the sender is invalid', 'error');
+  });
 </script>
 
 <Collapse title="1. Answer" isOpen={!isConnecting}>
@@ -205,6 +234,11 @@
     <div class="mt-4 flex gap-2">
       <button class="btn btn-primary gap-2" onclick={copyAnswerCode}> Copy Answer </button>
       <QrModal bind:this={qrModal} qrData={answerSDP} title="Answer QR Code" />
+    </div>
+  {:else if offerFailed}
+    <div class="flex flex-col items-center justify-center gap-2 text-error">
+      <div>Could not connect: the offer in the link is invalid.</div>
+      <div>Ask the sender to generate a new offer link.</div>
     </div>
   {:else}
     <div class="flex flex-col items-center justify-center gap-2">

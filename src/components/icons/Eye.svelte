@@ -1,3 +1,7 @@
+<script module>
+  let eyeInputCounter = 0;
+</script>
+
 <script lang="ts">
   type Props = {
     onChange: (show: boolean) => void;
@@ -6,10 +10,11 @@
 
   let show = $state(false);
 
-  const id = 'eye-input';
+  // Per-instance id so multiple Eye instances on one page don't share a toggle
+  const id = `eye-input-${++eyeInputCounter}`;
 </script>
 
-<label class="swap p-2" {id}>
+<label class="swap p-2">
   <input
     {id}
     type="checkbox"

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { QRByte, Encoder, ErrorCorrectionLevel } from '@nuintun/qrcode';
+  import { buildQrDataUrl } from '../../utils/qr';
 
   type Props = {
     title: string;
@@ -14,25 +14,9 @@
 
   let isModalOpen = $state(false);
 
-  const qrcode: Encoder = new Encoder({
-    encodingHint: true,
-    errorCorrectionLevel: ErrorCorrectionLevel.M,
-    version: 0 // 0 for automatic version
-  })
-    .write(
-      new QRByte(qrData, (data: string) => {
-        // The encoding value must a valid ECI value
-        // Custom ECI only support QRByte mode
-        // https://github.com/zxing/zxing/blob/master/core/src/main/java/com/google/zxing/common/CharacterSetECI.java
-        const bytes = data.split('').map((char) => char.charCodeAt(0));
-
-        return {
-          bytes: bytes,
-          encoding: 27 // 27 is US-ASCII
-        };
-      })
-    )
-    .make();
+  // Re-derive whenever qrData changes so the QR always encodes the current
+  // link, not the one captured at mount.
+  const qrcodeDataUrl = $derived(buildQrDataUrl(qrData));
 </script>
 
 <label for="qr-modal" class="btn gap-2"> QR Code </label>
@@ -41,6 +25,6 @@
 <label for="qr-modal" class="modal cursor-pointer">
   <label class="modal-box relative flex flex-col justify-center items-center w-auto" for="">
     <h3 class="text-lg font-bold">{title}</h3>
-    <img class="w-screen" src={qrcode.toDataURL()} alt="qr" />
+    <img class="w-screen" src={qrcodeDataUrl} alt="qr" />
   </label>
 </label>

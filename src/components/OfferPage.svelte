@@ -28,6 +28,14 @@
   let sendOptions = $state(DEFAULT_SEND_OPTIONS);
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
+  // Effective encryption mode for this session. Initialized from the user's
+  // setting, but a plain $state initializer is NOT a live binding: the Settings
+  // panel stays open and mutable while the offer is active, so the value would
+  // go stale when the user toggles encryption after the downgrade branch (or
+  // an encrypted accept) last wrote to it. onOptionsUpdate — the only place
+  // sendOptions is mutated — re-syncs it on every change; the downgrade branch
+  // may still override it to false for the current handshake.
+  let effectiveEncrypt = $state(sendOptions.isEncrypt);
 
   // webRTC
   let connection: RTCPeerConnection;
@@ -45,13 +53,14 @@
   let showNewFile = $state(false);
   let showOfferOptions = $state(false);
 
-  async function createSDPLink(offer: RTCSessionDescription) {
-    let publicKeyBase64 = '';
-    if (sendOptions.isEncrypt) {
-      rsa = await generateRsaKeyPair();
-      publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
-    }
-
+  // pure URL assembly — NO crypto here: the RSA keypair is minted exactly
+  // once at the top of generateOfferLink() (before the peer is created), so
+  // whichever path wins the ICE-candidate race builds a link whose `p` param
+  // always matches the `rsa` private key used to encrypt outgoing files.
+  // Minting a fresh pair per call rotated the key under the link and broke
+  // every encrypted transfer whenever the onicecandidate and setTimeout
+  // fallback paths both ran.
+  function createSDPLink(offer: RTCSessionDescription, publicKeyBase64: string) {
     const sdp = sdpEncode(offer.sdp);
     // resolve the ICE server through the shared predicate so the link's `i`
     // param always matches what this peer's RTCPeerConnection actually uses —
@@ -140,7 +149,20 @@
       );
     }
     generating = true;
+    // hoisted out of createSDPLink so the keypair is minted exactly ONCE per
+    // offer — before the peer exists — and can never be rotated by the second
+    // link-build path racing the ICE-candidate timeout. `offerBuilt` is a
+    // per-invocation local claimed synchronously by whichever path (candidate
+    // completion or timeout fallback) builds the link first, so the link —
+    // and its `p` key — is built at most once per invocation; a fresh
+    // generateOfferLink() call gets fresh locals, i.e. the reset for free
+    let publicKeyBase64 = '';
+    let offerBuilt = false;
     try {
+      if (sendOptions.isEncrypt) {
+        rsa = await generateRsaKeyPair();
+        publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
+      }
       // `new RTCPeerConnection` / `createDataChannel` can throw synchronously
       // (e.g. SecurityError for an invalid iceServers config,
       // NotFoundError) and `createOffer` / `setLocalDescription` can reject —
@@ -148,9 +170,12 @@
       // "Generating Offer" spinner stuck forever, and re-enable the button
       await createPeerAndDataCannel();
 
-      connection.onicecandidate = async (event) => {
-        if (!event.candidate && connection.localDescription) {
-          await createSDPLink(connection.localDescription);
+      connection.onicecandidate = (event) => {
+        if (!event.candidate && connection.localDescription && !offerBuilt) {
+          // claim BEFORE building: createSDPLink is pure URL assembly (no
+          // awaits), so nothing can interleave between the claim and the build
+          offerBuilt = true;
+          createSDPLink(connection.localDescription, publicKeyBase64);
           generating = false;
         }
       };
@@ -162,10 +187,14 @@
       await connection.setLocalDescription(offer);
 
       // stop waiting for ice candidates if longer than timeout
-      setTimeout(async () => {
-        if (!connection.localDescription || !generating) return;
+      setTimeout(() => {
+        // `generating`/`offerBuilt` are claimed by the onicecandidate path the
+        // moment it builds: without these checks this fallback would overwrite
+        // `offerLink` with a redundant second link
+        if (!connection.localDescription || !generating || offerBuilt) return;
+        offerBuilt = true;
         addToastMessage('timeout waiting ICE candidates');
-        await createSDPLink(connection.localDescription);
+        createSDPLink(connection.localDescription, publicKeyBase64);
         generating = false;
       }, WAIT_ICE_CANDIDATES_TIMEOUT);
     } catch {
@@ -179,19 +208,43 @@
     addToastMessage('Copied to clipboard', 'info');
   }
 
+  // parse the answer code (`sdp|<public key base64>`): the encoded SDP part
+  // is a URL-safe base64 alphabet (never contains `|`), so splitting on the
+  // LAST `|` is safe even if the key portion ever contains one.
+  // `hasSeparator` tells a truly malformed code (no `|` at all) apart from
+  // the receiver's deliberate plaintext downgrade (well-formed code with an
+  // empty key portion — it dropped encryption because the `p` key in its
+  // link was malformed, so it answers with an empty key by design).
+  function parseAnswerCode(answerCode: string) {
+    const sep = answerCode.lastIndexOf('|');
+    if (sep === -1) return { sdp: answerCode, key: '', hasSeparator: false };
+    return { sdp: answerCode.slice(0, sep), key: answerCode.slice(sep + 1), hasSeparator: true };
+  }
+
   async function acceptAnswer() {
-    const [sdp, pubKeyB64] = answerSDP.split('|');
+    const { sdp, key, hasSeparator } = parseAnswerCode(answerSDP);
 
     if (sendOptions.isEncrypt) {
-      // validate the answer's public key: a malformed/truncated answer code
-      // (e.g. missing the `|` separator or a damaged key) would otherwise
-      // reject here, skipping setRemoteDescription and leaving a
-      // half-configured connection with no error shown
-      try {
-        rsaPub = await importRsaPublicKeyFromBase64(pubKeyB64);
-      } catch {
-        addToastMessage('Invalid encryption key in answer code', 'error');
-        return;
+      if (hasSeparator && key === '') {
+        // the receiver deliberately downgraded to plaintext: importing an
+        // empty key would reject and the handshake would never complete, so
+        // follow the receiver into plaintext instead of bailing
+        effectiveEncrypt = false;
+        addToastMessage(
+          'Peer could not use the encryption key — continuing without encryption',
+          'info'
+        );
+      } else {
+        // validate the answer's public key: a malformed/truncated answer code
+        // (e.g. missing the `|` separator or a damaged non-empty key) would
+        // otherwise reject here, skipping setRemoteDescription and leaving a
+        // half-configured connection with no error shown
+        try {
+          rsaPub = await importRsaPublicKeyFromBase64(key);
+        } catch {
+          addToastMessage('Invalid encryption key in answer code', 'error');
+          return;
+        }
       }
     }
 
@@ -212,6 +265,19 @@
 
   function onOptionsUpdate(options: SendOptions) {
     sendOptions = options;
+    // effectiveEncrypt is a plain $state, not a live binding off sendOptions,
+    // so the Settings panel (open and mutable while the offer is active) could
+    // otherwise leave it stale after the downgrade branch or an encrypted
+    // accept last wrote to it: re-enabling encryption post-downgrade would
+    // keep Sender at isEncrypt=false with no AES key, and toggling off post-
+    // encrypted-accept would leave rsaPub set while Sender no longer encrypts.
+    // Re-sync here on every options change; the downgrade branch may still
+    // override it to false for the current handshake.
+    effectiveEncrypt = sendOptions.isEncrypt;
+    // Clear any imported peer key so a re-enabled encryption session after a
+    // downgrade starts from a clean state instead of carrying the previous
+    // peer's public key.
+    rsaPub = undefined;
   }
 </script>
 
@@ -323,12 +389,12 @@
         bind:this={sender}
         {dataChannel}
         {rsaPub}
-        isEncrypt={sendOptions.isEncrypt}
+        isEncrypt={effectiveEncrypt}
         chunkSize={sendOptions.chunkSize}
       />
     </div>
     <div hidden={sendMode}>
-      <Receiver bind:this={receiver} {dataChannel} isEncrypt={sendOptions.isEncrypt} {rsa} />
+      <Receiver bind:this={receiver} {dataChannel} isEncrypt={effectiveEncrypt} {rsa} />
     </div>
   {/if}
 </Collapse>

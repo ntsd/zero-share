@@ -3,13 +3,15 @@
     options: string[];
     customTextEnabled: boolean;
     value: string;
+    onchange?: () => void;
   };
 
-  let { options, customTextEnabled, value = $bindable() }: Props = $props();
+  let { options, customTextEnabled, value = $bindable(), onchange }: Props = $props();
 
   let selectedValue: string = $state(value);
   let customText: string = $state('');
   let editingCustomText = $state(false);
+  let lastEmitted = $state(value);
 
   function toggleCustomText() {
     editingCustomText = !editingCustomText;
@@ -21,7 +23,12 @@
   }
 
   $effect(() => {
-    value = editingCustomText ? customText : selectedValue;
+    const next = editingCustomText ? customText : selectedValue;
+    value = next;
+    if (next !== lastEmitted && onchange) {
+      lastEmitted = next;
+      onchange();
+    }
   });
 </script>
 

@@ -59,6 +59,14 @@
   </div>
 
   <div class="flex flex-row justify-between items-center">
-    <CustomSelect options={STUN_SERVERS} customTextEnabled={true} bind:value={iceServer} />
+    <!-- onchange propagates the committed ICE server choice to onUpdate, so
+         sendOptions.iceServer tracks the control instead of staying pinned
+         to the default (CustomSelect only syncs value via its binding) -->
+    <CustomSelect
+      options={STUN_SERVERS}
+      customTextEnabled={true}
+      bind:value={iceServer}
+      onchange={onChange}
+    />
   </div>
 </div>

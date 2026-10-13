@@ -104,8 +104,14 @@
     // arrival order (sender stays one round-trip ahead) and the decrypted
     // chunks are pushed in the exact order they were received.
     serializeTask(chunkQueue, id, () => processChunk(id, receivingFile, chunk)).catch(() => {
-      // A failed chunk (e.g. corrupt chunk failing AES-GCM auth) must not stall
-      // the per-file queue; later chunks keep processing as before.
+      // A chunk that failed (e.g. corrupt chunk failing AES-GCM auth) is
+      // handled inside processChunk via rejectCorruptChunk; that path resolves
+      // (returns), so it never reaches here. This catch is the safety net for
+      // any unexpected error that would otherwise leave the file permanently
+      // incomplete: surface it the same way instead of swallowing it silently.
+      // rejectCorruptChunk is a no-op once the per-file chunk map is gone, so
+      // it will not double-fire.
+      rejectCorruptChunk(id, receivingFile);
     });
   }
 
@@ -116,6 +122,30 @@
   ) {
     let arrayBuffer = chunk;
 
+    if (isEncrypt && receivingFile.aesKey) {
+      try {
+        arrayBuffer = await decryptAesGcm(receivingFile.aesKey, arrayBuffer);
+      } catch {
+        // A corrupt chunk is never retransmitted (one-shot streaming), so the
+        // byte count can never catch up to the total. Surface the error and
+        // reject the file so the sender stops cleanly instead of leaving it
+        // stuck in Processing forever.
+        rejectCorruptChunk(id, receivingFile);
+        return;
+      }
+    }
+
+    // The file may have been removed/denied/rejected while this chunk was in
+    // flight; the chunk map is cleaned up at that point, so drop the result
+    // without acking (an ack would advance the sender past a rejected file).
+    const chunkMap = receivingFileChunkMap[id];
+    if (!chunkMap) {
+      return;
+    }
+
+    // The ack is sent only after successful decryption (and after confirming
+    // the file is still active), so a corrupt chunk does not advance the
+    // sender past a chunk it cannot use.
     dataChannel.send(
       Message.encode({
         id: id,
@@ -123,17 +153,7 @@
       }).finish()
     );
 
-    if (isEncrypt && receivingFile.aesKey) {
-      arrayBuffer = await decryptAesGcm(receivingFile.aesKey, arrayBuffer);
-    }
     const receivingSize = arrayBuffer.byteLength;
-
-    // The file may have been removed/denied while this chunk was in flight;
-    // the chunk map is cleaned up at removal, so drop the result.
-    const chunkMap = receivingFileChunkMap[id];
-    if (!chunkMap) {
-      return;
-    }
     chunkMap.receivedChunks.push(arrayBuffer);
     receivingFileStatsMap[id].receivedSize += receivingSize;
 
@@ -169,6 +189,39 @@
       // No more chunks will arrive for this file; release the chain entry.
       delete chunkQueue[id];
     }
+  }
+
+  function rejectCorruptChunk(id: string, receivingFile: FileDetail) {
+    // No-op if the file is no longer being actively received (removed, denied,
+    // or already rejected): the per-file chunk map is the source of truth.
+    if (!receivingFileChunkMap[id]) {
+      return;
+    }
+    // A chunk failed AES-GCM auth (bit-flip in transit, or a peer that claims
+    // encryption but emits garbage). The sender has no retransmission, so the
+    // file can never complete. Mark it errored, bounce the status back to
+    // Pending (so the error is visible and the file can be removed/retried),
+    // and reject so the sender stops cleanly — mirroring EVENT_VALIDATE_ERROR /
+    // EVENT_RECEIVER_REJECT handling on the sender side.
+    receivingFile.error = new Error('A received chunk failed to decrypt (corrupt data in transit)');
+    receivingFile.status = FileStatus.Pending;
+    addToastMessage(
+      `${receivingFile.metaData.name} failed: corrupt chunk (decryption error)`,
+      'error'
+    );
+    dataChannel.send(
+      Message.encode({
+        id,
+        receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+      }).finish()
+    );
+    // Tear down per-file chunk state so in-flight chunks for this file are
+    // dropped (their processing hits the removed chunk map) and the file does
+    // not linger in a half-received Processing state.
+    delete receivingFileChunkMap[id];
+    delete receivingFileStatsMap[id];
+    delete chunkQueue[id];
+    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   function onRemove(key: string) {

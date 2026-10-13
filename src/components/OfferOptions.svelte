@@ -17,9 +17,14 @@
   }
 
   function onChange() {
+    // bind:value on a <select> yields the DOM option value (a string); coerce
+    // back to a number so SendOptions.chunkSize stays a number at runtime
+    // (a string here makes `offset + chunkSize` concatenate instead of add,
+    // so every chunk after the first would be wildly oversized).
+    const parsed = Number(chunkSize);
     onUpdate({
       isEncrypt: getEncryptionEnabled(),
-      chunkSize,
+      chunkSize: CHUNK_SIZE_OPTIONS.includes(parsed) ? parsed : DEFAULT_SEND_OPTIONS.chunkSize,
       iceServer
     });
   }

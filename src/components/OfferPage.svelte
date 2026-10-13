@@ -45,13 +45,14 @@
   let showNewFile = $state(false);
   let showOfferOptions = $state(false);
 
-  async function createSDPLink(offer: RTCSessionDescription) {
-    let publicKeyBase64 = '';
-    if (sendOptions.isEncrypt) {
-      rsa = await generateRsaKeyPair();
-      publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
-    }
-
+  // pure URL assembly — NO crypto here: the RSA keypair is minted exactly
+  // once at the top of generateOfferLink() (before the peer is created), so
+  // whichever path wins the ICE-candidate race builds a link whose `p` param
+  // always matches the `rsa` private key used to encrypt outgoing files.
+  // Minting a fresh pair per call rotated the key under the link and broke
+  // every encrypted transfer whenever the onicecandidate and setTimeout
+  // fallback paths both ran.
+  function createSDPLink(offer: RTCSessionDescription, publicKeyBase64: string) {
     const sdp = sdpEncode(offer.sdp);
     // resolve the ICE server through the shared predicate so the link's `i`
     // param always matches what this peer's RTCPeerConnection actually uses —
@@ -140,7 +141,20 @@
       );
     }
     generating = true;
+    // hoisted out of createSDPLink so the keypair is minted exactly ONCE per
+    // offer — before the peer exists — and can never be rotated by the second
+    // link-build path racing the ICE-candidate timeout. `offerBuilt` is a
+    // per-invocation local claimed synchronously by whichever path (candidate
+    // completion or timeout fallback) builds the link first, so the link —
+    // and its `p` key — is built at most once per invocation; a fresh
+    // generateOfferLink() call gets fresh locals, i.e. the reset for free
+    let publicKeyBase64 = '';
+    let offerBuilt = false;
     try {
+      if (sendOptions.isEncrypt) {
+        rsa = await generateRsaKeyPair();
+        publicKeyBase64 = await exportRsaPublicKeyToBase64(rsa.publicKey);
+      }
       // `new RTCPeerConnection` / `createDataChannel` can throw synchronously
       // (e.g. SecurityError for an invalid iceServers config,
       // NotFoundError) and `createOffer` / `setLocalDescription` can reject —
@@ -148,9 +162,12 @@
       // "Generating Offer" spinner stuck forever, and re-enable the button
       await createPeerAndDataCannel();
 
-      connection.onicecandidate = async (event) => {
-        if (!event.candidate && connection.localDescription) {
-          await createSDPLink(connection.localDescription);
+      connection.onicecandidate = (event) => {
+        if (!event.candidate && connection.localDescription && !offerBuilt) {
+          // claim BEFORE building: createSDPLink is pure URL assembly (no
+          // awaits), so nothing can interleave between the claim and the build
+          offerBuilt = true;
+          createSDPLink(connection.localDescription, publicKeyBase64);
           generating = false;
         }
       };
@@ -162,10 +179,14 @@
       await connection.setLocalDescription(offer);
 
       // stop waiting for ice candidates if longer than timeout
-      setTimeout(async () => {
-        if (!connection.localDescription || !generating) return;
+      setTimeout(() => {
+        // `generating`/`offerBuilt` are claimed by the onicecandidate path the
+        // moment it builds: without these checks this fallback would overwrite
+        // `offerLink` with a redundant second link
+        if (!connection.localDescription || !generating || offerBuilt) return;
+        offerBuilt = true;
         addToastMessage('timeout waiting ICE candidates');
-        await createSDPLink(connection.localDescription);
+        createSDPLink(connection.localDescription, publicKeyBase64);
         generating = false;
       }, WAIT_ICE_CANDIDATES_TIMEOUT);
     } catch {

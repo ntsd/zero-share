@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:31351fc25677b5750f0160851736cfce469705e3b083a0b7024f1d11c7d6dbdd",
+  "pageVersion": "sha256:7a78607c41002abb5dd6af3f69ad98a5174bf81f2f3aa9800890b86b55a15fe9",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -59,8 +59,8 @@
       "statement": "A defensive empty-chunk guard aborts the send with an 'Invalid chunk size' error when a chunk reads 0 bytes while bytes remain, preventing an infinite loop of empty sends caused by an invalid chunkSize (e.g. a crafted 'c' URL param).",
       "evidence": [
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L109-L121",
-          "version": "repo-lines-v1:sha256:812cf14172a7ce32f44385f18a5e45a68666d89ffa9c9ec8d5344b0e646debee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYTdmNDA4MWRlMzU1YzM5MmIwYzFkOTZjMTdiYzQ0MTg3ZDllOTlmZTMzMWFiN2FlYWI3NmNhZTc1Njg5ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU3MWNkZGViYzQwMzllY2Y1ODQ1NWU1MDM1MTA2Yzk0NDFlZTA4MGE0MzA5NWU4YjA3NGNlNDNlNzc5OGFiMGQifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L120-L128",
+          "version": "repo-lines-v1:sha256:684c437aa5b5761870ca87ed000cf7a1a039d0d3df62ff3fe68e04ee80e6196a:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTdjYWEwYzRmOWEwN2I5OGYyYjBkYmNmNDkyNDdiMmQxYTk5MTgxNDlkNzc0OTRiN2QyMGU0NjYxZjE0NDQ0OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI2MmY2MGQ4NTkwYTU3OWNmNDZmOGQ2NzM3OGM0YzU3MmI5NjJjZWNjZGI5MGM3YTVmN2I0MmI5NjA3ODJhNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTU2NzdkMzg3ODdmMjMxZTNiZjZiZmIwNzgzMWE0MTk4YWQxMTVkYzczYWMwNmVmZTI3MWYxMTM0MGQyZmNlYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTcxY2RkZWJjNDAzOWVjZjU4NDU1ZTUwMzUxMDZjOTQ0MWVlMDgwYTQzMDk1ZThiMDc0Y2U0M2U3Nzk4YWIwZCJ9"
         }
       ]
     },
@@ -150,15 +150,19 @@
     },
     {
       "id": "claim_751a4c446d704d06bb604415143ed824",
-      "statement": "Per-file chunk processing is serialized on a per-file promise chain (serializeTask): processChunk for chunk N+1 cannot start before chunk N's processing has settled, so decrypt/push/stats/blob-on-complete run in strict arrival order even when WebCrypto decrypt completions are out of order; a failed chunk swallows its rejection on the chain and cannot stall the queue.",
+      "statement": "Per-file chunk processing is serialized on a per-file promise chain (serializeTask): processChunk for chunk N+1 cannot start before chunk N's processing has settled, so decrypt/push/stats/blob-on-complete run in strict arrival order even when WebCrypto decrypt completions are out of order; the chain's catch routes any error to rejectCorruptChunk (idempotent — no-op once the per-file chunk map is gone) instead of swallowing it, so a failed chunk can never leave the file permanently incomplete or stall the queue.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L93-L110",
-          "version": "repo-lines-v1:sha256:828a89fafaa973523ca2c4c117c31d7722b6c8c04ebde95bb8d548f89cc3b0a5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjNmZmNGIyNGM3NTBmZjA4MDE4MGUzMjg3N2Q2ZWQwNDcxY2E2ZDhkNzY0OTZkY2FiY2M5YWU4YWVkNzM3NWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlMDIwNzQ4NTEzYTE3MzRmNGRiZDQ5ZjQ3OTI2NzJiNzA3MjE2MGE0ZTQ0ODZkNGUxNzRmYzBkMWUwZWVmNDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQwYTcxYTRlZTE1ZWNhZDAxN2YyMDdmOWRmNWYxNGMyMDYyMjg2MGIxNzJhN2VhOTVlNzQ2Zjc5NzI5MjRmM2EifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L93-L116",
+          "version": "repo-lines-v1:sha256:29b4b6b97cc0a7b281ea02334735500bf085c586f724ab9d1e3448a6df8e4150:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjNmZmNGIyNGM3NTBmZjA4MDE4MGUzMjg3N2Q2ZWQwNDcxY2E2ZDhkNzY0OTZkY2FiY2M5YWU4YWVkNzM3NWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlMDIwNzQ4NTEzYTE3MzRmNGRiZDQ5ZjQ3OTI2NzJiNzA3MjE2MGE0ZTQ0ODZkNGUxNzRmYzBkMWUwZWVmNDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQwYTcxYTRlZTE1ZWNhZDAxN2YyMDdmOWRmNWYxNGMyMDYyMjg2MGIxNzJhN2VhOTVlNzQ2Zjc5NzI5MjRmM2EifQ"
         },
         {
           "resource": "repo://src/utils/serialize.ts#L1-L20",
           "version": "repo-lines-v1:sha256:a31c79973ca6f56aa0ecca2c45826de15503e5378c06c0a0cc3864cd235c02fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmMjQ5NzU1YzRhZDA3NzA2Y2Y5Yjg0Y2M3MGVlMjZlNTQxODJlNzMyYjdkYWNmZTQxZDhjMzcyNmRiZjM2M2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-chunk-failure.test.mjs",
+          "version": "repo-file-v1:sha256:8d54e374a6cfbdc3e6c4e5e5c6e7c15ed4cbd1d5192e0b66f33558a66417f225"
         },
         {
           "resource": "repo://tests/receiver-chunk-order.test.mjs",
@@ -168,11 +172,11 @@
     },
     {
       "id": "claim_ba98a0d1c707452695012eef1aec6692",
-      "statement": "Late or stray chunks are dropped, not fatal: onChunkData ignores chunks for unknown or uninitialized file ids (metadata never registered, file removed/denied, or already completed), and processChunk re-checks the chunk map after the decrypt await so a file removed mid-flight does not throw.",
+      "statement": "Late or stray chunks are dropped, not fatal: onChunkData ignores chunks for unknown or uninitialized file ids (metadata never registered, file removed/denied, or already completed), and processChunk re-checks the chunk map after the decrypt await so a file removed/denied mid-flight is dropped without acking (an ack would advance the sender past a rejected file).",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L131-L136",
-          "version": "repo-lines-v1:sha256:7682ef4c5c79c4b65b15a9c47fdd210d685a0cf84678a1295d41be6646b25a95:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGVjNDM4ZmNhNjk2ZjVkNDhmMThhZTVkNzlhNjkwMDEyODVhMjFlMWVhYTI1MGY4Nzc1NzEyNjQ1M2EzNzJkNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTczNDU3YmI5NjRiOTBiNTBlMTE1NWNjNTAxMzA3Njg1ZjllOWQ3Y2U4ZDExMmE5YzFiNmEzZjVhMDUxNmZhNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmQ0YmQwNjU2ODFkMjAzNDAwOGJjNmE1NDQ2M2JhOGIzNTVjOTgzOWVmMWM3ZTBhMzNhMjU2ZDI4MzAyYjI2MiJ9"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L138-L144",
+          "version": "repo-lines-v1:sha256:f5b5aeef744e1ac8c52c735ac8db6b91e80c12ffd9cb76181cda860b857db6e9:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODlhMzkwZjU4MGYyYmI5YjQ4MTdmODU0NzlhOTE1ZTg2NjczNDZhNmFkZWRmNDhkZGM5YTI3ZjIwYTdmYmRjMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDRiOWEwYjE2Yjk5MTBiYWE1ZDBhNGRjYWZmOGE2MGM0Mjk2MzNiZjJhZTNjYmFjYzgyMDI5MDc1ODBkMTBjYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjVlMWQzYjc0ZTQ3MTVjZGUwZDk2MTBmZjNkYzhhNDVhZDZjZWZmZGI1YjlkMjdhMmNhNDNlMDBiMjliNDI2NCJ9"
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L93-L100",
@@ -235,10 +239,60 @@
           "version": "repo-file-v1:sha256:394fa85500dcf2169d945212140a6248cc3f4da2364b74957275c5df00b54028"
         }
       ]
+    },
+    {
+      "id": "claim_74feef5391c348988bff4e02883d1887",
+      "statement": "Chunk size is enforced numeric on two layers: Sender.sendNextChunk defensively coerces its chunkSize prop with Number() (32 KB fallback for non-finite/non-positive values) so a string from a <select> bind:value can no longer make offset + chunkSize concatenate and send the whole file remainder as one over-sized chunk, and OfferOptions.onChange coerces the select value with Number() and falls back to DEFAULT_SEND_OPTIONS.chunkSize when it is not in CHUNK_SIZE_OPTIONS, keeping sendOptions.chunkSize a number at the source.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/OfferOptions.svelte#L19-L30",
+          "version": "repo-lines-v1:sha256:3342aeeed6fe311bbc2ba9db3145e432a897168813e4226fe3b37698abf8b7a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyNjhiMjc0NGFiOTkxM2NhMGJkMmVlNjAzZjVhNjkxYzFkYmU4NWQyODEyYzU2NTZmYTkwMmJmNTRmZDZjZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIxZjYzMDllODhmY2ZmY2FkMzdkZDU3YWIzZDZkMzUyMGMxNmE0ZDdiNzM1M2RlNmUwY2Q3MWEzMDA0MWM4MmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5MTQ0ZTU3MTk5NTE5MDZiMmVjZTM4NTI0ZTk3N2Q4YWZjOGJhNjYwODk0OTEwNDFhZmVhOTE5NzFkZDI5NGYifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L109-L117",
+          "version": "repo-lines-v1:sha256:3a5f13bdf9cad691b31dc295fb1e64929d256f322a7d7bcddbfcefda34738853:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJhNzMwOGNjNzgxODczODcxYjQ4ZjcwN2QxODc2ZGNjZjhhMWFjZjgzNDUwN2NkMTNkNTY2NDJjODlkNDc3ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTRiYzU3YjU5NjhiZWE0NDVjZDY5YzUwYjJhYzdmMWUzMTZkY2RkMzZlZmM4ZTU4MmZmN2ZlYWNlN2RiNTA5NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2ZhN2Y0MDgxZGUzNTVjMzkyYjBjMWQ5NmMxN2JjNDQxODdkOWU5OWZlMzMxYWI3YWVhYjc2Y2FlNzU2ODlmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjQwN2ExZDkyN2Y2NmNkYjczYzllN2Q2ZDdiY2M1YmNhYzgzMGI5MmY2NTk2YmQ4YjgyZDYwNzZjYzEwNjI5MyJ9"
+        },
+        {
+          "resource": "repo://tests/sender-chunk-size.test.mjs",
+          "version": "repo-file-v1:sha256:2c6202938bdddfd3fd2ff0c8704ee476b0fd057becc0d97b0e160e931df15672"
+        }
+      ]
+    },
+    {
+      "id": "claim_e5d9301a3cb54569b1dad0720e9bd1ff",
+      "statement": "A chunk that fails AES-GCM authentication is rejected visibly, not dropped: processChunk routes the decrypt failure to rejectCorruptChunk, which marks the file errored ('corrupt data in transit'), bounces the status back to Pending, toasts the failure, sends EVENT_RECEIVER_REJECT so the sender stops cleanly, and tears down the per-file chunk/stats/queue state — instead of the byte count never catching up and the file sitting in Processing forever; the EVENT_RECEIVED_CHUNK ack is sent only after successful decryption so a corrupt chunk never advances the sender.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L125-L136",
+          "version": "repo-lines-v1:sha256:17b2ef0c287d548405e2c75d4b6aa928f1071394e21b6fe8de9642a55b35693e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNzg3OTY1NjViZmMxMmQwMzBjMTNiZWExNDZmOWUxYjQxMGRkZTYxZDJkY2ViNGQ3YzM5ZmZjOWMxYzM1YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmZTY4ZmM3YWEzNTY4N2NhMzNiNTJjOTJlYTJiYzAzZGU0N2QwOGM3YTdlM2I3OWU1MTRmNGExNTg1NjcxNzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0MmZjZTY0YjBiNWVmOGQ2ZTI1ODgyZWQ4OTJiZWU0Y2U2MzQ2ZDZjOGQwNjk0MDQzYTE2NWY1NWRjOWRlMjQifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L194-L225",
+          "version": "repo-lines-v1:sha256:74653c9e416d24825bac74785154936c00dedb68d7f9edfbb47eafba2889419d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjYTZlOTdjNWYzMDRiOTYyZThmM2Q3ZWRmMDQ1OGQ5NWUxOWM5ZWU4Mjc2M2Y5OWNiY2EwNDNiZmQ1ZmFjOTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgzZjRhYzhkODcxYTM5NTZmNTMyOWMzNDg2NjNhYmRjZDk3YmFkZTFmNjM0Mzk5Yjc2MmU5ODdjODA2YWMwNjQifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-chunk-failure.test.mjs",
+          "version": "repo-file-v1:sha256:8d54e374a6cfbdc3e6c4e5e5c6e7c15ed4cbd1d5192e0b66f33558a66417f225"
+        }
+      ]
+    },
+    {
+      "id": "claim_e077f7a88d5e4a75ab216ebb562b4de1",
+      "statement": "The sender's document-level paste listener is scoped to file sharing: handlePasteEvent ignores events whose target is an INPUT, TEXTAREA, SELECT, or content-editable element, so pasting an answer code or custom ICE server value into any text field no longer silently adds a stray clipboard.txt to the sender file list, and onDestroy removes the listener so it never outlives the component.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/DragAndDrop.svelte#L98-L134",
+          "version": "repo-lines-v1:sha256:e8cf558bbc2e4b2d99287224211d7726744db5303450720c821f8da5a4b69bb3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3YTQ1MDJiMTYxYjBhZmI5NzYxYTZmNTBkOTkwYWVmYzcyNTY3MTExMGUwZDA1Mzk3YjllOWM4ZjdmNzZmOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4ZTI0YTRhNmU2Y2JjMzIyMWZlZjNjNTViYmU4ODlmN2Y3NmFjZWQwMGM5NzcyNjczZGJhNzQ2MjVjOWEyMGEifQ"
+        },
+        {
+          "resource": "repo://tests/drag-drop-paste.test.mjs",
+          "version": "repo-file-v1:sha256:3d618d76b0aec9db25f489e3bb2d8baa7bbc26f58b3341f2347b96bb4af69a6e"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-12T12:05:53.851Z"
+    "at": "2026-10-13T12:04:42.015Z"
   }
 }

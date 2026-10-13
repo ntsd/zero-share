@@ -5,12 +5,16 @@ openwiki_generated: true
 sources:
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
     resource: repo://package.json
+  - id: openwiki-source-f6525eb975fe7a351f8724c4
+    resource: repo://src/components/OfferOptions.svelte
   - id: openwiki-source-f582d8a11a0cfc8a438a5ae2
     resource: repo://src/components/OfferPage.svelte
   - id: openwiki-source-b44a738391e0dd972a16a1ef
     resource: repo://src/components/receiver/Receiver.svelte
   - id: openwiki-source-42050754cc86d3d555b1aa6e
     resource: repo://src/components/receiver/ReceiverOptions.svelte
+  - id: openwiki-source-b69214e91586f75042e77440
+    resource: repo://src/components/sender/DragAndDrop.svelte
   - id: openwiki-source-d6db73741d251c8c754ff256
     resource: repo://src/components/sender/Sender.svelte
   - id: openwiki-source-578f160ff71c06304de2a610
@@ -25,18 +29,24 @@ sources:
     resource: repo://src/utils/validator.ts
   - id: openwiki-source-8439c153cd0cf35493f27a86
     resource: repo://src/utils/zip.ts
+  - id: openwiki-source-517b24ae8c4effd72d38e04d
+    resource: repo://tests/drag-drop-paste.test.mjs
   - id: openwiki-source-edd2d815ffc75024b7c21d45
     resource: repo://tests/protocol-size.test.mjs
+  - id: openwiki-source-7ea415ea06881fb9b2c5ec63
+    resource: repo://tests/receiver-chunk-failure.test.mjs
   - id: openwiki-source-c4b2cf9b87c8a0dd3815ff97
     resource: repo://tests/receiver-chunk-order.test.mjs
   - id: openwiki-source-4a9f54b4f4a2e988b0daae2f
     resource: repo://tests/receiver-options-size.test.mjs
+  - id: openwiki-source-a289fc8c0ae9be75658a2b82
+    resource: repo://tests/sender-chunk-size.test.mjs
   - id: openwiki-source-408384ecc13a9dc3929f90a4
     resource: repo://tests/zip.test.mjs
-generated: { by: 'hermes', at: '2026-10-12T12:05:53.851Z' }
+generated: { by: 'hermes', at: '2026-10-13T12:04:42.015Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-12T12:05:53.851Z
+    at: 2026-10-13T12:04:42.015Z
 ---
 
 # Subsystem: File Transfer Engine
@@ -51,7 +61,9 @@ Every data-channel message is a protobuf `Message`: a `file id` plus exactly one
 - `chunk` — one slice of file body (raw or encrypted).
 - `receiveEvent` — receiver→sender control: `EVENT_RECEIVER_ACCEPT`, `EVENT_RECEIVER_REJECT`, `EVENT_RECEIVED_CHUNK`, `EVENT_VALIDATE_ERROR`.
 
-**File ids are unique, not filenames.** The sender assigns each picked file `crypto.randomUUID()`, so two same-named files transferred in one session get distinct ids and never cross-wire chunks; display uses `metaData.name` only. [`repo://src/components/sender/Sender.svelte#L182-L215`]
+**File ids are unique, not filenames.** The sender assigns each picked file `crypto.randomUUID()`, so two same-named files transferred in one session get distinct ids and never cross-wire chunks; display uses `metaData.name` only. [`repo://src/components/sender/Sender.svelte#L195-L228`]
+
+**File pick & paste scoping.** Files enter the session via `DragAndDrop` (drop, file picker, or clipboard paste). Its document-level `paste` listener is scoped: it ignores events whose target is an `INPUT`, `TEXTAREA`, `SELECT`, or content-editable element — so pasting an answer code or a custom ICE server value into any text field on the page no longer silently adds a stray `clipboard.txt` to the sender file list (PR #52) — and the listener is removed in `onDestroy` so it never outlives the component. [`repo://src/components/sender/DragAndDrop.svelte#L98-L134`], [`repo://tests/drag-drop-paste.test.mjs`]
 
 ## Sender state machine
 
@@ -65,11 +77,11 @@ Flow for `onSend(key)`:
 4. On each `RECEIVED_CHUNK` ack: if `stop` or not `Processing`, reset to `Pending`; if `offset < metaData.size`, send the next chunk; else status → `Success` and toast. [`repo://src/components/sender/Sender.svelte#L46-L72`]
 5. `REJECT` / `VALIDATE_ERROR`: set the error, toast, status → `Pending` (retryable via re-send).
 
-Chunking: `sendNextChunk` slices `file.slice(offset, offset + chunkSize)`, reads it as an `ArrayBuffer`, encrypts it (when `isEncrypt` and `aesKey` present), and frames it as a `Message`.
+Chunking: `sendNextChunk` slices `file.slice(offset, offset + chunkBytes)`, reads it as an `ArrayBuffer`, encrypts it (when `isEncrypt` and `aesKey` present), and frames it as a `Message`. The chunk size is **defensively coerced to a number at the slice site** (`Number(chunkSize)` with a 32 KB fallback for non-finite or non-positive values), because a Svelte 5 `<select> bind:value` yields the DOM option value as a **string** — and a string here makes `offset + chunkSize` concatenate instead of add, sending the whole file remainder as one over-sized chunk. The sender options UI also coerces on change: `OfferOptions.onChange` `Number()`s the select value and falls back to `DEFAULT_SEND_OPTIONS.chunkSize` when it is not in `CHUNK_SIZE_OPTIONS`, keeping `sendOptions.chunkSize` a number at the source. [`repo://src/components/sender/Sender.svelte#L109-L117`], [`repo://src/components/OfferOptions.svelte#L19-L30`], [`repo://tests/sender-chunk-size.test.mjs`]
 
-**Empty-chunk guard:** if `buffer.byteLength === 0` while `offset < size`, the chunk size is invalid (e.g. a crafted `c` URL param producing NaN/0); the sender aborts with an "invalid chunk size" error instead of looping forever on zero-byte sends. [`repo://src/components/sender/Sender.svelte#L109-L125`]
+**Empty-chunk guard:** if `buffer.byteLength === 0` while `offset < size`, the chunk size is invalid (e.g. a crafted `c` URL param producing NaN/0); the sender aborts with an "Invalid chunk size" error instead of looping forever on zero-byte sends. [`repo://src/components/sender/Sender.svelte#L120-L128`]
 
-Progress: computed as `offset/size * 100`; the reactive `progress` and `bitrate` are only updated every `PROGRESS_UPDATE_UI_STEP` (3) points using a non-reactive `fileStats` mirror — throttling UI updates during fast transfers. Pause/resume is the `stop` flag plus `onContinue`, which re-emits a synthetic `RECEIVED_CHUNK` to restart the loop. [`repo://src/components/sender/Sender.svelte#L34-L41`], [`repo://src/configs.ts#L35-L37`], [`repo://src/components/sender/Sender.svelte#L165-L172`]
+Progress: computed as `offset/size * 100`; the reactive `progress` and `bitrate` are only updated every `PROGRESS_UPDATE_UI_STEP` (3) points using a non-reactive `fileStats` mirror — throttling UI updates during fast transfers. Pause/resume is the `stop` flag plus `onContinue`, which re-emits a synthetic `RECEIVED_CHUNK` to restart the loop. [`repo://src/components/sender/Sender.svelte#L34-L41`], [`repo://src/configs.ts#L65-L67`], [`repo://src/components/sender/Sender.svelte#L182-L185`]
 
 ## Receiver state machine
 
@@ -85,21 +97,23 @@ Progress: computed as `offset/size * 100`; the reactive `progress` and `bitrate`
 `onChunkData(id, chunk)` is now **synchronous**:
 
 1. **Guard**: drop the chunk for unknown or uninitialized file ids (metadata never registered, file removed/denied, or file already completed) instead of throwing on a missing entry inside queued processing.
-2. **Enqueue onto the per-file promise chain** via `serializeTask(chunkQueue, id, …)` (`src/utils/serialize.ts`): `processChunk` for chunk N+1 cannot start before chunk N's processing has settled, so the post-await work — decrypt, push to `receivedChunks`, stats, blob-on-complete — runs strictly in arrival order even when WebCrypto `decryptAesGcm` calls complete out of order (which is what silently corrupted encrypted files before this fix). A failed chunk (e.g. corrupt chunk failing AES-GCM auth) swallows its rejection on the chain so it cannot stall the queue for later chunks. [`repo://src/components/receiver/Receiver.svelte#L93-L110`], [`repo://src/utils/serialize.ts#L1-L20`]
+2. **Enqueue onto the per-file promise chain** via `serializeTask(chunkQueue, id, …)` (`src/utils/serialize.ts`): `processChunk` for chunk N+1 cannot start before chunk N's processing has settled, so the post-await work — decrypt, push to `receivedChunks`, stats, blob-on-complete — runs strictly in arrival order even when WebCrypto `decryptAesGcm` calls complete out of order (which is what silently corrupted encrypted files before this fix). The chain's `catch` routes any error to `rejectCorruptChunk` (idempotent — no-op once the file's chunk map is gone) instead of silently swallowing it, so a failed chunk can never leave the file permanently incomplete. [`repo://src/components/receiver/Receiver.svelte#L93-L116`], [`repo://src/utils/serialize.ts#L1-L20`]
 
 `processChunk(id, receivingFile, chunk)`:
 
-1. **Immediately** send `EVENT_RECEIVED_CHUNK` — the sender's next chunk only flows after this ack, which paces the transfer (backpressure).
-2. Decrypt when encryption applies, re-check the chunk map (the file may have been removed/denied while this chunk was in flight; drop the result if gone), append the plaintext buffer to `receivedChunks`, bump `receivedSize` and throttled progress/bitrate (same 3-point step).
-3. When `receivedSize >= metaData.size`: build the file `Blob` **immediately and delete both per-file maps** — this releases the raw per-chunk buffers so a large file is not held twice in memory — then status → `Success`, toast, and release the file's `chunkQueue` entry. [`repo://src/components/receiver/Receiver.svelte#L112-L172`]
+1. **Decrypt first (when encryption applies), fail visibly:** a chunk that fails AES-GCM auth routes to `rejectCorruptChunk` — it marks the file errored, bounces the status back to `Pending`, toasts the failure, sends `EVENT_RECEIVER_REJECT` so the sender stops cleanly instead of waiting for acks forever, and tears down the per-file chunk/stats/queue state — instead of the chunk being silently dropped and the byte count never reaching the total, which would have left the file in `Processing` forever (PR #54).
+2. **Re-check the chunk map**: if the file was removed/denied/rejected while this chunk was in flight, drop the result without acking (an ack would advance the sender past a rejected file).
+3. **Immediately** send `EVENT_RECEIVED_CHUNK` — the sender's next chunk only flows after this ack, which paces the transfer (backpressure). The ack is sent **only after successful decryption**, so a corrupt chunk never advances the sender.
+4. Append the plaintext buffer to `receivedChunks`, bump `receivedSize` and throttled progress/bitrate (same 3-point step).
+5. When `receivedSize >= metaData.size`: build the file `Blob` **immediately and delete both per-file maps** — this releases the raw per-chunk buffers so a large file is not held twice in memory — then status → `Success`, toast, and release the file's `chunkQueue` entry. [`repo://src/components/receiver/Receiver.svelte#L118-L192`], [`repo://src/components/receiver/Receiver.svelte#L194-L225`]
 
-Removal/deny sends `EVENT_RECEIVER_REJECT` (if not already successful) and drops the file's state maps **and its `chunkQueue` entry** (likewise cleared in `onAccept` for re-accept). [`repo://src/components/receiver/Receiver.svelte#L174-L188`], [`repo://src/components/receiver/Receiver.svelte#L235-L247`]
+Removal/deny sends `EVENT_RECEIVER_REJECT` (if not already successful) and drops the file's state maps **and its `chunkQueue` entry** (likewise cleared in `onAccept` for re-accept, and by `rejectCorruptChunk` on a corrupt chunk). [`repo://src/components/receiver/Receiver.svelte#L227-L245`], [`repo://src/components/receiver/Receiver.svelte#L288-L300`]
 
 ## Downloading received files
 
-Single-file and bulk download both route through `triggerDownload`, which creates an object URL, clicks a temporary `<a download>`, and **defers `URL.revokeObjectURL` ~1 s** — revoking in the same tick can abort the async download in some engines (Firefox may start the fetch after the revoke). [`repo://src/components/receiver/Receiver.svelte#L190-L209`]
+Single-file and bulk download both route through `triggerDownload`, which creates an object URL, clicks a temporary `<a download>`, and **defers `URL.revokeObjectURL` ~1 s** — revoking in the same tick can abort the async download in some engines (Firefox may start the fetch after the revoke). [`repo://src/components/receiver/Receiver.svelte#L243-L253`]
 
-"Download all files (zip)" no longer triggers sequential per-file raw downloads (which browsers block after the first, and which never produced a zip despite the label): it collects all `Success` files without errors and builds a **real store-only ZIP archive in memory** via `createZipStoreOnly` (`src/utils/zip.ts`, no new dependency — a hand-rolled uncompressed/method-0 writer with CRC-32, UTF-8 name flag, and duplicate-name disambiguation), saving a single `zero-share-files.zip`. [`repo://src/components/receiver/Receiver.svelte#L249-L270`], [`repo://src/utils/zip.ts#L1-L122`]
+"Download all files (zip)" no longer triggers sequential per-file raw downloads (which browsers block after the first, and which never produced a zip despite the label): it collects all `Success` files without errors and builds a **real store-only ZIP archive in memory** via `createZipStoreOnly` (`src/utils/zip.ts`, no new dependency — a hand-rolled uncompressed/method-0 writer with CRC-32, UTF-8 name flag, and duplicate-name disambiguation), saving a single `zero-share-files.zip`. [`repo://src/components/receiver/Receiver.svelte#L302-L323`], [`repo://src/utils/zip.ts#L1-L122`]
 
 ## Validation & user-facing errors
 
@@ -109,9 +123,9 @@ Single-file and bulk download both route through `triggerDownload`, which create
 
 ## Invariants & failure behavior
 
-- **Chunk order is protocol- and runtime-enforced, not channel-ordered**: the data channel is created `ordered: false`; correctness now rests on two layers — the single-writer sender loop per file (one `RECEIVED_CHUNK` → one chunk, sender stays one round-trip ahead) AND the receiver's per-file promise-chain serialization (`serializeTask`), which guarantees receiver-side assembly happens in strict arrival order even when WebCrypto decrypt completions are out of order. [`repo://src/components/OfferPage.svelte#L79-L81`], [`repo://src/utils/serialize.ts#L1-L20`], [`repo://src/components/receiver/Receiver.svelte#L88-L110`]
+- **Chunk order is protocol- and runtime-enforced, not channel-ordered**: the data channel is created `ordered: false`; correctness now rests on two layers — the single-writer sender loop per file (one `RECEIVED_CHUNK` → one chunk, sender stays one round-trip ahead) AND the receiver's per-file promise-chain serialization (`serializeTask`), which guarantees receiver-side assembly happens in strict arrival order even when WebCrypto decrypt completions are out of order. [`repo://src/components/OfferPage.svelte#L100-L102`], [`repo://src/utils/serialize.ts#L1-L20`], [`repo://src/components/receiver/Receiver.svelte#L88-L116`]
 - A receiver ack for a stopped/idle file resets the sender file to `Pending` with progress 0 rather than erroring.
-- **Late/stray chunks are dropped, not fatal**: chunks for unknown/uninitialized file ids are ignored at the `onChunkData` guard, and `processChunk` re-checks the chunk map after the decrypt await (a file may be removed/denied mid-flight); a failing chunk cannot stall its file's queue.
+- **Late/stray chunks are dropped, not fatal**: chunks for unknown/uninitialized file ids are ignored at the `onChunkData` guard, and `processChunk` re-checks the chunk map after the decrypt await (a file may be removed/denied mid-flight) — but a chunk that fails decryption is **not** dropped: it rejects the whole file visibly via `rejectCorruptChunk` (error + `Pending` + `EVENT_RECEIVER_REJECT` + per-file state teardown), because without retransmission a missing byte can never make the file complete. [`repo://src/components/receiver/Receiver.svelte#L93-L116`], [`repo://src/components/receiver/Receiver.svelte#L118-L144`], [`repo://src/components/receiver/Receiver.svelte#L194-L225`]
 - Completion is exact-size based: both sides stop when the declared `metaData.size` is fully sent/received; there is no file trailer or checksum, so integrity relies on GCM authentication (encryption on) or DTLS data integrity.
 - **`MetaData.size` is `int64` on the wire** (PR #42 / commit 721c502; was `int32`): the widened field means files of 2 GiB or larger no longer throw `invalid int32` during `Message.encode`, so the exact-size completion invariant now holds for arbitrarily large files (up to JS's safe-integer limit) rather than only below the 2 GiB `int32` ceiling. [`repo://src/proto/message.proto#L1-L8`], [`repo://tests/protocol-size.test.mjs#L33-L52`]
-- **Regression coverage**: `tests/receiver-chunk-order.test.mjs` drives `serializeTask` exactly as `onChunkData` wires it (mocked decrypt resolving the first chunk slowest) and asserts strict arrival-order assembly; `tests/zip.test.mjs` checks CRC-32 vectors and round-trips `createZipStoreOnly` output through an external unzip; `tests/protocol-size.test.mjs` pins the `int64` `MetaData.size` wire encoding by encoding and round-tripping 3 GiB and `MAX_SAFE_INTEGER` sizes through the generated proto; `tests/receiver-options-size.test.mjs` (PR #44) statically asserts every "Max Size" `<option value={...}>label</option>` pair carries the byte value its label names, the "Unlimit" option is 1 TiB, and `onChange` coerces the select value to a number before emitting `ReceiveOptions.maxSize`. [`repo://tests/receiver-chunk-order.test.mjs`], [`repo://tests/zip.test.mjs`], [`repo://tests/protocol-size.test.mjs`], [`repo://tests/receiver-options-size.test.mjs`]
+- **Regression coverage**: `npm test` runs **all** `tests/*.test.mjs` (16 guards) via `node --no-warnings --test "tests/*.test.mjs"`. `tests/receiver-chunk-order.test.mjs` drives `serializeTask` exactly as `onChunkData` wires it (mocked decrypt resolving the first chunk slowest) and asserts strict arrival-order assembly; `tests/receiver-chunk-failure.test.mjs` pins the corrupt-chunk path — a chunk failing AES-GCM auth must surface an error, bounce the file to `Pending`, send `EVENT_RECEIVER_REJECT`, and never leave the file in `Processing`; `tests/sender-chunk-size.test.mjs` pins numeric chunk-size handling end-to-end (string select values coerced, no over-sized remainder chunk); `tests/zip.test.mjs` checks CRC-32 vectors and round-trips `createZipStoreOnly` output through an external unzip; `tests/protocol-size.test.mjs` pins the `int64` `MetaData.size` wire encoding by encoding and round-tripping 3 GiB and `MAX_SAFE_INTEGER` sizes through the generated proto; `tests/receiver-options-size.test.mjs` (PR #44) statically asserts every "Max Size" `<option value={...}>label</option>` pair carries the byte value its label names, the "Unlimit" option is 1 TiB, and `onChange` coerces the select value to a number before emitting `ReceiveOptions.maxSize`; `tests/drag-drop-paste.test.mjs` pins the paste-listener scoping (text-field targets ignored). [`repo://tests/receiver-chunk-order.test.mjs`], [`repo://tests/receiver-chunk-failure.test.mjs`], [`repo://tests/sender-chunk-size.test.mjs`], [`repo://tests/zip.test.mjs`], [`repo://tests/protocol-size.test.mjs`], [`repo://tests/receiver-options-size.test.mjs`], [`repo://tests/drag-drop-paste.test.mjs`]

@@ -156,7 +156,14 @@
       // Guard up front: no point slicing a file that was removed or stopped.
       if (sendingFile.stop) return;
 
-      const slice = sendingFile.file.slice(offset, offset + chunkSize);
+      // defensive coercion: chunkSize may arrive as a string (e.g. from a
+      // <select> bind:value) — a non-number here makes `offset + chunkBytes`
+      // concatenate instead of add, sending the whole file remainder as one
+      // over-sized chunk
+      const parsedChunkSize = Number(chunkSize);
+      const chunkBytes =
+        Number.isFinite(parsedChunkSize) && parsedChunkSize > 0 ? parsedChunkSize : 32 * 1024;
+      const slice = sendingFile.file.slice(offset, offset + chunkBytes);
       const buffer = await slice.arrayBuffer();
 
       // Re-check after the await: the entry may have been removed or stopped

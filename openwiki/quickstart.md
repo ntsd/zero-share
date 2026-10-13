@@ -15,6 +15,8 @@ sources:
     resource: repo://src/components/OfferPage.svelte
   - id: openwiki-source-ea57456033ae6393e62158ed
     resource: repo://src/components/ReceivePage.svelte
+  - id: openwiki-source-578f160ff71c06304de2a610
+    resource: repo://src/configs.ts
   - id: openwiki-source-1b681c4ce8d10cbab258bb09
     resource: repo://src/pages/index.astro
   - id: openwiki-source-ef5b40568b7653d8929d5a0f
@@ -23,27 +25,15 @@ sources:
     resource: repo://src/type.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
-  - id: openwiki-source-c71f006df30e67d6d4f288ab
-    resource: repo://tests/crypto.test.mjs
-  - id: openwiki-source-edd2d815ffc75024b7c21d45
-    resource: repo://tests/protocol-size.test.mjs
-  - id: openwiki-source-c4b2cf9b87c8a0dd3815ff97
-    resource: repo://tests/receiver-chunk-order.test.mjs
-  - id: openwiki-source-4a9f54b4f4a2e988b0daae2f
-    resource: repo://tests/receiver-options-size.test.mjs
-  - id: openwiki-source-cc4834bd7be0e4e06ab95a6b
-    resource: repo://tests/sdp-robustness.test.mjs
-  - id: openwiki-source-408384ecc13a9dc3929f90a4
-    resource: repo://tests/zip.test.mjs
-generated: { by: 'hermes', at: '2026-10-12T12:05:53.851Z' }
+generated: { by: 'hermes', at: '2026-10-13T12:04:42.015Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-12T12:05:53.851Z
+    at: 2026-10-13T12:04:42.015Z
 ---
 
 # Quickstart: Zero Share P2P File Sharing
 
-**Zero Share** is a serverless, client-side P2P file-sharing web app. Two browsers share a file over a direct WebRTC data channel — no application server, no relay; the only external dependency is public STUN servers for NAT traversal. Optional per-file encryption (AES-256-GCM payload + RSA-OAEP key wrapping) protects content on top of DTLS. It is built as a static **Astro + Svelte 5** site and deployed to static hosting (GitHub Pages or any static host).
+**Zero Share** is a serverless, client-side P2P file-sharing web app. Two browsers share a file over a direct WebRTC data channel — no application server, no relay; the only external dependency is a public STUN server for NAT traversal (a user-typed custom STUN/TURN URL is also accepted through the shared ICE-server predicate). Optional per-file encryption (AES-256-GCM payload + RSA-OAEP key wrapping) protects content on top of DTLS. It is built as a static **Astro + Svelte 5** site and deployed to static hosting (GitHub Pages or any static host).
 
 ## How a transfer works (end-to-end)
 
@@ -55,24 +45,24 @@ verified:
 ### Wire formats
 
 - **SDP encoding:** `sdp-compact` compaction + URL-safe substitutions `/`→`_`, `+`→`~`, `=`→`-` (reversed on decode). `sdpDecode` throws synchronously on empty, invalid-base64, or non-SDP input, so both user-controllable call sites (the `s` link param on the receive page, the pasted/scanned answer code on the offer page) guard it with `try/catch` and surface an error toast instead of crashing the page (PR #45). [`repo://src/utils/sdpEncode.ts#L1-L14`], [`repo://tests/sdp-robustness.test.mjs`]
-- **Offer link:** `?s=<offerSDP>` + optional `i=<stunUrl>` (accepted only when in the `STUN_SERVERS` allowlist, else the default is used), `c=<chunkBytes>` (validated against `CHUNK_SIZE_OPTIONS` on the receive side; anything else falls back to the 32 KB default), `p=<base64 RSA public key>` (encryption only; a malformed key downgrades the session to plaintext with an error toast).
-- **Answer code:** `<encoded answer SDP>|<base64 RSA public key or empty>`.
+- **Offer link:** `?s=<offerSDP>` + optional `i=<iceServerUrl>` (the sender emits the shared-predicate-resolved value — built-in STUN allowlist or a well-formed `stun:`/`turn:` custom URL — and the receive side accepts it only when it passes the same `isSupportedIceServer` predicate, else the default ICE server is used with an error toast), `c=<chunkBytes>` (validated against `CHUNK_SIZE_OPTIONS` on the receive side; anything else falls back to the 32 KB default), `p=<base64 RSA public key>` (encryption only; a malformed key downgrades the session to plaintext with an error toast).
+- **Answer code:** `<encoded answer SDP>|<base64 RSA public key or empty>` — an empty key portion is the receiver's deliberate plaintext downgrade and is handled, not treated as malformed.
 
 ## Where things live
 
-| Area                                                                                              | Path                                                 |
-| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Offer (initiator) page                                                                            | `src/components/OfferPage.svelte`                    |
-| Answer (responder) page                                                                           | `src/components/ReceivePage.svelte`                  |
-| Sender / Receiver transfer engines                                                                | `src/components/sender/`, `src/components/receiver/` |
-| Wire protocol (proto3 + ts-proto generated code)                                                  | `src/proto/message.proto`, `src/proto/message.ts`    |
-| Crypto (WebCrypto)                                                                                | `src/utils/crypto.ts`                                |
-| Store-only ZIP writer (bulk download)                                                             | `src/utils/zip.ts`                                   |
-| Per-key task serializer (chunk-order fix)                                                         | `src/utils/serialize.ts`                             |
-| Constants: STUN list, defaults, chunk options, timeouts                                           | `src/configs.ts`                                     |
-| Shared types & file lifecycle enums                                                               | `src/type.ts`                                        |
-| Astro build config                                                                                | `astro.config.mjs`                                   |
-| Regression tests (crypto / zip / chunk order / protocol size / receiver options / SDP robustness) | `tests/`                                             |
+| Area                                                                                                           | Path                                                 |
+| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Offer (initiator) page                                                                                         | `src/components/OfferPage.svelte`                    |
+| Answer (responder) page                                                                                        | `src/components/ReceivePage.svelte`                  |
+| Sender / Receiver transfer engines                                                                             | `src/components/sender/`, `src/components/receiver/` |
+| Wire protocol (proto3 + ts-proto generated code)                                                               | `src/proto/message.proto`, `src/proto/message.ts`    |
+| Crypto (WebCrypto)                                                                                             | `src/utils/crypto.ts`                                |
+| Store-only ZIP writer (bulk download)                                                                          | `src/utils/zip.ts`                                   |
+| Per-key task serializer (chunk-order fix)                                                                      | `src/utils/serialize.ts`                             |
+| Constants: STUN list, defaults, chunk options, timeouts                                                        | `src/configs.ts`                                     |
+| Shared types & file lifecycle enums                                                                            | `src/type.ts`                                        |
+| Astro build config                                                                                             | `astro.config.mjs`                                   |
+| Regression tests (16 guards: crypto, ICE-server, chunking, offer/answer handling, SDP/message decode, QR, zip) | `tests/`                                             |
 
 ### Task routing map
 
@@ -93,14 +83,14 @@ npm run build      # typecheck-free static build to ./build
 npm run lint       # prettier --check . && eslint .
 npm run format     # prettier --write .
 npm run protogen   # regenerate src/proto/message.ts from message.proto (needs protoc)
-npm test           # eight regression guards: node --no-warnings --test "tests/*.test.mjs"
+npm test           # sixteen regression guards: node --no-warnings --test "tests/*.test.mjs"
 ```
 
-**Verification gates for changes:** `npm test` runs the Node built-in test runner over all eight `tests/*.test.mjs` regression guards — `node --no-warnings --test "tests/*.test.mjs"` — pinning the RSA-OAEP modulus at 2048 bits, the store-only ZIP writer (`createZipStoreOnly` CRC-32 vectors + external-unzip round-trip), the per-file chunk-order serialization (`serializeTask` driven exactly as `onChunkData` wires it, with out-of-order mocked decryption), the `int64` `MetaData.size` wire encoding (PR #42: files ≥ 2 GiB no longer throw `invalid int32` during `Message.encode`), the receiver "Max Size" option values matching their labels plus the numeric coercion in `onChange` (PR #44: 10/100 MB options previously enforced KB limits), the guarded `sdpDecode` call sites plus the sdp-compact throw premise (PR #45: malformed SDP input in the `s` link param or answer code no longer crashes the page), the guarded `Message.decode` on peer-controlled data-channel bytes (PR #46: malformed/truncated protobuf frames no longer crash the page uncaught), and the ICE-server round-trip through the shared `isSupportedIceServer`/`resolveIceServer` predicate in `src/configs.ts` (custom/TURN server chosen on the sender is honored by the receiver — a value the sender emits into the `i` link param is the same value the receiver configures, so asymmetric ICE can no longer break NAT traversal). (`--no-warnings` is passed because `sdp-robustness.test.mjs` registers a Node ESM resolve hook that deprecation-warns on newer runtimes.) The Zero Factory precommit hook runs `./.zerofactory/precommit.sh`, whose default/`all` path executes `format` (`prettier --write` + `eslint . --fix`) → `build` (`tsc --noEmit` + `astro build`) → `test` (`npm test` — all eight guards). Also note: `astro check` is _not_ configured (no `@astrojs/check` devDep) and its install prompt hangs non-interactive shells — do not run it.
+**Verification gates for changes:** `npm test` runs the Node built-in test runner over all sixteen `tests/*.test.mjs` regression guards — `node --no-warnings --test "tests/*.test.mjs"` (package.json `test` script, verbatim) — covering, among others, the RSA-OAEP modulus pinned at 2048 bits (`tests/crypto.test.mjs`), the store-only ZIP writer (`createZipStoreOnly` CRC-32 vectors + external-unzip round-trip), the per-file chunk-order serialization (`serializeTask` driven exactly as `onChunkData` wires it, with out-of-order mocked decryption), the `int64` `MetaData.size` wire encoding (PR #42: files ≥ 2 GiB no longer throw `invalid int32` during `Message.encode`), the receiver "Max Size" option values matching their labels plus the numeric coercion in `onChange` (PR #44: 10/100 MB options previously enforced KB limits), the guarded `sdpDecode` call sites plus the sdp-compact throw premise (PR #45: malformed SDP input in the `s` link param or answer code no longer crashes the page), the guarded `Message.decode` on peer-controlled data-channel bytes (PR #46: malformed/truncated protobuf frames no longer crash the page uncaught), the sender's numeric chunk-size handling (`Sender.sendNextChunk`'s `Number()` coercion + `OfferOptions.onChange`, PR #56: a Svelte 5 `<select> bind:value` string can no longer make offsets string-concatenate into one over-sized chunk), the answer-key plaintext downgrade (`parseAnswerCode` empty-key path, PR #50), the offer-link keypair mint-once race (`offerBuilt` guard, PR #55), the receive-page offer-processing failure state (PR #49), the ICE-server options propagation (PR #57), the shared ICE-server predicate round-trip through `isSupportedIceServer`/`resolveIceServer` in `src/configs.ts` (custom/TURN server chosen on the sender is honored by the receiver, PR #48), the DragAndDrop paste-listener scoping (PR #52), the reactive QrModal (PR #53), and the receiver's corrupt-chunk reject path (`rejectCorruptChunk` on AES-GCM auth failure, PR #54). (`--no-warnings` is passed because `sdp-robustness.test.mjs` registers a Node ESM resolve hook that deprecation-warns on newer runtimes.) The Zero Factory precommit hook runs `./.zerofactory/precommit.sh`, whose default/`all` path executes `format` (`npx prettier --write . && npx eslint . --fix`) → `build` (`npx tsc --noEmit && npm run build`) → `test` (`npm test` — all sixteen guards). Also note: `astro check` is _not_ configured (no `@astrojs/check` devDep) and its install prompt hangs non-interactive shells — do not run it.
 
 **Conventions:** TypeScript strict, Svelte 5 runes style (`$state`/`$props`), Tailwind 4 + DaisyUI classes, Conventional Commits. Zero Factory's precommit hook runs `./.zerofactory/precommit.sh` (format → typecheck+build → test).
 
 ## Known operational issues (from README)
 
-- Some networks block the default Google STUN server → slow/failed candidate gathering; pick a different STUN via _Settings_ (propagated through the offer link's `i` param).
+- Some networks block the default Google STUN server → slow/failed candidate gathering; pick a different STUN — or a custom/TURN URL, which round-trips through the shared `isSupportedIceServer` predicate — via _Settings_ (propagated through the offer link's `i` param).
 - Firewalls may block WebRTC data (UDP/ICE) during file sends.

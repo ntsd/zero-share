@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:cad41c9932d8ffe8e68eb3e6993b7aa6060e38cd6d387b11fec9d37b3b62c38b",
+  "pageVersion": "sha256:fb2873d993de16455488a408c597bcd3d50cfe3e4dda415ee757b1bccc996049",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
-      "statement": "Zero Share is a serverless client-side P2P file-sharing app built as a static Astro 5 + Svelte 5 site (output 'static', PWA service worker) with Tailwind 4/DaisyUI; file transfer runs over a direct WebRTC data channel using only public STUN servers, with optional per-file encryption.",
+      "statement": "Zero Share is a serverless client-side P2P file-sharing app built as a static Astro 5 + Svelte 5 site (output 'static', PWA service worker) with Tailwind 4/DaisyUI; file transfer runs over a direct WebRTC data channel with a public STUN server for NAT traversal (a user-typed custom STUN/TURN URL is also accepted through the shared isSupportedIceServer/resolveIceServer predicate in src/configs.ts), with optional per-file encryption.",
       "evidence": [
         {
           "resource": "repo://README.md#L1-L18",
@@ -16,21 +16,29 @@
         },
         {
           "resource": "repo://package.json#L1-L40",
-          "version": "repo-lines-v1:sha256:ea8f7c3b46da1e9fc4e6abc5787b75792cb0ff2373072a5a1875742eb56ec615:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NWJjMTA1NzYxNzcyYTIyZjVlYjU1NmI4YzhmYTU5OGNmOTQzMTI4Njk1ZTVkNTU5YzIzMjQ5ZTBlYmVjYjMifQ"
+          "version": "repo-lines-v1:sha256:af22118d09f1c9aeb4868528a7b144db397e61b968ebdbefa6d67e46f96688a3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NWY5YjVhYjM5NTFlMjcyMGYyNTZjNmYzNzllOGU1ZmU5ZWY5NzE4YTFlNTQ1MGViMzlkNDc1OWNhYTg1ZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMmJjMDliYWY5MGI4MDk4MDg2YmNlYzE2NjRlMGU1OWZjZmJmNjc1YjE5MTMyYzg1MmZlZjg3YzFiMGZlOGUifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L1-L60",
+          "version": "repo-lines-v1:sha256:99f21398be30875bf60a3d3d7e37743738fcb8507c75720ef1136c11fc94f7ca:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZWMyM2NiMWY3YjZhZDRkN2RiNjU3MTg3YmJhYjUzMzkyYjM3Y2EyZDU2ZmQxODlkYzIxNjA5MGJjMzcwNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkMmMyMTZiYTgwODUyOGYzZjU0MmU5NmI2ZGM3OTNhZTU3ZDYxODA4ZDc2NDUzNjRlOTVlNDJhNDE2Y2FiODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5NjcyZDdjZGZjZDE1MDBiODE0MTE0YjZiNmE3ZjQzMGRmZjBlMDRkMDc2NzdkOGQwNDBhM2U2Nzk4YjZjZTgifQ"
         }
       ]
     },
     {
       "id": "claim_0d8574c6717049c2b9b514639210ae5f",
-      "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (STUN override, accepted only when in the STUN_SERVERS allowlist), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only; a malformed key downgrades the session to plaintext with an error toast); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>. sdpDecode throws synchronously on empty, invalid-base64, or non-SDP input, so both user-controllable decode sites (the s link param and the answer code) are guarded with try/catch and surface an error toast instead of crashing the page (PR #45).",
+      "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (ICE server override — the sender emits resolveIceServer(sendOptions.iceServer), i.e. the built-in STUN allowlist or a well-formed stun:/turn: custom URL, and the receive side accepts it only when it passes the same shared isSupportedIceServer predicate, else the default ICE server is used with an error toast), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only; a malformed key downgrades the session to plaintext with an error toast); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>, where an empty key portion is the receiver's deliberate plaintext downgrade and is handled, not treated as malformed. sdpDecode throws synchronously on empty, invalid-base64, or non-SDP input, so both user-controllable decode sites (the s link param and the answer code) are guarded with try/catch and surface an error toast instead of crashing the page (PR #45).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L43-L60",
-          "version": "repo-lines-v1:sha256:3bdd1ad599ab8a0f57235736ad7534adfd7c3b151028980895f2795a990f81cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZDZjZmFmOWVjMDkwMjU1NWM3MjU1OTM0OTc3ODVkZjJiODkyYWFjN2VjMDQxMmZhYzBkODFmYWE1MjFkOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1YzIxNTE1ZDUzMzYzMDk1M2M2ZTQ2MzA5YTZhYWI3ZWE3ODZjZWYwYjc3ZDQ5MTA0NzFmYTQxNTEwMzI2NTEifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L63-L78",
+          "version": "repo-lines-v1:sha256:50eea80bf288166dba0fa8d5d5c8afc443ffb9e685d6a2d66cc17e2c561e1ea7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3MmVkZmNmMTQ4ZjIzNjA5MjAwYTNhNjdmM2I4N2M0MmI5MTg0ZDNlNDJlYTQyZTYzYWMzZWI3MjkxZGJhMDQifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L33-L69",
-          "version": "repo-lines-v1:sha256:553b3faf455d30e1beed0fa79bb5106f578118c39df222925c447a986c343496:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjZGQ2NjA0YTRlYmQwNDc1NGQ4MDZhODJmMjhkOGZjODk4MmZhMzQ5YjI3OGM0NThjNjNiOWYwOGMxMjNkMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmM2RjMGU0ZTFkYjczYjg5ZThmNjZhMWMzMDA3MDAzOWIwYzZiMWRlMzFjN2UwZjI5ZWU2MTk5YjMzNTZjMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAzMTNkM2RiYWFlMWM3ZDdiNDZlMjQwMzZjNDE2N2Q0YzY3MzYyMjFlYzQ3Zjk5NDIxNzExYzUyMWNhMjEyN2QifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L138-L154",
+          "version": "repo-lines-v1:sha256:8a921d866b04cd1fc67d4f9bf386ccbc74759f1adb29a072082ad40cdccede85:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljNzU4NDgxZDQyMDUyOWE1YzhmOTUyMTg1NGVlYzIyYjdkNTRiNmFmMzA2YmMyMTMxZDQ3MWVmYjYwMGNkYTQifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L33-L77",
+          "version": "repo-lines-v1:sha256:8ad95c354b97f7007e5e66391dcb33b26116c4b58515cc4fd06ef85e2a3facf2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmM2RjMGU0ZTFkYjczYjg5ZThmNjZhMWMzMDA3MDAzOWIwYzZiMWRlMzFjN2UwZjI5ZWU2MTk5YjMzNTZjMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkYThhNTY3ODQ0MTFmNTI5NmY5MjNiZGU3NTZlYWE2M2EzZDJhM2IzZDBjNjc3ZjE2MWI5NDdiNWQzMGNiYzMifQ"
         },
         {
           "resource": "repo://src/utils/sdpEncode.ts#L1-L14",
@@ -40,21 +48,29 @@
     },
     {
       "id": "claim_02260b9d041440448fda65b10f4bc46c",
-      "statement": "Connection setup is offer-link driven: the offer peer generates an RTCPeerConnection, data channel, and SDP offer (waiting up to 3 seconds for ICE candidates), while the answer peer decodes the user-controllable offer SDP from the URL inside a try/catch (toast 'Invalid SDP in link' instead of a page crash, PR #45), awaits the validated p-param key import, generates the answer plus its RSA key pair (when encrypted), and returns the answer code; the channel opens on both sides once the offer peer accepts it (answer SDP decode also guarded with try/catch, toast 'Invalid answer code', PR #45).",
+      "statement": "Connection setup is offer-link driven: the offer peer mints its RSA keypair exactly once per generateOfferLink() invocation (before the peer exists) and creates the RTCPeerConnection (with the shared-predicate-resolved ICE server), data channel, and SDP offer, building the link at most once via a per-invocation offerBuilt flag across the onicecandidate-completion and 3-second timeout paths; the answer peer decodes the user-controllable offer SDP from the URL inside a try/catch (toast 'Invalid SDP in link' instead of a page crash, PR #45), awaits that promise before createAnswer with a signalingState have-remote-offer check so a rejected setRemoteDescription surfaces an offerFailed error state instead of a stuck spinner (PR #49), awaits the validated p-param key import, generates the answer plus its RSA key pair (when encrypted; an empty-key downgrade is honored via the answer code), and returns the answer code; the channel opens on both sides once the offer peer accepts it (answer SDP decode also guarded with try/catch, toast 'Invalid answer code', PR #45).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L62-L134",
-          "version": "repo-lines-v1:sha256:a63b7a78e4adac8bcd20d2fce09e289aefda03b4efbb420058c91a9a8f9fdce7:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNDgzNTZlMTYzMTViMGVhOGQ5NjA2Y2U5NWZmOWZhMzVmYWRjYTljNGE4MzIxOTA2NjJkMTM2OGIzYmRjOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMDk4NTM5YjI1NjM2ZTVjZDJmZWJkZjc0Y2JmZGNlY2U2YWE0MzRkOWEyZWJmZjcwZThlNGU1YTMwNjc4YTAifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L140-L204",
+          "version": "repo-lines-v1:sha256:ac9c10553f9f98809f1947e99a2e83289b00aecf5df5ff635db952d5bf082f35:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2NTY1NDkwOTk3NzI2ZTFjNWE0ZjU3ZWFhYTRkZTYzODc2ZmQ1ODA2MTdmMjRhNTY2MzQ3YjVmNzE2ZmNjNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMDk4NTM5YjI1NjM2ZTVjZDJmZWJkZjc0Y2JmZGNlY2U2YWE0MzRkOWEyZWJmZjcwZThlNGU1YTMwNjc4YTAifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L82-L160",
-          "version": "repo-lines-v1:sha256:e017dabfb6142d23f6942878689777669ac356a882ef349145cbd08f670cf30f:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMWU1ZmMxZWE4ZTQ1MzRjZDQ5OTUzOTk1MjY5NmI3NjMxZTJjYTgxNzZkMTJjMzdiZDQ5Zjg1ODY0ZmMyMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MWUwNDg4MDBiNWJlYmI2YjU1NjhmNGNjMzljNTE5ZGU3NjMwYTg0OGE0ZWQyOWYzYWRlN2ViMDY0ZWVlN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0Yzk2YWMxNjIxNjRhYTYzNWQ0OGU3ODkwYjBmNzFlZjA3ZjU3ZGY2OTQ0MTZiNmM5OTY5YjFlYTVmYzBiNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMWRkYTE2ZDMzYTljYjJmYjE0NTEzYjAwOTdjYmNjYTVjNTI2NWFjYzQzNzgyZTgyNzJiOTk0MWI4ZjY0Y2MifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L218-L264",
+          "version": "repo-lines-v1:sha256:5eb0daf1ac8330fa551956f2c51b30821f83ab08fdf7f5762e926b8b981cf96a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MzgwZWQ5N2FjZmIxYWUxZDJkY2UxZDVmYzgwMjdmNDJiMmEzZThhYjM5YTM0MmMwNmMxODYwMGQ5ODUwODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyZDY1MThkZmI0NjgzNzRhMDE0M2YyNDc4ODY0MGM3ZDZlNmFmYzhlMDgwZDU0MmFkMjAzNTU5MTgzMDE4NzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
+        },
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L63-L94",
+          "version": "repo-lines-v1:sha256:78fc2c55b560e3b3ae66be6e027034eebb90cae6903fc62bea80132c45065812:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxZjg3Y2Y4ZDYyM2QxM2YzODljYWUzOTJkZjUzY2ViNDdlNzY1N2ZmMjBjMTU0ZDFkNTFiNDNjZDBmNTg4MzcifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L138-L200",
+          "version": "repo-lines-v1:sha256:861f867ad92da58d1d6460a196e0d9c681a522fd47e62fd8d64f931e5d3b0e17:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MDZiNzBiYmI0MWM3Y2NlZjYxZTA3NDI2ODc1OWJiZWIwZjEwMjY4MDNkOGY0ZmYxYzg0NjI3NmM5MzQ2M2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcxMmRiNzE3ODAxY2UwMGZiOTIwNDIyYzY4OTk5N2MxYTZmOThhMGExODMyNGJhZjJhM2E2NWUxODc2MjY3NDUifQ"
         }
       ]
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (six regression guards in sequence: node tests/crypto.test.mjs && node tests/zip.test.mjs && node tests/receiver-chunk-order.test.mjs && node tests/protocol-size.test.mjs && node tests/receiver-options-size.test.mjs && node --no-warnings tests/sdp-robustness.test.mjs — RSA-OAEP 2048-bit modulus, store-only ZIP writer round-trip, per-file chunk-order serialization, MetaData.size int64 wire encoding, receiver Max Size option values/numeric coercion per PR #44, and guarded sdpDecode call sites per PR #45), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (prettier --write . + eslint . --fix), then build (tsc --noEmit + astro build), then test (npm test — all six guards).",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \"tests/*.test.mjs\" — the Node built-in runner over ALL sixteen tests/*.test.mjs regression guards in one invocation), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all sixteen guards).",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh#L28-L45",
@@ -66,31 +82,7 @@
         },
         {
           "resource": "repo://package.json#L6-L16",
-          "version": "repo-lines-v1:sha256:783c89078af05a12feb5addf0ca99b5576e5068343a89f8c61c948aec79633ec:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
-        },
-        {
-          "resource": "repo://tests/crypto.test.mjs#L6-L21",
-          "version": "repo-lines-v1:sha256:1697f208971e11020d9e512ffd105d949fcebe91581d1240c940117848be2606:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MzM2ZDMzMGI1M2MxNGRiOWI0MDE4YmEyNGE3MGUzMzg4ODk5MDEzYzZlN2JjZjMxYjlmNjdhNDBjMDc0MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyODA4NjkwMTlmYzExMzU5N2EwNDFmNjMyNmU5ZDM4MWI2MzJhZTc5MjM4NmY2OTgwNDMwMmJiMTM1NzMxM2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1ZjI4NzAxOWYzOTA4NzkzYzhhOTNiZmYwNzVjN2IyYTdkYjU4NTVjMGNlNDU1Mjk2YmMwYjU2MjBlNWQ1MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlMWI0OGU5OThiOGJkNzhmOTEyOTNhZTUxODk4OWM4MDM1NGMyNDk4YjM0OWI5MzgyNmNlMTRkODBiNDBjMTYifQ"
-        },
-        {
-          "resource": "repo://tests/protocol-size.test.mjs",
-          "version": "repo-file-v1:sha256:5046cd81528eef5ab32875b891cdf2be59f8dea8a6581800a6edc352c6448b84"
-        },
-        {
-          "resource": "repo://tests/receiver-chunk-order.test.mjs",
-          "version": "repo-file-v1:sha256:639b4f0d287aff5af80df649a19b701ea7c67e09e86242a8a0befae36e74f9a4"
-        },
-        {
-          "resource": "repo://tests/receiver-options-size.test.mjs",
-          "version": "repo-file-v1:sha256:394fa85500dcf2169d945212140a6248cc3f4da2364b74957275c5df00b54028"
-        },
-        {
-          "resource": "repo://tests/sdp-robustness.test.mjs",
-          "version": "repo-file-v1:sha256:f92f84690baf871b2ba5d1e0638acdb6bf58f2a12de24c4bc0810f3d9db85651"
-        },
-        {
-          "resource": "repo://tests/zip.test.mjs",
-          "version": "repo-file-v1:sha256:58d412d5e3f0a343ebc8329f4a11c328e490878a0103a2e4f5760156375a0513"
+          "version": "repo-lines-v1:sha256:eb3fe01a51ac2c79bb10755d6e5b99a612ca823fdb0de2ce4fab0231cc4910ac:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
         }
       ]
     },
@@ -129,6 +121,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-12T12:05:53.851Z"
+    "at": "2026-10-13T12:04:42.015Z"
   }
 }

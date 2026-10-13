@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { addToastMessage } from '../../stores/toastStore';
 
   type Props = {
@@ -96,6 +96,15 @@
   }
 
   function handlePasteEvent(event: ClipboardEvent): void {
+    const target = event.target as HTMLElement | null;
+    const tag = target?.tagName;
+    // Pastes into a text-editing element belong to the input, not to file
+    // sharing — skip so pasting an answer code or custom ICE server does not
+    // silently add a stray clipboard.txt to the sender file list.
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) {
+      return;
+    }
+
     const clipboardData = event.clipboardData;
     if (!clipboardData) return;
 
@@ -118,6 +127,10 @@
   onMount(() => {
     setupDropAreaListeners();
     document.addEventListener('paste', handlePasteEvent);
+  });
+
+  onDestroy(() => {
+    document.removeEventListener('paste', handlePasteEvent);
   });
 </script>
 

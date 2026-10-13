@@ -14,5 +14,5 @@ export function addToastMessage(
   status: 'info' | 'success' | 'error' = 'info',
   duration = 5000
 ): void {
-  toastAtom.set({ id: Date.now().toString(), message, status, duration });
+  toastAtom.set({ id: crypto.randomUUID(), message, status, duration });
 }

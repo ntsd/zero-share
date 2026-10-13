@@ -5,8 +5,13 @@
 
   type Props = {
     onUpdate: (options: SendOptions) => void;
+    // true once the offer link has been generated: the link's `p` key
+    // (empty when plaintext, the sender's RSA public key when encrypted)
+    // pinned this session's encryption at generation time, so the
+    // encryption choice must not move behind the link
+    encryptionLocked?: boolean;
   };
-  const { onUpdate }: Props = $props();
+  const { onUpdate, encryptionLocked = false }: Props = $props();
 
   let encryptionEnabled = $state(DEFAULT_SEND_OPTIONS.isEncrypt ? 'true' : 'false');
   let chunkSize: number = $state(DEFAULT_SEND_OPTIONS.chunkSize);
@@ -38,10 +43,18 @@
         Enable E2E encryption for a more secure but slower transfer.
       </p>
     </div>
-    <select bind:value={encryptionEnabled} onchange={onChange} class="select select-bordered">
+    <select
+      bind:value={encryptionEnabled}
+      onchange={onChange}
+      disabled={encryptionLocked}
+      class="select select-bordered"
+    >
       <option value="true">On</option>
       <option value="false">Off</option>
     </select>
+    {#if encryptionLocked}
+      <p class="text-xs text-gray-500">Locked — regenerate the offer to change.</p>
+    {/if}
   </div>
 
   <div class="flex flex-row justify-between items-center">

@@ -28,13 +28,13 @@
   let sendOptions = $state(DEFAULT_SEND_OPTIONS);
   let rsa: CryptoKeyPair | undefined = $state(undefined); // private key
   let rsaPub: CryptoKey | undefined = $state(undefined); // public key from other peer
-  // Effective encryption mode for this session. Initialized from the user's
-  // setting, but a plain $state initializer is NOT a live binding: the Settings
-  // panel stays open and mutable while the offer is active, so the value would
-  // go stale when the user toggles encryption after the downgrade branch (or
-  // an encrypted accept) last wrote to it. onOptionsUpdate — the only place
-  // sendOptions is mutated — re-syncs it on every change; the downgrade branch
-  // may still override it to false for the current handshake.
+  // Effective encryption mode for this session. It starts from the user's
+  // setting and is then settled by the handshake itself: acceptAnswer pins
+  // it from the answer's key portion (present = encrypted, empty =
+  // plaintext), and onOptionsUpdate only re-syncs it from the setting while
+  // no offer link exists — once the link's `p` key has pinned the session,
+  // a live settings toggle must not desync Sender/Receiver from the peer's
+  // settled mode.
   let effectiveEncrypt = $state(sendOptions.isEncrypt);
 
   // webRTC
@@ -224,28 +224,45 @@
   async function acceptAnswer() {
     const { sdp, key, hasSeparator } = parseAnswerCode(answerSDP);
 
-    if (sendOptions.isEncrypt) {
-      if (hasSeparator && key === '') {
-        // the receiver deliberately downgraded to plaintext: importing an
-        // empty key would reject and the handshake would never complete, so
-        // follow the receiver into plaintext instead of bailing
-        effectiveEncrypt = false;
-        addToastMessage(
-          'Peer could not use the encryption key — continuing without encryption',
-          'info'
-        );
-      } else {
-        // validate the answer's public key: a malformed/truncated answer code
-        // (e.g. missing the `|` separator or a damaged non-empty key) would
-        // otherwise reject here, skipping setRemoteDescription and leaving a
-        // half-configured connection with no error shown
-        try {
-          rsaPub = await importRsaPublicKeyFromBase64(key);
-        } catch {
-          addToastMessage('Invalid encryption key in answer code', 'error');
-          return;
-        }
+    // The answer's key portion — not the live sendOptions.isEncrypt — is the
+    // source of truth for this session's encryption: the receiver always
+    // emits `sdp|<public key>`, empty when plaintext and a base64 SPKI key
+    // when encrypted. Gating on the live setting desyncs the session when
+    // the user flips the toggle after generating the offer link: with the
+    // setting OFF the import is skipped (rsaPub stays undefined and the
+    // Sender stops encrypting while the peer keeps sending encrypted), and
+    // with it ON against a downgraded peer it would import an empty key and
+    // dead-end the handshake.
+    if (hasSeparator && key === '') {
+      // plaintext answer: either the link was plaintext from the start, or
+      // the receiver deliberately downgraded because the `p` key was
+      // malformed. Either way we must follow into plaintext instead of
+      // bailing, or the handshake would never complete. The info toast also
+      // makes a post-link-generation settings toggle visible instead of
+      // silently desyncing the session (the select is disabled once the
+      // link is live, but a synthetic change can still fire).
+      effectiveEncrypt = false;
+      addToastMessage('Peer answered in plaintext — continuing without encryption', 'info');
+    } else if (key !== '') {
+      // a key is present: the peer is in encrypted mode. Validate it — a
+      // malformed/truncated answer code would otherwise reject here,
+      // skipping setRemoteDescription and leaving a half-configured
+      // connection with no error shown
+      try {
+        rsaPub = await importRsaPublicKeyFromBase64(key);
+      } catch {
+        addToastMessage('Invalid encryption key in answer code', 'error');
+        return;
       }
+      // pin the session to the peer's settled mode even if the live setting
+      // moved behind the link/answer
+      effectiveEncrypt = true;
+    } else {
+      // no `|` at all: a genuinely malformed code, not the receiver's
+      // deliberate plaintext-downgrade signal — surface a visible error
+      // instead of dead-ending the handshake
+      addToastMessage('Invalid encryption key in answer code', 'error');
+      return;
     }
 
     // validate the SDP in the answer code (user-pasted or QR-scanned):
@@ -265,15 +282,17 @@
 
   function onOptionsUpdate(options: SendOptions) {
     sendOptions = options;
-    // effectiveEncrypt is a plain $state, not a live binding off sendOptions,
-    // so the Settings panel (open and mutable while the offer is active) could
-    // otherwise leave it stale after the downgrade branch or an encrypted
-    // accept last wrote to it: re-enabling encryption post-downgrade would
-    // keep Sender at isEncrypt=false with no AES key, and toggling off post-
-    // encrypted-accept would leave rsaPub set while Sender no longer encrypts.
-    // Re-sync here on every options change; the downgrade branch may still
-    // override it to false for the current handshake.
-    effectiveEncrypt = sendOptions.isEncrypt;
+    // Until the offer link exists the setting IS the session mode, so keep
+    // effectiveEncrypt in sync (a plain $state initializer is not a live
+    // binding off sendOptions). Once the link is live the session's
+    // encryption is pinned by the link's `p` key — and later by the
+    // accepted answer's key portion — so a post-generation isEncrypt toggle
+    // must NOT move effectiveEncrypt: Sender/Receiver would otherwise
+    // desync from the peer's settled mode and silently corrupt (or fail)
+    // every chunk.
+    if (!offerLink) {
+      effectiveEncrypt = sendOptions.isEncrypt;
+    }
     // Clear any imported peer key so a re-enabled encryption session after a
     // downgrade starts from a clean state instead of carrying the previous
     // peer's public key.
@@ -299,7 +318,7 @@
     </p>
     <div class="mt-4">
       {#if showOfferOptions}
-        <OfferOptions onUpdate={onOptionsUpdate} />
+        <OfferOptions onUpdate={onOptionsUpdate} encryptionLocked={offerLink !== ''} />
       {/if}
       <div class="mt-4 flex flex-row gap-2">
         <button class="btn btn-primary" onclick={generateOfferLink}>Generate Offer</button>

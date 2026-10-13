@@ -1,6 +1,6 @@
 <script lang="ts">
   import QrScanner from 'qr-scanner';
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   type Props = {
     onScanSuccess: (data: string) => void;
@@ -16,10 +16,19 @@
       document.getElementById('qr-reader') as HTMLVideoElement,
       (decodedText: QrScanner.ScanResult) => {
         isModalOpen = false;
+        // Programmatic close: the checkbox change event never fires, so the
+        // scanner must be stopped here to release the camera stream + worker.
+        stop();
         onScanSuccess(decodedText.data);
       },
       {}
     );
+  });
+
+  onDestroy(() => {
+    // Release the camera if the component unmounts while a scan is active.
+    // stop() is a no-op when the scanner is already stopped.
+    stop();
   });
 
   function start() {

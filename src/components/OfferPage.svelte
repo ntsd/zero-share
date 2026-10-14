@@ -40,6 +40,18 @@
   // webRTC
   let connection: RTCPeerConnection;
   let dataChannel: RTCDataChannel | undefined = $state(undefined);
+  // Monotonically increasing generation counter: every offer link carries the
+  // generation that minted its RSA keypair and created its peer. The ICE-
+  // candidate fallback timer checks this token at fire time, so a timer left
+  // over from a previous generateOfferLink() generation — whose closure holds
+  // that generation's publicKeyBase64 — can never build a link after the user
+  // regenerates: the peer's `connection.localDescription` would now belong to
+  // the NEW generation while the timer's captured key belongs to the OLD one
+  // (a link whose `p` key no longer matches the re-minted rsa private key).
+  let offerGeneration = 0;
+  // Pending ICE-candidate fallback timer id of the latest generation. Cleared
+  // up front on every regeneration so a stale timer cannot fire at all.
+  let iceCandidateTimer: ReturnType<typeof setTimeout> | undefined = undefined;
   let isConnecting = $state(false);
   let generating = $state(false);
   let offerLink = $state('');
@@ -148,6 +160,34 @@
         'error'
       );
     }
+    // Tear down any previous offer generation BEFORE minting the new keypair:
+    // closing the old RTCPeerConnection and its data channel releases the
+    // leaked ICE agent's UDP sockets/STUN traffic (every regeneration used to
+    // leak one live peer) and stops its onopen/onerror/onclose handlers from
+    // firing later and stomping this generation's isConnecting/offerLink.
+    // Null the handlers first so nothing on the dead channel can run even in
+    // the window between close() and the channel actually closing.
+    if (iceCandidateTimer !== undefined) {
+      clearTimeout(iceCandidateTimer);
+      iceCandidateTimer = undefined;
+    }
+    offerGeneration++;
+    const generation = offerGeneration;
+    if (dataChannel) {
+      dataChannel.onopen = null;
+      dataChannel.onmessage = null;
+      dataChannel.onerror = null;
+      dataChannel.onclose = null;
+      dataChannel.close();
+      dataChannel = undefined;
+    }
+    // close() throws InvalidStateError on an already-closed peer (the
+    // previous generation's peer settles to 'closed' asynchronously after
+    // its own close, and a failed previous attempt still leaves `connection`
+    // pointing at it) — so guard on connectionState
+    if (connection && connection.connectionState !== 'closed') {
+      connection.close();
+    }
     generating = true;
     // hoisted out of createSDPLink so the keypair is minted exactly ONCE per
     // offer — before the peer exists — and can never be rotated by the second
@@ -186,8 +226,20 @@
       });
       await connection.setLocalDescription(offer);
 
-      // stop waiting for ice candidates if longer than timeout
-      setTimeout(() => {
+      // stop waiting for ice candidates if longer than timeout. The id is
+      // tracked at script scope so the next generation can clear it up front
+      // (see the teardown at the top of this function): a stale timer's
+      // closure holds the PREVIOUS generation's publicKeyBase64, and after a
+      // regeneration its guard would read the NEW peer's localDescription and
+      // pass — building a link whose `p` key no longer matches the re-minted
+      // rsa private key and silently breaking every encrypted transfer.
+      iceCandidateTimer = setTimeout(() => {
+        iceCandidateTimer = undefined;
+        // generation token first: the per-invocation offerBuilt local cannot
+        // see across generations, but a stale timer would otherwise survive
+        // regeneration because its guard reads the script-scope connection
+        // (now the new peer) and generating (now true for the new offer)
+        if (generation !== offerGeneration) return;
         // `generating`/`offerBuilt` are claimed by the onicecandidate path the
         // moment it builds: without these checks this fallback would overwrite
         // `offerLink` with a redundant second link

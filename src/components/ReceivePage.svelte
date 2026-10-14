@@ -8,8 +8,8 @@
   } from '../configs';
   import { addToastMessage } from '../stores/toastStore';
   import Eye from '../components/icons/Eye.svelte';
-  import { Message } from '../proto/message';
   import Collapse from '../components/layout/Collapse.svelte';
+  import { handlePeerMessage } from '../utils/peerMessage';
   import {
     exportRsaPublicKeyToBase64,
     generateRsaKeyPair,
@@ -105,25 +105,14 @@
       qrModal?.close();
     };
     dataChannel.onmessage = (event) => {
-      // data-channel bytes are peer-controlled: a malformed/truncated protobuf
-      // frame makes Message.decode throw synchronously, which would otherwise
-      // escape as an uncaught error and stall the transfer with no feedback
-      let message;
-      try {
-        message = Message.decode(new Uint8Array(event.data));
-      } catch {
-        addToastMessage('Invalid message from peer', 'error');
-        return;
-      }
-
-      if (message.metaData !== undefined) {
-        receiver?.onMetaData(message.id, message.metaData);
-        showNewFile = true;
-      } else if (message.chunk !== undefined) {
-        receiver?.onChunkData(message.id, message.chunk as Uint8Array<ArrayBuffer>);
-      } else if (message.receiveEvent !== undefined) {
-        sender?.onReceiveEvent(message.id, message.receiveEvent);
-      }
+      handlePeerMessage(event, {
+        onMetaData: (id, metaData) => {
+          receiver?.onMetaData(id, metaData);
+          showNewFile = true;
+        },
+        onChunkData: (id, chunk) => receiver?.onChunkData(id, chunk),
+        onReceiveEvent: (id, receiveEvent) => sender?.onReceiveEvent(id, receiveEvent)
+      });
     };
     dataChannel.onerror = () => {
       addToastMessage('WebRTC error', 'error');

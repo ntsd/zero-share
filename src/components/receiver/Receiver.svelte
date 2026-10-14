@@ -157,9 +157,16 @@
     chunkMap.receivedChunks.push(arrayBuffer);
     receivingFileStatsMap[id].receivedSize += receivingSize;
 
-    // calculate progress
-    receivingFileStatsMap[id].progress = Math.round(
+    // calculate progress — clamp to [0, 100]: a peer that claims a size
+    // smaller than the payload it actually streams would push the ratio past
+    // 100 (NaN is coerced to 0 as a safe fallback), so never hand the UI a
+    // progress value it cannot render sensibly.
+    const rawProgress = Math.round(
       (receivingFileStatsMap[id].receivedSize / receivingFile.metaData.size) * 100
+    );
+    receivingFileStatsMap[id].progress = Math.min(
+      100,
+      Math.max(0, Number.isNaN(rawProgress) ? 0 : rawProgress)
     );
     if (receivingFileStatsMap[id].progress >= receivingFileStatsMap[id].nextProgressUpdate) {
       // update UI

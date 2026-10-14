@@ -54,11 +54,24 @@
           metaData.key as Uint8Array<ArrayBuffer>
         );
       } catch {
-        // Key decryption failed: mark the entry so it can be seen and removed
-        // instead of the file silently never appearing and the sender waiting
-        // for an accept that will not come.
+        // Key decryption failed: mark the entry so it can be seen and removed,
+        // AND signal the sender. Every other onMetaData failure path (validateErr
+        // above, onRemove/onDeny/rejectCorruptChunk below) sends a receive event
+        // back over the channel; this path was the only one that omitted it, so
+        // the sender's file sat in WaitingAccept forever with no exit — its only
+        // transitions are peer-driven, and no accept will ever come for a key it
+        // cannot decrypt. Send EVENT_VALIDATE_ERROR (the metadata key failed to
+        // process) so the sender bounces to Pending and re-offers the file.
         receivingFiles[id].error = new Error('Failed to decrypt the file key');
         addToastMessage(`${metaData.name} failed to decrypt the file key`, 'error');
+
+        dataChannel.send(
+          Message.encode({
+            id: id,
+            receiveEvent: ReceiveEvent.EVENT_VALIDATE_ERROR
+          }).finish()
+        );
+
         return;
       }
     }

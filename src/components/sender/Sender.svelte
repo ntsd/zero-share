@@ -261,7 +261,24 @@
     Array.from(files).forEach(async (file) => {
       let aesKey;
       let aesEncrypted = new Uint8Array();
-      if (isEncrypt && rsaPub) {
+      if (isEncrypt) {
+        // The peer's RSA public key only exists after the answer is accepted
+        // (OfferPage.acceptAnswer), but the drop zone is live as soon as the
+        // data channel opens — i.e. while the offer is still pending. The
+        // pre-fix guard chained the two conditions in one if, so a pick
+        // before acceptAnswer silently skipped key generation and registered
+        // `key: new Uint8Array()`, which the receiver's
+        // decryptAesKeyWithRsaPrivateKey() rejected, dead-ending the whole
+        // encrypted transfer ("Failed to decrypt the file key").
+        // Reject the pick with a visible error instead of registering an
+        // undeliverable entry, so an empty key can never reach the wire.
+        if (!rsaPub) {
+          addToastMessage(
+            `${file.name} cannot be sent encrypted yet: the peer has not accepted the offer. Accept the answer, then select the file again.`,
+            'error'
+          );
+          return;
+        }
         aesKey = await generateAesKey();
         aesEncrypted = await encryptAesKeyWithRsaPublicKey(rsaPub, aesKey);
       }

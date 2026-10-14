@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:81f84a0996f41d8eed1d01857c4aa9a697ab77dddf4ad69caa32b48d108c559e",
+  "pageVersion": "sha256:0488af88090079511db6bc2bc4f88298acfd1edfff0a3050ba283837f084b1c0",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
@@ -49,8 +49,8 @@
       "statement": "The answer-code wire format is sdpEncode(localAnswerSdp) + '|' + publicKeyBase64 (key empty when the receiver downgraded to plaintext — a valid, intentional artifact); the offer peer's parseAnswerCode splits on the LAST '|', distinguishes a missing separator from a well-formed empty-key code (which follows the receiver into plaintext via effectiveEncrypt=false instead of dead-ending the handshake), imports a non-empty RSA public key inside a try/catch that toasts 'Invalid encryption key in answer code' and aborts on failure, and applies the decoded answer via setRemoteDescription inside its own try/catch that toasts 'Invalid answer code' on malformed SDP (PR #45); the receive page likewise decodes the user-controllable s param and calls setRemoteDescription inside a try/catch that toasts 'Invalid SDP in link' instead of crashing the page during load (PR #45).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L211-L264",
-          "version": "repo-lines-v1:sha256:10ff9d85a979356cb9407de9e7942418726c49d744f87c20a212e3d342abc129:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4M2JhMWE2ZjBhZThjZGM5NTVmNTBiYTVhNGE0ZmRiY2I1ZGY5ZjY1YTg4MTlkM2NhZDMwNDQwYjA1N2I0MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5ODUwMzFjMDgzODZmMjcxZTZiYzZjZWJmYzY3MTU1MDc3OWQ1N2M1NDJmYzFlNDI5MTVkN2JjMDJmMWM3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L276-L333",
+          "version": "repo-lines-v1:sha256:a6d4505ca28fa746684b33c0ef8ad509b71d99d41c10bdd659e6f917f61d7cda:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L138-L154",
@@ -64,11 +64,11 @@
     },
     {
       "id": "claim_45433c561b6d45cd86f0cfa35e29ca90",
-      "statement": "Both sides wait for ICE candidates to drain before freezing the SDP into the shareable artifact, but a 3-second WAIT_ICE_CANDIDATES_TIMEOUT builds the link/answer code from the current localDescription anyway so the connection forms rather than hanging; on the offer side the RSA keypair is minted once at the top of generateOfferLink and a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once, and the whole generation is try/catch-guarded so a construction/offer failure toasts 'Could not generate the offer' instead of leaving the spinner stuck.",
+      "statement": "Both sides wait for ICE candidates to drain before freezing the SDP into the shareable artifact, but a 3-second WAIT_ICE_CANDIDATES_TIMEOUT builds the link/answer code from the current localDescription anyway so the connection forms rather than hanging; on the offer side the RSA keypair is minted once at the top of generateOfferLink and a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once, and the whole generation is try/catch-guarded so a construction/offer failure toasts 'Could not generate the offer' instead of leaving the spinner stuck. Regeneration is generation-safe: before minting, the pending ICE-candidate timer is cleared, the old data channel's handlers are nulled and it is closed, the old RTCPeerConnection is closed (guarded on connectionState !== 'closed' since close() throws InvalidStateError on an already-settled peer), and a monotonically increasing offerGeneration counter is bumped; the timeout fallback re-checks its captured generation at fire time so a stale timer holding the previous generation's public key can never build a link with the old key.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L140-L204",
-          "version": "repo-lines-v1:sha256:ac9c10553f9f98809f1947e99a2e83289b00aecf5df5ff635db952d5bf082f35:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2NTY1NDkwOTk3NzI2ZTFjNWE0ZjU3ZWFhYTRkZTYzODc2ZmQ1ODA2MTdmMjRhNTY2MzQ3YjVmNzE2ZmNjNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMDk4NTM5YjI1NjM2ZTVjZDJmZWJkZjc0Y2JmZGNlY2U2YWE0MzRkOWEyZWJmZjcwZThlNGU1YTMwNjc4YTAifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L152-L256",
+          "version": "repo-lines-v1:sha256:ff6f6f930900186f478f53c2dd32d20f311af0a2c757aacc336520c2ddc9fa49:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjA5ODUzOWIyNTYzNmU1Y2QyZmViZGY3NGNiZmRjZWNlNmFhNDM0ZDlhMmViZmY3MGU4ZTRlNWEzMDY3OGEwIn0"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L191-L205",
@@ -85,12 +85,12 @@
       "statement": "The offer peer creates the data channel (ordered:false) and the answer peer receives it via ondatachannel; both install identical proto Message dispatch handlers with Message.decode on peer-controlled bytes guarded by try/catch (toast + drop the frame instead of an uncaught crash, PR #46) and unlock the Send/Receive transfer UI on channel open.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L100-L127",
-          "version": "repo-lines-v1:sha256:2195adf2de5fb59fe8ac433ccf356297327e75ab20cea565ab118c4e5ae5ea90:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNGM5ZGQ4YjVjZWIyODQwOGFiZGJmYmQ0N2JjOWI0NTg2ZDc0Y2UyOTllM2Q5OTQ5ZDQ5ZWJkNDY5N2Y3M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4MWE2MWMyZjVkZjJiNTI3ZTVmMzRhOGY0NTgwOTM3YzBkNDUyZTYyM2FkYjhkNmU0YjNkNmU0ZDU1MGMzODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjM2RkY2MyZTBkZGM1Yjk2MTJhMmI2YWIzMzE4ZjU1MTQxNmM1ZTc5NzM2YzI3NGRjZTk1NmMzMWI0MWFiNjUifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L119-L149",
+          "version": "repo-lines-v1:sha256:3cdb6536ede6601001673c1d78b6840382ee15f72aa471105f24d68363de4d96:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjMDExMDIzZmI5ZDVkMGExZGJmZWNlNmY4MjI1ZGVjYThmZTY5MGE0ZTM1N2JkNzNlMTVkNGQ1MjNkOTUxNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4NjJkMDc4Zjk3ZjA3NDdmNGU3NDE2OThlMGY0NzUwMDdmY2Y5NDZiOWY2NDgwYzcyNDZkNTU3ZjUwNDJhZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L99-L127",
-          "version": "repo-lines-v1:sha256:260840eecc20baeefb769ca3d3302cfeb85c6b0ad5024504b50f1b73b8e9b0dc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ODU0NjAxNTg4MTRiNjA0YTRjMWNmOTBhZGRkYmNhYmMxN2NhMDRjNmJjMGIxMGI3YTBjMWExNmU5ZDI2Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwZTNhYzgwMTdiNTdjMGUyYmQ3NDZiZDdhMTE0OWYyZGJlYWE2OTUwMDkwNDZjMGY0YjY5ZTNhZTZhNmEwMTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjM2RkY2MyZTBkZGM1Yjk2MTJhMmI2YWIzMzE4ZjU1MTQxNmM1ZTc5NzM2YzI3NGRjZTk1NmMzMWI0MWFiNjUifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L99-L135",
+          "version": "repo-lines-v1:sha256:9ade16cfc03c12d56e0f9ca48d6e0d98d982edaf526e7b9b41b4189b4fe09a2d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ODU0NjAxNTg4MTRiNjA0YTRjMWNmOTBhZGRkYmNhYmMxN2NhMDRjNmJjMGIxMGI3YTBjMWExNmU5ZDI2Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwZTNhYzgwMTdiNTdjMGUyYmQ3NDZiZDdhMTE0OWYyZGJlYWE2OTUwMDkwNDZjMGY0YjY5ZTNhZTZhNmEwMTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZDM4ZGE1YTliMDNkOGRkZWUxYmRhNDE1OGYxYjUzZTlhYmMwNGZhMzk5NWJkNGJkODhhOTQxZDY2NGI4NDkifQ"
         }
       ]
     },
@@ -118,15 +118,15 @@
     },
     {
       "id": "claim_f494c80366444f64ad561e77fc827565",
-      "statement": "QR exchange replaces keyboard entry: QrModal renders the offer link or answer code as a QR (byte mode, US-ASCII ECI 27, error-correction level M, auto version) via buildQrDataUrl in src/utils/qr.ts with the data URL $derived from the qrData prop so re-generating the offer never shows a stale mount-time QR (PR #53), and ScanQrModal decodes a counterparty QR from the camera, feeding the decoded text back through the same accept/copy path as pasting.",
+      "statement": "QR exchange replaces keyboard entry: QrModal renders the offer link or answer code as a QR (byte mode, US-ASCII ECI 27, error-correction level M, auto version) via buildQrDataUrl in src/utils/qr.ts with the data URL $derived from the qrData prop so re-generating the offer never shows a stale mount-time QR (PR #53), and ScanQrModal decodes a counterparty QR from the camera, feeding the decoded text back through the same accept/copy path as pasting; the scanner is stopped explicitly on the programmatic close/success path (stop() in the decode callback and in onDestroy) so the camera stream + decode worker are released, and both modals use per-instance DOM ids so multiple modals on one page never share toggles or video elements.",
       "evidence": [
         {
-          "resource": "repo://src/components/qr/QrModal.svelte#L1-L30",
-          "version": "repo-lines-v1:sha256:397d988ac2a07810c67f6297af54965f197da8701887c448dc6637bc1b8a4e79:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YWJjOGVkNzU0MzgyMjA2NWMwMjlmNWVhMjUyZDEyMjNkNzZhYTdkMmQzZDRmYjEyNTgxMmY2YjVhOTlkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlYTg3Nzk1Mjk2MzhhMWZiNmQ3MzNhMTJkMTQ1YjFhOThiNmQzYWI4NmJhM2Y3M2Y2YjFjYjZiZWY2NDJkOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/components/qr/QrModal.svelte",
+          "version": "repo-file-v1:sha256:54cb6e9af2d95b36d05b03ee1882ec639952b5bbefbc9e7c046d6336286a8e8b"
         },
         {
-          "resource": "repo://src/components/qr/ScanQrModal.svelte#L1-L54",
-          "version": "repo-lines-v1:sha256:c86812a1d2578c247f2ce841f76546bac1a9fb2b02a3f385c5e24c328cad0939:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YWJjOGVkNzU0MzgyMjA2NWMwMjlmNWVhMjUyZDEyMjNkNzZhYTdkMmQzZDRmYjEyNTgxMmY2YjVhOTlkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlYTg3Nzk1Mjk2MzhhMWZiNmQ3MzNhMTJkMTQ1YjFhOThiNmQzYWI4NmJhM2Y3M2Y2YjFjYjZiZWY2NDJkOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/components/qr/ScanQrModal.svelte",
+          "version": "repo-file-v1:sha256:a0205fbfb2aabdc1d3b0ad93f51d1bdd163c78190c83a7a600cc826a184b3c8d"
         },
         {
           "resource": "repo://src/utils/qr.ts#L1-L29",
@@ -135,6 +135,10 @@
         {
           "resource": "repo://tests/qr.test.mjs",
           "version": "repo-file-v1:sha256:cf98ebc31860274bd7171530c1241cc2b411a6d5f8d5f74b39baf5c3a148e6e9"
+        },
+        {
+          "resource": "repo://tests/scan-qr-lifecycle.test.mjs",
+          "version": "repo-file-v1:sha256:b38aa7c678589b04348902a4ef8b21273e127aefff1df0d45f34706b58854ece"
         }
       ]
     },
@@ -143,12 +147,12 @@
       "statement": "Failure handling: a missing or empty 's' param on the receive page redirects to origin and throws; ICE candidate errors, data channel errors, and close events toast an error, clear isConnecting, and blank the offer link on the offer side to prevent reuse of a stale link; offer-generation failures (synchronous constructor throws or rejected createOffer/setLocalDescription) toast 'Could not generate the offer' and re-enable the button; and on the receive side an unappliable offer sets offerFailed, which replaces the perpetual 'Generating Answer' spinner with an error state ('Could not connect: the offer in the link is invalid') instead of dead-ending the page (PR #49).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L140-L204",
-          "version": "repo-lines-v1:sha256:ac9c10553f9f98809f1947e99a2e83289b00aecf5df5ff635db952d5bf082f35:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2NTY1NDkwOTk3NzI2ZTFjNWE0ZjU3ZWFhYTRkZTYzODc2ZmQ1ODA2MTdmMjRhNTY2MzQ3YjVmNzE2ZmNjNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMDk4NTM5YjI1NjM2ZTVjZDJmZWJkZjc0Y2JmZGNlY2U2YWE0MzRkOWEyZWJmZjcwZThlNGU1YTMwNjc4YTAifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L108-L149",
+          "version": "repo-lines-v1:sha256:65cc59ac6f94372d8df46f2cbd6b8eaea14c508d916c224e0b9b4687a6b632ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZmM1ZGYyNGVlZTQxYjc4NzVhYzUzY2JlNTIzZDg1MjhiNTk3OGVkY2RmZDU0OTBiZTY1YTAxNDkxYzIwZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmNDI4NjRiODIxMjlkN2IwOTMyZDMxZmM3YmM5YTY1NTdjOWJmYzllYjRjOWY0MDM1NzU3ZWZiY2IwNmU1ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L96-L137",
-          "version": "repo-lines-v1:sha256:65cc59ac6f94372d8df46f2cbd6b8eaea14c508d916c224e0b9b4687a6b632ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZmM1ZGYyNGVlZTQxYjc4NzVhYzUzY2JlNTIzZDg1MjhiNTk3OGVkY2RmZDU0OTBiZTY1YTAxNDkxYzIwZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmNDI4NjRiODIxMjlkN2IwOTMyZDMxZmM3YmM5YTY1NTdjOWJmYzllYjRjOWY0MDM1NzU3ZWZiY2IwNmU1ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L152-L256",
+          "version": "repo-lines-v1:sha256:ff6f6f930900186f478f53c2dd32d20f311af0a2c757aacc336520c2ddc9fa49:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjA5ODUzOWIyNTYzNmU1Y2QyZmViZGY3NGNiZmRjZWNlNmFhNDM0ZDlhMmViZmY3MGU4ZTRlNWEzMDY3OGEwIn0"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L168-L213",
@@ -163,6 +167,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-13T12:04:42.015Z"
+    "at": "2026-10-14T13:06:55.597Z"
   }
 }

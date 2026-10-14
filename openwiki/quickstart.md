@@ -25,10 +25,10 @@ sources:
     resource: repo://src/type.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
-generated: { by: 'hermes', at: '2026-10-13T12:04:42.015Z' }
+generated: { by: 'hermes', at: '2026-10-14T13:06:55.597Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-13T12:04:42.015Z
+    at: 2026-10-14T13:06:55.597Z
 ---
 
 # Quickstart: Zero Share P2P File Sharing
@@ -50,19 +50,19 @@ verified:
 
 ## Where things live
 
-| Area                                                                                                           | Path                                                 |
-| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Offer (initiator) page                                                                                         | `src/components/OfferPage.svelte`                    |
-| Answer (responder) page                                                                                        | `src/components/ReceivePage.svelte`                  |
-| Sender / Receiver transfer engines                                                                             | `src/components/sender/`, `src/components/receiver/` |
-| Wire protocol (proto3 + ts-proto generated code)                                                               | `src/proto/message.proto`, `src/proto/message.ts`    |
-| Crypto (WebCrypto)                                                                                             | `src/utils/crypto.ts`                                |
-| Store-only ZIP writer (bulk download)                                                                          | `src/utils/zip.ts`                                   |
-| Per-key task serializer (chunk-order fix)                                                                      | `src/utils/serialize.ts`                             |
-| Constants: STUN list, defaults, chunk options, timeouts                                                        | `src/configs.ts`                                     |
-| Shared types & file lifecycle enums                                                                            | `src/type.ts`                                        |
-| Astro build config                                                                                             | `astro.config.mjs`                                   |
-| Regression tests (16 guards: crypto, ICE-server, chunking, offer/answer handling, SDP/message decode, QR, zip) | `tests/`                                             |
+| Area                                                                                                                                                                                                                                                         | Path                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| Offer (initiator) page                                                                                                                                                                                                                                       | `src/components/OfferPage.svelte`                    |
+| Answer (responder) page                                                                                                                                                                                                                                      | `src/components/ReceivePage.svelte`                  |
+| Sender / Receiver transfer engines                                                                                                                                                                                                                           | `src/components/sender/`, `src/components/receiver/` |
+| Wire protocol (proto3 + ts-proto generated code)                                                                                                                                                                                                             | `src/proto/message.proto`, `src/proto/message.ts`    |
+| Crypto (WebCrypto)                                                                                                                                                                                                                                           | `src/utils/crypto.ts`                                |
+| Store-only ZIP writer (bulk download)                                                                                                                                                                                                                        | `src/utils/zip.ts`                                   |
+| Per-key task serializer (chunk-order fix)                                                                                                                                                                                                                    | `src/utils/serialize.ts`                             |
+| Constants: STUN list, defaults, chunk options, timeouts                                                                                                                                                                                                      | `src/configs.ts`                                     |
+| Shared types & file lifecycle enums                                                                                                                                                                                                                          | `src/type.ts`                                        |
+| Astro build config                                                                                                                                                                                                                                           | `astro.config.mjs`                                   |
+| Regression tests (23 guards: crypto, ICE-server, chunking, offer/answer handling + offer-peer lifecycle, sender in-flight removal + encrypt-before-accept, receiver key-decryption + metadata-size, SDP/message decode, QR + scan lifecycle, toast ids, zip) | `tests/`                                             |
 
 ### Task routing map
 

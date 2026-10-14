@@ -292,11 +292,15 @@
     // every chunk.
     if (!offerLink) {
       effectiveEncrypt = sendOptions.isEncrypt;
+      // Clear any imported peer key so a re-enabled encryption session after
+      // a downgrade starts from a clean state instead of carrying the
+      // previous peer's public key. Link-gated for the same reason the
+      // re-sync above is: while the link is live the session's peer is
+      // settled and rsaPub — imported by acceptAnswer, its only import path
+      // — must survive a chunk-size / ICE-server options change, or the next
+      // file would be sent with an empty key the receiver cannot decrypt.
+      rsaPub = undefined;
     }
-    // Clear any imported peer key so a re-enabled encryption session after a
-    // downgrade starts from a clean state instead of carrying the previous
-    // peer's public key.
-    rsaPub = undefined;
   }
 </script>
 

@@ -17,15 +17,21 @@
 //     toast + bail (this is how the no-separator case stays visible instead
 //     of dead-ending the handshake).
 // While no offer link exists, onOptionsUpdate re-syncs effectiveEncrypt from
-// the setting; once the link is live it must NOT, so Sender/Receiver can't
-// desync from the settled mode — and OfferOptions disables the encryption
-// select so the desync is impossible to trigger in the UI.
+// the setting AND clears any imported peer key (rsaPub) so a re-enabled
+// session after a downgrade starts clean; once the link is live it must do
+// NEITHER — the peer is settled, rsaPub was imported by acceptAnswer, and an
+// ungated clear on a chunk-size / ICE-server change would silently send the
+// next file with an empty key the receiver cannot decrypt — and OfferOptions
+// disables the encryption select so the E2E desync is impossible to trigger
+// in the UI.
 //
 // Svelte components cannot run under Node, so this test follows the repo
 // convention (tests/sdp-robustness.test.mjs): the REAL parseAnswerCode
 // function is extracted from the .svelte source, transpiled with the
 // installed typescript package, and exercised; the branch structure of
-// acceptAnswer is pinned with static source guards.
+// acceptAnswer is pinned with static source guards; the real onOptionsUpdate
+// is likewise extracted, transpiled, and driven with live-link / no-link
+// state to pin the link-gated rsaPub clear.
 import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
@@ -36,6 +42,9 @@ import { createRequire } from 'node:module';
 const here = dirname(fileURLToPath(import.meta.url));
 const sveltePath = join(here, '..', 'src', 'components', 'OfferPage.svelte');
 const source = readFileSync(sveltePath, 'utf8');
+
+// Exercise the REAL option constants instead of copies that can drift.
+const { CHUNK_SIZE_OPTIONS, STUN_SERVERS } = await import(join(here, '..', 'src', 'configs.ts'));
 
 // ---- Helper: find the full function text in Svelte source (signature +
 // body) so it can be transpiled standalone ----
@@ -283,9 +292,35 @@ function extractFunction(src, name) {
     ),
     'onOptionsUpdate must re-sync effectiveEncrypt = sendOptions.isEncrypt ONLY while no offer link exists (link-gated: a post-generation toggle must not desync the session)'
   );
+  // The rsaPub reset is LINK-GATED by the same `if (!offerLink)` block as
+  // the re-sync: a chunk-size / ICE-server change while the link is live
+  // would otherwise wipe the peer key imported by acceptAnswer, and the next
+  // file would go out with an empty key the receiver cannot decrypt.
+  const gateStart = onOptionsBody.search(/if\s*\(\s*!offerLink\s*\)/);
+  assert.ok(gateStart !== -1, 'onOptionsUpdate must gate on `!offerLink`');
+  const gateBrace = onOptionsBody.indexOf('{', gateStart);
+  assert.ok(gateBrace !== -1, 'the !offerLink gate must open a block');
+  let gateDepth = 0;
+  let gateEnd = -1;
+  for (let i = gateBrace; i < onOptionsBody.length; i++) {
+    if (onOptionsBody[i] === '{') gateDepth++;
+    else if (onOptionsBody[i] === '}') {
+      gateDepth--;
+      if (gateDepth === 0) {
+        gateEnd = i + 1;
+        break;
+      }
+    }
+  }
+  assert.ok(gateEnd !== -1, '!offerLink gate braces must balance');
+  const gateBlock = onOptionsBody.slice(gateBrace, gateEnd);
   assert.ok(
-    /rsaPub\s*=\s*undefined/.test(onOptionsBody),
+    /rsaPub\s*=\s*undefined/.test(gateBlock),
     'onOptionsUpdate must reset rsaPub so a re-enabled session after a downgrade does not carry the previous peer key'
+  );
+  assert.ok(
+    !/rsaPub\s*=\s*undefined/.test(onOptionsBody.slice(gateEnd)),
+    'the rsaPub reset must sit INSIDE the !offerLink gate — an ungated clear wipes the peer key on a mid-session chunk-size / ICE-server change'
   );
   // The downgrade branch still overrides the pinned value to false.
   assert.ok(
@@ -358,6 +393,146 @@ function extractFunction(src, name) {
   );
 
   console.log('ok - OfferOptions encryption select locks while the offer link is live');
+}
+
+// ---- Test 5: the REAL onOptionsUpdate, link-gated peer-key survival ----
+// P0 regression: in a settled encrypted session (offer link live, answer
+// accepted, acceptAnswer() imported the receiver's public key into rsaPub),
+// the Settings panel stays open and mutable — changing Chunk Size or the ICE
+// Server select fires onUpdate() -> onOptionsUpdate(). The pre-fix clear ran
+// on EVERY options update, so a mid-session chunk-size / ICE-server change
+// silently wiped the peer key; Sender.onFilesPick then guarded key
+// generation with `if (isEncrypt && rsaPub)` and emitted an EMPTY
+// MetaData.key, and the receiver's decryptAesKeyWithRsaPrivateKey threw on
+// it — the sender hung on a file the receiver could never decrypt.
+//
+// The clear is only CORRECT while no link exists (pre-link / post-
+// disconnect: the next options update must clear the stale peer's key so a
+// re-enabled session starts clean). Both cases are pinned by transpiling
+// the REAL onOptionsUpdate and driving it with live-link / no-link state.
+// extractFunction() captures only the function's own signature + body, so
+// the component state it writes (sendOptions, effectiveEncrypt, rsaPub) and
+// reads (offerLink) live in harness-side closures with the same names —
+// the transpiled body sees them as free variables, exactly as it does in
+// the component's <script> scope. A mirrored body here would drift, so the
+// REAL source is transpiled instead.
+{
+  const fnSource = extractFunction(source, 'onOptionsUpdate');
+  const require = createRequire(import.meta.url);
+  const ts = require('typescript');
+  const compiled = ts.transpileModule(fnSource, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 }
+  });
+  const compiledPath = join(here, '.on-options-update.tmp.mjs');
+  // A single mutable STATE object carries the component state: the harness
+  // mutates STATE between calls and the transpiled body reads/writes it as a
+  // free variable, exactly like the component's $state runes. `let` per state
+  // variable at module scope mirrors the component's declaration shape; the
+  // STATE export is how the harness reaches them (module namespaces are
+  // immutable, so plain `export let` bindings can't be assigned from here).
+  const statePreamble = [
+    `let offerLink = '';`,
+    `let sendOptions = null;`,
+    `let effectiveEncrypt = false;`,
+    `let rsaPub = undefined;`,
+    `export const STATE = {`,
+    `  get offerLink() { return offerLink; },`,
+    `  set offerLink(v) { offerLink = v; },`,
+    `  get sendOptions() { return sendOptions; },`,
+    `  set sendOptions(v) { sendOptions = v; },`,
+    `  get effectiveEncrypt() { return effectiveEncrypt; },`,
+    `  set effectiveEncrypt(v) { effectiveEncrypt = v; },`,
+    `  get rsaPub() { return rsaPub; },`,
+    `  set rsaPub(v) { rsaPub = v; }`,
+    `};`
+  ].join('\n');
+  await writeFile(
+    compiledPath,
+    [statePreamble, compiled.outputText, `export { onOptionsUpdate };`].join('\n'),
+    'utf8'
+  );
+  try {
+    const mod = await import(compiledPath);
+    const state = mod.STATE;
+    const settledPeerKey = { kind: 'RsaPublicKeyStub' }; // stand-in for the CryptoKey importRsaPublicKeyFromBase64 returns
+    const otherChunkSize = CHUNK_SIZE_OPTIONS.find((s) => s !== 32 * 1024) ?? CHUNK_SIZE_OPTIONS[0];
+    const otherIceServer =
+      STUN_SERVERS.find((s) => s !== 'stun:stun.l.google.com:19302') ?? STUN_SERVERS[0];
+
+    // 5a. Live link + imported peer key: a chunk-size change must NOT touch
+    //     rsaPub, and must NOT move effectiveEncrypt off the settled mode.
+    const liveLink = 'https://zero-share.example/#offer~stub-p-MIGfMA0GCSqGSIb3';
+    state.offerLink = liveLink;
+    state.effectiveEncrypt = true;
+    state.rsaPub = settledPeerKey;
+    mod.onOptionsUpdate({
+      chunkSize: otherChunkSize,
+      isEncrypt: true,
+      iceServer: 'stun:stun.l.google.com:19302'
+    });
+    assert.equal(state.rsaPub, settledPeerKey, 'chunk-size change mid-session must keep rsaPub');
+    assert.equal(
+      state.effectiveEncrypt,
+      true,
+      'chunk-size change must not re-sync effectiveEncrypt'
+    );
+
+    // 5b. ... and neither must an ICE-server change.
+    state.rsaPub = settledPeerKey;
+    mod.onOptionsUpdate({
+      chunkSize: 32 * 1024,
+      isEncrypt: true,
+      iceServer: otherIceServer
+    });
+    assert.equal(state.rsaPub, settledPeerKey, 'ICE-server change mid-session must keep rsaPub');
+    assert.equal(
+      state.effectiveEncrypt,
+      true,
+      'ICE-server change must not re-sync effectiveEncrypt'
+    );
+
+    // 5c. Stale peer key after disconnect (offerLink reset to '' by the
+    //     dataChannel onerror/onclose handlers): the next options update —
+    //     e.g. re-enabling encryption before the next offer — must clear it,
+    //     preserving the original "start from a clean state" intent.
+    state.offerLink = '';
+    state.effectiveEncrypt = false;
+    state.rsaPub = settledPeerKey;
+    mod.onOptionsUpdate({
+      chunkSize: 32 * 1024,
+      isEncrypt: true,
+      iceServer: 'stun:stun.l.google.com:19302'
+    });
+    assert.equal(
+      state.rsaPub,
+      undefined,
+      'post-disconnect options update must clear the stale peer key'
+    );
+    assert.equal(
+      state.effectiveEncrypt,
+      true,
+      'post-disconnect options update re-syncs the live setting (no link yet)'
+    );
+    assert.equal(state.sendOptions?.chunkSize, 32 * 1024);
+
+    // 5d. Pre-link: no imported key yet, and the re-sync still applies.
+    state.effectiveEncrypt = false;
+    state.rsaPub = undefined;
+    mod.onOptionsUpdate({
+      chunkSize: otherChunkSize,
+      isEncrypt: true,
+      iceServer: 'stun:stun.l.google.com:19302'
+    });
+    assert.equal(state.rsaPub, undefined, 'pre-link options update keeps rsaPub undefined');
+    assert.equal(state.effectiveEncrypt, true, 'pre-link options update re-syncs the setting');
+    assert.equal(state.sendOptions?.isEncrypt, true);
+
+    console.log(
+      'ok - onOptionsUpdate: live-link chunk-size / ICE-server change keeps rsaPub; no-link update clears it'
+    );
+  } finally {
+    await rm(compiledPath, { force: true });
+  }
 }
 
 console.log(

@@ -188,6 +188,33 @@
     if (connection && connection.connectionState !== 'closed') {
       connection.close();
     }
+    // Reset the settled peer crypto so the NEW generation starts clean: the
+    // previous peer's public key and settled mode must not leak into the new
+    // link's handshake, or the new peer (whose keypair was re-minted in its
+    // own generateAnswerSDP) cannot decrypt what this sender emits.
+    // rsaPub = undefined makes Sender.onFilesPick's `if (!rsaPub)` guard
+    // reject a pick made before the new answer is accepted, instead of
+    // wrapping the AES key for the DEAD peer's public key. Picking again
+    // after the new acceptAnswer() re-imports the new peer's key.
+    rsaPub = undefined;
+    // Pin the new session's mode to the current setting (a plain $state
+    // initializer is not a live binding off sendOptions); the new link's `p`
+    // param and the new acceptAnswer() then re-pin it exactly as in the
+    // first-time flow. onOptionsUpdate's link-gated re-sync is skipped here
+    // because the old offer link is still set until createSDPLink replaces
+    // it — so without this reset the previous session's effectiveEncrypt
+    // would survive a plaintext<->encrypted flip across regenerations.
+    effectiveEncrypt = sendOptions.isEncrypt;
+    // UI state belonging to the dead generation must not ride into the new
+    // one: a leftover "New files" badge would keep bouncing on the Receive
+    // tab of the fresh generation; a stale isConnecting (set by the old
+    // channel's onopen, which was just detached so onclose can't clear it)
+    // would keep "2. Accept Answer" collapsed and misreport the new channel
+    // as connected; a lingering answer code would let a stale Accept click
+    // run setRemoteDescription against the new peer ("Invalid answer code").
+    showNewFile = false;
+    isConnecting = false;
+    answerSDP = '';
     generating = true;
     // hoisted out of createSDPLink so the keypair is minted exactly ONCE per
     // offer — before the peer exists — and can never be rotated by the second

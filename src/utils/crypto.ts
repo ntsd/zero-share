@@ -95,7 +95,17 @@ export async function decryptAesGcm(
 // arrayBufferToBase64 to convert an ArrayBuffer to a base64 string
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const byteArray = new Uint8Array(buffer);
-  const byteString = String.fromCharCode.apply(null, byteArray as unknown as number[]);
+  // Build the binary string in slices: String.fromCharCode.apply(null, large)
+  // overflows the JS call stack for >~65k elements (RangeError on multi-MB
+  // buffers), so chunk the conversion instead of passing the whole array.
+  const CHUNK = 0x8000;
+  let byteString = '';
+  for (let offset = 0; offset < byteArray.length; offset += CHUNK) {
+    byteString += String.fromCharCode.apply(
+      null,
+      byteArray.subarray(offset, offset + CHUNK) as unknown as number[]
+    );
+  }
   const base64String = btoa(byteString);
   return base64String;
 }

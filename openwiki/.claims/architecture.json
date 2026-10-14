@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:6e25800041a0637d2e25a8db22dc043cadab16b4e6318a343118d678c8b45195",
+  "pageVersion": "sha256:f67158ed1081b1b496ebf11112260f41ea580937327ab685b8d2b25ec1016c73",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -68,15 +68,19 @@
     },
     {
       "id": "claim_662ea9b9ec004cd98a9410f3d8b63ddd",
-      "statement": "Offer establishment mints the RSA keypair exactly once at the top of generateOfferLink (before the peer exists), creates the RTCPeerConnection with a data channel (ordered:false) using the predicate-resolved ICE server, generates the local offer, then waits for ICE candidates to finish or a 3-second timeout (WAIT_ICE_CANDIDATES_TIMEOUT) before building the offer link; a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once and the timeout fallback can never rotate the key, and synchronous construction/offer-creation failures are caught and toasted instead of leaving the spinner stuck.",
+      "statement": "Offer establishment mints the RSA keypair exactly once at the top of generateOfferLink (before the peer exists), creates the RTCPeerConnection with a data channel (ordered:false) using the predicate-resolved ICE server, generates the local offer, then waits for ICE candidates to finish or a 3-second timeout (WAIT_ICE_CANDIDATES_TIMEOUT) before building the offer link; a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once and the timeout fallback can never rotate the key. Regeneration is generation-safe: before minting, generateOfferLink clears the pending ICE-candidate timer, nulls the handlers and closes the old data channel and RTCPeerConnection (unless already closed), and bumps a monotonically increasing offerGeneration token; the timeout fallback re-checks that token at fire time so a stale timer holding the previous generation's public key can never build a link from the new peer's SDP. Synchronous construction/offer-creation failures are caught and toasted instead of leaving the spinner stuck.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L140-L204",
-          "version": "repo-lines-v1:sha256:ac9c10553f9f98809f1947e99a2e83289b00aecf5df5ff635db952d5bf082f35:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2NTY1NDkwOTk3NzI2ZTFjNWE0ZjU3ZWFhYTRkZTYzODc2ZmQ1ODA2MTdmMjRhNTY2MzQ3YjVmNzE2ZmNjNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmMDk4NTM5YjI1NjM2ZTVjZDJmZWJkZjc0Y2JmZGNlY2U2YWE0MzRkOWEyZWJmZjcwZThlNGU1YTMwNjc4YTAifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L152-L256",
+          "version": "repo-lines-v1:sha256:ff6f6f930900186f478f53c2dd32d20f311af0a2c757aacc336520c2ddc9fa49:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjA5ODUzOWIyNTYzNmU1Y2QyZmViZGY3NGNiZmRjZWNlNmFhNDM0ZDlhMmViZmY3MGU4ZTRlNWEzMDY3OGEwIn0"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L63-L94",
-          "version": "repo-lines-v1:sha256:78fc2c55b560e3b3ae66be6e027034eebb90cae6903fc62bea80132c45065812:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxZjg3Y2Y4ZDYyM2QxM2YzODljYWUzOTJkZjUzY2ViNDdlNzY1N2ZmMjBjMTU0ZDFkNTFiNDNjZDBmNTg4MzcifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L68-L90",
+          "version": "repo-lines-v1:sha256:a666cad158278ec91e5f57c3adf05cf7705d1210721d7094ffb815818a8f59a5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkOGYxMzg5YTc1NmI2OTFjMTUwNzc2YmRkODBjZmIyM2Y0OTczOGJmZThjNGUyMDNkNjkzNzE4NmU1NDY0ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3MmVkZmNmMTQ4ZjIzNjA5MjAwYTNhNjdmM2I4N2M0MmI5MTg0ZDNlNDJlYTQyZTYzYWMzZWI3MjkxZGJhMDQifQ"
+        },
+        {
+          "resource": "repo://tests/offer-peer-lifecycle.test.mjs",
+          "version": "repo-file-v1:sha256:cd6275d13925307ac229f584cb5705b85625daa8e4a3ace0ba70898685d48743"
         }
       ]
     },
@@ -128,21 +132,21 @@
       "evidence": [
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L119-L124",
-          "version": "repo-lines-v1:sha256:02b3f1df535970c554616e3e3b67562305f1c18643a11f5b377240e17a725827:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTNiNjM4YWQ5MWQ3MjUyYTBhMjk1MzZmOTE0NDNlODE4NjgyMDQyNjlhZDk3YjBlYjUxOWYyMjVmZWUxNDEzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODRlNDIwOGNkNmZmYjhjNGEzNTQ3YjJmNTRhZGExOTk3OGMzZjM2NWU3OGY5NTAyZWY1MTQ1Y2RkMmFhODU0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmZlNjhmYzdhYTM1Njg3Y2EzM2I1MmM5MmVhMmJjMDNkZTQ3ZDA4YzdhN2UzYjc5ZTUxNGY0YTE1ODU2NzE3MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGY5NDliZGQ4YWEyM2EzZDE5N2EzNzNiNzljOTQ1MDQ2NGNlMmI5NDI4OWM5MDlmZGQwMmRjYmUzMDg3MDVjMSJ9"
+          "version": "repo-lines-v1:sha256:af7f7c8ef2dbb0f37ca30bbc95f78f61dd4062587c5dc0615794b0540c3e9154:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjY5ZGE5NTRkN2RkNzE5NjcwOWEzM2MwM2U5OWUxN2ExMDFhZGY1NDY3MjBkY2IwOGM2OTMzZmJhMmZiOGY4NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzZjOTZhMjhlMTkwM2VlMWVlYTIzZmEzNWE1MDEyMWI3YTA4OTI1MTMwMjkyZWIxMGY4MjlmZTY2YjAwZDZkYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2VmYjk1ZmViZWVlZTc1ODU1YzU0Y2Q3YzhmMGEzMTJlZWNmZjRmYjhkNDkyNTNlMDA3NmQ2YjdjNjYxNTc2YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDZjNDNkNDU2ZjcwYWRmMTc4Y2I2ZWEyNjI0OWY4M2M5ODE1YTZjNTk1MDA3OTFkMDhjYmMzNDY5MDE5NjM5ZiJ9"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L46-L72",
-          "version": "repo-lines-v1:sha256:d2a431bee88c8763e62dfa3ce18fe70c53e32be8aafe120e134986acb0c420ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0YzEwODg2ZTQ5MTU2MGI0YjZhMWM0MTRlMTk0NzA4YmJiNTJmZjBlM2EzYmM5MGYyMDM3NmNhNTVjMWI3N2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwZGI1OWZjZmQ4MjE3OGRiNzA5YzBhNTcxY2NlMDgzMTNkOGZhMzBmZjg0Y2RkODA4ZjcxZjZhZjIxOTQ2ODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhNWM2ZTE1MDc1NDYzMjY5NmNjODU3YmMwN2NkNDBjY2I0NmZjOGUxNGMwZWJlN2UxODY0NmRlM2VhNWQxY2QifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L72-L108",
+          "version": "repo-lines-v1:sha256:617fef145ee06930337a49f4ab4103e69f6fefd7a78c10d1982f94b35c782efc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2ZGI5MWEzZDRkZmUwN2VlMTc4NzE4NTA3OGZjODZiYzk0ZTdmN2NmZDIyMWVlYmZhNTgxOTY0MDAwZWE2ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAyMzE4YzY2OGIxY2Q3MDc4N2E3OTQ5MTAxNjRkOGZjMzcxMTM3NDM3NGNkYWQ5ZDk0NGUwZGEwMWQwMzM4MDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQzNTRhNzA3M2YyODM5YmNjNGMwN2VmNmUzODEyYzBhZGFlYjlhODYxOTBkNTEzZTYxZmM4ODA0ODE2NzI4ZWUifQ"
         }
       ]
     },
     {
       "id": "claim_6ae27ef5450f44fab921f7e1e98da446",
-      "statement": "Application-layer encryption is optional and off by default (DEFAULT_SEND_OPTIONS.isEncrypt false): when enabled, each file gets its own AES-256-GCM key wrapped with the receiver's RSA-OAEP-2048 public key, with the wrapped key delivered inside the metaData message, protecting file content from SDP-exchange MITM on top of DTLS; the answer peer awaits the validated p-param import before generating its own RSA pair for the answer code, and the offer side tracks the effective session encryption in a plain $state effectiveEncrypt that onOptionsUpdate re-syncs on every sendOptions change (the downgrade branch may override it to false for the current handshake).",
+      "statement": "Application-layer encryption is optional and off by default (DEFAULT_SEND_OPTIONS.isEncrypt false): when enabled, each file gets its own AES-256-GCM key wrapped with the receiver's RSA-OAEP-2048 public key, with the wrapped key delivered inside the metaData message, protecting file content from SDP-exchange MITM on top of DTLS; the answer peer awaits the validated p-param import before generating its own RSA pair for the answer code. The offer side tracks the effective session encryption in a plain $state effectiveEncrypt: while no offer link exists, onOptionsUpdate re-syncs it from the live setting and clears the imported peer key; once the link is live the session is settled by the handshake (the accepted answer's key portion pins it — present = encrypted, empty = plaintext), so a post-generation options change (chunk size, ICE server, or encryption toggle) cannot desync Sender/Receiver from the peer's settled mode.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L266-L278",
-          "version": "repo-lines-v1:sha256:22d3e40dfc60325011737c52012a977191a7b4187e549489c4bdaefb4e7bd120:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhOWVjMWZmMjRmNTdkM2UwMjBjZjkwMWM3YTg5MTY0NDNiMDU4ZDI4MGQ3YTQ5MzQxNTAzNGI2MWYwYmM4ZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhMjlmMjRlODU5OTFmMjNjZDA2YzY3MzlmMmE4YTgzZmY2ZmI4YWNjYTI3ZTc4NzcyZWEwODgyNjZkMmVmNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiZjkxOTA3NGQyNjYzNTUyMGRhOWY5ZjIwNmZkYzFlYjdkM2IyNzcwOGM4OGE2MTIyOWZhYzZmOTUyMGI2NWYifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L276-L356",
+          "version": "repo-lines-v1:sha256:05bfb0bb36bdb356ac0ad0052029bfcfee8681a5b34601535d3f3118091a15bb:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzZmQzYjVjMjJhMzRhMjBkNjE3NWE5ZjlmNTU2YmNmYzEwMGY0YmExMzhiNjQyZjViMTRlNzc2MjI5YTAyNDEifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L180-L189",
@@ -163,12 +167,12 @@
       "statement": "File state lives entirely in client memory as reactive Svelte maps keyed by file id (crypto.randomUUID on the sender side), with per-file progress/bitrate stats kept in non-reactive maps and flushed to UI state every PROGRESS_UPDATE_UI_STEP (3) percentage points to throttle renders.",
       "evidence": [
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L21-L38",
-          "version": "repo-lines-v1:sha256:bb86abf7b86ada8693803426f73ab3248169a8a7a832dd68e4a2938b4275ac17:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZTg1ZWVhZTU1NGUwNjJkMGE0MTMyYzFhODNmNWQwMGZkZGY4Mzc5ZjM5N2I2NjU4OTllMzUwMDUzNzU0ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2ZmZlNWQ1ZDhhNjk5MThiMDVlNThlYTUyYjk5ZmU2YWEwMDA1ZTM2Mjk1MGVmMDM5MjI3YTcwMDA0YzM4ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4Mjc4ZDJiOWM4NDFmZmNhZDVjNzRhMWIxYTE4YzhmOTc5ZWIzM2EyYmFhZjYyNGU2MDk5ZWFmYzQ4YjU5NTAifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L21-L43",
+          "version": "repo-lines-v1:sha256:8bd9c2cd88048adc3c838a30b9a87de50a37de2852faf67f1c339c3fe05e6217:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZTg1ZWVhZTU1NGUwNjJkMGE0MTMyYzFhODNmNWQwMGZkZGY4Mzc5ZjM5N2I2NjU4OTllMzUwMDUzNzU0ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2ZmZlNWQ1ZDhhNjk5MThiMDVlNThlYTUyYjk5ZmU2YWEwMDA1ZTM2Mjk1MGVmMDM5MjI3YTcwMDA0YzM4ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkM2U1NjlhYjhiNTAyODkyMzU1ZjBmMzY0MGE3YmRiMDkyZTI4NjNmZWRjMmY5ZWEwMjUzYjU1MzI5ZGU5NTgifQ"
         },
         {
           "resource": "repo://src/configs.ts#L35-L37",
-          "version": "repo-lines-v1:sha256:bff0a315e37195b47f073d25d4f3f56733e449a3ee7623ec874a76803a601d3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjUxYjNkYjY1ZmVlZWJiOTQ2ODkyYmQ3Nzk3ZTRlZjdmMDkyNmQxZTQ0N2NmMDBkMjQxYzhhMmU5OTUzMzVmNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTQ2NDNlNDcxOGRlOTUyYzNkNDNjN2JhZDMxNDNkMWM1Y2Y1MTY3NWQ0ZGQ2ZDVmMmJjMzFiOGY1ODE4MWY5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWZjNWY5NWNkNzZmZmMwZjI5ZDkwY2NlMjgyM2U2MTIzODdlYjIyZWRhZTNiMDU1OGRlNzE2YjFjOTAyYWQ0MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+          "version": "repo-lines-v1:sha256:5987dcae9c4506af2d4e93eed7a5115f0b64f619b3011e9cff713e11de04cf38:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAyZDJjMGQ2ZGM1ZTc0ZDkyZmExNGI5MWRiZWEyNjQwOTBiZWIzNWZkYjkxODhkOWIzNDExODFkY2U5ZjRjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQzODZmZDg4ODNlZDgyNTMxMmM5MDI1OGRmMjc0ZThiOTVhMjE5NWM1Yjk3YjZlNzhjMzM3ODlkNzE2OWY4ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjUwMWQzMzYwNTc0YmU1NGFlMTIwMzQxMGU5MTRmOGVkZDQxYjBkNWMzMWY2OGUyMmU0OWFiZGUwNWU5N2YzMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDE5Y2MyNmY4YjY2NDRhN2UzMGY1NDI5MjU5OTlkNDIzNTU3ZmQ2OWIwNGJjNjdiZWRmYzY4OTBhODYxY2RkNSJ9"
         },
         {
           "resource": "repo://src/type.ts",
@@ -211,6 +215,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-13T12:04:42.015Z"
+    "at": "2026-10-14T13:06:55.597Z"
   }
 }

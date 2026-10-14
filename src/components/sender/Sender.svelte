@@ -48,6 +48,20 @@
 
     sendingFile.event = new EventEmitter();
 
+    // Shared bookkeeping for a failed sendNextChunk() from either the ACCEPT
+    // or RECEIVED_CHUNK path. Defense in depth (same intent as #46/#45): never
+    // let a chunk failure escape as an unhandled rejection from the async
+    // listener.
+    function markChunkFailed(err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      const entry = sendingFiles[key];
+      if (entry && entry.status !== FileStatus.Success && !entry.stop) {
+        entry.error = new Error(`Failed to send chunk: ${message}`);
+        entry.status = FileStatus.Pending;
+        addToastMessage(`File ${sendingFile.metaData.name} failed to send: ${message}`, 'error');
+      }
+    }
+
     sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT), async () => {
       // Re-check the live entry after re-entering: the file may have been
       // removed while this async handler was suspended.
@@ -58,15 +72,7 @@
       try {
         await sendNextChunk();
       } catch (err) {
-        // Defense in depth (same intent as #46/#45): never let a chunk
-        // failure escape as an unhandled rejection from the async listener.
-        const message = err instanceof Error ? err.message : String(err);
-        const entry = sendingFiles[key];
-        if (entry && entry.status !== FileStatus.Success && !entry.stop) {
-          entry.error = new Error(`Failed to send chunk: ${message}`);
-          entry.status = FileStatus.Pending;
-          addToastMessage(`File ${sendingFile.metaData.name} failed to send: ${message}`, 'error');
-        }
+        markChunkFailed(err);
       }
     });
     sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK), async () => {
@@ -86,17 +92,7 @@
         try {
           await sendNextChunk();
         } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          const entry = sendingFiles[key];
-          if (entry && entry.status !== FileStatus.Success && !entry.stop) {
-            entry.error = new Error(`Failed to send chunk: ${message}`);
-            entry.status = FileStatus.Pending;
-            addToastMessage(
-              `File ${sendingFile.metaData.name} failed to send: ${message}`,
-              'error'
-            );
-          }
-          return;
+          markChunkFailed(err);
         }
         return;
       }

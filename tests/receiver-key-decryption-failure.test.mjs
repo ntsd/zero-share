@@ -324,6 +324,156 @@ function buildReceiver({ rsa, autoAccept = true }) {
   );
 }
 
+// ---- Test 5: manual-accept mode (autoAccept=false) + failing key -> entry
+// ---- stays WaitingAccept + error and is still actionable (not auto-advanced,
+// ---- not bounced to Pending) ----
+// This is the exact state the UI gating fix (ReceivingFileList.svelte) must
+// keep actionable: in manual mode a failed-metadata entry must still be able
+// to receive Accept/Deny instead of dead-ending on Remove only.
+{
+  const rsa = await generateRsaKeyPair();
+  const receiver = buildReceiver({ rsa, autoAccept: false });
+  await receiver.onMetaData('file-4', {
+    name: 'manual.bin',
+    size: 512,
+    type: 'application/octet-stream',
+    key: new Uint8Array(0) // empty key: the RSA-OAEP decrypt genuinely throws
+  });
+
+  const file = receiver.state.receivingFiles['file-4'];
+  assert.ok(
+    file.error instanceof Error,
+    'manual mode: a failed key must still error the entry locally'
+  );
+  assert.match(
+    file.error.message,
+    /decrypt/i,
+    'manual mode: the error must describe the key-decryption failure'
+  );
+  // The entry must REMAIN in WaitingAccept: not auto-advanced to Processing
+  // (autoAccept is off) and not cosmetically bounced to Pending — only that
+  // state keeps Accept/Deny reachable for the user.
+  assert.equal(
+    file.status,
+    'WaitingAccept',
+    'manual mode + failed key must stay WaitingAccept (actionable), not advance or bounce to Pending'
+  );
+  assert.equal(file.aesKey, undefined, 'no AES key may be attached to a failed entry');
+
+  // Exactly one outbound signal (VALIDATE_ERROR) and NO accept: the sender is
+  // told the metadata failed, but the receiver must not accept a key it cannot
+  // decrypt.
+  assert.equal(
+    receiver.frameCount(),
+    1,
+    'manual mode: a key-decryption failure must produce exactly one outbound signal'
+  );
+  const decoded = receiver.decodeAll();
+  assert.equal(
+    decoded[0].receiveEvent,
+    ReceiveEvent.EVENT_VALIDATE_ERROR,
+    'manual mode: the outbound signal must be EVENT_VALIDATE_ERROR so the sender recovers'
+  );
+  assert.equal(decoded[0].id, 'file-4', 'manual mode: the signal must target the failed file id');
+  assert.ok(
+    !decoded.some((m) => m.receiveEvent === ReceiveEvent.EVENT_RECEIVER_ACCEPT),
+    'manual mode: no accept may be sent for a file whose key failed to decrypt'
+  );
+  console.log(
+    'ok - manual accept + failed key: entry stays WaitingAccept+error, exactly one EVENT_VALIDATE_ERROR, no accept'
+  );
+}
+
+// ---- Test 6: manual-accept mode (autoAccept=false) + VALID key -> entry
+// ---- stays WaitingAccept with NO accept frame (manual mode never auto-
+// ---- advances) ----
+// Control that a "fix" for the manual dead-end does not accidentally make
+// manual mode auto-accept: a healthy entry still waits on an explicit user
+// click, so the Accept/Deny buttons are what actually drive it forward.
+{
+  const rsa = await generateRsaKeyPair();
+  const aesKey = await generateAesKey();
+  const encKey = await encryptAesKeyWithRsaPublicKey(rsa.publicKey, aesKey);
+
+  const receiver = buildReceiver({ rsa, autoAccept: false });
+  await receiver.onMetaData('file-5', {
+    name: 'manual-ok.bin',
+    size: 300,
+    type: 'application/octet-stream',
+    key: encKey
+  });
+
+  const file = receiver.state.receivingFiles['file-5'];
+  assert.equal(file.error, undefined, 'manual mode: a valid key must not error the entry');
+  assert.ok(file.aesKey, 'manual mode: a valid key must decrypt and attach the AES key');
+  assert.equal(
+    file.status,
+    'WaitingAccept',
+    'manual mode must NOT auto-advance a healthy entry; it stays Waiting Accept for the user'
+  );
+  assert.equal(
+    receiver.frameCount(),
+    0,
+    'manual mode: no outbound frame until the user explicitly accepts'
+  );
+  assert.equal(receiver.toasts.length, 0, 'manual mode: a clean decrypt must not toast');
+  console.log('ok - manual accept + valid key: stays Waiting Accept, no auto-accept frame');
+}
+
+// ---- Test 7: static guard — ReceivingFileList.svelte keeps Accept/Deny for
+// ---- WaitingAccept entries even when `error` is set ----
+// The P0 dead-end lived here: the Accept/Deny branch was gated on
+// `status === WaitingAccept && !error`, so a failed-metadata entry
+// (WaitingAccept + error) fell through to the else branch and rendered
+// Remove only. The fix drops the error clause so such entries stay
+// actionable; this guard forbids the clause coming back.
+{
+  const source = await readFile(
+    join(here, '..', 'src', 'components', 'receiver', 'ReceivingFileList.svelte'),
+    'utf8'
+  );
+
+  // The template lives after the closing </script>.
+  const scriptEnd = source.indexOf('</script>');
+  assert.ok(scriptEnd !== -1, 'ReceivingFileList.svelte must have a <script> block');
+  const template = source.slice(scriptEnd);
+
+  // Find the {#if} that gates the Accept/Deny buttons: the one whose
+  // condition references the WaitingAccept status.
+  const ifMatch = template.match(/\{#if\s+([^}]*)WaitingAccept[^}]*\}/);
+  assert.ok(
+    ifMatch,
+    'ReceivingFileList.svelte must branch on FileStatus.WaitingAccept to offer Accept/Deny'
+  );
+  const condition = ifMatch[1];
+
+  // THE FIX: the condition must NOT gate the buttons on the absence of an
+  // error. A metadata-failed entry (WaitingAccept + error) must stay
+  // actionable — the `!error` clause is exactly what dead-ended it.
+  assert.ok(
+    !/error/i.test(condition),
+    'the WaitingAccept branch must NOT gate Accept/Deny on the absence of an error (that clause left failed-metadata entries with Remove only)'
+  );
+
+  // The branch body (between the {#if ...} and its {:else}) must still carry
+  // both an Accept and a Deny button.
+  const ifAbs = template.indexOf(ifMatch[0]);
+  const elseIdx = template.indexOf('{:else}', ifAbs);
+  assert.ok(elseIdx !== -1, 'the WaitingAccept branch must have an else branch (Remove)');
+  const branchBody = template.slice(ifAbs + ifMatch[0].length, elseIdx);
+  assert.ok(
+    /onAccept\s*\(\s*key\s*\)/.test(branchBody),
+    'the WaitingAccept branch must render an Accept button'
+  );
+  assert.ok(
+    /onDeny\s*\(\s*key\s*\)/.test(branchBody),
+    'the WaitingAccept branch must render a Deny button'
+  );
+  console.log(
+    'ok - component source: WaitingAccept entries (incl. failed-metadata) still render Accept/Deny, not Remove-only'
+  );
+}
+
 console.log(
   'ok - receiver metadata key-decryption failure now signals the sender (no more permanent Waiting Accept)'
 );

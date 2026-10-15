@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:b214118b1d1868868ed8eb2480bcbfc781c1927a9104877d67ab2b4707649028",
+  "pageVersion": "sha256:47f5637f827b86563044fd74f645ffbf463edddb6e0ddb4b8b8a88893ecca4b9",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -54,19 +54,27 @@
     },
     {
       "id": "claim_5712564d44244197a155ef4bdc054f9f",
-      "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key — and a pick made while encryption is on but the peer's rsaPub has not been imported yet (the offer is still pending) is rejected with an error toast instead of being registered with an empty wrapped key. The wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption; the receiver registers the file entry at WaitingAccept BEFORE the async key decryption, and on unwrap failure sets a visible error on the entry, toasts, sends EVENT_VALIDATE_ERROR to the sender, and returns without accepting.",
+      "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key — and a pick made while encryption is on but the peer's rsaPub has not been imported yet (the offer is still pending) is rejected with an error toast instead of being registered with an empty wrapped key. The wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption; the receiver registers the file entry at WaitingAccept BEFORE the async key decryption, and on unwrap failure sets a visible error on the entry, toasts, sends EVENT_VALIDATE_ERROR to the sender, and returns without accepting. Pick-time crypto failures are equally visible: onFilesPick iterates with an async for...of (not a fire-and-forget forEach) so a generateAesKey/encryptAesKeyWithRsaPublicKey rejection toasts and skips the entry instead of escaping as an unhandled rejection (PR #75).",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L37-L78",
-          "version": "repo-lines-v1:sha256:f93fcdc21fcf51aba6241134afcaddc8bfb5f4e2d9f69880e4d52b7c032ff8aa:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4YTMwODY0N2Q5OTY0Y2JkNGYzNzRmNTEyYmI4NzBkMjU3NzlkZjM0ZWFkZjQxMTk3YjM0NmU4Mzk1MmUyYjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4MTAwMDBjYjQyZWJlZWM1ZjQyOTA0MWM2ZDI4ZTMxOTE1M2Y1ZTFkNWM1ZGM4ODE3YzA1YTQ5MTU1MDc1NzQifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
+          "version": "repo-lines-v1:sha256:c9b49771b58426b2859a8a51fea066eb522f4e3c6cdcde32305436fe2de7cffe:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L260-L310",
-          "version": "repo-lines-v1:sha256:d61b797fda3841ed96b1b85b335c4af0557ea5991d04300ae174e5ca59e1cd1c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyMzhkMWExZDYzN2M4M2M1NTRlNjk0YzI2MGEwMTMxN2M5MGNmMWY1Y2RjNDBmZjY2Zjk2N2M5MjlkOTNkOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE2YTZkYzVmZjk2MzNhZjFiZjAwMTllZTQzOWI0YWQ2OTRjMmNkNzRmMWRiNDQwYWU3NTM3MTEzMjAxZjNlODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkMjRhYzYzMTEzMWFlNjcwYTgyZmIzMDNmZmVjYzE2MWEwMGExYWFiMmJlZGE0NWE5MjM2ODY3NDZjZDY1ODEifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L341-L402",
+          "version": "repo-lines-v1:sha256:0cbb85201783c349fc0c6b858bcc8d794b7bbf0a8aaded9ea86ffdfd55894be6:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3YTg4MzVmNTkzNTE3Yjc2MGJjYWFmYWI1MDE2ZTdhZWYyNzQ1Y2UwNTg1MTI5NTU0MjMwYjNlODBhOTE2ZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhZGI1ODVkOGU5YjM3N2EwYjI0NDJiOGFkMWQ3MDU0NTUzODNmZjM3NmRmODJmNjNhZjRkNzM4ODUyZGQ3YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkMjRhYzYzMTEzMWFlNjcwYTgyZmIzMDNmZmVjYzE2MWEwMGExYWFiMmJlZGE0NWE5MjM2ODY3NDZjZDY1ODEifQ"
         },
         {
-          "resource": "repo://src/utils/crypto.ts#L44-L55",
-          "version": "repo-lines-v1:sha256:19f63ea836eceb29be5cafd6a3e1f412322ca9705f7901c423c331ec31d36f95:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3MWQ4N2ZkNzFmMWQwYTQ1OGQ3NjBhMDk3MGQ1ZDE4YTc5MTExMDA1ZTA4NWEyOWYzZjY4ZjgwMjY0YWRmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzOGEwYWRiNzkzMDRjNGU4ZjZkMmI0YmE3NGMzNDZjNTkzZTk5ZGI0N2MzMTc2MWJkNzQ4NzVmODU2ZWFjNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2YzQzODQ1YWU1ZmYyOTk0MGJjOTE4YzA1OTdmMjE4YTM0MzhkOTdlNDMxOTI3NWYxZWE2MjgxNmEyNDNhYzIifQ"
+          "resource": "repo://src/utils/crypto.ts#L44-L77",
+          "version": "repo-lines-v1:sha256:f863cad6dcea7c156d8813bf1c5efa12c8521b5ca29d018b87c9b73ddac9cf35:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3MWQ4N2ZkNzFmMWQwYTQ1OGQ3NjBhMDk3MGQ1ZDE4YTc5MTExMDA1ZTA4NWEyOWYzZjY4ZjgwMjY0YWRmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzOGEwYWRiNzkzMDRjNGU4ZjZkMmI0YmE3NGMzNDZjNTkzZTk5ZGI0N2MzMTc2MWJkNzQ4NzVmODU2ZWFjNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMDM2MjY4NGNmNDAzN2VjODgwNTA1M2IwNzY5YTc1NjJmZWE5MmFhZGU0ZTI5MGJlNDAyMzk2NzY5NzU2ZWMifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-key-decryption-failure.test.mjs",
+          "version": "repo-file-v1:sha256:8a8db6b32333d9361d1544667283b9ba6e373c34805929a80a3c92078ca9520b"
+        },
+        {
+          "resource": "repo://tests/sender-onfilespick-crypto-rejection.test.mjs",
+          "version": "repo-file-v1:sha256:5703fce624938867acc70cfb96e6768170afdbd513431c47f72f7b116a196b97"
         }
       ]
     },
@@ -89,78 +97,94 @@
       "statement": "Chunk-level encryption wraps the transfer framing: the sender encrypts each chunk buffer before Message-encoding it as a chunk (falling back to a plaintext chunk if the per-file aesKey is missing), and the receiver decrypts each decoded chunk (only when isEncrypt and the per-file aesKey are both present), inside the per-file serialized processChunk task, before accumulating bytes toward the declared file size; the receiver's EVENT_RECEIVED_CHUNK ack is sent only after successful decryption and after re-checking the file is still active, so a corrupt chunk never advances the sender.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L138-L167",
-          "version": "repo-lines-v1:sha256:dd3542ab020a2de013075efc2ac922eda5954019b5ceecbefc8b0b1526515f5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNzg3OTY1NjViZmMxMmQwMzBjMTNiZWExNDZmOWUxYjQxMGRkZTYxZDJkY2ViNGQ3YzM5ZmZjOWMxYzM1YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmZTY4ZmM3YWEzNTY4N2NhMzNiNTJjOTJlYTJiYzAzZGU0N2QwOGM3YTdlM2I3OWU1MTRmNGExNTg1NjcxNzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5ZmIzODcwMDc0NWQ2ODZmYTZiMDk1ZDI0MzkyMjc1NjkwMmE4MmNhY2Y0YWJiODJkZGM5ZjA0NmNmYThhYjIifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L177-L261",
+          "version": "repo-lines-v1:sha256:83753bf239bbc631440a8bb5ccb3b0c28f644090c1058f7825ac96a5235efa22:eyJzZWxlY3RlZExpbmVDb3VudCI6ODUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3OWI3NWI3N2M4Zjc1OTA1OGQ4NDljM2U0ZGRjYzQxOWExYWMyNWMxNzIxYmYyYjRjNjc2ZDdhMTY3NTFlMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlZDkxYzk2ODgzZTU0NDc3NDJiNGMwMjg2ZGI0OGFmMjBiNGQwNDJiM2NlMWIyMWViZGFkNmIzYzQ4MGEzYWIifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L126-L153",
-          "version": "repo-lines-v1:sha256:22c6a35fd82ed9261557d1d893ec470a929bb82fe0d870ff69008b3ccedc4ae3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhYWRhYmNmN2I4NjM4ZjI3ZTAzYjg3NjczYzBhMTA1NTcwYmI4ZDE4N2FmNGMzYTVjZmU1YmU1ZWNjMWMzMzAifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L173-L204",
+          "version": "repo-lines-v1:sha256:2b9a74870dfb34ac0367fc3219fcd55eb4e9e85a8f655a63a853177a76c3ef24:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhYWRhYmNmN2I4NjM4ZjI3ZTAzYjg3NjczYzBhMTA1NTcwYmI4ZDE4N2FmNGMzYTVjZmU1YmU1ZWNjMWMzMzAifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L206-L255",
+          "version": "repo-lines-v1:sha256:bbeb607d8771ca0d7333f6664de07a0c8752b2d35ac1bd6811585177b33a859f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYTdmNDA4MWRlMzU1YzM5MmIwYzFkOTZjMTdiYzQ0MTg3ZDllOTlmZTMzMWFiN2FlYWI3NmNhZTc1Njg5ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlY2VmMTM2NWE4NDc3OTI5MjkyY2U5ZGU3N2QzODUzMmMzMmQ5ZWMyY2YwYWZlMjNlOGUxNDE0ODA1Y2M3ZDQifQ"
         }
       ]
     },
     {
       "id": "claim_27f3b298aa6c4a19baa06c00bd22106c",
-      "statement": "RSA public keys are serialized as base64-encoded SPKI DER (exportKey/importKey 'spki' with the RSA-OAEP params, encrypt-only usage) via the arrayBufferToBase64/base64ToArrayBuffer helpers.",
+      "statement": "RSA public keys are serialized as base64-encoded SPKI DER (exportKey/importKey 'spki' with the RSA-OAEP params, encrypt-only usage) via the arrayBufferToBase64/base64ToArrayBuffer helpers (chunked 32 KiB base64 conversion for stack safety); tests/crypto-base64-wire.test.mjs (PR #72) pins the wire contract at runtime — byte-identical base64 round-trips across all remainder cases and a 1MB buffer matching the platform reference charset, and the RSA key survives export → base64 → import → re-export with JWK modulus/exponent intact.",
       "evidence": [
         {
-          "resource": "repo://src/utils/crypto.ts#L96-L126",
-          "version": "repo-lines-v1:sha256:953c7b89d90f582ef25038d8a2477b758b6a7c3990d2420ccc1865b4548823c6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3NzVlYzNiMjdjMDdhMzllNDhlMTg0MDk4M2IzOTBkYzQxMDA2NTYyMjM5YTM2NmE1Zjg5MzYwODZiZWNiYmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyMTE2YjEwM2U1MDA0YmQ2NGM2OThhN2VmMGZkNDg3OTM0Mzk4Mjc0ZTdjZTczZDU4NDgxYTAzOTA3OTBlNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/utils/crypto.ts#L97-L138",
+          "version": "repo-lines-v1:sha256:6e14285c313f86c2f001a457eb03a39442471d492397a96d4da52011ca1d9af2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyMzE2ODQzOTNhMTRmMTJkNzI5YzIwNjcxYzkxNmJhOGJmMmM5NDgzOTVkZTQyZDIxYThjZTc4Njg3NDNhZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1YWI4NDFmMjBjNDQxZjVlY2YwOWYzMGY1ODU4ZTA4MWMyNTM4YzkyM2ZjZDQwODQ1YTgxZmQ1OWEzMTczNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/crypto-base64-wire.test.mjs",
+          "version": "repo-file-v1:sha256:3836dd5faf9f7853433e49b197b4007c99da316ab9a412d04d396365ba872ded"
         }
       ]
     },
     {
       "id": "claim_c5d863ce334a49c989924000c2fb6a3c",
-      "statement": "Failure behavior is degraded-not-crashing: a missing per-file aesKey makes the sender fall back to sending that chunk plaintext, a malformed 'p' param downgrades isEncrypt to false with an error toast (the answer no longer advertises encryption), a damaged non-empty answer-code key or missing separator aborts acceptance with an error toast, a well-formed answer code with an empty key portion is the receiver's deliberate plaintext downgrade and the offer side follows it into plaintext (effectiveEncrypt=false, info toast) instead of dead-ending the handshake, a file picked before the answer is accepted is rejected with a visible error instead of being registered with an undeliverable empty key, and encryption off means no keys are generated and all chunks are sent without crypto.",
+      "statement": "Failure behavior is degraded-not-crashing: a missing per-file aesKey makes the sender fall back to sending that chunk plaintext, a malformed 'p' param downgrades isEncrypt to false with an error toast (the answer no longer advertises encryption), a damaged non-empty answer-code key or missing separator aborts acceptance with an error toast, a well-formed answer code with an empty key portion is the receiver's deliberate plaintext downgrade and the offer side follows it into plaintext (effectiveEncrypt=false, info toast) instead of dead-ending the handshake, a file picked before the answer is accepted is rejected with a visible error instead of being registered with an undeliverable empty key, a pick whose key-encryption crypto call rejects is skipped with a visible error (PR #75), and encryption off means no keys are generated and all chunks are sent without crypto.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L288-L318",
-          "version": "repo-lines-v1:sha256:c703ed031637fc37474a00204de59de566d4899b8997a8097aa35e4f01141dae:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkZmY2YWM4YjAxY2QzMmY5NzRhODgxM2NhNzBjNDM1ODI5MjBhNDdmZTJmM2IyZmRiMjc5ZGEwODgyNTFiNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiYzU2NWQ0ODY5MTQxZDcyNDQ5YTBkZWM3YWFmOWRhMGZiNTBiOTUzMWE1ODZjNzI3YWNkNGUxNjEzNmIzNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyOTk3YjNhM2I4ZDRmZjUxYjcxNDY2NzIyMmUxYTFmNTc4OTRkMDQxNDQ4MDQ2OWI1NmQyMDcyODQ3ZGU1ZmMifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L304-L346",
+          "version": "repo-lines-v1:sha256:0659daa8e8122b4029436670a581eb2c5883c1593e04c656bdd60a16fa930900:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyOTk3YjNhM2I4ZDRmZjUxYjcxNDY2NzIyMmUxYTFmNTc4OTRkMDQxNDQ4MDQ2OWI1NmQyMDcyODQ3ZGU1ZmMifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L46-L59",
           "version": "repo-lines-v1:sha256:beb4bb39c1dddf77a42917df9af0f1ad04c45e889a31bdafdf41e85a556fb236:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyMzIxNjBjM2M0ZDg3ZDZiZDE0MmJmNmQ4ZTJjMzY0YTkwODM2YWEwNWFkN2ZmNjAwZGRjNGYxMjg0MDU3ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4MzU1MmFiNTcxNDk0YjM5OWIxODE5OTYyMmRiZTNiMzgyNmViNjFmY2QxZjc0Y2ZiMTJhYmNmODhlNGY3MjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1YzJmYWQxNTdiOTE2ZDAyNzdhODQ2OTRhNTE5OTYzNmI4NjllMTg0ODliYjI0MGJiM2Y4ZTZmYTc5NjljOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhODJkYmVhNzdkNTI5MmU2ZjdhNmJmZWIxNjcxYmYzYjYxMTE3OGMwMzc4NTAzMzkzNzQ1OWMyNTg4MWJhYmYifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L126-L153",
-          "version": "repo-lines-v1:sha256:22c6a35fd82ed9261557d1d893ec470a929bb82fe0d870ff69008b3ccedc4ae3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhYWRhYmNmN2I4NjM4ZjI3ZTAzYjg3NjczYzBhMTA1NTcwYmI4ZDE4N2FmNGMzYTVjZmU1YmU1ZWNjMWMzMzAifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L341-L402",
+          "version": "repo-lines-v1:sha256:0cbb85201783c349fc0c6b858bcc8d794b7bbf0a8aaded9ea86ffdfd55894be6:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3YTg4MzVmNTkzNTE3Yjc2MGJjYWFmYWI1MDE2ZTdhZWYyNzQ1Y2UwNTg1MTI5NTU0MjMwYjNlODBhOTE2ZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhZGI1ODVkOGU5YjM3N2EwYjI0NDJiOGFkMWQ3MDU0NTUzODNmZjM3NmRmODJmNjNhZjRkNzM4ODUyZGQ3YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkMjRhYzYzMTEzMWFlNjcwYTgyZmIzMDNmZmVjYzE2MWEwMGExYWFiMmJlZGE0NWE5MjM2ODY3NDZjZDY1ODEifQ"
         },
         {
           "resource": "repo://tests/answer-key-plaintext-downgrade.test.mjs",
           "version": "repo-file-v1:sha256:7b2c51f5069de93e4a6a4310d037cb55fabe426aa7b9984ce7db1046833df50b"
+        },
+        {
+          "resource": "repo://tests/sender-onfilespick-crypto-rejection.test.mjs",
+          "version": "repo-file-v1:sha256:5703fce624938867acc70cfb96e6768170afdbd513431c47f72f7b116a196b97"
         }
       ]
     },
     {
       "id": "claim_85040d6ca22c4a45981a13d163065e72",
-      "statement": "tests/crypto.test.mjs is one of the 23 regression guards `npm test` runs via `node --no-warnings --test \"tests/*.test.mjs\"`; it asserts the RSA-OAEP modulusLength constant in src/utils/crypto.ts is 2048 and that a freshly generated RSA public key exports as a 2048-bit modulus, so any future silent revert of the constant to 1024 fails the test.",
+      "statement": "tests/crypto.test.mjs is one of the regression guards `npm test` runs via `node --no-warnings --test \\\"tests/*.test.mjs\\\"`; it asserts the RSA-OAEP modulusLength constant in src/utils/crypto.ts is 2048 and that a freshly generated RSA public key exports as a 2048-bit modulus, so any future silent revert of the constant to 1024 fails the test. It also pins the OAEP digest regression (PR #73): no bare-name RSA-OAEP option object may survive (static regex), both encrypt and decrypt call sites must pin `hash: rsaGenParams.hash` (SHA-256, the keygen digest), and a runtime round-trip of an AES-256 key through encryptAesKeyWithRsaPublicKey/decryptAesKeyWithRsaPrivateKey must come back byte-identical.",
       "evidence": [
         {
-          "resource": "repo://package.json#L1-L40",
-          "version": "repo-lines-v1:sha256:af22118d09f1c9aeb4868528a7b144db397e61b968ebdbefa6d67e46f96688a3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NWY5YjVhYjM5NTFlMjcyMGYyNTZjNmYzNzllOGU1ZmU5ZWY5NzE4YTFlNTQ1MGViMzlkNDc1OWNhYTg1ZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMmJjMDliYWY5MGI4MDk4MDg2YmNlYzE2NjRlMGU1OWZjZmJmNjc1YjE5MTMyYzg1MmZlZjg3YzFiMGZlOGUifQ"
+          "resource": "repo://package.json",
+          "version": "repo-file-v1:sha256:9d0353b9ee7bcb81b4f95bbc5d6490e0409a4f6a6e567eb9c793b11586c97437"
         },
         {
-          "resource": "repo://tests/crypto.test.mjs#L6-L21",
-          "version": "repo-lines-v1:sha256:1697f208971e11020d9e512ffd105d949fcebe91581d1240c940117848be2606:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MzM2ZDMzMGI1M2MxNGRiOWI0MDE4YmEyNGE3MGUzMzg4ODk5MDEzYzZlN2JjZjMxYjlmNjdhNDBjMDc0MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyODA4NjkwMTlmYzExMzU5N2EwNDFmNjMyNmU5ZDM4MWI2MzJhZTc5MjM4NmY2OTgwNDMwMmJiMTM1NzMxM2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1ZjI4NzAxOWYzOTA4NzkzYzhhOTNiZmYwNzVjN2IyYTdkYjU4NTVjMGNlNDU1Mjk2YmMwYjU2MjBlNWQ1MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlMWI0OGU5OThiOGJkNzhmOTEyOTNhZTUxODk4OWM4MDM1NGMyNDk4YjM0OWI5MzgyNmNlMTRkODBiNDBjMTYifQ"
+          "resource": "repo://tests/crypto.test.mjs",
+          "version": "repo-file-v1:sha256:8191749019e424965323422c7e85060f893d1ebe90fbea7f01391485d813b4a7"
         }
       ]
     },
     {
       "id": "claim_22ae504e43e447edb1467001c15014f4",
-      "statement": "Receiver key-unwrap failure is visible, not silent, and it signals the sender: if decryptAesKeyWithRsaPrivateKey rejects for an incoming file, the already-registered entry gets an error set, an error toast fires, and onMetaData sends EVENT_VALIDATE_ERROR back to the sender (bouncing its file to Pending) before returning without accepting — so the sender does not wait forever on an invisible file.",
+      "statement": "Receiver key-unwrap failure is visible, not silent, and it signals the sender: if decryptAesKeyWithRsaPrivateKey rejects for an incoming file, the already-registered entry gets an error set, an error toast fires, and onMetaData sends EVENT_VALIDATE_ERROR back to the sender (bouncing its file to Pending) before returning without accepting — so the sender does not wait forever on an invisible file. The metadata-failed entry stays in WaitingAccept with the error shown (FileCard error banner), so in manual-accept mode it remains actionable with Accept/Deny (or Remove) instead of dead-ending on Remove only (PR #76).",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L49-L77",
-          "version": "repo-lines-v1:sha256:6f4dfff48f32dce48aa3d1a21829b25c02c602678e10eb17c43ef8d57fff3f77:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2YjA1MzY4YjJhODYwOTc5NDI2MjAzOGY0M2ZiYTE2Y2M5NTJiODhhM2Y1ODQ3MjAzMTkzYWQxODBjYWZiNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MmE2YmNjOGQzNjE0MjkxYzZlMjQ4YzBkNmQ2ZDM3NzVhZGM0NjIyMzhlM2U4YmVhNWNkNWQ5YTNkMTBhNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4M2YxNmExN2IxODViNDA5NjMwODBjYTM3MGJjZWQ1NTRkNDg3OGVkOTg0MjJjMjNkN2FhMDEzNzcxM2FiYWYifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
+          "version": "repo-lines-v1:sha256:c9b49771b58426b2859a8a51fea066eb522f4e3c6cdcde32305436fe2de7cffe:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/ReceivingFileList.svelte#L18-L32",
+          "version": "repo-lines-v1:sha256:067502bd73e1f09eb5d08fbd1300d74058a01bb32b65b2a89026d08dfd3d831d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDA2ZTRjZDk2ZmJiOGQ1NWU2ZWU1NmRkZTAyN2NkYjYxNmMyN2UyMzY3MTM2MGZiYjhjZGE0ZTIzZDJmNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0OTYyYzE3YTU3N2VmZGIwOGFhYjZiZTIxMDM2ZDY0NTc0OGJjYzcxMmM0ZTEzZTkwYzc4Njc1ZTNjNzNhZjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdkYTY3N2YxYTRiODBhYzIwMjIxYzY4ODZmYTA3MjYyZTY2NzkxMWVkMzBjN2I5MWEzYTkwY2I4ZDU4ZTYyYzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0YWIxY2E2NTIwMzIxODlkNDBjY2M0YjY4NjI0Y2IzMTYwYjc0YzMwYWZlODY5OGY3ZDY5NWM3NjJhZGU5MjQifQ"
         },
         {
           "resource": "repo://tests/receiver-key-decryption-failure.test.mjs",
-          "version": "repo-file-v1:sha256:8092bf2d13e5798acac1a5eb97551ee259d0d0851d896f618939c5bd0f6e8709"
+          "version": "repo-file-v1:sha256:8a8db6b32333d9361d1544667283b9ba6e373c34805929a80a3c92078ca9520b"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-14T13:06:55.597Z"
+    "at": "2026-10-15T12:05:18.885Z"
   }
 }

@@ -291,8 +291,11 @@ function buildReceiver({ rsa, autoAccept = true }) {
   assert.ok(/addToastMessage/.test(catchBody), 'the catch block must still surface a local toast');
 
   // The new behavior: an outbound signal over the channel, strictly before the
-  // return that ends the handler.
-  const sendIdx = catchBody.indexOf('dataChannel.send');
+  // return that ends the handler. The call goes through the component's
+  // guarded send() helper (post connection-lost fix: every send is readyState-
+  // guarded so a dead channel no-ops instead of throwing InvalidStateError),
+  // so match `send(` or the legacy `dataChannel.send(`.
+  const sendIdx = catchBody.search(/(?:dataChannel\.)?send\(/);
   assert.ok(
     sendIdx !== -1,
     'the key-decryption catch must send a signal back to the peer (no local-only failure)'
@@ -300,7 +303,7 @@ function buildReceiver({ rsa, autoAccept = true }) {
   const encodeIdx = catchBody.indexOf('Message.encode');
   assert.ok(
     encodeIdx !== -1 && encodeIdx > sendIdx,
-    'the signal must be built via Message.encode inside dataChannel.send'
+    'the signal must be built via Message.encode inside the send call'
   );
   assert.ok(
     catchBody.includes('ReceiveEvent.EVENT_VALIDATE_ERROR') ||

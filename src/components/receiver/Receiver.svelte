@@ -65,7 +65,7 @@
         receivingFiles[id].error = new Error('Failed to decrypt the file key');
         addToastMessage(`${metaData.name} failed to decrypt the file key`, 'error');
 
-        dataChannel.send(
+        send(
           Message.encode({
             id: id,
             receiveEvent: ReceiveEvent.EVENT_VALIDATE_ERROR
@@ -81,7 +81,7 @@
     if (validateErr) {
       addToastMessage(`${metaData.name} ${validateErr.message}`, 'error');
 
-      dataChannel.send(
+      send(
         Message.encode({
           id: id,
           receiveEvent: ReceiveEvent.EVENT_VALIDATE_ERROR
@@ -102,6 +102,52 @@
   // post-await work (decrypt, push, stats, blob on complete) runs strictly in
   // arrival order, even when WebCrypto decrypt calls complete out of order
   const chunkQueue: { [fileId: string]: Promise<unknown> } = {};
+
+  // Flipped by onChannelClose() (fired from the page's dataChannel onclose/
+  // onerror) or by send() when a send throws. Once true, the channel will
+  // never deliver anything again, so no ack/reject can reach the peer — the
+  // in-flight/queued chunk pipeline must exit quietly instead of surfacing
+  // misleading per-chunk errors.
+  let connectionLost = false;
+
+  // Guarded channel send: readyState first, and a closed/closing channel that
+  // slips past the check (the close settles asynchronously) is caught here
+  // instead of escaping as an InvalidStateError into a chunk/ack pipeline.
+  function send(message: Uint8Array): boolean {
+    if (connectionLost || dataChannel.readyState !== 'open') {
+      return false;
+    }
+    try {
+      dataChannel.send(message);
+      return true;
+    } catch {
+      connectionLost = true;
+      return false;
+    }
+  }
+
+  // Fired by the owning page's dataChannel onclose/onerror: mark every file
+  // that cannot complete any more with an accurate "connection lost" error
+  // (a single toast, not one false per-chunk error per in-flight chunk) and
+  // tear down the per-file chunk state so queued chunks are dropped by
+  // onChunkData instead of re-entering processChunk.
+  export function onChannelClose() {
+    if (connectionLost) return;
+    connectionLost = true;
+    for (const id of Object.keys(receivingFiles)) {
+      const f = receivingFiles[id];
+      if (f.status === FileStatus.Success) continue; // its blob is complete
+      f.error = new Error('Connection lost — transfer aborted');
+      f.status = FileStatus.Pending;
+      addToastMessage(`${f.metaData.name}: connection lost — transfer aborted`, 'error');
+    }
+    for (const id of Object.keys(receivingFileChunkMap)) {
+      delete receivingFileChunkMap[id];
+      delete receivingFileStatsMap[id];
+      delete chunkQueue[id];
+    }
+    receivingFiles = receivingFiles; // do this to trigger update the map
+  }
 
   export function onChunkData(id: string, chunk: Uint8Array<ArrayBuffer>) {
     // Drop chunks for unknown or uninitialized files (metadata never registered,
@@ -158,8 +204,11 @@
 
     // The ack is sent only after successful decryption (and after confirming
     // the file is still active), so a corrupt chunk does not advance the
-    // sender past a chunk it cannot use.
-    dataChannel.send(
+    // sender past a chunk it cannot use. On a dead channel send() silently
+    // fails — the file has already been marked "connection lost" by
+    // onChannelClose(), so no per-chunk error may fire for chunks that only
+    // failed because the channel closed mid-transfer.
+    send(
       Message.encode({
         id: id,
         receiveEvent: ReceiveEvent.EVENT_RECEIVED_CHUNK
@@ -229,7 +278,11 @@
       `${receivingFile.metaData.name} failed: corrupt chunk (decryption error)`,
       'error'
     );
-    dataChannel.send(
+    // Guarded send: on a live channel this reject reaches the sender; if the
+    // channel just died, send() no-ops instead of throwing again (the queued
+    // continuation that calls us would otherwise leave an unhandled rejection
+    // and skip the teardown below).
+    send(
       Message.encode({
         id,
         receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
@@ -246,7 +299,9 @@
 
   function onRemove(key: string) {
     if (receivingFiles[key].status != FileStatus.Success) {
-      dataChannel.send(
+      // Guarded: the reject is best-effort (the local state below tears down
+      // regardless), and must not throw on a dead channel.
+      send(
         Message.encode({
           id: key,
           receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
@@ -282,7 +337,7 @@
   }
 
   function onAccept(id: string) {
-    dataChannel.send(
+    send(
       Message.encode({
         id,
         receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT
@@ -306,7 +361,7 @@
   }
 
   function onDeny(key: string) {
-    dataChannel.send(
+    send(
       Message.encode({
         id: key,
         receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT

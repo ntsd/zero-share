@@ -284,8 +284,15 @@
   }
 
   async function copyOfferLink() {
-    await navigator.clipboard.writeText(offerLink);
-    addToastMessage('Copied to clipboard', 'info');
+    try {
+      await navigator.clipboard.writeText(offerLink);
+      addToastMessage('Copied to clipboard', 'info');
+    } catch {
+      // Rejection (non-secure context, denied permission, unavailable API)
+      // must not escape as an unhandled rejection with zero feedback —
+      // the user would believe the link was copied when it was not.
+      addToastMessage('Copy failed — select the link text and copy it manually', 'error');
+    }
   }
 
   // parse the answer code (`sdp|<public key base64>`): the encoded SDP part

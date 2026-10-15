@@ -47,7 +47,8 @@ export async function encryptAesKeyWithRsaPublicKey(
 ): Promise<Uint8Array<ArrayBuffer>> {
   const exportedAesKey = await crypto.subtle.exportKey('raw', aesKey);
   const encryptedAesKey = await crypto.subtle.encrypt(
-    { name: rsaGenParams.name },
+    // `as RsaOaepParams`: lib.dom.d.ts omits the spec-required `hash` field on RsaOaepParams
+    { name: 'RSA-OAEP', hash: rsaGenParams.hash } as RsaOaepParams,
     publicKey,
     exportedAesKey
   );
@@ -60,7 +61,8 @@ export async function decryptAesKeyWithRsaPrivateKey(
   encryptedAesKey: Uint8Array<ArrayBuffer>
 ): Promise<CryptoKey> {
   const decryptedAesKey = await crypto.subtle.decrypt(
-    { name: 'RSA-OAEP' },
+    // `as RsaOaepParams`: lib.dom.d.ts omits the spec-required `hash` field on RsaOaepParams
+    { name: 'RSA-OAEP', hash: rsaGenParams.hash } as RsaOaepParams,
     privateKey,
     encryptedAesKey
   );

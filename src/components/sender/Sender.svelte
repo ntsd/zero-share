@@ -332,8 +332,14 @@
     sendingFiles = sendingFiles; // do this to trigger update the map
   }
 
-  function onFilesPick(files: FileList) {
-    Array.from(files).forEach(async (file) => {
+  // async + for...of (not forEach(async ...)): an async callback passed to
+  // forEach is fire-and-forget, so a rejection from generateAesKey() or
+  // encryptAesKeyWithRsaPublicKey() (rsaPub invalidated between pick and
+  // send, e.g. after an offer regeneration) escapes as an unhandled
+  // rejection — the file silently vanishes with no toast and no list entry.
+  // Every failure path below must instead surface and register the entry.
+  async function onFilesPick(files: FileList) {
+    for (const file of Array.from(files)) {
       let aesKey;
       let aesEncrypted = new Uint8Array();
       if (isEncrypt) {
@@ -352,10 +358,21 @@
             `${file.name} cannot be sent encrypted yet: the peer has not accepted the offer. Accept the answer, then select the file again.`,
             'error'
           );
-          return;
+          continue;
         }
-        aesKey = await generateAesKey();
-        aesEncrypted = await encryptAesKeyWithRsaPublicKey(rsaPub, aesKey);
+        try {
+          aesKey = await generateAesKey();
+          aesEncrypted = await encryptAesKeyWithRsaPublicKey(rsaPub, aesKey);
+        } catch (err) {
+          // Mirror the !rsaPub guard above: surface a visible error and do
+          // NOT register the entry. Registering with `key: new Uint8Array()`
+          // would let a resend replay that empty key onto the wire and
+          // dead-end the receiver exactly like the pre-#66 bug. The key can
+          // be regenerated on the next pick, so skipping is loss-free.
+          const message = err instanceof Error ? err.message : String(err);
+          addToastMessage(`Failed to encrypt the file key for ${file.name}: ${message}`, 'error');
+          continue;
+        }
       }
 
       const fileMetaData: MetaData = {
@@ -381,7 +398,7 @@
         status: FileStatus.Pending,
         aesKey: aesKey
       };
-    });
+    }
   }
 </script>
 

@@ -87,11 +87,11 @@ function extractFunction(source, name) {
     toastIndex > guardIndex,
     'the toast must be emitted by the !rsaPub guard, not by a later code path'
   );
-  const returnIndex = body.indexOf('return;', guardIndex);
+  const returnIndex = body.indexOf('continue;', guardIndex);
   const cryptoIndex = body.search(/generateAesKey\s*\(\s*\)/);
   assert.ok(
     returnIndex !== -1 && returnIndex < cryptoIndex,
-    'the guard must early-return BEFORE any AES key generation (no registration)'
+    'the guard must skip the file (continue) BEFORE any AES key generation (no registration)'
   );
   assert.ok(
     /'error'/.test(body.slice(guardIndex, returnIndex)),

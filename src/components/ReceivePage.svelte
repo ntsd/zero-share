@@ -162,8 +162,15 @@
   const setOfferPromise: Promise<void> = setOfferSDP(sdpEncoded);
 
   async function copyAnswerCode() {
-    await navigator.clipboard.writeText(answerSDP);
-    addToastMessage('Copied to clipboard', 'info');
+    try {
+      await navigator.clipboard.writeText(answerSDP);
+      addToastMessage('Copied to clipboard', 'info');
+    } catch {
+      // Rejection (non-secure context, denied permission, unavailable API)
+      // must not escape as an unhandled rejection with zero feedback —
+      // the user would believe the answer was copied when it was not.
+      addToastMessage('Copy failed — select the answer code text and copy it manually', 'error');
+    }
   }
 
   async function generateAnswerSDP() {

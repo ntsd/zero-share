@@ -130,11 +130,23 @@
       addToastMessage('WebRTC error', 'error');
       isConnecting = false;
       offerLink = '';
+      // A failed channel never recovers: propagate "connection lost" into the
+      // file pipelines so in-flight/queued work exits with an accurate error
+      // instead of dead-ending or re-firing false per-chunk errors.
+      sender?.onChannelClose();
+      receiver?.onChannelClose();
     };
     dataChannel.onclose = () => {
       addToastMessage('Disconnected', 'error');
       isConnecting = false;
       offerLink = '';
+      // The channel will never deliver again (peer closed the tab, dropped
+      // the network, or a "Generate Offer" regeneration closed it): mark the
+      // in-flight files on both sides "connection lost" and stop their
+      // pipelines — the old handlers only reset link state, leaving files in
+      // Processing forever and queued chunks re-firing corrupt-chunk toasts.
+      sender?.onChannelClose();
+      receiver?.onChannelClose();
     };
   }
 

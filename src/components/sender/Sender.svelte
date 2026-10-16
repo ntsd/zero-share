@@ -65,7 +65,6 @@
       f.progress = 0;
       addToastMessage(`File ${f.metaData.name}: connection lost — transfer aborted`, 'error');
     }
-    sendingFiles = sendingFiles; // do this to trigger update the map
   }
 
   export function onReceiveEvent(id: string, receiveEvent: ReceiveEvent) {
@@ -329,7 +328,6 @@
       f.stop = true;
     }
     delete sendingFiles[key];
-    sendingFiles = sendingFiles; // do this to trigger update the map
   }
 
   // async + for...of (not forEach(async ...)): an async callback passed to

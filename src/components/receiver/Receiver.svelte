@@ -146,7 +146,6 @@
       delete receivingFileStatsMap[id];
       delete chunkQueue[id];
     }
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   export function onChunkData(id: string, chunk: Uint8Array<ArrayBuffer>) {
@@ -294,7 +293,6 @@
     delete receivingFileChunkMap[id];
     delete receivingFileStatsMap[id];
     delete chunkQueue[id];
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   function onRemove(key: string) {
@@ -312,7 +310,6 @@
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
     delete receivingFiles[key];
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   function triggerDownload(blob: Blob, name: string) {
@@ -394,7 +391,6 @@
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
     delete receivingFiles[key];
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   async function downloadAllFiles() {

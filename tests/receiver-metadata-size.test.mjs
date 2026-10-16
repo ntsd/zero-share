@@ -30,12 +30,18 @@
 //   1. The REAL validateFileMetadata rejects size = 0, negative, NaN, and
 //     ±Infinity, and still accepts valid positive sizes (no upper-bound
 //     regression).
-//   2. A faithful mirror of processChunk with the new progress clamp keeps
-//     the progress value in [0, 100] for every size, and the completion
-//     gate only completes at exactly the claimed size.
-//   3. Receiver.svelte statically contains the clamp (defense in depth so
-//     the UI never receives a NaN / out-of-range percentage even if a
-//     malformed ratio reaches the gate).
+//   2. A faithful mirror of processChunk with the progress clamp + the
+//     exact-match completion gate: completes only when receivedSize === the
+//     claimed size, and a chunk that pushes receivedSize PAST the claim
+//     (a peer claiming a smaller size than the payload it streams) now
+//     rejects the file instead of completing on a truncated prefix — the
+//     pre-fix mirror completed that case (size 1, 4096 received), which this
+//     test inverts.
+//   3. Receiver.svelte statically contains the exact (===) completion gate
+//     with the overshoot reject path (EVENT_RECEIVER_REJECT + per-file
+//     teardown), NOT the old >= gate, plus the progress clamp (defense in
+//     depth so the UI never receives a NaN / out-of-range percentage even
+//     for the single chunk between 100% and the reject).
 //   4. The 0-byte metadata frame round-trips through the REAL generated
 //     Message.encode/decode, confirming that a 0-byte file reaches the
 //     validator as size === 0 and is rejected early instead of dead-ending
@@ -120,7 +126,10 @@ const { validateFileMetadata } = await loadTranspiled('validator.ts');
 // ---- Test 2: progress clamp + completion gate in a faithful mirror ----
 {
   // Mirror of Receiver.svelte#processChunk's post-fix math: progress clamped
-  // to [0, 100] with NaN -> 0, then the completion gate.
+  // to [0, 100] with NaN -> 0, then the exact-match completion gate. A chunk
+  // that pushes receivedSize PAST the declared size now triggers the
+  // overshoot reject (rejectOversizedStream: error + Pending + reject event +
+  // teardown, no Blob) instead of completing on the truncated prefix.
   const ID = 'file-1';
 
   function buildReceiver(size) {
@@ -128,28 +137,42 @@ const { validateFileMetadata } = await loadTranspiled('validator.ts');
       size,
       stats: { [ID]: { progress: 0, startTime: 0, nextProgressUpdate: 0, receivedSize: 0 } },
       chunkMap: { [ID]: { receivedChunks: [] } },
-      completed: false
+      completed: false,
+      rejected: false,
+      rejectEventSent: false
     };
   }
 
   function processChunk(receiver, chunk) {
     const { size } = receiver;
+    // Mirror of rejectOversizedStream's chunk-map guard: once the entry is
+    // torn down, later chunks are dropped (component: the `if (!chunkMap) return;`
+    // guard after decrypt).
+    if (!receiver.chunkMap[ID] && !receiver.stats[ID]) {
+      return;
+    }
     const stats = receiver.stats[ID];
     stats.receivedSize += chunk.byteLength;
     const rawProgress = Math.round((stats.receivedSize / size) * 100);
     stats.progress = Math.min(100, Math.max(0, Number.isNaN(rawProgress) ? 0 : rawProgress));
-    if (stats.receivedSize >= size) {
+    receiver.lastProgress = stats.progress; // UI value as of this chunk (survives teardown)
+    if (stats.receivedSize === size) {
       receiver.completed = true; // would build the Blob and flip to Success
+    } else if (stats.receivedSize > size) {
+      receiver.rejected = true; // would mark error + Pending, toast
+      receiver.rejectEventSent = true; // would send EVENT_RECEIVER_REJECT
+      delete receiver.chunkMap[ID];
+      delete receiver.stats[ID];
     }
   }
 
   const chunk = new Uint8Array(4096);
 
-  // Pre-fix behavior, documented: for size = 0 or -1, the raw completion
-  // gate (receivedSize >= size) fired on the very first 4096-byte chunk —
-  // the truncated-payload bug. Post-fix, the validator rejects those sizes
-  // before any chunk is processed, so this path is unreachable; we pin the
-  // raw gate's behavior to document the regression the validator prevents.
+  // Pre-fix behavior, documented (historical): for size = 0 or -1, the raw
+  // completion gate (receivedSize >= size) fired on the very first 4096-byte
+  // chunk — the truncated-payload bug. Post-fix, the validator rejects those
+  // sizes before any chunk is processed, so this path is unreachable; we pin
+  // the raw gate's behavior to document the regression the validator prevents.
   assert.ok(4096 >= 0, 'pre-fix gate: 4096 >= 0 -> completed on first chunk');
   assert.ok(4096 >= -1, 'pre-fix gate: 4096 >= -1 -> completed on first chunk');
 
@@ -161,11 +184,42 @@ const { validateFileMetadata } = await loadTranspiled('validator.ts');
   assert.ok(r4096.completed, 'size 4096 with 4096 bytes received must complete');
 
   // size = 1 with a 4096-byte chunk (a peer that claims a smaller size than
-  // it actually streams): the clamp must cap progress at 100 (not 409600).
+  // it actually streams): the clamp must cap progress at 100 (not 409600),
+  // and the gate must REJECT instead of completing — the pre-fix mirror
+  // completed here (truncated 1-byte Success, tail silently dropped).
   const r1 = buildReceiver(1);
   processChunk(r1, chunk);
-  assert.equal(r1.stats[ID].progress, 100, 'size 1, 4096 received -> clamped to 100%');
-  assert.ok(r1.completed, 'size 1 with 4096 bytes received must complete');
+  assert.equal(r1.lastProgress, 100, 'size 1, 4096 received -> clamped to 100%');
+  assert.ok(!r1.completed, 'size 1 with 4096 bytes received must NOT complete (overshoot)');
+  assert.ok(r1.rejected, 'size 1 with 4096 bytes received must reject the stream');
+  assert.ok(r1.rejectEventSent, 'the overshoot reject must send EVENT_RECEIVER_REJECT');
+
+  // Multi-chunk exact match still completes at the last chunk: 3 x 2048 = 6144,
+  // no early completion on the first two partial chunks.
+  const rMulti = buildReceiver(6144);
+  processChunk(rMulti, chunk.subarray(0, 2048));
+  assert.ok(!rMulti.completed, 'multi-chunk: first partial chunk must not complete');
+  processChunk(rMulti, chunk.subarray(0, 2048));
+  assert.ok(!rMulti.completed, 'multi-chunk: second partial chunk must not complete');
+  processChunk(rMulti, chunk.subarray(0, 2048));
+  assert.ok(rMulti.completed, 'multi-chunk: exact-match at the last chunk must complete');
+  assert.ok(!rMulti.rejected, 'multi-chunk: no reject on an exact-match stream');
+
+  // Overshoot on a multi-chunk stream: 2 x 2048 = 4096 against a declared
+  // 3000 — the second chunk pushes receivedSize past the claim, so the file
+  // is rejected (not completed, no Blob) and any later chunk is dropped by
+  // the torn-down chunk map.
+  const rMultiOver = buildReceiver(3000);
+  processChunk(rMultiOver, chunk.subarray(0, 2048));
+  assert.ok(
+    !rMultiOver.completed && !rMultiOver.rejected,
+    'partial chunk below the claim is accepted'
+  );
+  processChunk(rMultiOver, chunk.subarray(0, 2048));
+  assert.ok(!rMultiOver.completed, 'overshoot at the second chunk must NOT complete');
+  assert.ok(rMultiOver.rejected, 'overshoot at the second chunk must reject');
+  processChunk(rMultiOver, chunk);
+  assert.ok(!rMultiOver.completed, 'chunks after the reject are dropped, never complete');
 
   // size = 10000 with a 4096-byte chunk: the gate must NOT complete yet,
   // and progress must be the correct rounded partial value (40.96 -> 41%).
@@ -175,19 +229,100 @@ const { validateFileMetadata } = await loadTranspiled('validator.ts');
   assert.ok(!r10k.completed, 'size 10000 with only 4096 bytes must NOT complete early');
 
   console.log(
-    'ok - progress clamp keeps values in [0, 100]; completion gate only at the claimed size'
+    'ok - progress clamp keeps values in [0, 100]; exact-match gate completes only at the claimed size; overshoot rejects'
   );
 }
 
-// ---- Test 3: static guard — the progress clamp is in Receiver.svelte ----
+// ---- Test 3: static guard — exact-match completion gate + overshoot reject ----
 {
   const source = await readFile(
     join(here, '..', 'src', 'components', 'receiver', 'Receiver.svelte'),
     'utf8'
   );
-  // The progress value must be clamped to [0, 100] before the UI ever sees
-  // it: the component must apply Math.min(100, ...) and Math.max(0, ...) and
-  // coerce NaN to a safe value before assigning to stats.progress.
+
+  // Isolate the processChunk() function body via brace matching so the gate
+  // assertions cannot be satisfied by a match elsewhere in the component.
+  const start = source.search(/function\s+processChunk\s*\(/);
+  assert.ok(start !== -1, 'processChunk() must exist');
+  const braceStart = source.indexOf('{', start);
+  let depth = 0;
+  let bodyEnd = -1;
+  for (let i = braceStart; i < source.length; i++) {
+    if (source[i] === '{') depth++;
+    else if (source[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        bodyEnd = i + 1;
+        break;
+      }
+    }
+  }
+  assert.ok(bodyEnd !== -1, 'processChunk(): unbalanced braces');
+  const body = source.slice(braceStart, bodyEnd);
+
+  // The completion gate must be an EXACT byte-count match (===). The old
+  // `>=` gate completed on the first chunk that reached the claimed size,
+  // marking a truncated prefix as Success when the peer streamed more.
+  assert.ok(
+    /receivingFileStatsMap\[id\]\.receivedSize\s*===\s*receivingFile\.metaData\.size/.test(body),
+    'processChunk must complete on receivedSize === metaData.size (exact match)'
+  );
+  assert.ok(
+    !/receivingFileStatsMap\[id\]\.receivedSize\s*>=\s*receivingFile\.metaData\.size/.test(body),
+    'processChunk must not use the old >= completion gate'
+  );
+
+  // The overshoot reject path must exist: a chunk that pushes receivedSize
+  // past the declared size rejects the file (error + Pending + reject event +
+  // teardown) instead of completing. The component may inline it or call a
+  // helper; either way the reject event must be wired to the > branch and the
+  // per-file state torn down.
+  const rejectMarker = /rejectOversizedStream|ReceiveEvent\.EVENT_RECEIVER_REJECT/.test(body);
+  assert.ok(
+    rejectMarker,
+    'processChunk must wire an overshoot reject (helper or EVENT_RECEIVER_REJECT)'
+  );
+  assert.ok(
+    /receivingFileStatsMap\[id\]\.receivedSize\s*>\s*receivingFile\.metaData\.size/.test(body),
+    'processChunk must detect the overshoot (receivedSize > declared size)'
+  );
+  const rejectBody = body.includes('rejectOversizedStream')
+    ? (() => {
+        const rStart = source.search(/function\s+rejectOversizedStream\s*\(/);
+        assert.ok(rStart !== -1, 'rejectOversizedStream() helper must exist');
+        const rBrace = source.indexOf('{', rStart);
+        let rDepth = 0;
+        let rEnd = -1;
+        for (let i = rBrace; i < source.length; i++) {
+          if (source[i] === '{') rDepth++;
+          else if (source[i] === '}') {
+            rDepth--;
+            if (rDepth === 0) {
+              rEnd = i + 1;
+              break;
+            }
+          }
+        }
+        assert.ok(rEnd !== -1, 'rejectOversizedStream(): unbalanced braces');
+        return source.slice(rBrace, rEnd);
+      })()
+    : body;
+  assert.ok(
+    rejectBody.includes('EVENT_RECEIVER_REJECT'),
+    'the overshoot reject must send EVENT_RECEIVER_REJECT so the sender bounces to Pending'
+  );
+  assert.ok(
+    /receivingFile\.status\s*=\s*FileStatus\.Pending/.test(rejectBody),
+    'the overshoot reject must bounce the file back to Pending'
+  );
+  assert.ok(
+    rejectBody.includes('delete receivingFileChunkMap[id]') &&
+      rejectBody.includes('delete receivingFileStatsMap[id]') &&
+      rejectBody.includes('delete chunkQueue[id]'),
+    'the overshoot reject must tear down the per-file chunk/stats/queue state'
+  );
+
+  // The progress clamp remains (defense in depth on top of the exact gate).
   assert.ok(
     /Math\.min\(\s*100,\s*Math\.max\(\s*0,\s*Number\.isNaN\(\s*rawProgress\s*\)\s*\?\s*0\s*:\s*rawProgress\s*\)/.test(
       source
@@ -198,7 +333,9 @@ const { validateFileMetadata } = await loadTranspiled('validator.ts');
     /receivingFileStatsMap\[id\]\.progress\s*=/.test(source),
     'Receiver.svelte must assign the clamped value to stats.progress'
   );
-  console.log('ok - Receiver.svelte progress clamp present (static guard)');
+  console.log(
+    'ok - Receiver.svelte completion gate is exact (===), overshoot rejects; progress clamp present'
+  );
 }
 
 // ---- Test 4: 0-byte metadata round-trips through the real generated proto ----

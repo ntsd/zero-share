@@ -15,22 +15,34 @@ sources:
     resource: repo://src/configs.ts
   - id: openwiki-source-383b42ea5b1230160f031c34
     resource: repo://src/utils/path.ts
+  - id: openwiki-source-43ba2ea6141a6d37347e98ea
+    resource: repo://src/utils/peerMessage.ts
   - id: openwiki-source-b35e441477848e0de18eba3f
     resource: repo://src/utils/qr.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
   - id: openwiki-source-c738ae16748cba244df3bf6f
     resource: repo://tests/ice-server-consistency.test.mjs
+  - id: openwiki-source-cbda1b574339ff50701cd203
+    resource: repo://tests/offer-peer-lifecycle.test.mjs
+  - id: openwiki-source-6620ca09e313d24486b5e413
+    resource: repo://tests/peer-message-handler.test.mjs
   - id: openwiki-source-dec647b66ef3761a096ea9d6
     resource: repo://tests/qr.test.mjs
+  - id: openwiki-source-d08c804026ad08a5eda0bd6a
+    resource: repo://tests/receiver-connection-lost.test.mjs
+  - id: openwiki-source-cc2aa5000eb243dbf0af9518
+    resource: repo://tests/regen-offer-stale-peer-crypto.test.mjs
   - id: openwiki-source-1a1e198fafbdfd7512e4d6ab
     resource: repo://tests/scan-qr-lifecycle.test.mjs
   - id: openwiki-source-cc4834bd7be0e4e06ab95a6b
     resource: repo://tests/sdp-robustness.test.mjs
-generated: { by: 'hermes', at: '2026-10-14T13:06:55.597Z' }
+  - id: openwiki-source-7be198dd84c7db602ffe529e
+    resource: repo://tests/sender-connection-lost.test.mjs
+generated: { by: 'hermes', at: '2026-10-15T12:05:18.885Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-14T13:06:55.597Z
+    at: 2026-10-15T12:05:18.885Z
 ---
 
 # Subsystem: WebRTC Peering and SDP Links
@@ -62,11 +74,11 @@ The answer page produces `answerSDP = sdpEncode(localAnswerSdp) + '|' + publicKe
 
 Both sides wait for ICE candidates to drain before freezing the SDP, but cap the wait at `WAIT_ICE_CANDIDATES_TIMEOUT` (3 s). If candidates don't finish in time, a `setTimeout` builds the link/code from the current `localDescription` anyway and shows a toast — the connection still forms (possibly slower) rather than hanging. On the offer side the two build paths are raced safely: the RSA keypair is minted **once** at the top of `generateOfferLink` and a per-invocation `offerBuilt` flag is claimed synchronously by whichever path (candidate completion or timeout) builds first, so the link — and its `p` key — is built at most once per invocation; and the whole generation is wrapped in `try/catch`, so a synchronous `RTCPeerConnection`/`createDataChannel`/`createOffer`/`setLocalDescription` failure toasts "Could not generate the offer" and re-enables the button instead of leaving the "Generating Offer" spinner stuck with an unhandled rejection.
 
-**Regeneration is generation-safe.** A stale 3 s timer is a real hazard: its closure holds the previous generation's `publicKeyBase64`, but its guard reads the script-scope `connection` — after a regeneration that is the _new_ peer, so without a token check the timer would build a link whose `p` key belongs to the old (re-minted, now discarded) keypair and silently break every subsequent encrypted transfer. `generateOfferLink` therefore, before minting: clears the tracked `iceCandidateTimer`, nulls the old data channel's handlers and closes it, closes the old `RTCPeerConnection` (guarded on `connectionState !== 'closed'`, since `close()` throws `InvalidStateError` on an already-settled peer), and bumps a monotonically increasing `offerGeneration` counter; the timeout fallback re-checks its captured generation against the current one at fire time and bails if it is stale. [`repo://src/components/OfferPage.svelte#L152-L256`], [`repo://src/components/ReceivePage.svelte#L191-L205`], [`repo://src/configs.ts#L65`], [`repo://tests/offer-peer-lifecycle.test.mjs`]
+**Regeneration is generation-safe.** A stale 3 s timer is a real hazard: its closure holds the previous generation's `publicKeyBase64`, but its guard reads the script-scope `connection` — after a regeneration that is the _new_ peer, so without a token check the timer would build a link whose `p` key belongs to the old (re-minted, now discarded) keypair and silently break every subsequent encrypted transfer. `generateOfferLink` therefore, before minting: clears the tracked `iceCandidateTimer`, nulls the old data channel's handlers and closes it, closes the old `RTCPeerConnection` (guarded on `connectionState !== 'closed'`, since `close()` throws `InvalidStateError` on an already-settled peer), resets the settled peer crypto (`rsaPub = undefined`, `effectiveEncrypt` re-pinned from the live setting — so the new generation never encrypts with the previous peer's RSA key or the previous session's mode, PR #68) and the dead generation's UI state (new-file badge, `isConnecting`, pending answer code), and bumps a monotonically increasing `offerGeneration` counter; the timeout fallback re-checks its captured generation against the current one at fire time and bails if it is stale. [`repo://src/components/OfferPage.svelte#L153-L284`], [`repo://src/components/ReceivePage.svelte#L191-L205`], [`repo://src/configs.ts#L65`], [`repo://tests/offer-peer-lifecycle.test.mjs`], [`repo://tests/regen-offer-stale-peer-crypto.test.mjs`]
 
 ## Data channel role swap
 
-The **offer** side is the data-channel creator (`createDataChannel('data', { ordered: false })`); the **answer** side receives it via `ondatachannel`. Both then install the identical message-dispatch handlers, with `Message.decode` on peer-controlled bytes guarded by `try/catch` (toast + drop the frame instead of an uncaught crash, PR #46). After `onopen`, the transfer UI (Send/Receive toggle) unlocks on both sides. [`repo://src/components/OfferPage.svelte#L100-L127`], [`repo://src/components/ReceivePage.svelte#L99-L127`]
+The **offer** side is the data-channel creator (`createDataChannel('data', { ordered: false })`); the **answer** side receives it via `ondatachannel`. Both then install the same `handlePeerMessage` handler from `src/utils/peerMessage.ts` (deduplicated from two identical per-page handlers, PR #71), which dispatches the oneof payloads to `Receiver`/`Sender` with `Message.decode` on peer-controlled bytes guarded by `try/catch` (toast + drop the frame instead of an uncaught crash, PR #46). After `onopen`, the transfer UI (Send/Receive toggle) unlocks on both sides. Both pages additionally wire the channel's `onerror`/`onclose` to `sender?.onChannelClose()` / `receiver?.onChannelClose()` so a dead channel propagates the "connection lost" state into the file pipelines (PR #74). [`repo://src/components/OfferPage.svelte#L112-L150`], [`repo://src/components/ReceivePage.svelte#L99-L136`], [`repo://src/utils/peerMessage.ts`]
 
 ## QR exchange
 
@@ -78,5 +90,5 @@ The **offer** side is the data-channel creator (`createDataChannel('data', { ord
 - **Malformed `s` on the receive page (PR #45):** the `s` param of a shared link is user-controllable; `sdpDecode` + `setRemoteDescription` in `setOfferSDP` run inside `try/catch`, so a crafted/truncated link toasts "Invalid SDP in link" instead of crashing the whole page during load. [`repo://src/components/ReceivePage.svelte#L138-L154`], [`repo://tests/sdp-robustness.test.mjs`]
 - **Offer-processing failure dead-ends no longer (PR #49):** if the remote offer cannot be applied, `offerFailed` is set and the UI replaces the perpetual "Generating Answer" spinner with an error state ("Could not connect: the offer in the link is invalid / Ask the sender to generate a new offer link"); `generateAnswerSDP` awaits the offer-settling promise and checks `signalingState === 'have-remote-offer'` before `createAnswer`, and the whole generation is fire-and-forget with a `.catch` that surfaces any remaining rejection. [`repo://src/components/ReceivePage.svelte#L78-L83`], [`repo://src/components/ReceivePage.svelte#L168-L213`], [`repo://src/components/ReceivePage.svelte#L246-L256`], [`repo://tests/offer-processing-failure.test.mjs`]
 - **Malformed answer code on the offer page (PR #45):** the pasted/scanned answer SDP is decoded inside `try/catch` in `acceptAnswer`; a damaged payload toasts "Invalid answer code" instead of an unhandled rejection with no visible error. [`repo://src/components/OfferPage.svelte#L320-L332`], [`repo://tests/sdp-robustness.test.mjs`]
-- `onicecandidateerror`, `dataChannel.onerror`, `onclose`: toast an error, clear `isConnecting`, and (offer side) blank the offer link so a stale link isn't reused; offer-generation failures (synchronous constructor throws or rejected `createOffer`/`setLocalDescription`) toast "Could not generate the offer" and re-enable the button. [`repo://src/components/OfferPage.svelte#L108-L149`], [`repo://src/components/OfferPage.svelte#L152-L256`]
+- `onicecandidateerror`, `dataChannel.onerror`, `onclose`: toast an error, clear `isConnecting`, and (offer side) blank the offer link so a stale link isn't reused; both `onerror` and `onclose` additionally call `sender?.onChannelClose()` / `receiver?.onChannelClose()` so in-flight/queued files on both sides exit with an accurate "connection lost" error instead of dead-ending or re-firing false per-chunk errors (PR #74); offer-generation failures (synchronous constructor throws or rejected `createOffer`/`setLocalDescription`) toast "Could not generate the offer" and re-enable the button. [`repo://src/components/OfferPage.svelte#L108-L150`], [`repo://src/components/OfferPage.svelte#L153-L284`], [`repo://src/components/ReceivePage.svelte#L119-L136`]
 - Encryption off: `p`/public key are absent, `isEncrypt` derives false on the receive side, and peering is unencrypted end-to-end at this layer. A malformed `p` (or an `i` outside the shared predicate) is likewise downgraded/fallen-back-to-default — with a toast — so the session never advertises what it cannot honor. [`repo://src/components/ReceivePage.svelte#L34-L37`], [`repo://src/components/ReceivePage.svelte#L46-L77`]

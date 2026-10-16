@@ -53,7 +53,7 @@ const ts = require('typescript');
 // src/utils/validator.ts (and its imports) are plain ESM with TS types;
 // transpile with the already-installed typescript package so the REAL
 // function (not a copy that can drift) is exercised. Its value import
-// (humanFIleSize) has no file extension, which Node ESM refuses — rewrite
+// (humanFileSize) has no file extension, which Node ESM refuses — rewrite
 // it to the absolute .ts path (Node 22+ strips types natively, the same way
 // tests/sender-chunk-size.test.mjs imports src/configs.ts).
 async function loadTranspiled(name) {

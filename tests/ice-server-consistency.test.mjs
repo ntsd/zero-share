@@ -46,7 +46,7 @@ const { STUN_SERVERS, DEFAULT_SEND_OPTIONS, isSupportedIceServer, resolveIceServ
 const { buildURL } = await import(join(here, '..', 'src', 'utils', 'path.ts'));
 
 // Simulate exactly what OfferPage.createSDPLink does with the `i` param and
-// what buildURLParams does with empty values, then decode the way
+// what buildURL does with empty values, then decode the way
 // ReceivePage reads the URL: `new URLSearchParams(location.search)`.
 function roundTripLink(chosenIceServer) {
   const iceServer = resolveIceServer(chosenIceServer); // sender's resolution

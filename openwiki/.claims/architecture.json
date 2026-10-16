@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:01b5aa866f6942d2a25a50314e6920824f541d65c10f2793892c5bedf044832f",
+  "pageVersion": "sha256:780aac80d15c5d6a46a07db8dc06614d11e9db5cab6511d3fc41e7a51952ffa1",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -93,12 +93,16 @@
       "statement": "The answer peer decodes the attacker-controllable `s` URL param via sdpDecode (which throws synchronously on empty, invalid-base64, or non-SDP input) inside a try/catch that surfaces an 'Invalid SDP in link' toast instead of crashing the page during load (PR #45); the setOfferSDP promise is kept and awaited before createAnswer with a signalingState === 'have-remote-offer' check, so a rejected setRemoteDescription flips offerFailed and the UI renders an error state ('offer in the link is invalid') instead of the spinner spinning forever; it then awaits the validated p-param key import (a malformed key downgrades the session to plaintext) and produces the answer code sdpEncode(answerSdp) + '|' + base64(RSA public key) with the same 3-second ICE candidate timeout fallback.",
       "evidence": [
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L138-L178",
-          "version": "repo-lines-v1:sha256:ae357d9454cce157c733521cb403de2034be521aba815babde32f2e006098306:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3ZDViNDg5MTZlNzgwYTliMDg5MTY0MWFhNzkyMjFhYTQyZTNhNWRiMzUxMjkxZTZlNThhZjlmYzBkODczOWUifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L139-L162",
+          "version": "repo-lines-v1:sha256:24fdd39bb5e064af2012b6f7ae8a96677b0b67aeafe5b23a53eab795640362ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhNmYxMDVhMDMyZDNjYmY1YjlhYWMxZmM0ZTU0NDdlNTI2ODA2Y2NlMDdlMzk2ZGYxMGUzZjUyMzllYTEzMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY0MmQ4MDUxMzNjNTZkZjMzZTBlNWQ3MzM3ODgxNDZmNmYyNjExNWI5MDFlYzcyMGVkYmRlZTA2ZTUwMjliNzQifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L246-L256",
-          "version": "repo-lines-v1:sha256:e71811ab8199d97277a5bb1c4595cb25686669b7e4b38a46015786163219ff5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3ZDU0M2EzNDc4NDIxYzk4YTYwNTY0NmEzNDljZDc2ZDI3NWRiZWVjYzJlY2MyZmZhN2FmNWIzNDMwY2UzNjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4OGU3YzVlZWM1ZmEwYzU3NTFlMjQ1MGQ4YTYxZmUzYWVmOTUzMDNhMzgwYTc5ZmU2ZjdiYTA1Y2UwNzUxMTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2ZGFkZGUwMmRhM2I0NzAwZTM3MjE4YjA0ODUwYTUyMDkxNjhmYmVmZDcxYTU1YTkyYmQ1N2JkM2QwNTFjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5NzY1YWNjNjJmZDkxMDg4NzJlNjMzOTg5ZDU3NmI2NzNlYTIyZjAxZTFlNjEyOTRhZDE2NWVkNWE2OTUwYjIifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L176-L214",
+          "version": "repo-lines-v1:sha256:bc83dad5247551e0cdb6fcaadcb5c2517065eeedd41b9ba2806b90e7c99c5a1d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4M2Q4MDFhMjdjNGEwOWI5NDBkMmNkMTkwMjBiODk3ZjI1YTVlMWE3ODgwNDA0ZTYzZGM1ZjRhM2M4NDMyYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5YTNiN2NmYTg2YTdjOWRmODMxNmZmMDFkMjk3YjI5ZmFjZjcwZGUzYWI3ZGY5M2VlNDczZmRiNWI5MDI2YTIifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L254-L258",
+          "version": "repo-lines-v1:sha256:adb9f7dac31501c36e5d6d4af20bc613fb77b1eab2d579b8720c84adc18bca2a:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzdkNTQzYTM0Nzg0MjFjOThhNjA1NjQ2YTM0OWNkNzZkMjc1ZGJlZWNjMmVjYzJmZmE3YWY1YjM0MzBjZTM2MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTA1NjMwNGIwZWVhYmQ4OGFkNGNiZGQ2MGJkZjQ2NjUxYWQ4NTdhZDFlMDEwNGU0MmFiZmY2YjA0M2FlOGVhMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTZkYWRkZTAyZGEzYjQ3MDBlMzcyMThiMDQ4NTBhNTIwOTE2OGZiZWZkNzFhNTVhOTJiZDU3YmQzZDA1MWM5ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGVkZmIzNjA0YWNlOTdhYzdhMjdhZjg1OGI1MWFlOGUxMjZmYjExOTY5OTkwMGU1Y2FlNTdmYWQzMWI3YTE1NSJ9"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L46-L59",
@@ -147,8 +151,8 @@
           "version": "repo-lines-v1:sha256:39f48d25ef58370e8f9554a9c1bda5290f3518eb04f0bc16f8726a2dec305825:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwY2E1OWIxZWQxZmMwODk3MDcxZWY0NmI2MjcwNmFkZTk4NWE3Y2RmOWI2OGQ4ZWQ2Y2VlYWRhMGIzOTllYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDFkNzNjNDUyMmJlYTM5ZmY4MTVlMjRiY2YxMzExODUzMWQ2NzFlYjNjZjUzMTIxODg1ZTExYTFjNDcyNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5ZmIzODcwMDc0NWQ2ODZmYTZiMDk1ZDI0MzkyMjc1NjkwMmE4MmNhY2Y0YWJiODJkZGM5ZjA0NmNmYThhYjIifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L339-L345",
-          "version": "repo-lines-v1:sha256:7926dd1a75d928a7f48395a96a090f01d1e0be0f6163cbfc90bce7e340a63fee:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTlmN2VkOWFiMTY0MWNhMTVmYjVkN2QzMWQ3MzkyODBiYTM0YTUxYmNjMzY3ZGE0NGQ1MDJiMDhjMjEyNDVmYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODRlNDIwOGNkNmZmYjhjNGEzNTQ3YjJmNTRhZGExOTk3OGMzZjM2NWU3OGY5NTAyZWY1MTQ1Y2RkMmFhODU0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzkzMmJmYTZhMTMzNjk4MWE5M2U4ZWZlNzI4YjM3ZDNkYTg4NzFlMTQzMjdlNzRlNjFjODcyYWRjNjI2NWU4NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTU4MzY5MGYzYzk5ZmUxNmZjMzYyOTE1OGIxN2ViOTcwYTcwNmI5N2NiN2JhY2FlYTFjYzdiMWQ5OTgxNjFmNyJ9"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L349-L361",
+          "version": "repo-lines-v1:sha256:3f2120d83dbf31895fb123dd0fbbe873f0de3783624b1c86fcd4f4b20de099d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjYjYyZDA4MWZkNjg0ZTBkMmQ0OWJjZjhiMjA5NDU5NWU4NjExYzk1N2I1ZDljMmY0Mjc2NDMzMTQzY2M5ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmMTAzMGFjY2Y1NjUxODljZTdiODY1NmExYmRkN2JhOTg2OGM3YjhjM2Q1NzNlMjQ0YTA2M2FjYTJmOWE1ODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L116-L155",
@@ -235,10 +239,28 @@
           "version": "repo-lines-v1:sha256:a5ce965e4b1e0d6647d41bd793ebf8d846c40ec1151e2d23ae24218b35d2fd4f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjNGY5MjlmODczYjIzYmNjMzZlZTY1NWRiOTY3NDE4YTVmN2Y4Mjk3M2M1NmVhZGNmYmQ5YWIwMTU3NmEwMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmZTYzN2E4OWJmYzYwZGQ3MTc3MDA1NjBlMTM4NTZjNjM3Yzc0NWU2MzFlMzE2MzQ4OTdmNmQ0YzQxNWNlZGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2YjUyY2NiMDRjYWM5NTNlNzExMWZiZTE2MmY0ODVmODQ5ZjM0NTk0ZjljNDBhMzIzZjcwYjNiNTI3NDFmMjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4Zjk0OTZhOTg0NTQ1M2I5MWI4ZThlODExYzlkZDIyNzZiYWJiYzU2NjgzODk4OGYyMzQ3NGZjZjFmMThlMTQifQ"
         }
       ]
+    },
+    {
+      "id": "claim_a2ed01b0f56a4d6090163ea0378026cb",
+      "statement": "The manual-exchange clipboard copy handlers are guarded (PR #79): copyOfferLink on the offer page and copyAnswerCode on the receive page wrap navigator.clipboard.writeText in try/catch, so a rejection (non-secure context, denied permission, unavailable API) toasts a 'Copy failed' error instead of escaping as an unhandled rejection that would let the user believe the link/answer code was copied when it was not.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L286-L296",
+          "version": "repo-lines-v1:sha256:6d88c83026ecd827d1248b151b42822f15259614a1e7bc9966b62002801e81dc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0M2Q4ZjMxMjkwZDhiMDc2MzZjMGQ3N2VjOTEzZGYwYmQ4NjBhYjhiZDZjYTAxZWEyYmQxNjY0Y2M2MDY3NzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZGY3MjhiZDQyNWI0NmE0NjcxOTJlM2UwM2IwYzU0MzdlMjQ2M2M5ZTJlZWEyMTNhNGFkZTE4ZjNhNTEzODYifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L164-L174",
+          "version": "repo-lines-v1:sha256:effe5764d8487c78f3aaff214ac82a6663707778dfaa3df769b12476f829fcc7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYmZlMjUzMmJjZTY5ZmQ5NGI3OGZkMzNkNGUwOTc0YjVkNDI4MWE1Y2ViZmFlOWQ5M2QyMGM2NjkyOGY3ZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0MmI3ODgzZTVmMjk5NmVlNTJkZTllNzMwOWRiNjQ4OWE5ZjljMzc4NGU2MzMwYTI5M2IwMTU4NDU5YzQzOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1Nzk1MDdiYmJjNzdjNjg2ODMxZTVlOWJmODE1NGM4NTVhZWIyZDA3OWFlZTY1NWIyMGQyMjE1NDdiMjliNTkifQ"
+        },
+        {
+          "resource": "repo://tests/clipboard-copy-robustness.test.mjs",
+          "version": "repo-file-v1:sha256:f062d7a65a4921e4a737e1d83be47c1eac48f4335b5dc4ad258633841bbb7917"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-15T12:05:18.885Z"
+    "at": "2026-10-16T12:20:26.361Z"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:47f5637f827b86563044fd74f645ffbf463edddb6e0ddb4b8b8a88893ecca4b9",
+  "pageVersion": "sha256:58edf375a25fdada762221ea8d4cf6e1daec581df8157d9618507bf2c848ea6f",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -54,8 +54,12 @@
     },
     {
       "id": "claim_5712564d44244197a155ef4bdc054f9f",
-      "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key — and a pick made while encryption is on but the peer's rsaPub has not been imported yet (the offer is still pending) is rejected with an error toast instead of being registered with an empty wrapped key. The wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption; the receiver registers the file entry at WaitingAccept BEFORE the async key decryption, and on unwrap failure sets a visible error on the entry, toasts, sends EVENT_VALIDATE_ERROR to the sender, and returns without accepting. Pick-time crypto failures are equally visible: onFilesPick iterates with an async for...of (not a fire-and-forget forEach) so a generateAesKey/encryptAesKeyWithRsaPublicKey rejection toasts and skips the entry instead of escaping as an unhandled rejection (PR #75).",
+      "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key — and a pick made while encryption is on but the peer's rsaPub has not been imported yet (the offer is still pending) is rejected with an error toast instead of being registered with an empty wrapped key. The wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption; the receiver registers the file entry at WaitingAccept BEFORE the async key decryption, and on unwrap failure sets a visible error on the entry, toasts, sends EVENT_VALIDATE_ERROR to the sender, and returns without accepting. A metadata-failed entry (error set, or missing aesKey on an encrypted session) additionally cannot be force-accepted: Receiver.onAccept guards its entry point and refuses such entries with a toast plus EVENT_RECEIVER_REJECT instead of starting a transfer that can never succeed (PR #78). Pick-time crypto failures are equally visible: onFilesPick iterates with an async for...of (not a fire-and-forget forEach) so a generateAesKey/encryptAesKeyWithRsaPublicKey rejection toasts and skips the entry instead of escaping as an unhandled rejection (PR #75).",
       "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L339-L384",
+          "version": "repo-lines-v1:sha256:faf8652ff31f590338693efbb5bfda5569be94c5ea69257c042637c782dbdfe7:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzYzNiNWRjNWZhMzg2NDM4NzFhYTFhNzhlMjdmMWZjNzQzZGQxNGU3NGQzMzhkZTdkMjVkOWFmOTg5OTUxNTIifQ"
+        },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
           "version": "repo-lines-v1:sha256:c9b49771b58426b2859a8a51fea066eb522f4e3c6cdcde32305436fe2de7cffe:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
@@ -70,7 +74,7 @@
         },
         {
           "resource": "repo://tests/receiver-key-decryption-failure.test.mjs",
-          "version": "repo-file-v1:sha256:8a8db6b32333d9361d1544667283b9ba6e373c34805929a80a3c92078ca9520b"
+          "version": "repo-file-v1:sha256:c5feacc602a97eeceb716f3335e1a1e13f61278072df171140a92b0eb17d3f24"
         },
         {
           "resource": "repo://tests/sender-onfilespick-crypto-rejection.test.mjs",
@@ -166,8 +170,12 @@
     },
     {
       "id": "claim_22ae504e43e447edb1467001c15014f4",
-      "statement": "Receiver key-unwrap failure is visible, not silent, and it signals the sender: if decryptAesKeyWithRsaPrivateKey rejects for an incoming file, the already-registered entry gets an error set, an error toast fires, and onMetaData sends EVENT_VALIDATE_ERROR back to the sender (bouncing its file to Pending) before returning without accepting — so the sender does not wait forever on an invisible file. The metadata-failed entry stays in WaitingAccept with the error shown (FileCard error banner), so in manual-accept mode it remains actionable with Accept/Deny (or Remove) instead of dead-ending on Remove only (PR #76).",
+      "statement": "Receiver key-unwrap failure is visible, not silent, and it signals the sender: if decryptAesKeyWithRsaPrivateKey rejects for an incoming file, the already-registered entry gets an error set, an error toast fires, and onMetaData sends EVENT_VALIDATE_ERROR back to the sender (bouncing its file to Pending) before returning without accepting. The metadata-failed entry stays in WaitingAccept with the error shown (FileCard error banner) and is not a Remove-only dead-end (PR #76) — but Accept on it is refused (PR #78): onAccept checks the entry's error/aesKey state up front, toasts 'Cannot accept <name>: the metadata/key failed to process — the sender must resend the file', and sends EVENT_RECEIVER_REJECT instead of EVENT_RECEIVER_ACCEPT, so the entry stays in WaitingAccept with Deny/Remove as the real exits.",
       "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L339-L361",
+          "version": "repo-lines-v1:sha256:21184284b3104b42e2c68c5bfea36d4c3b7b5d4143c47ae08cb122f10dc2a0b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
+        },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
           "version": "repo-lines-v1:sha256:c9b49771b58426b2859a8a51fea066eb522f4e3c6cdcde32305436fe2de7cffe:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
@@ -178,13 +186,13 @@
         },
         {
           "resource": "repo://tests/receiver-key-decryption-failure.test.mjs",
-          "version": "repo-file-v1:sha256:8a8db6b32333d9361d1544667283b9ba6e373c34805929a80a3c92078ca9520b"
+          "version": "repo-file-v1:sha256:c5feacc602a97eeceb716f3335e1a1e13f61278072df171140a92b0eb17d3f24"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-15T12:05:18.885Z"
+    "at": "2026-10-16T12:20:26.361Z"
   }
 }

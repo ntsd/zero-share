@@ -413,11 +413,17 @@
 
     // A single archive: one click, one download — no browser auto-download
     // blocking (which breaks sequential per-file programmatic downloads).
-    const zipBytes = await createZipStoreOnly(files);
-    triggerDownload(
-      new Blob([zipBytes as BlobPart], { type: 'application/zip' }),
-      'zero-share-files.zip'
-    );
+    try {
+      const zipBytes = await createZipStoreOnly(files);
+      triggerDownload(
+        new Blob([zipBytes as BlobPart], { type: 'application/zip' }),
+        'zero-share-files.zip'
+      );
+    } catch (e) {
+      // Refuse rather than ship a silently corrupt archive (e.g. an entry
+      // over the 4 GiB classic-ZIP limit, which the writer throws on).
+      addToastMessage(e instanceof Error ? e.message : 'Could not build the ZIP archive', 'error');
+    }
   }
 
   function onOptionsUpdate(options: ReceiveOptions) {

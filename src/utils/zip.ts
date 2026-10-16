@@ -38,10 +38,18 @@ function uniqueNames(names: string[]): string[] {
 
 // Builds an uncompressed ZIP (local headers + file data + central directory +
 // EOCD). File names are UTF-8 with the 0x800 flag set; fixed valid DOS time.
+//
+// Classic-zip limits: no zip64 extra fields are written, so every 32-bit size
+// and offset must fit below 0x100000000. Any entry over 4 GiB (or an archive
+// whose central directory starts past 4 GiB) would otherwise wrap the 32-bit
+// header fields at the 0xFFFFFFFF "size is in zip64 extra" sentinel while no
+// such extra exists — a silent, corrupt archive. We fail explicitly instead.
 export async function createZipStoreOnly(files: ZipEntry[]): Promise<Uint8Array<ArrayBuffer>> {
   if (files.length === 0) {
     throw new Error('createZipStoreOnly: no files to archive');
   }
+
+  const MAX_CLASSIC_SIZE = 0xffffffff; // 32-bit unsigned max = "zip64 required" sentinel
 
   const entries = await Promise.all(
     files.map(async (f) => {
@@ -52,6 +60,14 @@ export async function createZipStoreOnly(files: ZipEntry[]): Promise<Uint8Array<
   const names = uniqueNames(entries.map((e) => e.name));
   const nameBytes = names.map((n) => new TextEncoder().encode(n));
 
+  for (let i = 0; i < entries.length; i++) {
+    if (entries[i].data.length >= MAX_CLASSIC_SIZE) {
+      throw new Error(
+        `createZipStoreOnly: entry "${names[i]}" is ${(entries[i].data.length / 0x100000000).toFixed(2)} GiB; classic ZIP (no zip64) supports entries up to 4 GiB — download this file individually instead`
+      );
+    }
+  }
+
   const localOffset: number[] = [];
   let o = 0;
   entries.forEach((e, i) => {
@@ -61,6 +77,11 @@ export async function createZipStoreOnly(files: ZipEntry[]): Promise<Uint8Array<
   const centralStart = o;
   const centralSize = entries.reduce((sum, e, i) => sum + 46 + nameBytes[i].length, 0);
   const total = centralStart + centralSize + 22;
+  if (centralStart > MAX_CLASSIC_SIZE || total > MAX_CLASSIC_SIZE) {
+    throw new Error(
+      'createZipStoreOnly: archive exceeds the classic ZIP 4 GiB offset/size limit (no zip64 support) — split the files into smaller batches or download them individually'
+    );
+  }
 
   const out = new ArrayBuffer(total);
   const dv = new DataView(out);

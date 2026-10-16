@@ -118,6 +118,42 @@ try {
     }
     assert.equal(seen, 3, 'all 3 entries walked');
   }
+
+  // --- classic-ZIP 4 GiB guard: 32-bit fields wrap, so the writer must refuse ---
+  // Demonstrate the silent-corruption mechanism the guard exists for:
+  // DataView.setUint32 truncates its argument to 32 bits, so a 4 GiB + 1 size
+  // lands at 1 (and exactly 4 GiB at 0) in the header — not even the
+  // 0xFFFFFFFF "see zip64 extra" sentinel.
+  const wrap = new DataView(new ArrayBuffer(4));
+  wrap.setUint32(0, 0x100000000, true);
+  assert.equal(wrap.getUint32(0, true), 0, 'setUint32 wraps 0x100000000 to 0');
+  wrap.setUint32(0, 0x100000001, true);
+  assert.equal(wrap.getUint32(0, true), 1, 'setUint32 wraps 0x100000001 to 1');
+
+  // Allocating a > 4 GiB buffer in-test is impractical, so pin the guard
+  // statically: entry-size and total/offset bounds checks must both throw
+  // before `new ArrayBuffer(total)` allocates the (now provably in-range) buffer.
+  const { readFile: readSrc } = await import('node:fs/promises');
+  const zipSrc = await readSrc(join(here, '..', 'src', 'utils', 'zip.ts'), 'utf8');
+  const entryGuardRe =
+    /entries\[i\]\.data\.length\s*>=\s*MAX_CLASSIC_SIZE[\s\S]{0,200}?throw\s+new\s+Error\(/;
+  assert.ok(
+    entryGuardRe.test(zipSrc),
+    'zip.ts must throw a descriptive error when an entry exceeds the 4 GiB classic-ZIP limit'
+  );
+  const allocIdx = zipSrc.indexOf('new ArrayBuffer(total)');
+  assert.ok(allocIdx > 0, 'zip.ts must allocate via new ArrayBuffer(total)');
+  assert.ok(
+    zipSrc.slice(0, allocIdx).includes('centralStart > MAX_CLASSIC_SIZE') &&
+      zipSrc.slice(0, allocIdx).includes('total > MAX_CLASSIC_SIZE'),
+    'total/centralStart bounds check must precede the ArrayBuffer allocation'
+  );
+  assert.ok(
+    /const\s+MAX_CLASSIC_SIZE\s*=\s*0xffffffff/.test(zipSrc),
+    'guard constant must be the 32-bit unsigned max (0xffffffff)'
+  );
+
+  console.log('ok - 4 GiB classic-ZIP guard (wrap semantics + source guards)');
 } finally {
   await rm(dir, { recursive: true, force: true });
 }

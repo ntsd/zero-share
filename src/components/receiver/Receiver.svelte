@@ -337,6 +337,29 @@
   }
 
   function onAccept(id: string) {
+    const receivingFile = receivingFiles[id];
+    // Refuse entries whose metadata failed (key decryption or max-size
+    // validation): without a usable aesKey the transfer can never succeed —
+    // on an encrypted session processChunk would skip decryption and assemble
+    // the ciphertext as a Success blob, or every chunk would hit
+    // rejectCorruptChunk (an N-toast storm per resend). Leave the entry in
+    // WaitingAccept + error so Deny/Remove remain available (#76), and reject
+    // so the sender (bounced to Pending by EVENT_VALIDATE_ERROR) does not sit
+    // in WaitingAccept for a file it can never deliver.
+    if (receivingFile?.error || (isEncrypt && !receivingFile?.aesKey)) {
+      addToastMessage(
+        `Cannot accept ${receivingFile?.metaData.name ?? id}: the metadata/key failed to process — the sender must resend the file`,
+        'error'
+      );
+      send(
+        Message.encode({
+          id,
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+        }).finish()
+      );
+      return;
+    }
+
     send(
       Message.encode({
         id,

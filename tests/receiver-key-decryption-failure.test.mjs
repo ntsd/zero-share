@@ -63,13 +63,18 @@ async function loadTranspiled(name, tmpSuffix) {
 }
 const { Message, ReceiveEvent } = await loadTranspiled('proto/message.ts', 'message');
 
-// Faithful mirror of Receiver.svelte#onMetaData (post-fix): register the entry
-// -> attempt RSA key decryption -> on failure: local error + toast + outbound
-// EVENT_VALIDATE_ERROR + return (no accept, no chunk map). On success the
-// metadata is usable; autoAccept sends EVENT_RECEIVER_ACCEPT.
+// Faithful mirror of the Receiver.svelte state machine under test: onMetaData
+// (register -> RSA key decrypt -> on failure: local error + toast + outbound
+// EVENT_VALIDATE_ERROR + return) plus the post-#76/#fix onAccept() entry
+// point — a metadata-failed entry (error set / aesKey missing) is refused:
+// explanatory toast + EVENT_RECEIVER_REJECT, entry stays WaitingAccept, and NO
+// chunk map is created (so onChunkData drops any late-arriving chunks).
 function buildReceiver({ rsa, autoAccept = true }) {
   const isEncrypt = true;
-  const state = { receivingFiles: {} };
+  const state = {
+    receivingFiles: {},
+    chunkMap: {} // mirror of the component's non-state receivingFileChunkMap
+  };
   const sentFrames = []; // raw encoded Uint8Arrays, exactly as dataChannel.send would
   const toasts = [];
   const dataChannel = {
@@ -108,23 +113,54 @@ function buildReceiver({ rsa, autoAccept = true }) {
     state.receivingFiles[id].aesKey = aesKey;
 
     if (autoAccept) {
-      // onAccept(): signal the peer and start processing.
+      onAccept(id);
+    }
+  }
+
+  // Mirror of Receiver.svelte#onAccept (post-fix): refuse metadata-failed
+  // entries (error set, or encrypted session without an aesKey) with a toast +
+  // REJECT, no state change and no chunk map; otherwise signal ACCEPT and
+  // create the chunk maps.
+  function onAccept(id) {
+    const receivingFile = state.receivingFiles[id];
+    if (receivingFile?.error || (isEncrypt && !receivingFile?.aesKey)) {
+      toasts.push(
+        `Cannot accept ${receivingFile?.metaData?.name ?? id}: the metadata/key failed to process — the sender must resend the file`
+      );
       dataChannel.send(
         Message.encode({
           id: id,
-          receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
         }).finish()
       );
-      state.receivingFiles[id].status = 'Processing';
-      state.receivingFiles[id].startTime = Date.now();
+      return;
     }
+
+    dataChannel.send(
+      Message.encode({
+        id: id,
+        receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT
+      }).finish()
+    );
+
+    state.receivingFiles[id].status = 'Processing';
+    state.receivingFiles[id].startTime = Date.now();
+
+    state.chunkMap[id] = { receivedChunks: [] };
   }
 
   function decodeAll() {
     return sentFrames.map((f) => Message.decode(f));
   }
 
-  return { state, toasts, onMetaData, decodeAll, frameCount: () => sentFrames.length };
+  return {
+    state,
+    toasts,
+    onMetaData,
+    onAccept,
+    decodeAll,
+    frameCount: () => sentFrames.length
+  };
 }
 
 // ---- Test 1: empty key (the zf-zs-611c34f5 sender window) -> exactly one EVENT_VALIDATE_ERROR ----
@@ -472,6 +508,123 @@ function buildReceiver({ rsa, autoAccept = true }) {
   console.log(
     'ok - component source: WaitingAccept entries (incl. failed-metadata) still render Accept/Deny, not Remove-only'
   );
+}
+
+// ---- Test 8: manual-accept mode + failed key + onAccept() -> refused: no
+// ---- ACCEPT frame, entry stays WaitingAccept + error, no chunk map, at most
+// ---- a REJECT ----
+// The P0 from the #76 follow-up: in manual mode the Accept button is rendered
+// for a failed-metadata entry (#76), so onAccept() must guard the entry's
+// error/aesKey state instead of starting a transfer that can never succeed
+// (ciphertext assembled as a Success blob, or an N-toast corrupt-chunk storm
+// per resend).
+{
+  const rsa = await generateRsaKeyPair();
+  const receiver = buildReceiver({ rsa, autoAccept: false });
+  await receiver.onMetaData('file-6', {
+    name: 'manual-fail.bin',
+    size: 512,
+    type: 'application/octet-stream',
+    key: new Uint8Array(0) // empty key: the RSA-OAEP decrypt genuinely throws
+  });
+
+  receiver.onAccept('file-6');
+
+  const file = receiver.state.receivingFiles['file-6'];
+  assert.equal(
+    file.status,
+    'WaitingAccept',
+    'a refused accept must leave the entry in WaitingAccept (Deny/Remove stay available)'
+  );
+  assert.ok(
+    file.error instanceof Error,
+    "a refused accept must not clear the entry's metadata error"
+  );
+  assert.equal(file.aesKey, undefined, 'a refused accept must not attach an AES key');
+  assert.equal(file.blob, undefined, 'a refused accept must not start assembling any file content');
+
+  // No ACCEPT may go out for a metadata-failed entry — only the original
+  // VALIDATE_ERROR, and at most one REJECT from the refusal.
+  const decoded = receiver.decodeAll();
+  assert.ok(
+    !decoded.some((m) => m.receiveEvent === ReceiveEvent.EVENT_RECEIVER_ACCEPT),
+    'onAccept on a metadata-failed entry must NOT send EVENT_RECEIVER_ACCEPT'
+  );
+  assert.ok(
+    decoded.filter((m) => m.receiveEvent === ReceiveEvent.EVENT_RECEIVER_REJECT).length <= 1,
+    'at most one REJECT may be sent for the refused accept'
+  );
+  // The refusal is user-visible instead of a silent dead-end.
+  assert.ok(
+    receiver.toasts.some((t) => /cannot accept/i.test(t)),
+    'the refusal must surface a toast explaining the accept failed'
+  );
+  // No chunk map may be created: onChunkData then drops any late-arriving
+  // chunks for this id instead of counting ciphertext toward receivedSize.
+  assert.equal(
+    receiver.state.chunkMap['file-6'],
+    undefined,
+    'a refused accept must not create a chunk map for the file'
+  );
+  console.log(
+    'ok - manual accept on failed key: no ACCEPT, entry stays WaitingAccept+error, no chunk map'
+  );
+}
+
+// ---- Test 9: static guard — Receiver.svelte#onAccept guards the entry's
+// ---- error state before sending EVENT_RECEIVER_ACCEPT ----
+// The regression lived here: onAccept() accepted unconditionally, so a
+// metadata-failed entry (error set / aesKey undefined) started a transfer
+// that could only produce a garbage "Success" blob or a corrupt-chunk toast
+// storm. This guard requires the error/aesKey check to precede the ACCEPT
+// frame.
+{
+  const source = await readFile(
+    join(here, '..', 'src', 'components', 'receiver', 'Receiver.svelte'),
+    'utf8'
+  );
+
+  // Isolate the onAccept() function body via brace matching.
+  const fnStart = source.search(/function\s+onAccept\s*\(/);
+  assert.ok(fnStart !== -1, 'onAccept() must exist in Receiver.svelte');
+  const bodyStart = source.indexOf('{', fnStart);
+  let depth = 0;
+  let bodyEnd = -1;
+  for (let i = bodyStart; i < source.length; i++) {
+    if (source[i] === '{') depth++;
+    else if (source[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        bodyEnd = i + 1;
+        break;
+      }
+    }
+  }
+  assert.ok(bodyEnd !== -1, 'onAccept(): unbalanced braces');
+  const body = source.slice(bodyStart, bodyEnd);
+
+  const acceptIdx = body.indexOf('ReceiveEvent.EVENT_RECEIVER_ACCEPT');
+  assert.ok(acceptIdx !== -1, 'onAccept() must send EVENT_RECEIVER_ACCEPT for valid entries');
+
+  // The guard must read the live entry and its error BEFORE the ACCEPT frame
+  // is built, and refuse when the session is encrypted but the key is
+  // missing.
+  const guardIdx = body.search(/\.error\b/);
+  assert.ok(
+    guardIdx !== -1 && guardIdx < acceptIdx,
+    "onAccept() must check the entry's error state before sending EVENT_RECEIVER_ACCEPT"
+  );
+  assert.ok(
+    body.includes('isEncrypt') && body.includes('aesKey'),
+    'onAccept() must also refuse an encrypted entry without a usable aesKey'
+  );
+  // The refusal path signals the sender (so it cannot sit in WaitingAccept
+  // for an undeliverable file) without advancing the local entry.
+  assert.ok(
+    body.includes('ReceiveEvent.EVENT_RECEIVER_REJECT'),
+    'the refusal path should reject the file so the sender recovers'
+  );
+  console.log('ok - component source: onAccept guards error/aesKey before sending ACCEPT');
 }
 
 console.log(

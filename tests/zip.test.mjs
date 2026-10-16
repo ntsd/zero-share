@@ -136,7 +136,7 @@ try {
   const { readFile: readSrc } = await import('node:fs/promises');
   const zipSrc = await readSrc(join(here, '..', 'src', 'utils', 'zip.ts'), 'utf8');
   const entryGuardRe =
-    /entries\[i\]\.data\.length\s*>\s*MAX_CLASSIC_SIZE[\s\S]{0,200}?throw\s+new\s+Error\(/;
+    /entries\[i\]\.data\.length\s*>=\s*MAX_CLASSIC_SIZE[\s\S]{0,200}?throw\s+new\s+Error\(/;
   assert.ok(
     entryGuardRe.test(zipSrc),
     'zip.ts must throw a descriptive error when an entry exceeds the 4 GiB classic-ZIP limit'

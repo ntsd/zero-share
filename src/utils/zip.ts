@@ -61,7 +61,7 @@ export async function createZipStoreOnly(files: ZipEntry[]): Promise<Uint8Array<
   const nameBytes = names.map((n) => new TextEncoder().encode(n));
 
   for (let i = 0; i < entries.length; i++) {
-    if (entries[i].data.length > MAX_CLASSIC_SIZE) {
+    if (entries[i].data.length >= MAX_CLASSIC_SIZE) {
       throw new Error(
         `createZipStoreOnly: entry "${names[i]}" is ${(entries[i].data.length / 0x100000000).toFixed(2)} GiB; classic ZIP (no zip64) supports entries up to 4 GiB — download this file individually instead`
       );

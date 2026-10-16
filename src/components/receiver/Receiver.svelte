@@ -298,7 +298,12 @@
   }
 
   function onRemove(key: string) {
-    if (receivingFiles[key].status != FileStatus.Success) {
+    // A re-entrant/duplicate click (or an entry torn down by a concurrent
+    // path, e.g. onChannelClose) leaves receivingFiles[key] undefined —
+    // guard it the same way the sender's onRemove does instead of throwing.
+    const f = receivingFiles[key];
+    if (!f) return;
+    if (f.status != FileStatus.Success) {
       // Guarded: the reject is best-effort (the local state below tears down
       // regardless), and must not throw on a dead channel.
       send(
@@ -329,6 +334,7 @@
 
   function onDownload(key: string) {
     const receivedFile = receivingFiles[key];
+    if (!receivedFile) return;
     const blobFile = receivedFile.blob;
     if (!blobFile) {
       return;

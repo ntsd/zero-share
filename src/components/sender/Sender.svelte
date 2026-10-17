@@ -403,7 +403,10 @@
 <div class="grid gap-4">
   <DragAndDrop {onFilesPick} />
   {#if Object.keys(sendingFiles).length > 0}
-    <SendingFileList {sendingFiles} {onRemove} {onSend} {onStop} {onContinue} />
+    <!-- connectionLost is a plain let (not $state): it flips exactly once, on
+         the same close that mutates sendingFiles, so the list re-renders from
+         the $state mutation and reads the up-to-date flag at that moment. -->
+    <SendingFileList {sendingFiles} {connectionLost} {onRemove} {onSend} {onStop} {onContinue} />
     <button class="btn btn-primary mt-2" onclick={sendAllFiles}>Send all files</button>
   {:else}
     <p class="mt-4">No files selected</p>

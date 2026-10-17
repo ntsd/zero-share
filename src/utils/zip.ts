@@ -26,13 +26,19 @@ export function crc32(data: Uint8Array): number {
 }
 
 // Collapse empty/./.. names and duplicate names so the archive stays valid.
+// Names are peer-controlled, so the generated "base (n)" suffix must be
+// checked against every already-emitted *final* name — counting occurrences
+// per base collides when the input already contains a pre-suffixed name
+// (e.g. "report.pdf", "report.pdf", "report.pdf (1)").
 function uniqueNames(names: string[]): string[] {
-  const seen = new Map<string, number>();
+  const used = new Set<string>();
   return names.map((raw) => {
     const base = raw.replace(/^[./]+/, '') || 'file';
-    const n = seen.get(base) ?? 0;
-    seen.set(base, n + 1);
-    return n === 0 ? base : `${base} (${n})`;
+    let candidate = base;
+    let n = 1;
+    while (used.has(candidate)) candidate = `${base} (${n++})`;
+    used.add(candidate);
+    return candidate;
   });
 }
 

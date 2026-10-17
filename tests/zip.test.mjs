@@ -119,6 +119,111 @@ try {
     assert.equal(seen, 3, 'all 3 entries walked');
   }
 
+  // --- round trip: duplicate + pre-suffixed names must stay collision-free ---
+  // uniqueNames must never emit a name that already exists in the output:
+  // OS download folders routinely yield "photo.jpg" + "photo.jpg (1)", so the
+  // realistic trigger is an ordinary peer-controlled name list like the one
+  // below (unzip -o / Explorer / Archive Utility would otherwise silently
+  // drop one file on extract).
+  const r1 = new TextEncoder().encode('original report v1');
+  const r2 = new TextEncoder().encode('second copy report v2');
+  const r1s = new TextEncoder().encode('pre-suffixed report');
+  const x1 = new TextEncoder().encode('x one');
+  const x2 = new TextEncoder().encode('x two');
+  const x1s = new TextEncoder().encode('x presuffix');
+  const dupFiles = [
+    { name: 'report.pdf', data: r1 },
+    { name: 'report.pdf', data: r2 },
+    { name: 'report.pdf (1)', data: r1s },
+    { name: 'x', data: x1 },
+    { name: 'x', data: x2 },
+    { name: 'x (1)', data: x1s }
+  ];
+  const dupZip = await createZipStoreOnly(dupFiles);
+  const dupZipPath = join(dir, 'dup.zip');
+  await writeFile(dupZipPath, dupZip);
+
+  // Walk the central directory: return its entry names and local-header
+  // offsets, and assert the EOCD entry count equals the input file count.
+  const cdWalk = (buf) => {
+    const dv = new DataView(buf.buffer);
+    let eocd = -1;
+    for (let i = buf.length - 22; i >= 0; i--) {
+      if (dv.getUint32(i, true) === 0x06054b50) {
+        eocd = i;
+        break;
+      }
+    }
+    assert.ok(eocd >= 0, 'dup.zip: EOCD signature found');
+    const count = dv.getUint16(eocd + 10, true); // total entries on all disks
+    assert.equal(count, dupFiles.length, 'EOCD total entries must equal input file count');
+    assert.equal(dv.getUint16(eocd + 8, true), count, 'EOCD entries on this disk must match');
+    const entries = [];
+    let off = dv.getUint32(eocd + 16, true);
+    for (let i = 0; i < count; i++) {
+      assert.equal(dv.getUint32(off, true), 0x02014b50, 'dup.zip: central dir signature');
+      const nameLen = dv.getUint16(off + 28, true);
+      const name = new TextDecoder().decode(buf.subarray(off + 46, off + 46 + nameLen));
+      entries.push({ name, localOff: dv.getUint32(off + 42, true), nameLen });
+      off += 46 + nameLen;
+    }
+    return entries;
+  };
+  const entries = cdWalk(dupZip);
+  const names = entries.map((e) => e.name);
+  assert.equal(
+    new Set(names).size,
+    names.length,
+    `central directory names must be unique, got: ${JSON.stringify(names)}`
+  );
+
+  // First occurrences keep their names verbatim; the 2nd duplicate and the
+  // pre-suffixed name are disambiguated by bumping past already-used names.
+  const dupExpected = {
+    'report.pdf': r1,
+    'report.pdf (1)': r2,
+    'report.pdf (1) (1)': r1s,
+    x: x1,
+    'x (1)': x2,
+    'x (1) (1)': x1s
+  };
+  assert.deepEqual(
+    [...names].sort(),
+    Object.keys(dupExpected).sort(),
+    'dup.zip must contain exactly the expected deduplicated entry names'
+  );
+
+  if (spawnSync('sh', ['-c', 'command -v unzip']).status === 0) {
+    execFileSync('unzip', ['-o', '-q', dupZipPath, '-d', dir + '/ext-dup'], {
+      encoding: 'utf8'
+    });
+    const { readFile: rd } = await import('node:fs/promises');
+    for (const [n, want] of Object.entries(dupExpected)) {
+      assert.ok(
+        Buffer.compare(await rd(join(dir, 'ext-dup', n)), Buffer.from(want)) === 0,
+        `extracted ${n} must match its distinct input content`
+      );
+    }
+  } else {
+    // Fallback: verify each entry's stored bytes via its local header.
+    const dv = new DataView(dupZip.buffer);
+    for (const { name, localOff, nameLen } of entries) {
+      assert.equal(dv.getUint32(localOff, true), 0x04034b50, 'dup.zip: local header signature');
+      const lNameLen = dv.getUint16(localOff + 26, true);
+      const lName = new TextDecoder().decode(
+        dupZip.subarray(localOff + 30, localOff + 30 + lNameLen)
+      );
+      assert.equal(lName, name, 'dup.zip: central and local names agree');
+      const size = dv.getUint32(localOff + 18, true);
+      const dataStart = localOff + 30 + lNameLen;
+      assert.deepEqual(
+        dupZip.subarray(dataStart, dataStart + size),
+        dupExpected[name],
+        `stored bytes for ${name} must match its distinct input content`
+      );
+    }
+  }
+
   // --- classic-ZIP 4 GiB guard: 32-bit fields wrap, so the writer must refuse ---
   // Demonstrate the silent-corruption mechanism the guard exists for:
   // DataView.setUint32 truncates its argument to 32 bits, so a 4 GiB + 1 size

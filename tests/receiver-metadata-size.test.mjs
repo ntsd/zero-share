@@ -304,7 +304,34 @@ const { validateFileMetadata } = await loadTranspiled('validator.ts');
           }
         }
         assert.ok(rEnd !== -1, 'rejectOversizedStream(): unbalanced braces');
-        return source.slice(rBrace, rEnd);
+        const ownBody = source.slice(rBrace, rEnd);
+        // rejectOversizedStream may delegate its teardown to a shared
+        // rejectFile() helper — follow the delegation so the assertions
+        // below land on the body that actually performs it.
+        if (/rejectFile\(/.test(ownBody)) {
+          const fStart = source.search(/function\s+rejectFile\s*\(/);
+          assert.ok(fStart !== -1, 'rejectFile() shared teardown helper must exist');
+          assert.ok(
+            /rejectFile\s*\(/.test(ownBody),
+            'rejectOversizedStream must delegate to the shared rejectFile() helper'
+          );
+          const fBrace = source.indexOf('{', fStart);
+          let fDepth = 0;
+          let fEnd = -1;
+          for (let i = fBrace; i < source.length; i++) {
+            if (source[i] === '{') fDepth++;
+            else if (source[i] === '}') {
+              fDepth--;
+              if (fDepth === 0) {
+                fEnd = i + 1;
+                break;
+              }
+            }
+          }
+          assert.ok(fEnd !== -1, 'rejectFile(): unbalanced braces');
+          return source.slice(fBrace, fEnd);
+        }
+        return ownBody;
       })()
     : body;
   assert.ok(

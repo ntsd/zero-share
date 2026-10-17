@@ -381,7 +381,18 @@
       };
       const validateErr = validateFileMetadata(fileMetaData);
       if (validateErr) {
+        // Mirror the crypto guards above: surface a visible error and do
+        // NOT register the entry. The shared validator (also enforced by
+        // the receiver on the same metadata) rejects size <= 0 /
+        // non-finite — a 0-byte file can never complete: the receiver
+        // bounces us back with EVENT_VALIDATE_ERROR on every resend, and
+        // processChunk's exact-match gate (receivedSize === size) can
+        // never be satisfied by an empty payload. Registering it as a
+        // Resend-able Pending entry was a guaranteed dead-end that
+        // re-fired a "Receiver validate error" toast on every retry, so
+        // an undeliverable file never enters sendingFiles at all.
         addToastMessage(`${file.name} ${validateErr.message}`, 'error');
+        continue;
       }
 
       const id = crypto.randomUUID();
@@ -391,7 +402,6 @@
         progress: 0,
         bitrate: 0,
         stop: false,
-        error: validateErr,
         startTime: 0,
         status: FileStatus.Pending,
         aesKey: aesKey

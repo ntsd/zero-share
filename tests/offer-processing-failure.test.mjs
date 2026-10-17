@@ -158,6 +158,37 @@ const receiveScript = receiveSource.slice(0, receiveSource.indexOf('</script>'))
   );
 }
 
+// ---- Test 6: the dead generation's offer link is cleared on regeneration ----
+// generateOfferLink() tears down the previous RTCPeerConnection + data channel
+// and re-mints the RSA keypair, but the OLD link's SDP belongs to that closed
+// peer and its `p` key to the keypair about to be re-minted — a dead,
+// unshareable link. If offerLink is not reset during the teardown, the
+// "2. Accept Answer" section (keyed on `offerLink !== ''`) keeps rendering the
+// dead link as copyable/QR'able for the whole regeneration window (the
+// ICE-candidate wait plus async setup), and a FAILED regeneration strands it as
+// the primary share artifact. The reset must live in the teardown block, BEFORE
+// the new generation's try/catch — i.e. before `generating = true` — not only
+// in the catch: a catch-only reset would leave the success-path stale window
+// and the reset-to-empty-string matters because the template keys on
+// `offerLink !== ''` (an `undefined` reset would leave the section open).
+{
+  const body = extractFunction(offerSource, 'generateOfferLink');
+  const resetIdx = body.search(/offerLink\s*=\s*''/);
+  assert.ok(
+    resetIdx !== -1,
+    "generateOfferLink must reset offerLink = '' so a dead generation's link is not left presented"
+  );
+  const generatingIdx = body.search(/generating\s*=\s*true/);
+  assert.ok(generatingIdx !== -1, 'generateOfferLink must set generating = true');
+  assert.ok(
+    resetIdx < generatingIdx,
+    "the offerLink = '' reset must run in the teardown block BEFORE generating=true (not only in the catch), so a failed or in-flight regeneration never presents the dead link"
+  );
+  console.log(
+    "ok - generateOfferLink clears the dead generation's offer link before minting the new one"
+  );
+}
+
 console.log(
   'ok - offer-processing failure: no eternal spinner, no unhandled rejection, recovery state on both pages'
 );

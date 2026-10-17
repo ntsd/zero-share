@@ -4,19 +4,29 @@
 
   type Props = {
     sendingFiles: { [key: string]: SendingFile };
+    // Dead-channel flag from the owning Sender (onChannelClose() / a throwing
+    // send()). Once the channel is lost, no entry on this peer can ever be
+    // sent — there is no reconnection path — so Resend must not be offered:
+    // it would be a guaranteed silent no-op. Only Remove is meaningful then.
+    connectionLost: boolean;
     onRemove: (key: string) => void;
     onSend: (key: string) => void;
     onStop: (key: string) => void;
     onContinue: (key: string) => void;
   };
-  const { sendingFiles, onRemove, onSend, onStop, onContinue }: Props = $props();
+  const { sendingFiles, connectionLost, onRemove, onSend, onStop, onContinue }: Props = $props();
 </script>
 
 <div class="grid gap-4">
   {#each Object.entries(sendingFiles) as [key, sendingFile] (key)}
     <FileCard fileDetail={sendingFile} isSender={true}>
       <div class="flex-none">
-        {#if sendingFile.error}
+        <!-- With the channel lost, Resend can never succeed (send() no-ops on
+             a dead channel and onSend just re-stamps the same error), so the
+             entry shows Remove only — the error banner stays via FileCard.
+             On a live channel, transiently failed entries keep a working
+             Resend. -->
+        {#if sendingFile.error && !connectionLost}
           <button onclick={() => onSend(key)} class="btn btn-primary"> Resend </button>
         {:else if sendingFile.stop}
           <button onclick={() => onContinue(key)} class="btn btn-secondary"> Continue </button>

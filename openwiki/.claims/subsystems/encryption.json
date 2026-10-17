@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:58edf375a25fdada762221ea8d4cf6e1daec581df8157d9618507bf2c848ea6f",
+  "pageVersion": "sha256:44736e42fe663e0fe62c73130f9508ffe457f8ac526077339b2ce50c3423a04a",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -101,16 +101,16 @@
       "statement": "Chunk-level encryption wraps the transfer framing: the sender encrypts each chunk buffer before Message-encoding it as a chunk (falling back to a plaintext chunk if the per-file aesKey is missing), and the receiver decrypts each decoded chunk (only when isEncrypt and the per-file aesKey are both present), inside the per-file serialized processChunk task, before accumulating bytes toward the declared file size; the receiver's EVENT_RECEIVED_CHUNK ack is sent only after successful decryption and after re-checking the file is still active, so a corrupt chunk never advances the sender.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L177-L261",
-          "version": "repo-lines-v1:sha256:83753bf239bbc631440a8bb5ccb3b0c28f644090c1058f7825ac96a5235efa22:eyJzZWxlY3RlZExpbmVDb3VudCI6ODUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3OWI3NWI3N2M4Zjc1OTA1OGQ4NDljM2U0ZGRjYzQxOWExYWMyNWMxNzIxYmYyYjRjNjc2ZDdhMTY3NTFlMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlZDkxYzk2ODgzZTU0NDc3NDJiNGMwMjg2ZGI0OGFmMjBiNGQwNDJiM2NlMWIyMWViZGFkNmIzYzQ4MGEzYWIifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L176-L215",
+          "version": "repo-lines-v1:sha256:197e2f1839fb8e04a119ab0aa002c06f44076757b9c494075959454d1c5050b6:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3OWI3NWI3N2M4Zjc1OTA1OGQ4NDljM2U0ZGRjYzQxOWExYWMyNWMxNzIxYmYyYjRjNjc2ZDdhMTY3NTFlMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5ZmIzODcwMDc0NWQ2ODZmYTZiMDk1ZDI0MzkyMjc1NjkwMmE4MmNhY2Y0YWJiODJkZGM5ZjA0NmNmYThhYjIifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L173-L204",
-          "version": "repo-lines-v1:sha256:2b9a74870dfb34ac0367fc3219fcd55eb4e9e85a8f655a63a853177a76c3ef24:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhYWRhYmNmN2I4NjM4ZjI3ZTAzYjg3NjczYzBhMTA1NTcwYmI4ZDE4N2FmNGMzYTVjZmU1YmU1ZWNjMWMzMzAifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L172-L204",
+          "version": "repo-lines-v1:sha256:79881d78c1ff08f290cad236bd294973f73b7b6de814c6292bad1e2d3f042517:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1ZDBiYTBjOWJiZTU5MDhmYjg5NGUxZTQ5ZDRlNmNiMWFkNWNhOGM0ZDM1Zjc1NjljYmZmYzkwMGM3MTE5YzkifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L206-L255",
-          "version": "repo-lines-v1:sha256:bbeb607d8771ca0d7333f6664de07a0c8752b2d35ac1bd6811585177b33a859f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYTdmNDA4MWRlMzU1YzM5MmIwYzFkOTZjMTdiYzQ0MTg3ZDllOTlmZTMzMWFiN2FlYWI3NmNhZTc1Njg5ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlY2VmMTM2NWE4NDc3OTI5MjkyY2U5ZGU3N2QzODUzMmMzMmQ5ZWMyY2YwYWZlMjNlOGUxNDE0ODA1Y2M3ZDQifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L205-L255",
+          "version": "repo-lines-v1:sha256:5cf82f2ef926c913dbd4594ae750a882e64c1b15de1cef0ee8ede004afa13cd6:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYTdmNDA4MWRlMzU1YzM5MmIwYzFkOTZjMTdiYzQ0MTg3ZDllOTlmZTMzMWFiN2FlYWI3NmNhZTc1Njg5ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4ODE2NGQ1OWIwNjQ2YTdlNjM0NDIyODYwNDdiODA0M2U4ZTA0MmQwYjZkZWM5ZDAwZjBkMjI5NDQxNWNlM2YifQ"
         }
       ]
     },
@@ -193,6 +193,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-16T12:20:26.361Z"
+    "at": "2026-10-17T12:06:43.471Z"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:98d80e63a7ee3b3a76405f7be877737ccacc579805225639e85988694958eec6",
+  "pageVersion": "sha256:7dc32e87e96b1e4b44a4c53eca2a152c83fc190329a70779bbbc26e02cd4f2bf",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -51,11 +51,11 @@
       "statement": "Connection setup is offer-link driven: the offer peer mints its RSA keypair exactly once per generateOfferLink() invocation (before the peer exists) and creates the RTCPeerConnection (with the shared-predicate-resolved ICE server), data channel, and SDP offer, building the link at most once via a per-invocation offerBuilt flag across the onicecandidate-completion and 3-second timeout paths; regeneration first tears down the previous generation (stale ICE timer cleared, old data channel and peer closed, settled peer crypto and dead-generation UI state reset) and bumps the offerGeneration token so a stale timer can never build a link with the old key. The answer peer decodes the user-controllable offer SDP from the URL inside a try/catch (toast 'Invalid SDP in link' instead of a page crash, PR #45), awaits that promise before createAnswer with a signalingState have-remote-offer check so a rejected setRemoteDescription surfaces an offerFailed error state instead of a stuck spinner (PR #49), awaits the validated p-param key import, generates the answer plus its RSA key pair (when encrypted; an empty-key downgrade is honored via the answer code), and returns the answer code; the channel opens on both sides once the offer peer accepts it (answer SDP decode also guarded with try/catch, toast 'Invalid answer code', PR #45). Once open, both pages wire dataChannel onerror/onclose to the file engines' onChannelClose() so a mid-transfer close surfaces an accurate connection-lost error instead of per-chunk failures (PR #74).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L153-L284",
-          "version": "repo-lines-v1:sha256:4440415b20d38fefa38d520881db38583f90f483f2f95948e0ca7c2cf171b038:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MTM2M2M4YzBkM2Q3NTUzZGQxMjNlMDQ3MjhjMzcwNDk4NDAzOTNiOTBkMmI1YWE0ZWM2MmY1MjNiNDAxMjlmIn0"
+          "resource": "repo://src/components/OfferPage.svelte#L153-L298",
+          "version": "repo-lines-v1:sha256:7a11bc4ceb10638bb8c77be56135fce9a8673054bcff824bce62ed87004fd724:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MTM2M2M4YzBkM2Q3NTUzZGQxMjNlMDQ3MjhjMzcwNDk4NDAzOTNiOTBkMmI1YWE0ZWM2MmY1MjNiNDAxMjlmIn0"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L311-L368",
+          "resource": "repo://src/components/OfferPage.svelte#L325-L382",
           "version": "repo-lines-v1:sha256:a6d4505ca28fa746684b33c0ef8ad509b71d99d41c10bdd659e6f917f61d7cda:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
         },
         {
@@ -139,6 +139,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-16T12:20:26.361Z"
+    "at": "2026-10-17T12:06:43.471Z"
   }
 }

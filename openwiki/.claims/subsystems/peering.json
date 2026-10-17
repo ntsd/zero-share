@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:bd78066f6aab6f31dad7eeb62a29d34c9b24c5d159e07c261fe08102839623b9",
+  "pageVersion": "sha256:dfb4c949bcf42de4ce69ba797a1d6a547b0b0655c1702f0bc1c2cb4a8bc8a7c6",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
@@ -12,7 +12,7 @@
         },
         {
           "resource": "repo://tests/sdp-robustness.test.mjs",
-          "version": "repo-file-v1:sha256:f92f84690baf871b2ba5d1e0638acdb6bf58f2a12de24c4bc0810f3d9db85651"
+          "version": "repo-file-v1:sha256:62cca6baec4d94cd25db1cefc6bf0bc92eae6a4c1403accb5d9fd054f8291c44"
         }
       ]
     },
@@ -22,11 +22,11 @@
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L63-L78",
-          "version": "repo-lines-v1:sha256:50eea80bf288166dba0fa8d5d5c8afc443ffb9e685d6a2d66cc17e2c561e1ea7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3MmVkZmNmMTQ4ZjIzNjA5MjAwYTNhNjdmM2I4N2M0MmI5MTg0ZDNlNDJlYTQyZTYzYWMzZWI3MjkxZGJhMDQifQ"
+          "version": "repo-lines-v1:sha256:47d53dca3bbc63a2b2ff5cb1a6cbc4e5cf6f3f268c6c12cf86b3c727d08a4c14:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2YzI5MzdiNTZkNWI5Zjk3ZjMyODJiMDcxZDQ0NGM5ZDAwYzE1MzFkZTcyYjhiYzgwZTMwNTdlMzQ0MDAyNGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkY2E0ZWQ3ZDZjMjA3MWMxNzQ2Zjk3MmYwOGRmNGNjNzYzMTA2NzFhOWU4NzY4MTIxYWY2NTNmMWY1OTg2ZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzNTZmNjk1YmM3YTk2ZWY3MWJkZTFkNTVmMjg0YTUyMTQ1M2JmMTUwOGY5MGNjMDQ1MGIyZTlkMjlhM2YzNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0YTYxNDljMGIwYzdiYjQ4YWRkZGVmMzhiMzg0ZjMyMjBmNDYzY2RlM2M0ZTMxOWFhYmNlZjA1NjEyODQ2MGUifQ"
         },
         {
-          "resource": "repo://src/utils/path.ts#L5-L23",
-          "version": "repo-lines-v1:sha256:67b435f5cc93616f11e3cc656d9abd00317a6a6edc243d644afc393f9d02ce49:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmOWI5ZWYxMWM2N2JhMjkzMjQ4ZTUxYjVkYTk4YzIxNGFmMDRhMGIxYTcyNmVjMDA3YTg0NTA2Y2IyNTE2MTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyMTQ3ZjczNTdhNzYxOGZkYjRhM2VjNTU3N2U4OGI5NzU1NjJlMTc4MmEyNzNiN2ZkM2ViNTcwN2U3YzY1ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/utils/path.ts",
+          "version": "repo-file-v1:sha256:80afe79a2f87e572e009b5d59fcf40768ac660680f9f4cb6c8aa444e6747e4e1"
         }
       ]
     },
@@ -64,15 +64,15 @@
     },
     {
       "id": "claim_45433c561b6d45cd86f0cfa35e29ca90",
-      "statement": "Both sides wait for ICE candidates to drain before freezing the SDP into the shareable artifact, but a 3-second WAIT_ICE_CANDIDATES_TIMEOUT builds the link/answer code from the current localDescription anyway so the connection forms rather than hanging; on the offer side the RSA keypair is minted once at the top of generateOfferLink and a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once, and the whole generation is try/catch-guarded so a construction/offer failure toasts 'Could not generate the offer' instead of leaving the spinner stuck. Regeneration is generation-safe: before minting, the pending ICE-candidate timer is cleared, the old data channel's handlers are nulled and it is closed, the old RTCPeerConnection is closed (guarded on connectionState !== 'closed' since close() throws InvalidStateError on an already-settled peer), the settled peer crypto is reset (rsaPub = undefined, effectiveEncrypt re-pinned from the live setting, so the new generation never encrypts with the previous peer's RSA key — PR #68) and the dead generation's UI state (new-file badge, isConnecting, pending answer code) is cleared, and a monotonically increasing offerGeneration counter is bumped; the timeout fallback re-checks its captured generation at fire time so a stale timer holding the previous generation's public key can never build a link with the old key.",
+      "statement": "Both sides wait for ICE candidates to drain before freezing the SDP into the shareable artifact, but a 3-second WAIT_ICE_CANDIDATES_TIMEOUT builds the link/answer code from the current localDescription anyway so the connection forms rather than hanging; on the offer side the RSA keypair is minted once at the top of generateOfferLink and a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once, and the whole generation is try/catch-guarded so a construction/offer failure toasts 'Could not generate the offer' instead of leaving the spinner stuck. Regeneration is generation-safe: before minting, the pending ICE-candidate timer is cleared, the old data channel's handlers are nulled and it is closed, the old RTCPeerConnection is closed (guarded on connectionState !== 'closed' since close() throws InvalidStateError on an already-settled peer), the settled peer crypto is reset (rsaPub = undefined, effectiveEncrypt re-pinned from the live setting, so the new generation never encrypts with the previous peer's RSA key — PR #68) and the dead generation's UI state (new-file badge, isConnecting, pending answer code, and the dead generation's offerLink) is cleared, and a monotonically increasing offerGeneration counter is bumped; the timeout fallback re-checks its captured generation at fire time so a stale timer holding the previous generation's public key can never build a link with the old key.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L153-L284",
-          "version": "repo-lines-v1:sha256:4440415b20d38fefa38d520881db38583f90f483f2f95948e0ca7c2cf171b038:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjA5ODUzOWIyNTYzNmU1Y2QyZmViZGY3NGNiZmRjZWNlNmFhNDM0ZDlhMmViZmY3MGU4ZTRlNWEzMDY3OGEwIn0"
+          "resource": "repo://src/components/OfferPage.svelte#L153-L298",
+          "version": "repo-lines-v1:sha256:7a11bc4ceb10638bb8c77be56135fce9a8673054bcff824bce62ed87004fd724:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MTM2M2M4YzBkM2Q3NTUzZGQxMjNlMDQ3MjhjMzcwNDk4NDAzOTNiOTBkMmI1YWE0ZWM2MmY1MjNiNDAxMjlmIn0"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L191-L205",
-          "version": "repo-lines-v1:sha256:42ed075bda6ab034141ced94a853cdcf8c154cf429a4b7d4b6e8d1faf04a157b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1YjQyNjM3OTU4ZWY1ZGI4MWNlZjEwZjhhODgzM2RlMDk0ZjYzNzVkZDAzM2MxN2IxMzgxYzk1N2ZhOGFlMjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0OWZhNTM3MGMxODlkNzE5NTVkNDU1Y2UyNmY4ZTIyZTRiOWVhMDY2ZjNjMmE0NWE0NmFmMTcxZTRiOWM0ZTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmYTIzOTI0OGJiNGUxYzY0N2M0ZjZhNTJkNDY3MTUxMzUzMWQ1Y2ZjYzc0MTYyMjc1ZGE1MGQ5MjM3NTRhZGYifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L176-L214",
+          "version": "repo-lines-v1:sha256:bc83dad5247551e0cdb6fcaadcb5c2517065eeedd41b9ba2806b90e7c99c5a1d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4M2Q4MDFhMjdjNGEwOWI5NDBkMmNkMTkwMjBiODk3ZjI1YTVlMWE3ODgwNDA0ZTYzZGM1ZjRhM2M4NDMyYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5YTNiN2NmYTg2YTdjOWRmODMxNmZmMDFkMjk3YjI5ZmFjZjcwZGUzYWI3ZGY5M2VlNDczZmRiNWI5MDI2YTIifQ"
         },
         {
           "resource": "repo://src/configs.ts#L65-L65",
@@ -128,7 +128,7 @@
         },
         {
           "resource": "repo://tests/ice-server-consistency.test.mjs",
-          "version": "repo-file-v1:sha256:188578733a14ca7808b0a65c38334be5cd3802d1bf2308c2c7022c6cfea6f32d"
+          "version": "repo-file-v1:sha256:1c923147dc18ba9dcbae1120ec5e51bbd2318b52c9a70988afd9a7badb0b5e2f"
         }
       ]
     },
@@ -167,16 +167,16 @@
           "version": "repo-lines-v1:sha256:19f79aa73bf86c6a2806ed6db29933739b9c0c340dcc236338979fc6d2b1a371:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZmM1ZGYyNGVlZTQxYjc4NzVhYzUzY2JlNTIzZDg1MjhiNTk3OGVkY2RmZDU0OTBiZTY1YTAxNDkxYzIwZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmNDI4NjRiODIxMjlkN2IwOTMyZDMxZmM3YmM5YTY1NTdjOWJmYzllYjRjOWY0MDM1NzU3ZWZiY2IwNmU1ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L153-L284",
-          "version": "repo-lines-v1:sha256:4440415b20d38fefa38d520881db38583f90f483f2f95948e0ca7c2cf171b038:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjA5ODUzOWIyNTYzNmU1Y2QyZmViZGY3NGNiZmRjZWNlNmFhNDM0ZDlhMmViZmY3MGU4ZTRlNWEzMDY3OGEwIn0"
+          "resource": "repo://src/components/OfferPage.svelte#L153-L298",
+          "version": "repo-lines-v1:sha256:7a11bc4ceb10638bb8c77be56135fce9a8673054bcff824bce62ed87004fd724:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MTM2M2M4YzBkM2Q3NTUzZGQxMjNlMDQ3MjhjMzcwNDk4NDAzOTNiOTBkMmI1YWE0ZWM2MmY1MjNiNDAxMjlmIn0"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L119-L136",
           "version": "repo-lines-v1:sha256:20a392fa2c5264df354aaafa199b78fa1b1db3a527e9800334a50b14de700e1d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4YmMzODNiMmY1OWY0ZWVjYzZhNzQ4ZjYxNTFkOTZmMWM0N2JhZDQwYTU2OWExMDI0Y2ViNDk0ODcwNGFhMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4NDZlYTQwM2ZiYzQ4ZDk0MzIzZmI1ZjA2MzU0MTNiMjY0ZWZmNDBhMTJlY2ZkNWUzYzE1M2Y0NDU2ODUwZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZDM4ZGE1YTliMDNkOGRkZWUxYmRhNDE1OGYxYjUzZTlhYmMwNGZhMzk5NWJkNGJkODhhOTQxZDY2NGI4NDkifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L168-L213",
-          "version": "repo-lines-v1:sha256:6bbb20aa35bc7cd2b84336e62eb2553fd51ef4072e36c38720d092008f4b7b1e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxZmI1N2YyYWFkZjMzZGYwODczNDM2NzZlYjFjOWI3MmI0NjhiN2FkMGUzZjkyMGVmNTA4ODYwMTcyMzVmODMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5NzAyYzczNDY1YjBjYzAwYmE5OGM2MTU3YjBlMzVkODhkNTczYjY1ZTU0NGRiOThiZjEwNmFjZGU0Mjk3MjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5YjgwOTg1NDBiNzcwZWU5NjFlZGU3ZDFhOTdkNjAzYmEyMDg0ZTU1OTZhMjRjNDI3Nzc5MDA1YmQzYWUzOTkifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L168-L214",
+          "version": "repo-lines-v1:sha256:34f3a7c23ef5b6a3dc03e15cf14d081e3249038357ec59a83540c4b3dc4f5ee7:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZGY4NmI0NzZiMGQ2ZGJiZDE2ZmExOWZlMTdhOGJlNzc1MWFiZTNlZTgwN2I1MTBmYjVmOGNkZDBkYWQxNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyNzNjZTFkZTM1NmMyYWQ3M2VjY2U3YjQ5YTU1MjZjZjdlZjEwNjk3NDUwMzVhYjRkNjM1NzcyNzRmNjA3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5YTNiN2NmYTg2YTdjOWRmODMxNmZmMDFkMjk3YjI5ZmFjZjcwZGUzYWI3ZGY5M2VlNDczZmRiNWI5MDI2YTIifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L27-L31",
@@ -213,6 +213,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-16T12:20:26.361Z"
+    "at": "2026-10-17T12:06:43.471Z"
   }
 }

@@ -271,83 +271,69 @@
     }
   }
 
-  // The peer streamed more bytes than its declared metaData.size: the
-  // declared size is a lie, so the only bytes we hold are a prefix of the
-  // peer's payload. Mark the entry errored, bounce the status back to
+  // Shared reject teardown for the reject paths (oversized stream, corrupt
+  // chunk): no-op if the file is no longer being actively received (removed,
+  // denied, or already rejected) — the per-file chunk map is the source of
+  // truth. Otherwise mark the entry errored, bounce the status back to
   // Pending (so the error is visible and the file can be removed/retried),
-  // and reject so the sender bounces to Pending instead of reporting a
-  // "successful" truncated transfer — mirroring rejectCorruptChunk. Never
-  // build a Blob from the prefix.
-  function rejectOversizedStream(id: string, receivingFile: FileDetail, receivedSize: number) {
-    // No-op if the file is no longer being actively received (removed,
-    // denied, or already rejected): the per-file chunk map is the source of
-    // truth.
+  // toast, and reject so the sender bounces to Pending instead of reporting a
+  // "successful" transfer.
+  //
+  // Guarded send: on a live channel this reject reaches the sender; if the
+  // channel just died, send() no-ops instead of throwing again (the queued
+  // continuation that calls us would otherwise leave an unhandled rejection
+  // and skip the teardown below).
+  //
+  // Tear down per-file chunk state so in-flight chunks for this file are
+  // dropped (their processing hits the removed chunk map) and the file does
+  // not linger in a half-received Processing state.
+  // The error/status mutations above go through the same $state proxy as
+  // receivingFiles[id], so the UI already updates from them — no extra
+  // assignment needed.
+  function rejectFile(id: string, receivingFile: FileDetail, error: Error, toastMessage: string) {
     if (!receivingFileChunkMap[id]) {
       return;
     }
-    receivingFile.error = new Error(
-      `peer stream did not match the declared size — file rejected: got ${receivedSize} bytes, declared ${receivingFile.metaData.size}`
-    );
+    receivingFile.error = error;
     receivingFile.status = FileStatus.Pending;
-    addToastMessage(
-      `${receivingFile.metaData.name} rejected: stream exceeded the declared size`,
-      'error'
-    );
-    // Guarded send: on a live channel this reject reaches the sender; if the
-    // channel just died, send() no-ops instead of throwing again (the queued
-    // continuation that calls us would otherwise leave an unhandled rejection
-    // and skip the teardown below).
+    addToastMessage(toastMessage, 'error');
     send(
       Message.encode({
         id,
         receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
       }).finish()
     );
-    // Tear down per-file chunk state so in-flight chunks for this file are
-    // dropped (their processing hits the removed chunk map) and the file does
-    // not linger in a half-received Processing state.
-    // The error/status mutations above go through the same $state proxy as
-    // receivingFiles[id], so the UI already updates from them — no extra
-    // assignment needed.
     delete receivingFileChunkMap[id];
     delete receivingFileStatsMap[id];
     delete chunkQueue[id];
   }
 
+  // The peer streamed more bytes than its declared metaData.size: the
+  // declared size is a lie, so the only bytes we hold are a prefix of the
+  // peer's payload. Reject the whole file instead of assembling a prefix,
+  // mirroring rejectCorruptChunk. Never build a Blob from the prefix.
+  function rejectOversizedStream(id: string, receivingFile: FileDetail, receivedSize: number) {
+    rejectFile(
+      id,
+      receivingFile,
+      new Error(
+        `peer stream did not match the declared size — file rejected: got ${receivedSize} bytes, declared ${receivingFile.metaData.size}`
+      ),
+      `${receivingFile.metaData.name} rejected: stream exceeded the declared size`
+    );
+  }
+
+  // A chunk failed AES-GCM auth (bit-flip in transit, or a peer that claims
+  // encryption but emits garbage). The sender has no retransmission, so the
+  // file can never complete. Reject so the sender stops cleanly — mirroring
+  // EVENT_VALIDATE_ERROR / EVENT_RECEIVER_REJECT handling on the sender side.
   function rejectCorruptChunk(id: string, receivingFile: FileDetail) {
-    // No-op if the file is no longer being actively received (removed, denied,
-    // or already rejected): the per-file chunk map is the source of truth.
-    if (!receivingFileChunkMap[id]) {
-      return;
-    }
-    // A chunk failed AES-GCM auth (bit-flip in transit, or a peer that claims
-    // encryption but emits garbage). The sender has no retransmission, so the
-    // file can never complete. Mark it errored, bounce the status back to
-    // Pending (so the error is visible and the file can be removed/retried),
-    // and reject so the sender stops cleanly — mirroring EVENT_VALIDATE_ERROR /
-    // EVENT_RECEIVER_REJECT handling on the sender side.
-    receivingFile.error = new Error('A received chunk failed to decrypt (corrupt data in transit)');
-    receivingFile.status = FileStatus.Pending;
-    addToastMessage(
-      `${receivingFile.metaData.name} failed: corrupt chunk (decryption error)`,
-      'error'
+    rejectFile(
+      id,
+      receivingFile,
+      new Error('A received chunk failed to decrypt (corrupt data in transit)'),
+      `${receivingFile.metaData.name} failed: corrupt chunk (decryption error)`
     );
-    // Guarded send: on a live channel this reject reaches the sender; if the
-    // channel just died, send() no-ops instead of throwing again (the queued
-    // continuation that calls us would otherwise leave an unhandled rejection
-    // and skip the teardown below).
-    send(
-      Message.encode({
-        id,
-        receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
-      }).finish()
-    );
-    // Tear down per-file chunk state so in-flight chunks for this file are
-    // dropped (their processing hits the removed chunk map) and the file does
-    // not linger in a half-received Processing state.
-    delete receivingFileChunkMap[id];
-    delete receivingFileStatsMap[id];
-    delete chunkQueue[id];
   }
 
   function onRemove(key: string) {

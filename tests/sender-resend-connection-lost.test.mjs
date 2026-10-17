@@ -104,7 +104,7 @@ function extractResendCondition(source) {
   console.log('ok - Sender threads connectionLost into SendingFileList');
 }
 
-// ---- Test 3: the other affordances are untouched ----
+// ---- Test 3: the other affordances are untouched (or correctly gated) ----
 {
   // Live-channel behavior preserved: a transiently failed entry (error set,
   // channel still open) STILL gets Resend — the gate is the connectionLost
@@ -114,14 +114,34 @@ function extractResendCondition(source) {
     !/Connection lost/.test(listSource),
     'SendingFileList must not special-case the connection-lost error string'
   );
-  // The other branches keep their original conditions (no drift):
+  // The Continue branch keeps its original stop check (no drift) AND gains the
+  // dead-channel gate: onChannelClose() sets stop=true on in-flight files
+  // before their error, so without this gate every mid-transfer file would
+  // render a dead "Continue" (onContinue no-ops on connectionLost) — the
+  // exact silent-no-op defect this task closes, one branch down.
   assert.ok(
-    /:\s*else\s+if\s+sendingFile\.stop\b/.test(listSource),
-    'the Continue branch must still be keyed on sendingFile.stop'
+    /:\s*else\s+if\s+sendingFile\.stop\s*&&\s*!connectionLost/.test(listSource),
+    'the Continue branch must be gated on sendingFile.stop && !connectionLost'
   );
   assert.ok(
     /:\s*else\s+if\s+sendingFile\.status\s*===\s*FileStatus\.Processing\b/.test(listSource),
     'the Stop branch must still be keyed on status === Processing'
+  );
+  // The plain Send branch (never-started entries, status Pending/Failed with
+  // no error) is likewise dead on a dead channel — a click would run onSend,
+  // which is a state-preserving no-op that re-stamps the connection-lost
+  // error. It must carry the same !connectionLost gate so the post-close UI
+  // is uniformly "no action buttons, only Remove".
+  const sendCond = listSource.match(
+    /:\s*else\s+if\s+(sendingFile\.status\s*!==\s*FileStatus\.Success\s*&&\s*sendingFile\.status\s*!==\s*FileStatus\.WaitingAccept[^}]*)\}/
+  );
+  assert.ok(
+    sendCond,
+    'the plain Send branch must still be keyed on the Pending/Failed status check'
+  );
+  assert.ok(
+    /!connectionLost/.test(sendCond[1]),
+    `the plain Send branch must be gated on !connectionLost (got: ${sendCond[1].trim()})`
   );
   // Remove stays unconditional: it is the only meaningful action on a dead
   // channel and must remain available for every entry.

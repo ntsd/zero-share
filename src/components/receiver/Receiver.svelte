@@ -306,12 +306,12 @@
     // Tear down per-file chunk state so in-flight chunks for this file are
     // dropped (their processing hits the removed chunk map) and the file does
     // not linger in a half-received Processing state.
+    // The error/status mutations above go through the same $state proxy as
+    // receivingFiles[id], so the UI already updates from them — no extra
+    // assignment needed.
     delete receivingFileChunkMap[id];
     delete receivingFileStatsMap[id];
     delete chunkQueue[id];
-    if (receivingFiles[id]) {
-      receivingFiles[id] = receivingFiles[id]; // do this to trigger update the map
-    }
   }
 
   function rejectCorruptChunk(id: string, receivingFile: FileDetail) {

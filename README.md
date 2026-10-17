@@ -10,7 +10,7 @@ A client-side secure P2P file sharing using WebRTC.
 - Send multiple files in parallel.
 - Generate SDP connection for WebRTC data channel.
 - No server side (only use public STUN servers for ICE candidates).
-- PGP Encryption.
+- End-to-end encryption: RSA-OAEP (2048) wraps a per-file AES-256-GCM key (WebCrypto).
 - Responsive UI.
 - Open-source license.
 - QR Scan for SDP trade.
@@ -33,7 +33,7 @@ Zero share client will get ICE Candidate from STUN/TURN server and make a connec
 
 Thanks to the Interactive Connectivity Establishment (ICE) protocol, Two peers will have the shortest path to travel between them without caring the Network address translation (NAT).
 
-WebRTC protocol will secure by DTLS (Datagram Transport Layer Security) But DTLS can be vulnerable to man-in-the-middle (MITM), So we provide a second layer encryption using PGP (RSA-OAEP-2048, AES-256).
+WebRTC protocol will secure by DTLS (Datagram Transport Layer Security) But DTLS can be vulnerable to man-in-the-middle (MITM), So we provide a second layer: a per-file AES-256-GCM key wrapped with RSA-OAEP-2048 (hybrid encryption via WebCrypto).
 
 ```mermaid
 C4Context

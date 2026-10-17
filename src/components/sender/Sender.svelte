@@ -8,6 +8,7 @@
   import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../../proto/message';
   import { addToastMessage } from '../../stores/toastStore';
   import { PROGRESS_UPDATE_UI_STEP } from '../../configs';
+  import { createChannelSender } from '../../utils/channelSender';
 
   type Props = {
     dataChannel: RTCDataChannel;
@@ -20,30 +21,20 @@
 
   let sendingFiles: { [key: string]: SendingFile } = $state({});
 
-  // Flipped by onChannelClose() (fired from the page's dataChannel
-  // onclose/onerror) or by send() when a send throws. Once true the channel
-  // will never deliver anything again, so in-flight/queued chunk pipelines
-  // must exit quietly instead of surfacing misleading per-chunk errors.
-  let connectionLost = false;
+  // The guarded channel send (dead-channel flag + readyState check + throwing
+  // send catch) lives in the shared src/utils/channelSender.ts helper,
+  // deduplicated from the receiver's identical copy — see that file for the
+  // full rationale.
+  const channelSender = createChannelSender(dataChannel);
 
-  // Guarded channel send: readyState first, and a closed/closing channel that
-  // slips past the check (the close settles asynchronously) is caught here
-  // instead of escaping as an InvalidStateError — the pre-fix failure mode,
-  // where a dead channel read as "Failed to send chunk: InvalidStateError..."
-  // or "Failed to encode file metadata" while the real cause was connection
-  // loss.
-  function send(message: Uint8Array): boolean {
-    if (connectionLost || dataChannel.readyState !== 'open') {
-      return false;
-    }
-    try {
-      dataChannel.send(message);
-      return true;
-    } catch {
-      connectionLost = true;
-      return false;
-    }
-  }
+  // The SendingFileList's Resend/Continue/Send gating reads this live; the
+  // helper flips it once (on the close that mutates sendingFiles), so the
+  // list re-renders from the $state mutation and reads the up-to-date flag
+  // at that moment.
+  const connectionLost = $derived(channelSender.isLost());
+  // Call sites keep their plain send(...) shape — only the implementation
+  // moved into the helper.
+  const { send } = channelSender;
 
   // Fired by the owning page's dataChannel onclose/onerror: mark every file
   // that cannot complete any more with an accurate "connection lost" error
@@ -51,8 +42,8 @@
   // in-flight send pipelines. Waiting-accept and pending files keep their
   // state — the error is only meaningful once a transfer started.
   export function onChannelClose() {
-    if (connectionLost) return;
-    connectionLost = true;
+    if (channelSender.isLost()) return;
+    channelSender.markLost();
     for (const key of Object.keys(sendingFiles)) {
       const f = sendingFiles[key];
       if (!f || f.status === FileStatus.Success) continue;
@@ -316,7 +307,7 @@
     // A dead channel must not re-enter the send pipeline: the resume would
     // emit a synthetic RECEIVED_CHUNK into a handler whose next send would
     // no-op, leaving the entry's stop flag cleared behind a dead connection.
-    if (connectionLost) return;
+    if (channelSender.isLost()) return;
     f.stop = false;
     f.event?.emit(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK));
   }
@@ -403,7 +394,7 @@
 <div class="grid gap-4">
   <DragAndDrop {onFilesPick} />
   {#if Object.keys(sendingFiles).length > 0}
-    <!-- connectionLost is a plain let (not $state): it flips exactly once, on
+    <!-- connectionLost is a $derived (not $state): it flips exactly once, on
          the same close that mutates sendingFiles, so the list re-renders from
          the $state mutation and reads the up-to-date flag at that moment. -->
     <SendingFileList {sendingFiles} {connectionLost} {onRemove} {onSend} {onStop} {onContinue} />

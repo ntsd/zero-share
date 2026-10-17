@@ -173,10 +173,14 @@ function extractResendCondition(source) {
     'onSend must still surface the connection-lost error on a dead channel'
   );
   // onContinue's dead-channel guard must remain (a resume into a dead channel
-  // would leave a cleared stop flag behind a dead connection).
+  // would leave a cleared stop flag behind a dead connection). The flag now
+  // lives in the shared channelSender helper (src/utils/channelSender.ts), so
+  // the guard reads channelSender.isLost() instead of a local let.
   assert.ok(
-    /function\s+onContinue[\s\S]*?if\s*\(\s*connectionLost\s*\)\s*return;/.test(senderSource),
-    'onContinue must still no-op when connectionLost'
+    /function\s+onContinue[\s\S]*?if\s*\(\s*channelSender\.isLost\(\)\s*\)\s*return;/.test(
+      senderSource
+    ),
+    'onContinue must still no-op when the channel is lost (channelSender.isLost())'
   );
   console.log('ok - onSend/onContinue dead-channel behavior preserved (UI-only fix)');
 }

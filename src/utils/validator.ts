@@ -1,5 +1,5 @@
 import type { MetaData } from '../proto/message';
-import { humanFileSize } from './humanFIleSize';
+import { humanFileSize } from './humanFileSize';
 
 export function validateFileMetadata(metadata: MetaData, maxSize?: number): Error | undefined {
   // metaData.size is peer-controlled (the remote side picks it) and is the

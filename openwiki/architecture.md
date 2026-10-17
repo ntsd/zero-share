@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-15T12:05:18.885Z
+    at: 2026-10-16T12:20:26.361Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -30,6 +30,8 @@ sources:
     resource: repo://src/utils/crypto.ts
   - id: openwiki-source-43ba2ea6141a6d37347e98ea
     resource: repo://src/utils/peerMessage.ts
+  - id: openwiki-source-bc79428fbabf9194d0ff47c4
+    resource: repo://tests/clipboard-copy-robustness.test.mjs
   - id: openwiki-source-cbda1b574339ff50701cd203
     resource: repo://tests/offer-peer-lifecycle.test.mjs
   - id: openwiki-source-6620ca09e313d24486b5e413
@@ -38,7 +40,7 @@ sources:
     resource: repo://tests/protocol-size.test.mjs
   - id: openwiki-source-cc2aa5000eb243dbf0af9518
     resource: repo://tests/regen-offer-stale-peer-crypto.test.mjs
-generated: { by: 'hermes', at: '2026-10-15T12:05:18.885Z' }
+generated: { by: 'hermes', at: '2026-10-16T12:20:26.361Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -58,6 +60,8 @@ Zero Share is a **serverless, client-side P2P file-sharing web app**: two browse
 2. The **answer** peer opens the offer link, decodes the SDP from the URL, and sets it as the remote offer — inside `try/catch`, since `s` is user-controllable via the shared link and `sdpDecode` throws synchronously on empty, invalid-base64, or non-SDP input, so a crafted link surfaces an "Invalid SDP in link" error toast instead of crashing the whole page during load (PR #45). The promise of that step is kept and **awaited before `createAnswer`** (with a `signalingState === 'have-remote-offer'` check): without this, a rejected `setRemoteDescription` would leave the answer queued against a connection that can never answer, and the "Generating Answer" spinner would spin forever with zero feedback. Before freezing the answer it awaits the import of the offer peer's RSA key from the `p` param; a malformed key downgrades the session to plaintext (with an error toast) so the answer never advertises encryption the peer cannot honor, and produces an **answer code** = `sdpEncode(answerSdp) + '|' + base64(RSA public key)` (empty key portion when downgraded). The same 3-second ICE-candidate timeout fallback applies. [`repo://src/components/ReceivePage.svelte#L46-L59`], [`repo://src/components/ReceivePage.svelte#L138-L178`], [`repo://src/components/ReceivePage.svelte#L246-L256`]
 3. The offer peer pastes (or QR-scans) the answer code and, when encryption is on, parses it (`parseAnswerCode` splits on the last `|`): a well-formed code with an **empty** key portion means the receiver deliberately downgraded to plaintext, so the offer peer follows it into plaintext (info toast, `effectiveEncrypt = false`) instead of bailing on the empty key and dead-ending the handshake; a missing separator or a damaged non-empty key still toasts an error and aborts, instead of leaving a half-configured connection. A key **present** in the code pins the session to encrypted (`effectiveEncrypt = true`) — the answer's key portion, not the live setting, is the source of truth for this session's encryption. Then the answer is applied as the remote description — likewise inside a `try/catch`, since the pasted/scanned SDP may be malformed and would otherwise escape as an unhandled rejection with no visible error (PR #45). Once `dataChannel.onopen` fires, the transfer UI unlocks on both sides. [`repo://src/components/OfferPage.svelte#L270-L333`]
 
+**Clipboard copy is guarded (PR #79).** The manual-exchange copy buttons — `copyOfferLink` on the offer page and `copyAnswerCode` on the receive page — wrap `navigator.clipboard.writeText` in `try/catch`: a rejection (non-secure context, denied permission, unavailable API) toasts "Copy failed — select the … text and copy it manually" instead of escaping as an unhandled rejection, so a user who believes they copied the link/answer code actually did. [`repo://src/components/OfferPage.svelte#L286-L296`], [`repo://src/components/ReceivePage.svelte#L164-L174`], [`repo://tests/clipboard-copy-robustness.test.mjs`]
+
 SDP text is made URL-safe by `sdp-compact` compaction plus character substitutions (`/`→`_`, `+`→`~`, `=`→`-`), keeping share links short and safe. `sdpDecode` throws synchronously on malformed input (empty, invalid base64, or a decompressed payload that is not SDP), so every caller must guard with `try/catch`. See `subsystems/peering.md` for the full link and code formats.
 
 ## Data flow (file transfer)
@@ -70,7 +74,7 @@ All traffic on the data channel is **proto3-framed `Message` bytes** — no ad-h
 
 Both pages dispatch incoming messages through the shared `handlePeerMessage` helper in `src/utils/peerMessage.ts` (deduplicated from the two identical per-page handlers in PR #71), with the same oneof switch on `metaData` / `chunk` / `receiveEvent`, routing to `Receiver.onMetaData`, `Receiver.onChunkData`, or `Sender.onReceiveEvent`. The `Message.decode` call on peer-controlled data-channel bytes is wrapped in `try/catch` inside the helper: a malformed or truncated protobuf frame makes `decode` throw synchronously, which would otherwise crash the page uncaught (PR #46) — instead the frame is dropped and an "Invalid message from peer" toast fires. Both pages additionally wire the data channel's `onerror`/`onclose` to `sender?.onChannelClose()` and `receiver?.onChannelClose()`, so a dead channel marks in-flight/queued files "connection lost" and stops their pipelines instead of leaking `InvalidStateError` into chunk pipelines as misleading per-chunk failures (PR #74). [`repo://src/utils/peerMessage.ts`], [`repo://src/components/OfferPage.svelte#L119-L150`], [`repo://src/components/ReceivePage.svelte#L107-L136`], [`repo://tests/peer-message-handler.test.mjs`]
 
-The transfer protocol is **receiver-ack chunking**: the sender emits metadata, waits for `RECEIVER_ACCEPT`, then sends chunks one per `RECEIVER_RECEIVED_CHUNK` acknowledgment — a simple backpressure loop that paces the transfer. File lifecycle is modeled per file as `Pending → WaitingAccept → Processing → Success` with error/reject returns to `Pending`. See `subsystems/file-transfer.md`.
+The transfer protocol is **receiver-ack chunking**: the sender emits metadata, waits for `RECEIVER_ACCEPT`, then sends chunks one per `RECEIVER_RECEIVED_CHUNK` acknowledgment — a simple backpressure loop that paces the transfer. File lifecycle is modeled per file as `Pending → WaitingAccept → Processing → Success` with error/reject returns to `Pending`. The receiver's `onAccept` entry point is guarded (PR #78): an entry whose metadata failed — its `error` is set, or an encrypted session with no `aesKey` — is refused with an explanatory toast plus `EVENT_RECEIVER_REJECT` (the entry stays in `WaitingAccept` so Deny/Remove remain available), because without a usable key the transfer can never succeed. See `subsystems/file-transfer.md`.
 
 ## Security layering
 

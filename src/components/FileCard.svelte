@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FileStatus, type FileDetail } from '../type';
-  import { humanFileSize } from '../utils/humanFIleSize';
+  import { humanFileSize } from '../utils/humanFileSize';
 
   type Props = {
     fileDetail: FileDetail;

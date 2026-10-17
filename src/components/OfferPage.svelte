@@ -216,6 +216,20 @@
     showNewFile = false;
     isConnecting = false;
     answerSDP = '';
+    // Clear the dead generation's offer link too. Its SDP belongs to the peer
+    // just closed above (no data channel can ever open from it) and its `p`
+    // key belongs to the rsa keypair about to be re-minted in the try block —
+    // so it is dead in every sense: even a somehow-answered handshake would
+    // break encrypted transfers, and acceptAnswer() would call
+    // setRemoteDescription on the NEW peer (signalingState still `stable`) and
+    // reject every answer from a peer who opened the stale link. Resetting it
+    // HERE — in the teardown block, before the new generation's try/catch, not
+    // only in the catch — guarantees the stale link is never presented during
+    // the regeneration window, that a FAILED attempt returns to the clean
+    // "generate" state with no dead link to copy/QR/accept, and that the
+    // template's `offerLink !== ''` gate (encryptionLocked + the Accept Answer
+    // section) re-locks/unlocks with the actual live link.
+    offerLink = '';
     generating = true;
     // hoisted out of createSDPLink so the keypair is minted exactly ONCE per
     // offer — before the peer exists — and can never be rotated by the second

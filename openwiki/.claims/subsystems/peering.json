@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ff0c752e91d9d8c9d1add4efae3fa3cf669534c46fd3249ae141ab9d76145153",
+  "pageVersion": "sha256:bd78066f6aab6f31dad7eeb62a29d34c9b24c5d159e07c261fe08102839623b9",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
@@ -191,10 +191,28 @@
           "version": "repo-file-v1:sha256:e6db324b93b2af170c4b461fa28521a07ce86777ad5ef640c5f61d24d2fcdbc8"
         }
       ]
+    },
+    {
+      "id": "claim_bea7261033f04a9f892f9d10695a81be",
+      "statement": "The Copy Link and Copy Answer buttons — the keyboard-free path of the link/code exchange — never dead-end the manual P2P handshake silently (PR #79): copyOfferLink and copyAnswerCode wrap navigator.clipboard.writeText in try/catch, so a rejection (SecurityError in a non-secure context, NotAllowedError on denied permission, DataError, or navigator.clipboard undefined in some webviews) toasts a 'Copy failed — select the … text and copy it manually' error instead of escaping as an unhandled rejection that would leave the user believing the link/answer code was copied when it was not.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L286-L296",
+          "version": "repo-lines-v1:sha256:6d88c83026ecd827d1248b151b42822f15259614a1e7bc9966b62002801e81dc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0M2Q4ZjMxMjkwZDhiMDc2MzZjMGQ3N2VjOTEzZGYwYmQ4NjBhYjhiZDZjYTAxZWEyYmQxNjY0Y2M2MDY3NzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZGY3MjhiZDQyNWI0NmE0NjcxOTJlM2UwM2IwYzU0MzdlMjQ2M2M5ZTJlZWEyMTNhNGFkZTE4ZjNhNTEzODYifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L164-L174",
+          "version": "repo-lines-v1:sha256:effe5764d8487c78f3aaff214ac82a6663707778dfaa3df769b12476f829fcc7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYmZlMjUzMmJjZTY5ZmQ5NGI3OGZkMzNkNGUwOTc0YjVkNDI4MWE1Y2ViZmFlOWQ5M2QyMGM2NjkyOGY3ZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0MmI3ODgzZTVmMjk5NmVlNTJkZTllNzMwOWRiNjQ4OWE5ZjljMzc4NGU2MzMwYTI5M2IwMTU4NDU5YzQzOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1Nzk1MDdiYmJjNzdjNjg2ODMxZTVlOWJmODE1NGM4NTVhZWIyZDA3OWFlZTY1NWIyMGQyMjE1NDdiMjliNTkifQ"
+        },
+        {
+          "resource": "repo://tests/clipboard-copy-robustness.test.mjs",
+          "version": "repo-file-v1:sha256:f062d7a65a4921e4a737e1d83be47c1eac48f4335b5dc4ad258633841bbb7917"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-15T12:05:18.885Z"
+    "at": "2026-10-16T12:20:26.361Z"
   }
 }

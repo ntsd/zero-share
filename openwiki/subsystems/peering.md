@@ -21,6 +21,8 @@ sources:
     resource: repo://src/utils/qr.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
+  - id: openwiki-source-bc79428fbabf9194d0ff47c4
+    resource: repo://tests/clipboard-copy-robustness.test.mjs
   - id: openwiki-source-c738ae16748cba244df3bf6f
     resource: repo://tests/ice-server-consistency.test.mjs
   - id: openwiki-source-cbda1b574339ff50701cd203
@@ -39,10 +41,10 @@ sources:
     resource: repo://tests/sdp-robustness.test.mjs
   - id: openwiki-source-7be198dd84c7db602ffe529e
     resource: repo://tests/sender-connection-lost.test.mjs
-generated: { by: 'hermes', at: '2026-10-15T12:05:18.885Z' }
+generated: { by: 'hermes', at: '2026-10-16T12:20:26.361Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-15T12:05:18.885Z
+    at: 2026-10-16T12:20:26.361Z
 ---
 
 # Subsystem: WebRTC Peering and SDP Links
@@ -92,3 +94,4 @@ The **offer** side is the data-channel creator (`createDataChannel('data', { ord
 - **Malformed answer code on the offer page (PR #45):** the pasted/scanned answer SDP is decoded inside `try/catch` in `acceptAnswer`; a damaged payload toasts "Invalid answer code" instead of an unhandled rejection with no visible error. [`repo://src/components/OfferPage.svelte#L320-L332`], [`repo://tests/sdp-robustness.test.mjs`]
 - `onicecandidateerror`, `dataChannel.onerror`, `onclose`: toast an error, clear `isConnecting`, and (offer side) blank the offer link so a stale link isn't reused; both `onerror` and `onclose` additionally call `sender?.onChannelClose()` / `receiver?.onChannelClose()` so in-flight/queued files on both sides exit with an accurate "connection lost" error instead of dead-ending or re-firing false per-chunk errors (PR #74); offer-generation failures (synchronous constructor throws or rejected `createOffer`/`setLocalDescription`) toast "Could not generate the offer" and re-enable the button. [`repo://src/components/OfferPage.svelte#L108-L150`], [`repo://src/components/OfferPage.svelte#L153-L284`], [`repo://src/components/ReceivePage.svelte#L119-L136`]
 - Encryption off: `p`/public key are absent, `isEncrypt` derives false on the receive side, and peering is unencrypted end-to-end at this layer. A malformed `p` (or an `i` outside the shared predicate) is likewise downgraded/fallen-back-to-default — with a toast — so the session never advertises what it cannot honor. [`repo://src/components/ReceivePage.svelte#L34-L37`], [`repo://src/components/ReceivePage.svelte#L46-L77`]
+- **Copy buttons never dead-end the manual handshake silently (PR #79).** The Copy Link (offer page) and Copy Answer (receive page) buttons are the keyboard-free path of the link/code exchange, and both handlers — `copyOfferLink` and `copyAnswerCode` — wrap `navigator.clipboard.writeText` in `try/catch`: a rejection (SecurityError in a non-secure context, NotAllowedError on denied permission, DataError, or `navigator.clipboard` being undefined in some webviews) toasts "Copy failed — select the … text and copy it manually" instead of escaping as an unhandled rejection with zero feedback, which would leave the user believing the link/answer code was copied when it was not and dead-end the manual P2P handshake. [`repo://src/components/OfferPage.svelte#L286-L296`], [`repo://src/components/ReceivePage.svelte#L164-L174`], [`repo://tests/clipboard-copy-robustness.test.mjs`]

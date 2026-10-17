@@ -146,7 +146,6 @@
       delete receivingFileStatsMap[id];
       delete chunkQueue[id];
     }
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   export function onChunkData(id: string, chunk: Uint8Array<ArrayBuffer>) {
@@ -220,9 +219,10 @@
     receivingFileStatsMap[id].receivedSize += receivingSize;
 
     // calculate progress — clamp to [0, 100]: a peer that claims a size
-    // smaller than the payload it actually streams would push the ratio past
-    // 100 (NaN is coerced to 0 as a safe fallback), so never hand the UI a
-    // progress value it cannot render sensibly.
+    // smaller than the payload it actually streams pushes the ratio past 100
+    // until the overshoot reject below fires (NaN is coerced to 0 as a safe
+    // fallback). The clamp is defense in depth on top of the exact-match
+    // gate: never hand the UI a progress value it cannot render sensibly.
     const rawProgress = Math.round(
       (receivingFileStatsMap[id].receivedSize / receivingFile.metaData.size) * 100
     );
@@ -245,7 +245,13 @@
       }
     }
 
-    if (receivingFileStatsMap[id].receivedSize >= receivingFile.metaData.size) {
+    if (receivingFileStatsMap[id].receivedSize === receivingFile.metaData.size) {
+      // Complete ONLY on an exact byte count. metaData.size is peer-controlled
+      // and already lower-bound validated, but the validator cannot bound the
+      // payload against the size: a peer that claims a size smaller than the
+      // payload it actually streams is corrupt, and finishing on the first
+      // chunk that reached the claim would mark a silently truncated prefix as
+      // Success while the stream tail is dropped on both ends.
       // Build the Blob immediately so the raw per-chunk buffers can be released;
       // holding them would keep the entire received file resident in memory.
       receivingFiles[id].blob = new Blob(receivingFileChunkMap[id].receivedChunks, {
@@ -257,6 +263,54 @@
       addToastMessage(`Received ${receivingFiles[id].metaData.name}`, 'success');
       // No more chunks will arrive for this file; release the chain entry.
       delete chunkQueue[id];
+    } else if (receivingFileStatsMap[id].receivedSize > receivingFile.metaData.size) {
+      // Overshoot: this chunk pushed the received byte count PAST the declared
+      // size, so the peer's declared size is a lie (truncated file on the wire).
+      // Reject the whole file instead of assembling a prefix.
+      rejectOversizedStream(id, receivingFile, receivingFileStatsMap[id].receivedSize);
+    }
+  }
+
+  // The peer streamed more bytes than its declared metaData.size: the
+  // declared size is a lie, so the only bytes we hold are a prefix of the
+  // peer's payload. Mark the entry errored, bounce the status back to
+  // Pending (so the error is visible and the file can be removed/retried),
+  // and reject so the sender bounces to Pending instead of reporting a
+  // "successful" truncated transfer — mirroring rejectCorruptChunk. Never
+  // build a Blob from the prefix.
+  function rejectOversizedStream(id: string, receivingFile: FileDetail, receivedSize: number) {
+    // No-op if the file is no longer being actively received (removed,
+    // denied, or already rejected): the per-file chunk map is the source of
+    // truth.
+    if (!receivingFileChunkMap[id]) {
+      return;
+    }
+    receivingFile.error = new Error(
+      `peer stream did not match the declared size — file rejected: got ${receivedSize} bytes, declared ${receivingFile.metaData.size}`
+    );
+    receivingFile.status = FileStatus.Pending;
+    addToastMessage(
+      `${receivingFile.metaData.name} rejected: stream exceeded the declared size`,
+      'error'
+    );
+    // Guarded send: on a live channel this reject reaches the sender; if the
+    // channel just died, send() no-ops instead of throwing again (the queued
+    // continuation that calls us would otherwise leave an unhandled rejection
+    // and skip the teardown below).
+    send(
+      Message.encode({
+        id,
+        receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+      }).finish()
+    );
+    // Tear down per-file chunk state so in-flight chunks for this file are
+    // dropped (their processing hits the removed chunk map) and the file does
+    // not linger in a half-received Processing state.
+    delete receivingFileChunkMap[id];
+    delete receivingFileStatsMap[id];
+    delete chunkQueue[id];
+    if (receivingFiles[id]) {
+      receivingFiles[id] = receivingFiles[id]; // do this to trigger update the map
     }
   }
 
@@ -294,11 +348,15 @@
     delete receivingFileChunkMap[id];
     delete receivingFileStatsMap[id];
     delete chunkQueue[id];
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   function onRemove(key: string) {
-    if (receivingFiles[key].status != FileStatus.Success) {
+    // A re-entrant/duplicate click (or an entry torn down by a concurrent
+    // path, e.g. onChannelClose) leaves receivingFiles[key] undefined —
+    // guard it the same way the sender's onRemove does instead of throwing.
+    const f = receivingFiles[key];
+    if (!f) return;
+    if (f.status != FileStatus.Success) {
       // Guarded: the reject is best-effort (the local state below tears down
       // regardless), and must not throw on a dead channel.
       send(
@@ -312,7 +370,6 @@
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
     delete receivingFiles[key];
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   function triggerDownload(blob: Blob, name: string) {
@@ -329,6 +386,7 @@
 
   function onDownload(key: string) {
     const receivedFile = receivingFiles[key];
+    if (!receivedFile) return;
     const blobFile = receivedFile.blob;
     if (!blobFile) {
       return;
@@ -394,7 +452,6 @@
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
     delete receivingFiles[key];
-    receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   async function downloadAllFiles() {

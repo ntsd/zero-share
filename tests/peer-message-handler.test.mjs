@@ -111,7 +111,75 @@ for (const page of ['OfferPage.svelte', 'ReceivePage.svelte']) {
   console.log(`ok - ${page}: onmessage delegates to the shared handlePeerMessage helper`);
 }
 
+// ---- Test 1b: the channel delivers real bytes — binaryType pinned to
+// 'arraybuffer' on BOTH pages, at the channel-acquisition site ----
+// The WebRTC spec default binaryType is 'blob'. In a real browser that would
+// make every binary frame arrive as a Blob, and `new Uint8Array(blob)` (used
+// by handlePeerMessage in src/utils/peerMessage.ts) does NOT throw — it
+// yields a zero-length view. Message.decode then "succeeds" on 0 bytes and
+// returns an empty message, so handlePeerMessage returned false with no
+// toast and no handler: every frame silently dropped, transfers in both
+// directions a guaranteed no-op. Pinning the setting in source is the only
+// static way to keep that regression out. The position checks also pin WHERE
+// the assignment lives (on the channel, before the onopen wiring), so a copy
+// moved to a different branch can't survive this guard with the identifier
+// still present in the file.
+{
+  const offerSource = await readFile(
+    join(here, '..', 'src', 'components', 'OfferPage.svelte'),
+    'utf8'
+  );
+  const offerSite = offerSource.indexOf("createDataChannel('data'");
+  assert.ok(offerSite !== -1, 'OfferPage must still create the data channel');
+  const offerWiring = offerSource.indexOf('dataChannel.onopen', offerSite);
+  assert.ok(
+    offerWiring > offerSite,
+    'OfferPage must still wire dataChannel.onopen after createDataChannel'
+  );
+  const offerBinary = offerSource.indexOf("dataChannel.binaryType = 'arraybuffer';", offerSite);
+  assert.ok(
+    offerBinary > offerSite && offerBinary < offerWiring,
+    "OfferPage: binaryType = 'arraybuffer' must be set on the channel at the createDataChannel site, before the onopen wiring"
+  );
+  assert.equal(
+    offerSource.split("dataChannel.binaryType = 'arraybuffer';").length - 1,
+    1,
+    'OfferPage must set binaryType exactly once'
+  );
+
+  const recvSource = await readFile(
+    join(here, '..', 'src', 'components', 'ReceivePage.svelte'),
+    'utf8'
+  );
+  const recvSite = recvSource.indexOf('dataChannel = event.channel;');
+  assert.ok(recvSite !== -1, 'ReceivePage must still take the channel from event.channel');
+  const recvWiring = recvSource.indexOf('dataChannel.onopen', recvSite);
+  assert.ok(
+    recvWiring > recvSite,
+    'ReceivePage must still wire dataChannel.onopen after event.channel'
+  );
+  const recvBinary = recvSource.indexOf("dataChannel.binaryType = 'arraybuffer';", recvSite);
+  assert.ok(
+    recvBinary > recvSite && recvBinary < recvWiring,
+    "ReceivePage: binaryType = 'arraybuffer' must be set on the channel at the ondatachannel site, before the onopen wiring"
+  );
+  assert.equal(
+    recvSource.split("dataChannel.binaryType = 'arraybuffer';").length - 1,
+    1,
+    'ReceivePage must set binaryType exactly once'
+  );
+  console.log(
+    'ok - both pages pin dataChannel.binaryType = "arraybuffer" on the channel before the onopen wiring'
+  );
+}
+
 // ---- Test 2: the helper, driven with real generated Message frames ----
+// Note: `event.data` below is modeled as a Uint8Array because Test 1b pins
+// dataChannel.binaryType = 'arraybuffer' on both pages — that is the
+// delivery form the channel actually produces now. Under the spec default
+// ('blob') the same frame would arrive as a Blob, and `new Uint8Array(blob)`
+// would silently yield a zero-length view, which is why this test is only a
+// faithful model of real traffic while that guard holds.
 const { Message } = await loadTranspiled('proto/message.ts');
 const { toastAtom } = await loadTranspiled('stores/toastStore.ts');
 const { handlePeerMessage } = await loadTranspiled('utils/peerMessage.ts');

@@ -112,6 +112,11 @@
     dataChannel = connection.createDataChannel('data', {
       ordered: false // we handle the order by response status
     });
+    // WebRTC's default binaryType is 'blob': every binary frame would arrive
+    // as a Blob, and `new Uint8Array(blob)` in handlePeerMessage yields a
+    // zero-length view, so Message.decode silently produced an empty message
+    // and every frame was dropped. 'arraybuffer' delivers the real bytes.
+    dataChannel.binaryType = 'arraybuffer';
     dataChannel.onopen = () => {
       addToastMessage('Connected', 'success');
       isConnecting = true;

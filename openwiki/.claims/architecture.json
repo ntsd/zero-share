@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:7d6e8427a1dc39b918c3da5640b88d5abf392da6d992c02bc21541647dcf023f",
+  "pageVersion": "sha256:3a890c32f345baaeaf2f85b3aa85c35f2b03b02a3be6ff789bb26b32664522ba",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -122,23 +122,23 @@
     },
     {
       "id": "claim_311d6dea83ac47ecbb8e7a3de45ee72a",
-      "statement": "Both pages dispatch incoming data-channel messages through the shared handlePeerMessage helper in src/utils/peerMessage.ts (deduplicated from the two identical per-page handlers in PR #71): the same oneof switch (metaData routes to Receiver.onMetaData, chunk to Receiver.onChunkData, receiveEvent to Sender.onReceiveEvent), with Message.decode on the peer-controlled bytes wrapped in try/catch inside the helper so a malformed/truncated protobuf frame drops the frame and toasts 'Invalid message from peer' instead of crashing the page uncaught (PR #46). Both pages additionally wire the data channel's onerror/onclose to sender?.onChannelClose() and receiver?.onChannelClose() so a dead channel marks in-flight/queued files 'connection lost' and stops their pipelines instead of leaking InvalidStateError into chunk pipelines (PR #74).",
+      "statement": "Both pages dispatch incoming data-channel messages through the shared handlePeerMessage helper in src/utils/peerMessage.ts (deduplicated from the two identical per-page handlers in PR #71): the same oneof switch (metaData routes to Receiver.onMetaData, chunk to Receiver.onChunkData, receiveEvent to Sender.onReceiveEvent), with Message.decode on the peer-controlled bytes wrapped in try/catch inside the helper so a malformed/truncated protobuf frame drops the frame and toasts 'Invalid message from peer' instead of crashing the page uncaught (PR #46). Both pages pin dataChannel.binaryType = 'arraybuffer' at channel acquisition (offer side at the createDataChannel site L119; answer side at the ondatachannel site L105) because WebRTC's default 'blob' would make new Uint8Array(Blob) zero-length and silently drop every frame (PR #95). Both pages additionally wire the data channel's onerror/onclose to sender?.onChannelClose() and receiver?.onChannelClose() so a dead channel marks in-flight/queued files 'connection lost' and stops their pipelines instead of leaking InvalidStateError into chunk pipelines (PR #74).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L119-L150",
-          "version": "repo-lines-v1:sha256:8b0b6e61f30ec02e14025104f8d43398db48b58e5836cff1321bf8a3d999ee32:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjMDExMDIzZmI5ZDVkMGExZGJmZWNlNmY4MjI1ZGVjYThmZTY5MGE0ZTM1N2JkNzNlMTVkNGQ1MjNkOTUxNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4NjJkMDc4Zjk3ZjA3NDdmNGU3NDE2OThlMGY0NzUwMDdmY2Y5NDZiOWY2NDgwYzcyNDZkNTU3ZjUwNDJhZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L112-L155",
+          "version": "repo-lines-v1:sha256:5ca82129b9fde9a60f628dae0b1ed60588b55cccce5a6bb0b2448500a6dc5dfb:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNGM5ZGQ4YjVjZWIyODQwOGFiZGJmYmQ0N2JjOWI0NTg2ZDc0Y2UyOTllM2Q5OTQ5ZDQ5ZWJkNDY5N2Y3M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4MWE2MWMyZjVkZjJiNTI3ZTVmMzRhOGY0NTgwOTM3YzBkNDUyZTYyM2FkYjhkNmU0YjNkNmU0ZDU1MGMzODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L107-L136",
-          "version": "repo-lines-v1:sha256:74b20680238a905e961745fe08844bb566a9621d7766987ed5bfacb7214a3f16:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjMDExMDIzZmI5ZDVkMGExZGJmZWNlNmY4MjI1ZGVjYThmZTY5MGE0ZTM1N2JkNzNlMTVkNGQ1MjNkOTUxNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ZjkyNGJiZGJmMjBhYmM5MWExZDczYmM3MTRlMDViOGE2ZGJkYWZmZGE5MmM3ZWE3YTMxZDI5Nzk5NzNjZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZDM4ZGE1YTliMDNkOGRkZWUxYmRhNDE1OGYxYjUzZTlhYmMwNGZhMzk5NWJkNGJkODhhOTQxZDY2NGI4NDkifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L99-L141",
+          "version": "repo-lines-v1:sha256:cd493fd0b205a4cd935b0a2705cbea8fe84b14c9370d5c7fc4f8d687c93299af:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ODU0NjAxNTg4MTRiNjA0YTRjMWNmOTBhZGRkYmNhYmMxN2NhMDRjNmJjMGIxMGI3YTBjMWExNmU5ZDI2Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwZTNhYzgwMTdiNTdjMGUyYmQ3NDZiZDdhMTE0OWYyZGJlYWE2OTUwMDkwNDZjMGY0YjY5ZTNhZTZhNmEwMTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZDM4ZGE1YTliMDNkOGRkZWUxYmRhNDE1OGYxYjUzZTlhYmMwNGZhMzk5NWJkNGJkODhhOTQxZDY2NGI4NDkifQ"
         },
         {
           "resource": "repo://src/utils/peerMessage.ts",
           "version": "repo-file-v1:sha256:b7f96911290a70c5a5881e263a3d4b6ee9bd519fb3de14df76ba435b0a65c272"
         },
         {
-          "resource": "repo://tests/peer-message-handler.test.mjs",
-          "version": "repo-file-v1:sha256:6099b14eb81c9e41d844a0ab834dcb264ee3f428a029cb8a22c5b748c164de32"
+          "resource": "repo://tests/peer-message-handler.test.mjs#L114-L172",
+          "version": "repo-lines-v1:sha256:2cac3f02a3a6456a1bc0352125eb97429c7e407cd38f2aaa0314172bc2d5bf86:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5N2I0NzZlNjJmYmMxMWFiN2QwYzlkNWQ3YmE0Y2IyYzliOTQ3ODQ3Zjk1ZTg5ZDIxM2FjODY0NTlmMWFmZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlYzFjMGI5NmZmODA1MDczZDUwNDY1Yjc4YTU5MWJiYjZhYTQzMDczMzM5MTk1YTZkZWQxMzhmNGVmMzg2NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1NzJhNGM1NDRhMDgzYTY3Y2U3MjVkODEyYjBkYTFlMjMzNjE3YTczMWY1ZmFlNjA4OTU2YjA3ZDdiNzMwMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMifQ"
         }
       ]
     },
@@ -184,19 +184,19 @@
     },
     {
       "id": "claim_5fe2c8f516e94b74bba6324c8190f442",
-      "statement": "File state lives entirely in client memory as reactive Svelte maps keyed by file id (crypto.randomUUID on the sender side), with per-file progress/bitrate stats kept in non-reactive maps and flushed to UI state every PROGRESS_UPDATE_UI_STEP (3) percentage points to throttle renders.",
+      "statement": "File state lives entirely in client memory as reactive Svelte maps keyed by file id (crypto.randomUUID on the sender side), with per-file progress/bitrate stats kept in non-reactive maps and flushed to UI state every PROGRESS_UPDATE_UI_STEP (3) percentage points to throttle renders; the per-side connectionLost flag is derived from the shared createChannelSender(dataChannel) helper ($derived(channelSender.isLost()) on the sender) rather than independent $state copies (PR #97).",
       "evidence": [
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L29-L35",
-          "version": "repo-lines-v1:sha256:e691e29bfbfa7ee4acf00b2d7b400ac93adc47b736044dd66ef23ef44fcf0f88:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZiZTViNDFjZTRkZjQ1ODQ2ZmI1YmM2ZmI5YTRkNWRhZjQ0NTczMWE5ZTZkNDE0YWEyYTg5ZmViMWRlZWNkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FiODRkMGJlMjY1NWVmZWU5OTEwYTNhZTZiMjVmMGIwZGY0ZGY2MzNlN2I0Y2Y5ODU2MWYzYmJjNDgzNDA1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODQ3YWZiZTM0ZjE2ZmUxMzhiNzNiZjE2ZDU2Y2EzMjllNmMwODhkNDY0NTcyNWI0ZGNlNjgzZTRlM2Q2NmUyMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDZlZjdkMjAyNzc1NGMwMGUzYzNjMDYzM2FkODljZWYyYWM1NDMwMjZlYjI2MzcyMDk4YjJlNTA3MWJiYTFhYiJ9"
+          "version": "repo-lines-v1:sha256:3a05ab33f88098f0903fa0e57b79af78975b2d67631d6dfb1d091e835f15947e:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Q3MjFiZTViNzUzMzFkMmZmYTIyYjhiZDZiY2Y4ODNhNGM1NDYyNDY4ODI5ZjZlZThjYmEwMWY3MDU2NGQ3YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTcxZDVmMTgyZTg3OWE3NjY0MDY0N2VhNzIyNzIxNmZjNzFiODgxMGRjNjY5ZWNjYzI1YTg3YjNkMDZmNTcxZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGNmNDBjOThlMjQzYzA4MzJlYzk3OWRiMTExMTI1MWRiOWM1OWRiNmExOTU1NGQyNjAyNTVmNWMzYWY2MGNjOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWJlMjNkNzkyNDEyZmU0NzllOTMwZTA5Y2M5Zjc2YzE2NTI5NWViNWU3ZjZmMGYxOGE3NjI5M2NjMGRhYjdjNSJ9"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L21-L27",
-          "version": "repo-lines-v1:sha256:97c5ea9cfd929c7009c77fbcf0c4d6addfe97dab4ba275ac58a64f3ba9e35517:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJlODVlZWFlNTU0ZTA2MmQwYTQxMzJjMWE4M2Y1ZDAwZmRkZjgzNzlmMzk3YjY2NTg5OWUzNTAwNTM3NTRmMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGQwNjlhYTRhZWYzNTk5OGEwMDFmMjUxMzI0MmYyYWQwYzA5YjVhN2VmZTVkOTAyNGYwYzViNjIxMjg4ZjQyOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjZmZmU1ZDVkOGE2OTkxOGIwNWU1OGVhNTJiOTlmZTZhYTAwMDVlMzYyOTUwZWYwMzkyMjdhNzAwMDRjMzhlOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjZjY2EwOWQ5YTE0ZDE3NGIwMzZjY2MwOGI1ZDMyZjJkZTI5ZTQzYjE0MDY1ZDdlNWNmZWVhOTMyMTRmZGQ2NyJ9"
+          "resource": "repo://src/components/sender/Sender.svelte#L22-L37",
+          "version": "repo-lines-v1:sha256:a2466261346db41732731ff3b92670418728ad217fb5d64f47c0fb297c286e0f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZTg1ZWVhZTU1NGUwNjJkMGE0MTMyYzFhODNmNWQwMGZkZGY4Mzc5ZjM5N2I2NjU4OTllMzUwMDUzNzU0ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzMjM0NWRlMmI0NzE0MDhmYThjZGQxOGFiMWExNWNiNDA2YmI0ZTc5MThiMzc5Y2JkMmJmMzcyNTYwYTYzYWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2ZmZlNWQ1ZDhhNjk5MThiMDVlNThlYTUyYjk5ZmU2YWEwMDA1ZTM2Mjk1MGVmMDM5MjI3YTcwMDA0YzM4ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzI4NThmZTJlNjQ4NDg4NmZlNDUyMmMxNTcwZDAwMDQzMzcyOTU0OGQ5OGE4MGNkYTVhZWM3N2MyYTRjM2EifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L242-L254",
-          "version": "repo-lines-v1:sha256:0218b2fe5c22b5fdcd0e5dec4ba25eb8904bdef36e55fff3bb39da21d9fc4ee8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZTU5ZDIxYWRiZjcyZmY3MDY3OTU1NjI3NmViZTQ4ZmNlMTQ1MWExMmRlODY1ZmMzNTU0M2Q0NzRlNTRkMTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2NzJiMDY4MzlkODExZGIzMmFkOTgwZDAzY2U3ZWE0Yzc2ZTBlOGQxZGM1NDc0NjdiMDQzODYwZjk5MmI4ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViOWU1NDE4ZjRlZDk1YjkwYzc1ZmViNWQ5ODE1NmM2YmNhZjczMTZiYjg2N2E1NDU3YmUwYTZhM2M4ZTkyN2UifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L233-L245",
+          "version": "repo-lines-v1:sha256:7cbb3410121b925ddc6d3e77b8aee0c54d6783abd5cf24f2b28316e45ca5b858:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiNDA5NzRiMzU4YTQwMTBhNGI5ZTM4ZjNlNTAwM2M4YjY0MzY5NmE0ZjRkZWJkMWZiZmRmZTAxNzIxZWIxMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxODFkZDMzMmNkMWY0YzdmMjA2NGRiOTRhODI4YWUzMjAyNmEyMWI3YjAzYjg5NDY3YWIyYWQ4YWMzMmJkNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlY2VmMTM2NWE4NDc3OTI5MjkyY2U5ZGU3N2QzODUzMmMzMmQ5ZWMyY2YwYWZlMjNlOGUxNDE0ODA1Y2M3ZDQifQ"
         },
         {
           "resource": "repo://src/configs.ts#L65-L67",
@@ -257,10 +257,32 @@
           "version": "repo-file-v1:sha256:f062d7a65a4921e4a737e1d83be47c1eac48f4335b5dc4ad258633841bbb7917"
         }
       ]
+    },
+    {
+      "id": "claim_3e6c7c1f906b402f9d8b244eea2dd87c",
+      "statement": "The guarded data-channel send (dead-channel flag + readyState check + throwing-send catch) is a single shared helper: createChannelSender(dataChannel) in src/utils/channelSender.ts returns { send(message), isLost(), markLost() } — send no-ops with false when the lost flag is set or readyState !== 'open', returns true on success, and on a throwing send flips the lost flag and returns false instead of leaking InvalidStateError; markLost() is the idempotent flip fired by the owning component's onChannelClose(); isLost() is the live read both sides derive from. Sender.svelte and Receiver.svelte each create one instance and keep their call sites in the plain send(...) shape via destructuring (PR #97).",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L108-L135",
+          "version": "repo-lines-v1:sha256:a19723bbc8573d7ec91ac55b6b70fd9152587ea3bc65bea4619c54dd2ade5a9d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZDFiNWI1YzRiNjNlOWUwY2Q5NDNjZmJiMjliMjdjMzAyNzY3NmJiNTIzMWZkYzhhMmEwNjRjZGE5OTc4YWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0MGJlZTY2Y2E2ZmUxMTZhZmNhNGYzZjU4MjVhZjFkZTU1Y2I2YjFjMWVhMDNhM2FkMzU4ZTZjMjBmNWFmY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5Nzg5ODI5NmExNTg3ZWJlYWM2ZTJkNWM4NWIwZDQ0NGI2YTg4OGUxODVjOWZkMDNjZDcwMWQ4ZTZkZDk0NzQifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L24-L46",
+          "version": "repo-lines-v1:sha256:71d15b2fbf639d4845c42af0a660211a06bf1053e6de1f1c381df58003e2540d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2MjUyZjEzYWViMmU2MzlkZjNiOWExNjIyYTFlNDlmZjMwYmY5Y2Q2MmRiNGNmMDI3MDRkZDIyMWE1NTZjOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmFmOWJjNmE0ODZmYjVlMDVkZDdkNzU5Y2NlMGU2MzQ2ZTk5N2QxODMyOGZhYzk4YzJhYzdhMWExOTUxOTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0YjQwNmZiYzAwMzExODc0OTkxYmE1MTIyMTc4ZjgyY2U2ODdjOWMzMzUxZjdkZTFjNDMyZDI5OGY3YmQwMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZWMwZjMzYmQ3YTEwOWZkNzhiYmEzN2JjYzVjYTUwY2VjYWM0ZWY2YzBiMTYxZWJlZDAwNTY5YmRlNWI2ZDEifQ"
+        },
+        {
+          "resource": "repo://src/utils/channelSender.ts",
+          "version": "repo-file-v1:sha256:8b7faa73c37d03873b5a5034711cd98570f6474f8a2b088157138aa52893cebc"
+        },
+        {
+          "resource": "repo://tests/channel-sender.test.mjs",
+          "version": "repo-file-v1:sha256:8883c29743ab2ad0351df447300380b1550f7581ad1205d45ada69aba19976a0"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-17T12:06:43.471Z"
+    "at": "2026-10-18T13:32:45.402Z"
   }
 }

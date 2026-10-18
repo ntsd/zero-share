@@ -405,35 +405,49 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
 
 // ---- Test 4: static guards — the component actually implements the fix ----
 {
-  // Guarded send(): readyState check + try/catch around the only raw send.
+  // The guarded-send body now lives exactly once in the shared
+  // src/utils/channelSender.ts helper (pinned in tests/channel-sender.test.mjs):
+  // the component must use it, and must no longer carry its own copy.
   assert.ok(
-    /function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean/.test(senderSource),
-    'Sender.svelte must define the guarded send(message): boolean helper'
+    senderSource.includes("import { createChannelSender } from '../../utils/channelSender';"),
+    'Sender.svelte must import createChannelSender from ../../utils/channelSender'
   );
   assert.ok(
-    senderSource.includes("dataChannel.readyState !== 'open'"),
-    'the guarded send must check dataChannel.readyState before sending'
+    /createChannelSender\(dataChannel\)/.test(senderSource),
+    'Sender.svelte must build its guarded send from createChannelSender(dataChannel)'
   );
   assert.equal(
     (senderSource.match(/dataChannel\.send\(/g) || []).length,
-    1,
-    'exactly one raw dataChannel.send — inside the guarded helper'
+    0,
+    'Sender.svelte must not call dataChannel.send directly — every send goes through the shared guarded helper'
+  );
+  assert.ok(
+    !/function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean/.test(senderSource),
+    'Sender.svelte must no longer define its own guarded send(message): boolean body'
   );
 
-  // onChannelClose(): exported, single-fires, stops in-flight pipelines and
-  // marks the files with the accurate error.
+  // onChannelClose(): exported, single-fires via the helper, stops in-flight
+  // pipelines and marks the files with the accurate error.
   assert.ok(
     /export\s+function\s+onChannelClose\s*\(\s*\)/.test(senderSource),
     'Sender.svelte must export onChannelClose()'
   );
   assert.ok(
-    /if\s*\(\s*connectionLost\s*\)\s*return;\s*connectionLost\s*=\s*true;/.test(senderSource),
-    'onChannelClose() must be single-fire (guard then set connectionLost)'
+    /if\s*\(\s*channelSender\.isLost\(\)\s*\)\s*return;\s*channelSender\.markLost\(\);/.test(
+      senderSource
+    ),
+    'onChannelClose() must be single-fire via the helper (guard isLost() then markLost())'
   );
   assert.match(senderSource, /Connection lost — transfer aborted/);
   assert.ok(
     /f\.stop\s*=\s*true;/.test(senderSource),
     'onChannelClose() must stop in-flight send pipelines'
+  );
+  // The live connectionLost flag still reaches the list (Resend/Continue/Send
+  // gating) — derived from the helper, flipped on the same close.
+  assert.ok(
+    /connectionLost\s*=\s*\$derived\(channelSender\.isLost\(\)\)/.test(senderSource),
+    'the connectionLost prop for SendingFileList must be derived from the helper flag'
   );
   // The chunk sends and the metadata send go through the guarded helper.
   const sendBufferMatch = senderSource.search(/async\s+function\s+sendBuffer\s*\(/);

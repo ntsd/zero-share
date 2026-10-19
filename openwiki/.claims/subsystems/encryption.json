@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:34df27d4c299bc3e82a09bb70eaff686c9cd465322e9129c0bc368c222b9d2c2",
+  "pageVersion": "sha256:3ba2d8945549d762823e8b969ee3d1e3de856b3c08c33411157c375e5f077ac9",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -200,7 +200,7 @@
     },
     {
       "id": "claim_a463f92843564fe5b2da9b2d2a90cf19",
-      "statement": "The onMetaData key-decryption success path re-reads receivingFiles[id] and null-guards it before assigning aesKey (PR #101): the entry is removable during the await because Remove is live on WaitingAccept entries, and an unguarded post-await receivingFiles[id].aesKey assignment would throw 'Cannot set properties of undefined (setting aesKey)' as an unhandled rejection outside any try/catch (the data-channel onmessage caller does not await onMetaData) when Remove landed in that window — no toast, no error state, and no EVENT_VALIDATE_ERROR/EVENT_RECEIVER_REJECT for the sender. The guarded handler now returns quietly for a removed entry, matching the null-guard shape of every other post-await path in Receiver.svelte; pinned by tests/receiver-metadata-key-null-guard.test.mjs, which mirrors the pre- and post-fix shapes with a mocked decrypt that runs onRemove before it settles plus a static guard on the real component.",
+      "statement": "The onMetaData key-decryption success path re-reads receivingFiles[id] and null-guards it before assigning aesKey (PR #101): the entry is deniable/removable during the decryption await (the list UI shows Accept/Deny on WaitingAccept entries since PR #76; onDeny deletes the entry), and an unguarded post-await receivingFiles[id].aesKey assignment would throw 'Cannot set properties of undefined (setting aesKey)' as an unhandled rejection outside any try/catch (the data-channel onmessage caller does not await onMetaData) when a Deny landed in that window — no toast, no error state, and no EVENT_VALIDATE_ERROR/EVENT_RECEIVER_REJECT for the sender. The guarded handler returns quietly for a removed entry; the remaining post-await writes are either synchronous with catch-entry — the key-unwrap catch's receivingFiles[id].error write, safe on the same tick because the entry cannot be removed between catch-entry and the write — or already null-guarded. Pinned by tests/receiver-metadata-key-null-guard.test.mjs, which mirrors the pre- and post-fix shapes with a mocked decrypt that runs onRemove before it settles plus a static guard on the real component.",
       "evidence": [
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L79-L85",
@@ -215,6 +215,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-19T17:28:37.663Z"
+    "at": "2026-10-19T18:31:42.237Z"
   }
 }

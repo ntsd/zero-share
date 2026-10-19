@@ -140,6 +140,16 @@
       // instead of dead-ending or re-firing false per-chunk errors.
       sender?.onChannelClose();
       receiver?.onChannelClose();
+      // Closing the data channel does NOT close the RTCPeerConnection: without
+      // this, the ICE agent, its UDP sockets, and the STUN/TURN keepalives
+      // stay open for the rest of the page's lifetime (same leak the
+      // regeneration teardown above handles for its dead peer). Guarded on
+      // connectionState because close() throws InvalidStateError on an
+      // already-closed peer (error+close double-fire, or a regeneration that
+      // raced this handler).
+      if (connection && connection.connectionState !== 'closed') {
+        connection.close();
+      }
     };
     dataChannel.onclose = () => {
       addToastMessage('Disconnected', 'error');
@@ -152,6 +162,15 @@
       // Processing forever and queued chunks re-firing corrupt-chunk toasts.
       sender?.onChannelClose();
       receiver?.onChannelClose();
+      // Release the WebRTC peer with the channel: closing the data channel
+      // alone leaves the RTCPeerConnection (ICE agent, UDP sockets,
+      // STUN/TURN keepalives) live until the browser's ICE timeout or page
+      // unload. Same guarded shape as the regeneration teardown — a
+      // double-fire (error then close) or a racing regeneration must not
+      // throw InvalidStateError from close().
+      if (connection && connection.connectionState !== 'closed') {
+        connection.close();
+      }
     };
   }
 
@@ -328,6 +347,14 @@
   }
 
   async function acceptAnswer() {
+    // A dead channel's onerror/onclose handler has already closed the peer —
+    // a re-pasted answer code or a late QR scan must surface the known
+    // connection-lost state instead of signaling a closed peer, which would
+    // only fail inside the try/catch with a misleading "Invalid answer code".
+    if (!connection || connection.connectionState === 'closed') {
+      addToastMessage('Connection lost — generate a new offer to connect', 'error');
+      return;
+    }
     const { sdp, key, hasSeparator } = parseAnswerCode(answerSDP);
 
     // The answer's key portion — not the live sendOptions.isEncrypt — is the

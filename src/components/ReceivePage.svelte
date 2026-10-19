@@ -127,6 +127,14 @@
       // instead of dead-ending or re-firing false per-chunk errors.
       sender?.onChannelClose();
       receiver?.onChannelClose();
+      // Closing the data channel does NOT close the RTCPeerConnection: without
+      // this, the ICE agent, its UDP sockets, and the STUN/TURN keepalives
+      // stay open for the rest of the page's lifetime. Guarded on
+      // connectionState because close() throws InvalidStateError on an
+      // already-closed peer (error+close double-fire).
+      if (connection && connection.connectionState !== 'closed') {
+        connection.close();
+      }
     };
     dataChannel.onclose = () => {
       addToastMessage('Disconnected', 'error');
@@ -138,6 +146,14 @@
       // Processing forever and queued chunks re-firing corrupt-chunk toasts.
       sender?.onChannelClose();
       receiver?.onChannelClose();
+      // Release the WebRTC peer with the channel: closing the data channel
+      // alone leaves the RTCPeerConnection (ICE agent, UDP sockets,
+      // STUN/TURN keepalives) live until the browser's ICE timeout or page
+      // unload. Same guarded shape as the offer page — a double-fire
+      // (error then close) must not throw InvalidStateError from close().
+      if (connection && connection.connectionState !== 'closed') {
+        connection.close();
+      }
     };
   };
 

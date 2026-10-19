@@ -76,7 +76,13 @@
         return;
       }
     }
-    receivingFiles[id].aesKey = aesKey;
+    // The entry is removable during the key-decryption await above (Remove is
+    // live on WaitingAccept entries), so re-read and null-guard it before the
+    // post-await assignment — an unguarded `receivingFiles[id].aesKey` throws
+    // an unhandled TypeError rejection if Remove landed in that window.
+    const entry = receivingFiles[id];
+    if (!entry) return; // removed during the decryption window
+    entry.aesKey = aesKey;
 
     const validateErr = validateFileMetadata(metaData, receiveOptions.maxSize);
     if (validateErr) {

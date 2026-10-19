@@ -13,6 +13,7 @@
     type ReceivingFileStats
   } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
+  import { createChannelSender } from '../../utils/channelSender';
   import { createZipStoreOnly, sanitizeName } from '../../utils/zip';
   import { serializeTask } from '../../utils/serialize';
 
@@ -113,28 +114,14 @@
   // arrival order, even when WebCrypto decrypt calls complete out of order
   const chunkQueue: { [fileId: string]: Promise<unknown> } = {};
 
-  // Flipped by onChannelClose() (fired from the page's dataChannel onclose/
-  // onerror) or by send() when a send throws. Once true, the channel will
-  // never deliver anything again, so no ack/reject can reach the peer — the
-  // in-flight/queued chunk pipeline must exit quietly instead of surfacing
-  // misleading per-chunk errors.
-  let connectionLost = false;
-
-  // Guarded channel send: readyState first, and a closed/closing channel that
-  // slips past the check (the close settles asynchronously) is caught here
-  // instead of escaping as an InvalidStateError into a chunk/ack pipeline.
-  function send(message: Uint8Array): boolean {
-    if (connectionLost || dataChannel.readyState !== 'open') {
-      return false;
-    }
-    try {
-      dataChannel.send(message);
-      return true;
-    } catch {
-      connectionLost = true;
-      return false;
-    }
-  }
+  // The guarded channel send (dead-channel flag + readyState check + throwing
+  // send catch) lives in the shared src/utils/channelSender.ts helper,
+  // deduplicated from the sender's identical copy — see that file for the
+  // full rationale.
+  const channelSender = createChannelSender(dataChannel);
+  // Call sites keep their plain send(...) shape; only the implementation
+  // moved into the helper.
+  const { send } = channelSender;
 
   // Fired by the owning page's dataChannel onclose/onerror: mark every file
   // that cannot complete any more with an accurate "connection lost" error
@@ -142,8 +129,8 @@
   // tear down the per-file chunk state so queued chunks are dropped by
   // onChunkData instead of re-entering processChunk.
   export function onChannelClose() {
-    if (connectionLost) return;
-    connectionLost = true;
+    if (channelSender.isLost()) return;
+    channelSender.markLost();
     for (const id of Object.keys(receivingFiles)) {
       const f = receivingFiles[id];
       if (f.status === FileStatus.Success) continue; // its blob is complete

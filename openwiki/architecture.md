@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-17T12:06:43.471Z
+    at: 2026-10-18T13:32:45.402Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -26,10 +26,14 @@ sources:
     resource: repo://src/proto/message.proto
   - id: openwiki-source-ebef8d66c8ea768663c3c87f
     resource: repo://src/type.ts
+  - id: openwiki-source-ae15d71fdfbd76938ec3c419
+    resource: repo://src/utils/channelSender.ts
   - id: openwiki-source-825971ed9c72d5969af1b150
     resource: repo://src/utils/crypto.ts
   - id: openwiki-source-43ba2ea6141a6d37347e98ea
     resource: repo://src/utils/peerMessage.ts
+  - id: openwiki-source-c60571bff5134e29cac41e94
+    resource: repo://tests/channel-sender.test.mjs
   - id: openwiki-source-bc79428fbabf9194d0ff47c4
     resource: repo://tests/clipboard-copy-robustness.test.mjs
   - id: openwiki-source-cbda1b574339ff50701cd203
@@ -40,7 +44,7 @@ sources:
     resource: repo://tests/protocol-size.test.mjs
   - id: openwiki-source-cc2aa5000eb243dbf0af9518
     resource: repo://tests/regen-offer-stale-peer-crypto.test.mjs
-generated: { by: 'hermes', at: '2026-10-17T12:06:43.471Z' }
+generated: { by: 'hermes', at: '2026-10-18T13:32:45.402Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -72,7 +76,9 @@ All traffic on the data channel is **proto3-framed `Message` bytes** — no ad-h
 - `chunk` — a raw (or encrypted) slice of the file body;
 - `receiveEvent` — receiver→sender control events (`ACCEPT`, `REJECT`, `RECEIVED_CHUNK`, `VALIDATE_ERROR`). [`repo://src/proto/message.proto#L1-L31`]
 
-Both pages dispatch incoming messages through the shared `handlePeerMessage` helper in `src/utils/peerMessage.ts` (deduplicated from the two identical per-page handlers in PR #71), with the same oneof switch on `metaData` / `chunk` / `receiveEvent`, routing to `Receiver.onMetaData`, `Receiver.onChunkData`, or `Sender.onReceiveEvent`. The `Message.decode` call on peer-controlled data-channel bytes is wrapped in `try/catch` inside the helper: a malformed or truncated protobuf frame makes `decode` throw synchronously, which would otherwise crash the page uncaught (PR #46) — instead the frame is dropped and an "Invalid message from peer" toast fires. Both pages additionally wire the data channel's `onerror`/`onclose` to `sender?.onChannelClose()` and `receiver?.onChannelClose()`, so a dead channel marks in-flight/queued files "connection lost" and stops their pipelines instead of leaking `InvalidStateError` into chunk pipelines as misleading per-chunk failures (PR #74). [`repo://src/utils/peerMessage.ts`], [`repo://src/components/OfferPage.svelte#L119-L150`], [`repo://src/components/ReceivePage.svelte#L107-L136`], [`repo://tests/peer-message-handler.test.mjs`]
+Both pages dispatch incoming messages through the shared `handlePeerMessage` helper in `src/utils/peerMessage.ts` (deduplicated from the two identical per-page handlers in PR #71), with the same oneof switch on `metaData` / `chunk` / `receiveEvent`, routing to `Receiver.onMetaData`, `Receiver.onChunkData`, or `Sender.onReceiveEvent`. The `Message.decode` call on peer-controlled data-channel bytes is wrapped in `try/catch` inside the helper: a malformed or truncated protobuf frame makes `decode` throw synchronously, which would otherwise crash the page uncaught (PR #46) — instead the frame is dropped and an "Invalid message from peer" toast fires. **Binary frames are real bytes, not Blobs:** both pages pin `dataChannel.binaryType = 'arraybuffer'` immediately at channel acquisition (the offer side at the `createDataChannel` site, the answer side at the `ondatachannel` site, before the `onopen` wiring), because WebRTC's default `binaryType` is `'blob'` — with it every binary frame would arrive as a `Blob`, `new Uint8Array(blob)` in `handlePeerMessage` would yield a zero-length view, `Message.decode` would silently produce an empty message, and _every_ frame would be dropped (a guaranteed no-op transfer, PR #95). Both pages additionally wire the data channel's `onerror`/`onclose` to `sender?.onChannelClose()` and `receiver?.onChannelClose()`, so a dead channel marks in-flight/queued files "connection lost" and stops their pipelines instead of leaking `InvalidStateError` into chunk pipelines as misleading per-chunk failures (PR #74). [`repo://src/utils/peerMessage.ts`], [`repo://src/components/OfferPage.svelte#L119-L150`], [`repo://src/components/ReceivePage.svelte#L107-L136`], [`repo://tests/peer-message-handler.test.mjs`]
+
+**Outgoing frames go through one shared guarded-send helper.** The copy-pasted guarded data-channel `send` (dead-channel flag + `readyState` check + throwing-send `catch`) that lived separately in `Sender.svelte` and `Receiver.svelte` is now the `createChannelSender(dataChannel)` factory in `src/utils/channelSender.ts` (PR #97, mirroring the `peerMessage.ts` handler dedup): it returns `{ send(message), isLost(), markLost() }` — `send` no-ops with `false` when the lost flag is set or `readyState !== 'open'`, returns `true` on a successful send, and on a throwing send flips the lost flag and returns `false` instead of letting an `InvalidStateError` escape; `markLost()` is the idempotent flip fired by the owning component's `onChannelClose()`; `isLost()` is the live read both sides' UI gating derives from. The sender's `connectionLost` flag is now a `$derived(channelSender.isLost())` (not a plain `$state`), so the file-list UI gate and `onContinue`'s dead-channel refusal read the single shared flag. [`repo://src/utils/channelSender.ts`], [`repo://src/components/sender/Sender.svelte#L24-L37`], [`repo://src/components/receiver/Receiver.svelte#L108-L124`], [`repo://tests/channel-sender.test.mjs`]
 
 The transfer protocol is **receiver-ack chunking**: the sender emits metadata, waits for `RECEIVER_ACCEPT`, then sends chunks one per `RECEIVER_RECEIVED_CHUNK` acknowledgment — a simple backpressure loop that paces the transfer. File lifecycle is modeled per file as `Pending → WaitingAccept → Processing → Success` with error/reject returns to `Pending`. The receiver's `onAccept` entry point is guarded (PR #78): an entry whose metadata failed — its `error` is set, or an encrypted session with no `aesKey` — is refused with an explanatory toast plus `EVENT_RECEIVER_REJECT` (the entry stays in `WaitingAccept` so Deny/Remove remain available), because without a usable key the transfer can never succeed. The completion gate is an **exact byte match**: the receiver flips a file to `Success` only when `receivedSize === metaData.size` (not `>=`), and when a chunk pushes `receivedSize` past the declared size the whole file is rejected via `rejectOversizedStream` instead of being marked complete from a truncated prefix. See `subsystems/file-transfer.md`.
 
@@ -83,7 +89,7 @@ The transfer protocol is **receiver-ack chunking**: the sender emits metadata, w
 
 ## State model
 
-File state is held entirely in client memory (Svelte 5 `$state` maps keyed by file id — `crypto.randomUUID()` on the sender side, so same-named files never collide). Reactivity-sensitive UI state (progress, bitrate) is throttled by keeping per-file stats in **non-reactive** maps and flushing to reactive state every `PROGRESS_UPDATE_UI_STEP` (3) percentage points, avoiding render storms during transfers. [`repo://src/type.ts#L1-L78`], [`repo://src/components/sender/Sender.svelte#L21-L43`], [`repo://src/components/receiver/Receiver.svelte#L25-L35`], [`repo://src/configs.ts#L65-L67`]
+File state is held entirely in client memory (Svelte 5 `$state` maps keyed by file id — `crypto.randomUUID()` on the sender side, so same-named files never collide). Reactivity-sensitive UI state (progress, bitrate) is throttled by keeping per-file stats in **non-reactive** maps and flushing to reactive state every `PROGRESS_UPDATE_UI_STEP` (3) percentage points, avoiding render storms during transfers. The per-side `connectionLost` flag is **not** independent `$state`: both `Sender` and `Receiver` create a `createChannelSender(dataChannel)` (see the data-flow section above) and derive it — the sender as `connectionLost = $derived(channelSender.isLost())` — so the dead-channel flag, the guarded `send()`, and the UI gating all read one shared source of truth rather than two copies that must be kept in sync. [`repo://src/type.ts#L1-L78`], [`repo://src/components/sender/Sender.svelte#L21-L37`], [`repo://src/components/receiver/Receiver.svelte#L25-L35`], [`repo://src/configs.ts#L65-L67`]
 
 There is **no persistence**: received files are assembled into `Blob`s held in memory and downloaded on demand; nothing is stored in IndexedDB, localStorage, or server-side.
 

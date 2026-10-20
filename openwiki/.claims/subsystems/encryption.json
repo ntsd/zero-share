@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:3ba2d8945549d762823e8b969ee3d1e3de856b3c08c33411157c375e5f077ac9",
+  "pageVersion": "sha256:d8d9d7e72e5ec4b6df82c0726f45bf8aa37b310c3a19adb9dec5dd7572a91a1e",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -39,8 +39,8 @@
       "statement": "RSA public keys are exchanged through the shared artifacts: the offer peer's base64 SPKI public key is the 'p' query param of the offer link (embedded by createSDPLink from the once-minted keypair), and the answer peer's base64 SPKI public key is appended after '|' in the answer code (empty when downgraded); the receive page derives isEncrypt from the presence of 'p' (as reactive state that the validated import can downgrade to false) so the encryption mode propagates from the offer side.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L270-L333",
-          "version": "repo-lines-v1:sha256:e1aa691cd195f7d6a27967191aa6bff2e740f5812f223f276758481554f8e2fd:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MzgwZWQ5N2FjZmIxYWUxZDJkY2UxZDVmYzgwMjdmNDJiMmEzZThhYjM5YTM0MmMwNmMxODYwMGQ5ODUwODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyZDY1MThkZmI0NjgzNzRhMDE0M2YyNDc4ODY0MGM3ZDZlNmFmYzhlMDgwZDU0MmFkMjAzNTU5MTgzMDE4NzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L349-L399",
+          "version": "repo-lines-v1:sha256:ffa5011fa29c0d7fb80b765ac370dd9d823864d212a3dce1f6b8f1564878fd53:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyOTk3YjNhM2I4ZDRmZjUxYjcxNDY2NzIyMmUxYTFmNTc4OTRkMDQxNDQ4MDQ2OWI1NmQyMDcyODQ3ZGU1ZmMifQ"
         },
         {
           "resource": "repo://src/components/OfferPage.svelte#L68-L90",
@@ -57,12 +57,12 @@
       "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key — and a pick made while encryption is on but the peer's rsaPub has not been imported yet (the offer is still pending) is rejected with an error toast instead of being registered with an empty wrapped key. The wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption; the receiver registers the file entry at WaitingAccept BEFORE the async key decryption, and on unwrap failure sets a visible error on the entry, toasts, sends EVENT_VALIDATE_ERROR to the sender, and returns without accepting. A metadata-failed entry (error set, or missing aesKey on an encrypted session) additionally cannot be force-accepted: Receiver.onAccept guards its entry point and refuses such entries with a toast plus EVENT_RECEIVER_REJECT instead of starting a transfer that can never succeed (PR #78). Pick-time crypto failures are equally visible: onFilesPick iterates with an async for...of (not a fire-and-forget forEach) so a generateAesKey/encryptAesKeyWithRsaPublicKey rejection toasts and skips the entry instead of escaping as an unhandled rejection (PR #75). A metadata-validation failure at pick time is treated the same way (PR #96): the shared validateFileMetadata rejects size <= 0 / non-finite (e.g. a 0-byte file), toasts, and continues — the entry is never registered in sendingFiles, because such a file can never complete (the receiver bounces it with EVENT_VALIDATE_ERROR on every resend and processChunk's exact-match gate can never be satisfied by an empty payload), so registering it as a Resend-able Pending entry was a guaranteed dead-end that re-fired a 'Receiver validate error' toast on every retry.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L339-L384",
-          "version": "repo-lines-v1:sha256:5b220f380845b27943c7f9b6f80ebc018ec74ada2d089dc5d1e08236440d4c83:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyNmU4ZWQ3Zjk1YjI5MjIwOWQ1ZjNmMjllZDBlYWFkMzM0MDJmYTE3ZGI2MGVhYWJiYWI5ODMxZGQ4YTBhZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZjY5MDA3YTdlNzVjY2RiMmMxOWVmYTlkOTVjNDNiZjc4N2YzM2EyYjljODI2NWM0YTVjZTY0MmZlNmRiZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZkMjIxMzU3YjIzYWFjYjhkNzY3MDUzMTk0MDY1YThiMjIyYjA2MmE3YTU2Zjk0NDJlZDMyYWQyNzQ3YTZhMDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2MTFlNTRhYTVmZDA5YTNkNTVmODJmZmY5YzQwYzYxYTcwMzQ4NzQzNTZmMDg3Y2M0NWJiMzczNWVlYWNiNjEifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L38-L114",
+          "version": "repo-lines-v1:sha256:839473b8362eea9e0011075678bf0ec72d18631fd29f07c2f00554f4fe643c19:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
-          "version": "repo-lines-v1:sha256:4104a317e8e63a8fc0f2af7278506d3e852f098e6c71298d7eb230ed9799cc4f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3NzJlNGMxN2U3OWIwZjBiNWM1MmUzMWZkZGFlMjU4MGZiOGU1MWE0YzBlODJlZDk0NTAzMWYzNGNlODdlYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkYTkxZWY3N2YwNjBlMGMyYjM5YjUxZmY4YWZmZjA4MmI0ZWEwYWU2ZTUwOTU4NzgzOWM2MThiMDY2ZjY2MWUifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L429",
+          "version": "repo-lines-v1:sha256:faf8652ff31f590338693efbb5bfda5569be94c5ea69257c042637c782dbdfe7:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzYzNiNWRjNWZhMzg2NDM4NzFhYTFhNzhlMjdmMWZjNzQzZGQxNGU3NGQzMzhkZTdkMjVkOWFmOTg5OTUxNTIifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L330-L401",
@@ -74,7 +74,7 @@
         },
         {
           "resource": "repo://tests/receiver-key-decryption-failure.test.mjs",
-          "version": "repo-file-v1:sha256:c5feacc602a97eeceb716f3335e1a1e13f61278072df171140a92b0eb17d3f24"
+          "version": "repo-file-v1:sha256:d22e1ae10709dc321790d879277c197c1ac2e81cf4679ab7c9de0b9a4d5539fb"
         },
         {
           "resource": "repo://tests/sender-onfilespick-crypto-rejection.test.mjs",
@@ -137,8 +137,8 @@
       "statement": "Failure behavior is degraded-not-crashing: a missing per-file aesKey makes the sender fall back to sending that chunk plaintext, a malformed 'p' param downgrades isEncrypt to false with an error toast (the answer no longer advertises encryption), a damaged non-empty answer-code key or missing separator aborts acceptance with an error toast, a well-formed answer code with an empty key portion is the receiver's deliberate plaintext downgrade and the offer side follows it into plaintext (effectiveEncrypt=false, info toast) instead of dead-ending the handshake, a file picked before the answer is accepted is rejected with a visible error instead of being registered with an undeliverable empty key, a pick whose key-encryption crypto call rejects is skipped with a visible error (PR #75), a pick whose metadata fails validation at pick time (e.g. a 0-byte file, size <= 0 / non-finite) is toasts and never registered (PR #96), and encryption off means no keys are generated and all chunks are sent without crypto.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L304-L346",
-          "version": "repo-lines-v1:sha256:87f137b4dd8066127f63d08ba9d62dc360bd68fc807a140fcd9b475de524b12b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkZDdkMTFkZjQ4YmJjNTY0NjQ1OTIwZjYyNjdiZmNmODlhM2UyNmI0MjBlZmNjMDkxYTI2ODAwMGY0NmUyMDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3ZDI0MTEzY2NkYWQ2YWRkNGY4YjE4NGJhOTEwYjYxN2VhMmJjNDkwNzFhOWI2YWUzZGI2OWRlMjgyNzUwNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4NzVjYmI2ZTg2MTFkNTcxYTQ1YjUwYjM2MzEwODBiNDA4MGFlOWI5OTEwOThiMTYzMmQ0YmU0OTY0ZjJiZmUifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L349-L399",
+          "version": "repo-lines-v1:sha256:ffa5011fa29c0d7fb80b765ac370dd9d823864d212a3dce1f6b8f1564878fd53:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyOTk3YjNhM2I4ZDRmZjUxYjcxNDY2NzIyMmUxYTFmNTc4OTRkMDQxNDQ4MDQ2OWI1NmQyMDcyODQ3ZGU1ZmMifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L46-L59",
@@ -168,7 +168,7 @@
       "evidence": [
         {
           "resource": "repo://package.json",
-          "version": "repo-file-v1:sha256:7a7173b1797d846948d606ee161fd49495c33d942e096e9becc2726f4963842c"
+          "version": "repo-file-v1:sha256:10cf7ce5d12318ba8e1961ebcaabd6c541d6f1ea71f319fe7bdf38c12bc8e1ed"
         },
         {
           "resource": "repo://tests/crypto.test.mjs",
@@ -181,12 +181,12 @@
       "statement": "Receiver key-unwrap failure is visible, not silent, and it signals the sender: if decryptAesKeyWithRsaPrivateKey rejects for an incoming file, the already-registered entry gets an error set, an error toast fires, and onMetaData sends EVENT_VALIDATE_ERROR back to the sender (bouncing its file to Pending) before returning without accepting. The metadata-failed entry stays in WaitingAccept with the error shown (FileCard error banner) and is not a Remove-only dead-end (PR #76) — but Accept on it is refused (PR #78): onAccept checks the entry's error/aesKey state up front, toasts 'Cannot accept <name>: the metadata/key failed to process — the sender must resend the file', and sends EVENT_RECEIVER_REJECT instead of EVENT_RECEIVER_ACCEPT, so the entry stays in WaitingAccept with Deny/Remove as the real exits.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L339-L361",
-          "version": "repo-lines-v1:sha256:21184284b3104b42e2c68c5bfea36d4c3b7b5d4143c47ae08cb122f10dc2a0b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L38-L114",
+          "version": "repo-lines-v1:sha256:839473b8362eea9e0011075678bf0ec72d18631fd29f07c2f00554f4fe643c19:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
-          "version": "repo-lines-v1:sha256:e0cf3d9927bd1a09c55c3c4b09f3411c2d0a44d9227850a591a3d80329995f26:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L406",
+          "version": "repo-lines-v1:sha256:21184284b3104b42e2c68c5bfea36d4c3b7b5d4143c47ae08cb122f10dc2a0b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
         },
         {
           "resource": "repo://src/components/receiver/ReceivingFileList.svelte#L18-L32",
@@ -194,27 +194,41 @@
         },
         {
           "resource": "repo://tests/receiver-key-decryption-failure.test.mjs",
-          "version": "repo-file-v1:sha256:c5feacc602a97eeceb716f3335e1a1e13f61278072df171140a92b0eb17d3f24"
+          "version": "repo-file-v1:sha256:d22e1ae10709dc321790d879277c197c1ac2e81cf4679ab7c9de0b9a4d5539fb"
         }
       ]
     },
     {
       "id": "claim_a463f92843564fe5b2da9b2d2a90cf19",
-      "statement": "The onMetaData key-decryption success path re-reads receivingFiles[id] and null-guards it before assigning aesKey (PR #101): the entry is deniable/removable during the decryption await (the list UI shows Accept/Deny on WaitingAccept entries since PR #76; onDeny deletes the entry), and an unguarded post-await receivingFiles[id].aesKey assignment would throw 'Cannot set properties of undefined (setting aesKey)' as an unhandled rejection outside any try/catch (the data-channel onmessage caller does not await onMetaData) when a Deny landed in that window — no toast, no error state, and no EVENT_VALIDATE_ERROR/EVENT_RECEIVER_REJECT for the sender. The guarded handler returns quietly for a removed entry; the remaining post-await writes are either synchronous with catch-entry — the key-unwrap catch's receivingFiles[id].error write, safe on the same tick because the entry cannot be removed between catch-entry and the write — or already null-guarded. Pinned by tests/receiver-metadata-key-null-guard.test.mjs, which mirrors the pre- and post-fix shapes with a mocked decrypt that runs onRemove before it settles plus a static guard on the real component.",
+      "statement": "The onMetaData key-decryption SUCCESS path re-reads receivingFiles[id] and null-guards it before assigning aesKey (PR #101): the entry is deniable/removable during the decryption await (post-#76 the list UI shows Accept/Deny on WaitingAccept entries; onDeny deletes the entry), and an unguarded post-await receivingFiles[id].aesKey assignment would throw 'Cannot set properties of undefined (setting aesKey)' as an unhandled rejection outside any try/catch (the data-channel onmessage caller does not await onMetaData) when a Deny landed in that window — no toast, no error state, and no EVENT_VALIDATE_ERROR/EVENT_RECEIVER_REJECT for the sender. The guarded handler returns quietly for a removed entry. Pinned by tests/receiver-metadata-key-null-guard.test.mjs, which mirrors the pre- and post-fix shapes with a mocked decrypt that runs onRemove before it settles plus a static guard on the real component. The sibling key-unwrap CATCH path's receivingFiles[id].error write is null-guarded separately in PR #103 (see that claim), so both post-await writes are now guarded.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L79-L85",
-          "version": "repo-lines-v1:sha256:d22a20594421dad0d54150a5256614f54a1622d2efebc91e258dfecd49d8ac7c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGI5M2Y3NWU2YzNhZTE2MmEzZTJhZWY1YTkxMGRiMzVkNjg4NzU5ODY1MTE3NzlhOTFiNmU2ZDBkZWU4Yzg3NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTRjZTY2OGM1MGVhNjRiYTZiODgwYmM2MzNkZDExM2IyZTEyOTg0MDIzYWUzYjlkNmE4ODE5NmE2NjhjMzQxNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ2MThhMjQxNWE2NDZmNGJiMjFlOGUyYWQxMGNiMmYxMzVlNGQ2ZGVmMTg5OWQzMDBjZThjZDkzMmVhNjg5OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODgxMDAwMGNiNDJlYmVlYzVmNDI5MDQxYzZkMjhlMzE5MTUzZjVlMWQ1YzVkYzg4MTdjMDVhNDkxNTUwNzU3NCJ9"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L91-L93",
+          "version": "repo-lines-v1:sha256:42b8bed04d6733747b8fc5b637fbe86d221a61b33c2a099529deaf9e81e48c83:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTM4OTY4NWI0ZjliOGMzMWQ4OGY4MzAyODNmMTlhMmJmNDllNTNjMTU5ODVmYzI3YjI0NTY0ZTBhNjYzMjZhNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTRjZTY2OGM1MGVhNjRiYTZiODgwYmM2MzNkZDExM2IyZTEyOTg0MDIzYWUzYjlkNmE4ODE5NmE2NjhjMzQxNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjY5MDRhMmI0MmM3ODAwMDJmZDIxYjQ1ZmNiNGFmN2E3OWJmNmQ1ZjA1YmM3MDc3YTlmMGE0M2M1NWRlOWE5MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODgxMDAwMGNiNDJlYmVlYzVmNDI5MDQxYzZkMjhlMzE5MTUzZjVlMWQ1YzVkYzg4MTdjMDVhNDkxNTUwNzU3NCJ9"
         },
         {
           "resource": "repo://tests/receiver-metadata-key-null-guard.test.mjs",
           "version": "repo-file-v1:sha256:cf04803fdec35e70d0ed9b5088da94619d3e2e0b2db79a27f1e6a2cb60a3d920"
         }
       ]
+    },
+    {
+      "id": "claim_748d37edbe934b2886df5cf8d63b6c4e",
+      "statement": "The onMetaData key-decryption CATCH path (PR #103) re-reads receivingFiles[id] and null-guards it before the error write: when the entry was denied/removed during the decryption await, the catch returns quietly instead of throwing an unhandled TypeError on the receivingFiles[id].error assignment — the second unguarded post-await write in onMetaData, fixed after the success path's aesKey write (PR #101). Without this guard, a Deny landing in the decryption window would leave receivingFiles[id] undefined, so the catch's error-assignment would throw 'Cannot set properties of undefined (setting error)' as an unhandled rejection outside any try/catch, and the addToastMessage + send(EVENT_VALIDATE_ERROR) that follow would never run, leaving the sender's file stuck in WaitingAccept forever. tests/receiver-metadata-key-catch-null-guard.test.mjs (PR #103) pins it with a mocked decrypt that denies the entry mid-await plus a static guard on the real component.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L57-L85",
+          "version": "repo-lines-v1:sha256:5b75c3e1a012cf69962753b161153447c4e476e2987be53b2ad1dbc8be9dee61:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiY2IxYmEyYTczZjQzOTcxNWE5OTEzZDRmODJmNjE5NGQ3ZjkzMTUwNDkzYjBiMDM1YTdiZDY1N2YyYmM4NDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzYzEzYjg0ODI5ODQ3NWVmNmRjYjJkOGExZjI1OGU5OTM4ZWIyM2NiMjBhMTA5OTY2YWM3OGRlN2M4MzNmMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiYTczMTdkMjhjNDNiZTVjZDk5YzdkNDRkNzMxZWEwNjUwOGYzOTEzZGFiMzA4NmQ5MmFhMTQ2Mzk5NTQyYzkifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-metadata-key-catch-null-guard.test.mjs",
+          "version": "repo-file-v1:sha256:094f62f414cdec60062ec278ae8948bc7b7d5607c2c40ca7e5056d865296606b"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-19T18:31:42.237Z"
+    "at": "2026-10-20T12:08:29.095Z"
   }
 }

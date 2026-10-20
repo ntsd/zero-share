@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:d25c1b39a78bfba53e8bd6629820d7a069629eea1ef2e305c480eef6875223ac",
+  "pageVersion": "sha256:3ba2d8945549d762823e8b969ee3d1e3de856b3c08c33411157c375e5f077ac9",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -62,7 +62,7 @@
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
-          "version": "repo-lines-v1:sha256:25d04079bc859ed32b5191e9b2e50408eba6ee3a5f59437ce40a84f1201d595d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3NzJlNGMxN2U3OWIwZjBiNWM1MmUzMWZkZGFlMjU4MGZiOGU1MWE0YzBlODJlZDk0NTAzMWYzNGNlODdlYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkYTkxZWY3N2YwNjBlMGMyYjM5YjUxZmY4YWZmZjA4MmI0ZWEwYWU2ZTUwOTU4NzgzOWM2MThiMDY2ZjY2MWUifQ"
+          "version": "repo-lines-v1:sha256:4104a317e8e63a8fc0f2af7278506d3e852f098e6c71298d7eb230ed9799cc4f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3NzJlNGMxN2U3OWIwZjBiNWM1MmUzMWZkZGFlMjU4MGZiOGU1MWE0YzBlODJlZDk0NTAzMWYzNGNlODdlYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkYTkxZWY3N2YwNjBlMGMyYjM5YjUxZmY4YWZmZjA4MmI0ZWEwYWU2ZTUwOTU4NzgzOWM2MThiMDY2ZjY2MWUifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L330-L401",
@@ -168,7 +168,7 @@
       "evidence": [
         {
           "resource": "repo://package.json",
-          "version": "repo-file-v1:sha256:9d0353b9ee7bcb81b4f95bbc5d6490e0409a4f6a6e567eb9c793b11586c97437"
+          "version": "repo-file-v1:sha256:7a7173b1797d846948d606ee161fd49495c33d942e096e9becc2726f4963842c"
         },
         {
           "resource": "repo://tests/crypto.test.mjs",
@@ -186,7 +186,7 @@
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
-          "version": "repo-lines-v1:sha256:c9b49771b58426b2859a8a51fea066eb522f4e3c6cdcde32305436fe2de7cffe:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+          "version": "repo-lines-v1:sha256:e0cf3d9927bd1a09c55c3c4b09f3411c2d0a44d9227850a591a3d80329995f26:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
         },
         {
           "resource": "repo://src/components/receiver/ReceivingFileList.svelte#L18-L32",
@@ -197,10 +197,24 @@
           "version": "repo-file-v1:sha256:c5feacc602a97eeceb716f3335e1a1e13f61278072df171140a92b0eb17d3f24"
         }
       ]
+    },
+    {
+      "id": "claim_a463f92843564fe5b2da9b2d2a90cf19",
+      "statement": "The onMetaData key-decryption success path re-reads receivingFiles[id] and null-guards it before assigning aesKey (PR #101): the entry is deniable/removable during the decryption await (the list UI shows Accept/Deny on WaitingAccept entries since PR #76; onDeny deletes the entry), and an unguarded post-await receivingFiles[id].aesKey assignment would throw 'Cannot set properties of undefined (setting aesKey)' as an unhandled rejection outside any try/catch (the data-channel onmessage caller does not await onMetaData) when a Deny landed in that window — no toast, no error state, and no EVENT_VALIDATE_ERROR/EVENT_RECEIVER_REJECT for the sender. The guarded handler returns quietly for a removed entry; the remaining post-await writes are either synchronous with catch-entry — the key-unwrap catch's receivingFiles[id].error write, safe on the same tick because the entry cannot be removed between catch-entry and the write — or already null-guarded. Pinned by tests/receiver-metadata-key-null-guard.test.mjs, which mirrors the pre- and post-fix shapes with a mocked decrypt that runs onRemove before it settles plus a static guard on the real component.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L79-L85",
+          "version": "repo-lines-v1:sha256:d22a20594421dad0d54150a5256614f54a1622d2efebc91e258dfecd49d8ac7c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGI5M2Y3NWU2YzNhZTE2MmEzZTJhZWY1YTkxMGRiMzVkNjg4NzU5ODY1MTE3NzlhOTFiNmU2ZDBkZWU4Yzg3NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTRjZTY2OGM1MGVhNjRiYTZiODgwYmM2MzNkZDExM2IyZTEyOTg0MDIzYWUzYjlkNmE4ODE5NmE2NjhjMzQxNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ2MThhMjQxNWE2NDZmNGJiMjFlOGUyYWQxMGNiMmYxMzVlNGQ2ZGVmMTg5OWQzMDBjZThjZDkzMmVhNjg5OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODgxMDAwMGNiNDJlYmVlYzVmNDI5MDQxYzZkMjhlMzE5MTUzZjVlMWQ1YzVkYzg4MTdjMDVhNDkxNTUwNzU3NCJ9"
+        },
+        {
+          "resource": "repo://tests/receiver-metadata-key-null-guard.test.mjs",
+          "version": "repo-file-v1:sha256:cf04803fdec35e70d0ed9b5088da94619d3e2e0b2db79a27f1e6a2cb60a3d920"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-18T13:32:45.402Z"
+    "at": "2026-10-19T18:31:42.237Z"
   }
 }

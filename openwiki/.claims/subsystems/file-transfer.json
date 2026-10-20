@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:80c601e99f5d2ec2dd83dc4b353dc4746cec53a0f53e0aa7349ab7008a1a6784",
+  "pageVersion": "sha256:53b873d98caf073ad61705937f81f1d8de52accb11d2baa17b1d007986dd4892",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -124,7 +124,7 @@
       "evidence": [
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
-          "version": "repo-lines-v1:sha256:c9b49771b58426b2859a8a51fea066eb522f4e3c6cdcde32305436fe2de7cffe:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+          "version": "repo-lines-v1:sha256:e0cf3d9927bd1a09c55c3c4b09f3411c2d0a44d9227850a591a3d80329995f26:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
         },
         {
           "resource": "repo://src/configs.ts#L60-L67",
@@ -160,7 +160,7 @@
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L37-L99",
-          "version": "repo-lines-v1:sha256:c9b49771b58426b2859a8a51fea066eb522f4e3c6cdcde32305436fe2de7cffe:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+          "version": "repo-lines-v1:sha256:e0cf3d9927bd1a09c55c3c4b09f3411c2d0a44d9227850a591a3d80329995f26:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
         },
         {
           "resource": "repo://src/components/receiver/ReceivingFileList.svelte#L18-L32",
@@ -429,10 +429,24 @@
           "version": "repo-file-v1:sha256:a82fa1960a8fda24ab3ec027922c1dffa12a80ec3be3ee7acdb62bb48b9afd00"
         }
       ]
+    },
+    {
+      "id": "claim_47e5595176db4e2bb8335a9647284233",
+      "statement": "onMetaData's key-decryption success path re-reads receivingFiles[id] and null-guards it after the async RSA decryption await before assigning aesKey (PR #101): the entry is deniable/removable during that window (the list UI shows Accept/Deny on WaitingAccept entries since PR #76; onDeny deletes the entry) and the previous unguarded `receivingFiles[id].aesKey = aesKey` threw 'Cannot set properties of undefined (setting aesKey)' as an unhandled rejection outside any try/catch when a Deny landed in the window — no toast, no error state, and no EVENT_VALIDATE_ERROR/EVENT_RECEIVER_REJECT for the sender. The guarded handler returns quietly for a removed entry; the remaining post-await writes are either synchronous with catch-entry — the key-unwrap catch's receivingFiles[id].error write, safe on the same tick because the entry cannot be removed between catch-entry and the write — or already null-guarded. Pinned by tests/receiver-metadata-key-null-guard.test.mjs, which mirrors the pre-fix and post-fix shapes with a mocked decrypt that runs onRemove before it settles and statically guards the real component source.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L79-L85",
+          "version": "repo-lines-v1:sha256:d22a20594421dad0d54150a5256614f54a1622d2efebc91e258dfecd49d8ac7c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGI5M2Y3NWU2YzNhZTE2MmEzZTJhZWY1YTkxMGRiMzVkNjg4NzU5ODY1MTE3NzlhOTFiNmU2ZDBkZWU4Yzg3NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTRjZTY2OGM1MGVhNjRiYTZiODgwYmM2MzNkZDExM2IyZTEyOTg0MDIzYWUzYjlkNmE4ODE5NmE2NjhjMzQxNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ2MThhMjQxNWE2NDZmNGJiMjFlOGUyYWQxMGNiMmYxMzVlNGQ2ZGVmMTg5OWQzMDBjZThjZDkzMmVhNjg5OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODgxMDAwMGNiNDJlYmVlYzVmNDI5MDQxYzZkMjhlMzE5MTUzZjVlMWQ1YzVkYzg4MTdjMDVhNDkxNTUwNzU3NCJ9"
+        },
+        {
+          "resource": "repo://tests/receiver-metadata-key-null-guard.test.mjs",
+          "version": "repo-file-v1:sha256:cf04803fdec35e70d0ed9b5088da94619d3e2e0b2db79a27f1e6a2cb60a3d920"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-18T13:32:45.402Z"
+    "at": "2026-10-19T18:31:42.237Z"
   }
 }

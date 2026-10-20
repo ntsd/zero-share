@@ -46,7 +46,7 @@ sources:
 generated: { by: 'hermes', at: '2026-10-18T13:32:45.402Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-18T13:32:45.402Z
+    at: 2026-10-19T18:31:42.237Z
 ---
 
 # Subsystem: WebRTC Peering and SDP Links

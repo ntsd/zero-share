@@ -63,7 +63,15 @@
         // transitions are peer-driven, and no accept will ever come for a key it
         // cannot decrypt. Send EVENT_VALIDATE_ERROR (the metadata key failed to
         // process) so the sender bounces to Pending and re-offers the file.
-        receivingFiles[id].error = new Error('Failed to decrypt the file key');
+        // The entry is removable during the decryption await above (Deny is
+        // live on WaitingAccept entries — post-#76 the UI offers Accept/Deny
+        // there), so re-read and null-guard it before the error write: a
+        // Deny landed in that window left `receivingFiles[id]` undefined and
+        // the unguarded write threw an unhandled TypeError rejection instead
+        // of cleanly skipping the removed file.
+        const metaEntry = receivingFiles[id];
+        if (!metaEntry) return; // denied/removed during the decryption window
+        metaEntry.error = new Error('Failed to decrypt the file key');
         addToastMessage(`${metaData.name} failed to decrypt the file key`, 'error');
 
         send(

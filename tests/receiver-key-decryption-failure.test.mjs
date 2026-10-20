@@ -320,9 +320,22 @@ function buildReceiver({ rsa, autoAccept = true }) {
   const catchBody = body.slice(catchBodyStart, catchBodyEnd);
 
   // The local error + toast must still be present (existing behavior kept).
+  // The error write must go through a null-guarded re-read of the entry: the
+  // entry is removable during the decryption await above (Deny is live on
+  // WaitingAccept entries post-#76), so the unguarded bare re-read
+  // `receivingFiles[id].error =` is exactly the crash this test family
+  // guards against (same failure class as the success-path aesKey write).
   assert.ok(
-    /receivingFiles\[id\]\.error\s*=/.test(catchBody),
-    'the catch block must still mark the entry errored locally'
+    !/receivingFiles\[id\]\.error\s*=/.test(catchBody),
+    'the catch block must not write the error via an unguarded receivingFiles[id].error re-read'
+  );
+  assert.ok(
+    /receivingFiles\[id\];/.test(catchBody) && /if\s*\(\s*!\w+\s*\)\s*return;/.test(catchBody),
+    'the catch block must re-read receivingFiles[id] and bail when the entry was removed during the decryption window'
+  );
+  assert.ok(
+    /(\w+)\.error\s*=\s*new Error\('Failed to decrypt the file key'\)/.test(catchBody),
+    'the catch block must still mark the entry errored locally (via the guarded re-read)'
   );
   assert.ok(/addToastMessage/.test(catchBody), 'the catch block must still surface a local toast');
 

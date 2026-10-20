@@ -138,7 +138,8 @@ for (const [name, source] of [
 // The channel-death release must not have trimmed the live paths: both
 // pages still construct their RTCPeerConnection, and the offer page's
 // regeneration teardown still carries its own guarded close (so the page
-// now has the close guarded three times: regeneration + 2 death handlers).
+// now has the close guarded four times: regeneration + 2 death handlers +
+// the offer-creation catch that releases the failed generation's peer).
 {
   assert.ok(
     /new\s+RTCPeerConnection\(/.test(offerSource),
@@ -150,8 +151,8 @@ for (const [name, source] of [
   );
   assert.equal(
     (offerSource.match(/connection\.close\(\)/g) || []).length,
-    3,
-    'OfferPage.svelte must close the peer in both death handlers AND the regeneration teardown (found ' +
+    4,
+    'OfferPage.svelte must close the peer in both death handlers, the regeneration teardown, AND the offer-creation catch (found ' +
       (offerSource.match(/connection\.close\(\)/g) || []).length +
       ')'
   );

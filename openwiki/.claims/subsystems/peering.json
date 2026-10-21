@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8f2f268dadcdc7fe1c2c913b7fa137c7ddef7e2f1d61aca8772c72a1b8083718",
+  "pageVersion": "sha256:8c744df22aba0e28964160a2cd844e948a3cdbd7d26afab63a7f85f25c95104d",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
@@ -49,8 +49,8 @@
       "statement": "The answer-code wire format is sdpEncode(localAnswerSdp) + '|' + publicKeyBase64 (key empty when the receiver downgraded to plaintext — a valid, intentional artifact); the offer peer's acceptAnswer first refuses to signal a dead peer (PR #104): if the channel's onerror/onclose handler already ran (or a racing regeneration closed the peer), it checks !connection || connection.connectionState === 'closed' and toasts 'Connection lost — generate a new offer to connect' instead of reaching setRemoteDescription on a closed peer, which would only fail with a misleading 'Invalid answer code'; it then parses the code with parseAnswerCode, which splits on the LAST '|', distinguishes a missing separator from a well-formed empty-key code (which follows the receiver into plaintext via effectiveEncrypt=false instead of dead-ending the handshake), and on a missing separator or damaged non-empty key toasts 'Invalid encryption key in answer code' and aborts before setRemoteDescription; a key present in the code pins the session to encrypted; the SDP decode + setRemoteDescription runs inside its own try/catch that toasts 'Invalid answer code' on malformed SDP (PR #45); the receive page likewise decodes the user-controllable s param and calls setRemoteDescription inside a try/catch that toasts 'Invalid SDP in link' instead of crashing the page during load (PR #45).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L349-L414",
-          "version": "repo-lines-v1:sha256:27a25995b0e82f3bb9a25901c3675516649ff5f726c714cf84314f5aff375ebc:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L378-L444",
+          "version": "repo-lines-v1:sha256:b45ba0989769d348b047c948d5385eccb692df79b8b30a3e1dc696d496a354b0:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiMmIzMDRkYWNlOTBjYjAyZTFmNzk1ZWVmNmY1OWViZTA0ZDI2OTlkZjhlODU3Y2FhYTQzZDBhZGNlZGJjNmUifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L160-L176",
@@ -58,25 +58,37 @@
         },
         {
           "resource": "repo://tests/dead-channel-peer-close.test.mjs",
-          "version": "repo-file-v1:sha256:e19fb4e531a3eeaa8b1ea77ae8b125cfdcfa3b14a75d9d701c8627a4db052bb1"
+          "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
         }
       ]
     },
     {
       "id": "claim_45433c561b6d45cd86f0cfa35e29ca90",
-      "statement": "Both sides wait for ICE candidates to drain before freezing the SDP into the shareable artifact, but a 3-second WAIT_ICE_CANDIDATES_TIMEOUT builds the link/answer code from the current localDescription anyway so the connection forms rather than hanging; on the offer side the RSA keypair is minted once at the top of generateOfferLink and a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once, and the whole generation is try/catch-guarded so a construction/offer failure toasts 'Could not generate the offer' instead of leaving the spinner stuck. Regeneration is generation-safe: before minting, the pending ICE-candidate timer is cleared, the old data channel's handlers are nulled and it is closed, the old RTCPeerConnection is closed (guarded on connectionState !== 'closed' since close() throws InvalidStateError on an already-settled peer), the settled peer crypto is reset (rsaPub = undefined, effectiveEncrypt re-pinned from the live setting, so the new generation never encrypts with the previous peer's RSA key — PR #68) and the dead generation's UI state (new-file badge, isConnecting, pending answer code, and the dead generation's offerLink) is cleared, and a monotonically increasing offerGeneration counter is bumped; the timeout fallback re-checks its captured generation at fire time so a stale timer holding the previous generation's public key can never build a link with the old key.",
+      "statement": "Both sides wait for ICE candidates to drain before freezing the SDP into the shareable artifact, but a 3-second WAIT_ICE_CANDIDATES_TIMEOUT builds the link/answer code from the current localDescription anyway so the connection forms rather than hanging; on the offer side the RSA keypair is minted once at the top of generateOfferLink and a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once, and the whole generation is try/catch-guarded so a construction/offer failure toasts 'Could not generate the offer' instead of leaving the spinner stuck. Regeneration is generation-safe: before minting, the pending ICE-candidate timer is cleared, the old data channel's handlers are nulled and it is closed, the old RTCPeerConnection is closed (guarded on connectionState !== 'closed' since close() throws InvalidStateError on an already-settled peer), the settled peer crypto is reset (rsaPub = undefined, effectiveEncrypt re-pinned from the live setting, so the new generation never encrypts with the previous peer's RSA key — PR #68) and the dead generation's UI state (new-file badge, isConnecting, pending answer code, and the dead generation's offerLink) is cleared, and a monotonically increasing offerGeneration counter is bumped; the timeout fallback re-checks its captured generation at fire time so a stale timer holding the previous generation's public key can never build a link with the old key. A failed generation is also torn down with the same guarded shape (PR #108): the offer-creation catch clears the just-started ICE-candidate timer, nulls the four handlers on the just-created data channel before dataChannel.close() and resets it to undefined, and closes the just-created RTCPeerConnection guarded on connectionState !== 'closed' — otherwise the failed peer's ICE agent/UDP sockets/STUN keepalives would leak and late-firing channel handlers could stomp the current generation's UI. The offer page therefore has four guarded connection.close() sites (two death handlers + regeneration + offer-creation catch), which tests/dead-channel-peer-close.test.mjs asserts.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L153-L298",
-          "version": "repo-lines-v1:sha256:7a11bc4ceb10638bb8c77be56135fce9a8673054bcff824bce62ed87004fd724:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MTM2M2M4YzBkM2Q3NTUzZGQxMjNlMDQ3MjhjMzcwNDk4NDAzOTNiOTBkMmI1YWE0ZWM2MmY1MjNiNDAxMjlmIn0"
+          "resource": "repo://src/components/OfferPage.svelte#L177-L257",
+          "version": "repo-lines-v1:sha256:299a922e0c57c4c8ccaf8d294882d46accaebccd93709e22b4e5d0baddd82379:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2NTY1NDkwOTk3NzI2ZTFjNWE0ZjU3ZWFhYTRkZTYzODc2ZmQ1ODA2MTdmMjRhNTY2MzQ3YjVmNzE2ZmNjNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2N2JhZjQyMDZlNWI3MDViMTQ2OThlMTc1YzRiNmVjYWIzZGY3ZTZjMDRkZTI5M2NjZTI1MWY5YmM0YTMyNzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU3NDZmMmFiOWY4YWJmYTczYjAwZTRmZjgwZTUxODNhMGVlZDczMDEzOTA4ODA1NzlkMmY4YTc5OWI4ZmFkODAifQ"
+        },
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L219-L233",
+          "version": "repo-lines-v1:sha256:cabcb0286eb8b36fa71583c6c9581f7da9ea3b51e6410d9bd32e6e55f75ab8eb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzMGVhMTAxN2Y1OTNmNDM2YWUwZmJiMDQ1NjY1ZTg5MDA5YjgxN2I3NjU1NTQ2NmIwMzQxZTEyMTFjNjg4YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzMjM5NjdiZjcxODQ3ODEwZmY5ZWNlOWYwODc5MDczNDU2YTJhNWZhMGQ3MWNkYWM2ZDYwZjcxZTIwOGIzOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5ZDVkMWVhYTkzYTg0MmFkMzM4YTUyMTVlMmNhOThiMDA1MzRhNTgwNTA5NWRiZTZjOWZhZmM4N2JmYzI4ZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViZTI4YTU1NTcwZTY4OTkwYTQ3MmQ4Mzc3NWYxN2M2ZTAxY2JhMjUzMzg1YzMzNzQxODNhM2JlY2ExZmMwM2MifQ"
+        },
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L318-L349",
+          "version": "repo-lines-v1:sha256:de34dcfdb89eae68dea4ba2054b68f995c21459fcd6f6d07225b1704f7396fee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZGY4NmI0NzZiMGQ2ZGJiZDE2ZmExOWZlMTdhOGJlNzc1MWFiZTNlZTgwN2I1MTBmYjVmOGNkZDBkYWQxNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0NWRlM2ViMzQ5NTRjNmQwZmY0MWMxM2QxYjQ5YjAyZDUyNjIzOWVlOWJlOTk0ZjYwNWEyMGJhNmFhYzJiMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyOWIzZmMwYzc4ZjY0YTk4ZjQ4YjUzZDFlNWM0Mjk5NmM0NGU5YmZiZTgyODc5M2E3ODk0MDBlMjkxZjRkMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L176-L214",
-          "version": "repo-lines-v1:sha256:bc83dad5247551e0cdb6fcaadcb5c2517065eeedd41b9ba2806b90e7c99c5a1d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4M2Q4MDFhMjdjNGEwOWI5NDBkMmNkMTkwMjBiODk3ZjI1YTVlMWE3ODgwNDA0ZTYzZGM1ZjRhM2M4NDMyYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5YTNiN2NmYTg2YTdjOWRmODMxNmZmMDFkMjk3YjI5ZmFjZjcwZGUzYWI3ZGY5M2VlNDczZmRiNWI5MDI2YTIifQ"
+          "version": "repo-lines-v1:sha256:ec4e3b799fbc1792bbfebe788064dad81b15053ee20d6120f267c0b1687465d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4NjcxMWQxZmJmZjQzYTA4MDdiN2ZhOGZmZTVhY2RhZmY4ZTJhYmY1NGIyNTdiODNjMTdlYzU3NDBkNmI0MTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiODQwMWYyNDhmZTljYTY3ZTNmOTg0OWZjNDUzZWY5N2JkN2Y1YzQ0ZDE3ZjFjNjUxODA5ZWUyZGY4NmY1NmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiMzg4ZjMxMjM0YzZhMzJlNzEzZjIwN2Y3YWY3YzEzN2ViNDgzYmVjYjM2ZTM2M2I1ODQ5ZDE2ZmY4NDI1N2UifQ"
         },
         {
-          "resource": "repo://src/configs.ts#L65-L65",
+          "resource": "repo://src/configs.ts#L68-L68",
           "version": "repo-lines-v1:sha256:b51b3db65feeebb946892bd7797e4ef7f0926d1e447cf00d241c8a2e995335f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjUxYjNkYjY1ZmVlZWJiOTQ2ODkyYmQ3Nzk3ZTRlZjdmMDkyNmQxZTQ0N2NmMDBkMjQxYzhhMmU5OTUzMzVmNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjUxYjNkYjY1ZmVlZWJiOTQ2ODkyYmQ3Nzk3ZTRlZjdmMDkyNmQxZTQ0N2NmMDBkMjQxYzhhMmU5OTUzMzVmNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWZjNWY5NWNkNzZmZmMwZjI5ZDkwY2NlMjgyM2U2MTIzODdlYjIyZWRhZTNiMDU1OGRlNzE2YjFjOTAyYWQ0MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDJhMDJmMDU2MmNmODA2Y2M3NzM4Nzg3MzZlYTUyZjI2NzBiZmVkYmU3ZDcxZjJhZjVjM2E2MzkzZTQ1YjM4ZSJ9"
+        },
+        {
+          "resource": "repo://tests/dead-channel-peer-close.test.mjs",
+          "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
         },
         {
           "resource": "repo://tests/offer-peer-lifecycle.test.mjs",
@@ -90,7 +102,7 @@
     },
     {
       "id": "claim_5b41d4320b424ab8ab56a4606ddf1ead",
-      "statement": "The offer peer creates the data channel (ordered:false) and the answer peer receives it via ondatachannel; both pin dataChannel.binaryType = 'arraybuffer' at channel acquisition (offer at the createDataChannel site, answer at ondatachannel) before the onopen wiring, because WebRTC's default 'blob' would make new Uint8Array(Blob) zero-length and Message.decode silently drop every frame (guaranteed no-op transfer, PR #95); both install the same handlePeerMessage handler from src/utils/peerMessage.ts (deduplicated from two identical per-page handlers, PR #71) with Message.decode on peer-controlled bytes guarded by try/catch (toast + drop the frame instead of an uncaught crash, PR #46) and unlock the Send/Receive transfer UI on channel open. Both pages additionally wire the channel's onerror/onclose to sender?.onChannelClose()/receiver?.onChannelClose() so a dead channel propagates the connection-lost state into the file pipelines (PR #74; the onChannelClose bodies and the guarded send() now live in the shared src/utils/channelSender.ts helper, PR #97), and both onerror and onclose additionally call connection.close() guarded on connectionState !== 'closed' (PR #104): closing the data channel alone does not close the RTCPeerConnection — its ICE agent, UDP sockets, and STUN/TURN keepalives would stay live for the rest of the page's lifetime; the guard prevents InvalidStateError from an error-then-close double-fire or a racing regeneration. Pinned by tests/peer-message-handler.test.mjs (including a static guard asserting binaryType = 'arraybuffer' exactly once per page at the acquisition site), tests/channel-sender.test.mjs, and tests/dead-channel-peer-close.test.mjs (static guard: each page's dataChannel.onclose and onerror handler contains a guarded connection.close(), and OfferPage.acceptAnswer bails before setRemoteDescription when the peer is missing or closed).",
+      "statement": "The offer peer creates the data channel (ordered:false) and the answer peer receives it via ondatachannel; both pin dataChannel.binaryType = 'arraybuffer' at channel acquisition (offer at the createDataChannel site, answer at ondatachannel) before the onopen wiring, because WebRTC's default 'blob' would make new Uint8Array(Blob) zero-length and Message.decode silently drop every frame (guaranteed no-op transfer, PR #95); both install the same handlePeerMessage handler from src/utils/peerMessage.ts (deduplicated from two identical per-page handlers, PR #71) with Message.decode on peer-controlled bytes guarded by try/catch (toast + drop the frame instead of an uncaught crash, PR #46) and unlock the Send/Receive transfer UI on channel open. Both pages additionally wire the channel's onerror/onclose to sender?.onChannelClose()/receiver?.onChannelClose() so a dead channel propagates the connection-lost state into the file pipelines (PR #74; the onChannelClose bodies and the guarded send() now live in the shared src/utils/channelSender.ts helper, PR #97), and both onerror and onclose additionally call connection.close() guarded on connectionState !== 'closed' (PR #104): closing the data channel alone does not close the RTCPeerConnection — its ICE agent, UDP sockets, and STUN/TURN keepalives would stay live for the rest of the page's lifetime; the guard prevents InvalidStateError from an error-then-close double-fire or a racing regeneration. Pinned by tests/peer-message-handler.test.mjs (including a static guard asserting binaryType = 'arraybuffer' exactly once per page at the acquisition site), tests/channel-sender.test.mjs, and tests/dead-channel-peer-close.test.mjs (static guard: each page's dataChannel.onclose and onerror handler contains a guarded connection.close(), OfferPage.acceptAnswer bails before setRemoteDescription when the peer is missing or closed, and the offer page now carries four guarded connection.close() sites in total — two death handlers + regeneration teardown + the PR #108 offer-creation catch).",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L112-L174",
@@ -106,11 +118,11 @@
         },
         {
           "resource": "repo://tests/channel-sender.test.mjs",
-          "version": "repo-file-v1:sha256:8883c29743ab2ad0351df447300380b1550f7581ad1205d45ada69aba19976a0"
+          "version": "repo-file-v1:sha256:b573ed6c732f85398e7bc5d7858e4c5993aa3c22018ff929625a787cf08656e9"
         },
         {
           "resource": "repo://tests/dead-channel-peer-close.test.mjs",
-          "version": "repo-file-v1:sha256:e19fb4e531a3eeaa8b1ea77ae8b125cfdcfa3b14a75d9d701c8627a4db052bb1"
+          "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
         },
         {
           "resource": "repo://tests/peer-message-handler.test.mjs#L114-L172",
@@ -168,15 +180,15 @@
     },
     {
       "id": "claim_a18f75c58d0648e6b3879e26bff57b82",
-      "statement": "Failure handling: a missing or empty 's' param on the receive page redirects to origin and throws; ICE candidate errors, data channel errors, and close events toast an error, clear isConnecting, and blank the offer link on the offer side to prevent reuse of a stale link; onerror and onclose additionally call sender?.onChannelClose()/receiver?.onChannelClose() so in-flight/queued files on both sides exit with an accurate 'connection lost' error instead of dead-ending or re-firing false per-chunk errors (PR #74; the onChannelClose bodies and the guarded send() now live in the shared src/utils/channelSender.ts helper, PR #97), and both onerror and onclose additionally call guarded connection.close() to release the RTCPeerConnection itself (PR #104 — closing the data channel alone leaves the ICE agent, UDP sockets, and STUN/TURN keepalives live; the guard prevents InvalidStateError from an error-then-close double-fire or a racing regeneration); offer-generation failures (synchronous constructor throws or rejected createOffer/setLocalDescription) toast 'Could not generate the offer' and re-enable the button; and on the receive side an unappliable offer sets offerFailed, which replaces the perpetual 'Generating Answer' spinner with an error state ('Could not connect: the offer in the link is invalid') instead of dead-ending the page (PR #49).",
+      "statement": "Failure handling: a missing or empty 's' param on the receive page redirects to origin and throws; ICE candidate errors, data channel errors, and close events toast an error, clear isConnecting, and blank the offer link on the offer side to prevent reuse of a stale link; onerror and onclose additionally call sender?.onChannelClose()/receiver?.onChannelClose() so in-flight/queued files on both sides exit with an accurate 'connection lost' error instead of dead-ending or re-firing false per-chunk errors (PR #74; the onChannelClose bodies and the guarded send() now live in the shared src/utils/channelSender.ts helper, PR #97), and both onerror and onclose additionally call guarded connection.close() to release the RTCPeerConnection itself (PR #104 — closing the data channel alone leaves the ICE agent, UDP sockets, and STUN/TURN keepalives live; the guard prevents InvalidStateError from an error-then-close double-fire or a racing regeneration); offer-generation failures (synchronous constructor throws or rejected createOffer/setLocalDescription) toast 'Could not generate the offer', re-enable the button, and — since PR #108 — tear down the just-created generation with the same guarded shape as the regeneration teardown (clear the pending ICE-candidate timer, null the four data-channel handlers before dataChannel.close(), and close the just-created RTCPeerConnection guarded on connectionState !== 'closed'), so a failed generation cannot leak its ICE agent/UDP sockets/STUN keepalives or let late-firing channel handlers stomp the current generation's UI (pinned by tests/offer-processing-failure.test.mjs); and on the receive side an unappliable offer sets offerFailed, which replaces the perpetual 'Generating Answer' spinner with an error state ('Could not connect: the offer in the link is invalid') instead of dead-ending the page (PR #49).",
       "evidence": [
         {
           "resource": "repo://src/components/OfferPage.svelte#L112-L174",
           "version": "repo-lines-v1:sha256:180b281fa7692937d1cca23cab7b21a39b7f835974c9eae21e5679f68a6bb8c1:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNGM5ZGQ4YjVjZWIyODQwOGFiZGJmYmQ0N2JjOWI0NTg2ZDc0Y2UyOTllM2Q5OTQ5ZDQ5ZWJkNDY5N2Y3M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4MWE2MWMyZjVkZjJiNTI3ZTVmMzRhOGY0NTgwOTM3YzBkNDUyZTYyM2FkYjhkNmU0YjNkNmU0ZDU1MGMzODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L153-L284",
-          "version": "repo-lines-v1:sha256:377daa94ea2a49484a5b0902dfbc9a793166af853f14d461a74c0456b6286ab4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhZDllMTI1NDY0MjU1NzZkM2RlYWU4YzliOWRiZjEyOGQ1ZDZkZGFmNWQ3ZmU4NTc5MzQ5MjdkZWZmYTNiOWRkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyNDFiNWIyMjgzYWRkZjhkODZkZDdjNTlhYjE1OTQxMzg1OTE4ZWYwOWI5ZTkzOGFiNzQ3YWU0MDBhMDVkNDFjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhZTZjMmQ4NmRjYTQwMWIzNjQ0OTIzZmVlM2RjY2Q4MTFjMWI4NzI0ODMwYmI4NzJhYmJkOTRiZmNkOWYxM2ZiIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxNzMyZTJhNmY0M2MyMGJiMjQyY2ViNDhkNmMxMjU3NWM3NDZkZjVjODE0YTg3N2NlNWQyY2ZmNTFhYzJmMzQ1In0"
+          "resource": "repo://src/components/OfferPage.svelte#L177-L350",
+          "version": "repo-lines-v1:sha256:b3b12b2a277e6106228832bd5a14b6c2264d76fd6899250ab887ccda4a72a09d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTc0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkMzIyODliYTI1Y2EwNTlmZmFhZDVmYzAxY2RiNmRiOGYxNmRkY2U4YWIzZjYwNjc4YzkxZTZlYWYzNjFmYWYyIn0"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L119-L157",
@@ -192,7 +204,11 @@
         },
         {
           "resource": "repo://tests/dead-channel-peer-close.test.mjs",
-          "version": "repo-file-v1:sha256:e19fb4e531a3eeaa8b1ea77ae8b125cfdcfa3b14a75d9d701c8627a4db052bb1"
+          "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
+        },
+        {
+          "resource": "repo://tests/offer-processing-failure.test.mjs",
+          "version": "repo-file-v1:sha256:a9d95d328d1c20f7a17ccca6bd0c0c1689e6e25be7ba2623ae14720f27d7fa29"
         },
         {
           "resource": "repo://tests/receiver-connection-lost.test.mjs",
@@ -200,7 +216,7 @@
         },
         {
           "resource": "repo://tests/sender-connection-lost.test.mjs",
-          "version": "repo-file-v1:sha256:d739f51cba4ce4e4df67b20bfb90a5c44c46b6fd39da626c1436514318d9112a"
+          "version": "repo-file-v1:sha256:15bd7c2695ff2d5dd5c94d81c72df35f5766a72dbd53de8c88a3aff6c743c729"
         }
       ]
     },
@@ -225,6 +241,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-20T12:08:29.095Z"
+    "at": "2026-10-21T14:54:57.542Z"
   }
 }

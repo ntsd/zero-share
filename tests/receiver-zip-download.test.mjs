@@ -8,11 +8,15 @@
 //     onclick={downloadAllFiles} — an async handler with no .catch. Before the
 //     guard, a throwing zip assembly rejected unhandled: no toast, no error
 //     state, the button silently did nothing.
-//   - The receiver's Max Size dropdown offers up to 10 GB / 1 TiB ("Unlimit"),
-//     so a 4–10 GiB file can pass validateFileMetadata, transfer to Success,
-//     and then hit this dead-end at click time — while the per-file
-//     "Download" button (which bypasses the zip writer) keeps working, hiding
-//     the reason the bulk download failed.
+//   - The receiver's Max Size dropdown used to offer up to 10 GB / 1 TiB
+//     ("Unlimit"), so a 4+ GiB file could pass validateFileMetadata, transfer
+//     to Success, and then hit this dead-end at click time — while the
+//     per-file "Download" button (which bypasses the zip writer) kept working,
+//     hiding the reason the bulk download failed. Those over-ceiling options
+//     are gone (the largest is now 2 GB, under the 4 GiB per-entry sentinel),
+//     but the toast stays: even under a 2 GB per-file cap, a batch of many
+//     large files can still push the aggregate archive past the 4 GiB
+//     classic-ZIP offset limit, and the catch keeps the failure visible.
 //
 // The fix: downloadAllFiles() wraps the zip assembly in try/catch and
 // surfaces the failure via addToastMessage(<message>, 'error') instead of

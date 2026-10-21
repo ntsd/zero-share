@@ -25,15 +25,44 @@ export function crc32(data: Uint8Array): number {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-// Collapse empty/./.. names and duplicate names so the archive stays valid.
+// Sanitize a peer-controlled file name for filesystem-facing use (ZIP
+// entries, <a download>). MetaData.name arrives on the wire from the remote
+// side and is never trusted: an entry named "a/b/../../../../etc/cron.d/evil"
+// makes standard extractors resolve it OUTSIDE the archive folder (zip-slip,
+// CWE-22) and can overwrite arbitrary user-writable files on extract.
+//
+// Keep only the safe basename (the last path segment across "/" POSIX,
+// "\" Windows, and U+2215 division-slash separators), strip NUL/control
+// characters, and collapse dot runs so the result contains no "/", "\",
+// "..", or control char. An empty / pure-dot result falls back to "file".
+// Idempotent on names that are already safe ("report.pdf" passes through).
+export function sanitizeName(raw: string): string {
+  const segments = String(raw ?? '').split(/[/\u005c\u2215]/g);
+  // Keep only the last path segment (basename). Drop NUL + C0 + DEL by code
+  // point rather than a regex so no literal control-char escape reaches the
+  // source (ESLint no-control-regex). Array.from splits by code point, so
+  // astral / emoji names are preserved intact.
+  let base = Array.from(segments[segments.length - 1])
+    .filter((ch) => {
+      const c = ch.charCodeAt(0);
+      return c >= 0x20 && c !== 0x7f;
+    })
+    .join('');
+  base = base.replace(/\.+/g, '.');
+  return base === '' || base === '.' ? 'file' : base;
+}
+
+// Sanitize (above) and then dedup names so the archive stays valid.
 // Names are peer-controlled, so the generated "base (n)" suffix must be
 // checked against every already-emitted *final* name — counting occurrences
 // per base collides when the input already contains a pre-suffixed name
-// (e.g. "report.pdf", "report.pdf", "report.pdf (1)").
+// (e.g. "report.pdf", "report.pdf", "report.pdf (1)"). uniqueNames is the
+// only path from an entry name to the emitted archive names, so every ZIP
+// entry is sanitized even if a new caller passes a raw peer name.
 function uniqueNames(names: string[]): string[] {
   const used = new Set<string>();
   return names.map((raw) => {
-    const base = raw.replace(/^[./]+/, '') || 'file';
+    const base = sanitizeName(raw);
     let candidate = base;
     let n = 1;
     while (used.has(candidate)) candidate = `${base} (${n++})`;

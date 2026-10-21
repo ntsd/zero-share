@@ -14,7 +14,7 @@
   } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
   import { createChannelSender } from '../../utils/channelSender';
-  import { createZipStoreOnly } from '../../utils/zip';
+  import { createZipStoreOnly, sanitizeName } from '../../utils/zip';
   import { serializeTask } from '../../utils/serialize';
 
   type Props = {
@@ -36,6 +36,16 @@
   } = {};
 
   export async function onMetaData(id: string, metaData: MetaData) {
+    // Sanitize the peer-controlled name at ingestion — one rule covering all
+    // sinks. MetaData.name arrives on the wire from the remote side; the raw
+    // value is the sole source of path-traversal / zip-slip (CWE-22). A peer
+    // that names a file "a/b/../../../../etc/passwd" would otherwise land
+    // verbatim in the "Download all files (zip)" archive (createZipStoreOnly,
+    // the primary exploitable sink) and in <a download> (triggerDownload).
+    // sanitizeName() keeps only a safe basename; createZipStoreOnly()
+    // re-sanitizes as defense in depth.
+    metaData.name = sanitizeName(metaData.name);
+
     // Register the file entry before the async key decryption so the file is
     // visible (and removable) throughout; chunk processing stays safe because
     // the chunk map only exists after the file is accepted.

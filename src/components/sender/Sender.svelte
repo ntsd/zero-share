@@ -300,6 +300,12 @@
   }
 
   async function sendAllFiles() {
+    // A dead channel must not re-enter the send pipeline (same guard as
+    // onContinue() above): send() no-ops and the dead-channel branch would
+    // re-stamp the connection-lost error + one toast per pending file, so a
+    // batch click is a toast-burst no-op — the per-file Send buttons are
+    // suppressed by the template gate, this is the code-level backstop.
+    if (channelSender.isLost()) return;
     for (const key of Object.keys(sendingFiles)) {
       const f = sendingFiles[key];
       if (!f || f.status != FileStatus.Pending || f.error) {
@@ -422,7 +428,14 @@
          sendingFiles, so the list reads the up-to-date flag. A $derived over
          channelSender.isLost() would be permanently cached `false`. -->
     <SendingFileList {sendingFiles} {connectionLost} {onRemove} {onSend} {onStop} {onContinue} />
-    <button class="btn btn-primary mt-2" onclick={sendAllFiles}>Send all files</button>
+    <!-- With the channel lost no entry can ever be sent (send() no-ops on a
+         dead channel; a batch click just re-stamps the connection-lost error
+         on every pending file), so the batch button is a guaranteed silent
+         no-op exactly like the per-file Send/Resend/Continue buttons above
+         and is gated on the same connectionLost flag — only Remove stays. -->
+    {#if !connectionLost}
+      <button class="btn btn-primary mt-2" onclick={sendAllFiles}>Send all files</button>
+    {/if}
   {:else}
     <p class="mt-4">No files selected</p>
   {/if}

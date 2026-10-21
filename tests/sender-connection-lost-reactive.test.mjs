@@ -94,6 +94,46 @@ const bodyEnd = js.code.indexOf('var $$exports');
 assert.ok(bodyStart !== -1 && bodyEnd !== -1 && bodyStart < bodyEnd, 'script-body slice anchors');
 const scriptBody = js.code.slice(bodyStart, bodyEnd);
 
+// The "Send all files" button is template-referenced, so the Svelte compiler
+// hoists sendAllFiles OUT of the component function (above the
+// `let sendingFiles` line, outside the slice) and rewrites it to take the
+// component state as parameters. Extract that hoisted form and call it with
+// the live state, exactly the way the compiled click handler does:
+//     button.__click = [sendAllFiles, channelSender, sendingFiles, onSend];
+assert.ok(
+  /async function sendAllFiles\(\s*_\s*,\s*channelSender\s*,\s*sendingFiles\s*,\s*onSend\s*\)/.test(
+    js.code
+  ),
+  'compiled template must reference sendAllFiles with the live component state'
+);
+const hoistedStart = js.code.indexOf('async function sendAllFiles');
+assert.ok(
+  hoistedStart !== -1 && hoistedStart < bodyStart,
+  'sendAllFiles must be hoisted above the sliced script body'
+);
+// Match the closing brace: the function's own braces, skipping line comments
+// (braces inside template-literal ${} interpolations are always balanced, so
+// a plain count is safe here).
+let depth = 0;
+let hoistedEnd = -1;
+for (let i = hoistedStart; i < js.code.length; i++) {
+  if (js.code[i] === '/' && js.code[i + 1] === '/') {
+    const eol = js.code.indexOf('\n', i);
+    i = eol === -1 ? js.code.length : eol;
+    continue;
+  }
+  if (js.code[i] === '{') depth++;
+  else if (js.code[i] === '}') {
+    depth--;
+    if (depth === 0) {
+      hoistedEnd = i + 1;
+      break;
+    }
+  }
+}
+assert.ok(hoistedEnd !== -1 && hoistedEnd < bodyEnd, 'hoisted sendAllFiles body must be complete');
+const hoistedSendAllFiles = js.code.slice(hoistedStart, hoistedEnd);
+
 // The compiled template invokes <SendingFileList /> with, among others:
 //     get connectionLost() { return $.get(connectionLost); }
 // Rebuild that exact getter shape in the wrapper so the test reads the flag
@@ -122,10 +162,17 @@ const moduleSource = [
   'const receiveEventToJSON = (e) => String(e);',
   'const addToastMessage = (m) => { globalThis.__toasts.push(m); };',
   'const PROGRESS_UPDATE_UI_STEP = 10;',
+  // The hoisted sendAllFiles (renamed) lives at module scope; its FileStatus
+  // reference binds to the module const above, its onSend to the parameter.
+  hoistedSendAllFiles.replace(/async function sendAllFiles\(/, 'async function __sendAllFiles('),
   'export function runSender($$props) {',
   scriptBody,
   '  return {',
   '    onChannelClose, onReceiveEvent, onContinue, send, sendingFiles,',
+  // The hoisted sendAllFiles takes the component state as parameters (the
+  // compiled button.__click shape); bind the live state so the test calls it
+  // with the component's real state.
+  '    sendAllFiles: (...args) => __sendAllFiles(undefined, channelSender, sendingFiles, onSend, ...args),',
   '    // Exactly the shape the compiled template builds for <SendingFileList />:',
   '    listProps: {',
   '      get sendingFiles() { return sendingFiles; },',
@@ -259,6 +306,86 @@ assert.ok(
   assert.deepEqual(buttons, ['Remove'], 'after the throw-first race only Remove remains');
   await delay(10);
   console.log('ok - after a throwing send(): UI gate flips, only Remove remains');
+}
+
+// ---- Scenario 3: the batch "Send all files" entry point is gated too ------
+// The per-file Send/Resend/Continue buttons are template-gated on
+// connectionLost, but the batch button was the only send entry point left
+// ungated: after a loss its click re-entered onSend() for every pending file,
+// where send() no-ops and the dead-channel branch re-stamps a connection-lost
+// error + toast on each (a toast burst on an inert click). The fix: the
+// button is {#if !connectionLost} and sendAllFiles() early-returns on
+// channelSender.isLost() (mirroring onContinue()).
+{
+  // Static half: the template gate. The batch button must sit inside a
+  // {#if !connectionLost} branch, mirroring the per-file gating.
+  const batchButton = senderSource.search(
+    /<button[^>]*onclick=\{sendAllFiles\}[^>]*>\s*Send all files\s*</
+  );
+  assert.ok(batchButton !== -1, 'Sender.svelte must render the Send all files button');
+  const beforeBatch = senderSource.slice(0, batchButton);
+  const batchIf = beforeBatch.lastIndexOf('{#if');
+  assert.ok(batchIf !== -1, 'the Send all files button must sit inside a {#if} branch');
+  const batchBetween = beforeBatch.slice(batchIf);
+  assert.ok(
+    !/^\{\/if\}/.test(batchBetween),
+    'no {/if} may appear between the {#if and the Send all files button (wrong branch)'
+  );
+  const batchCondEnd = senderSource.indexOf('}', batchIf + 4);
+  assert.ok(
+    /!connectionLost/.test(batchBetween.slice(4, batchCondEnd - 4)),
+    'the Send all files button must be gated on !connectionLost'
+  );
+
+  // Static half: the code-level backstop. sendAllFiles() must early-return on
+  // the helper's lost flag, exactly like onContinue() does.
+  const saIdx = senderSource.search(/async\s+function\s+sendAllFiles\s*\(\s*\)/);
+  assert.ok(saIdx !== -1, 'sendAllFiles() must exist');
+  const saBody = senderSource.slice(saIdx, saIdx + 600);
+  assert.ok(
+    /if\s*\(\s*channelSender\.isLost\(\)\s*\)\s*return;/.test(saBody),
+    'sendAllFiles() must early-return when channelSender.isLost() (dead-channel backstop, mirrors onContinue())'
+  );
+
+  // Runtime half: after onChannelClose() with a pending, error-free entry,
+  // the batch click must not re-enter the send pipeline — no metadata send,
+  // no re-stamped connection-lost error, no new toast.
+  globalThis.__toasts = [];
+  const dc = makeDataChannel();
+  const r = runSender({ dataChannel: dc, chunkSize: 128, isEncrypt: false, rsaPub: undefined });
+  const key = 'file-3';
+  // Pending with no error — exactly the throwing-send-race window where
+  // onChannelClose() did not run and the entry has no error yet.
+  r.sendingFiles[key] = makeEntry('c.bin', 'Pending');
+  r.sendingFiles[key].error = undefined;
+
+  dc.close();
+  r.onChannelClose();
+  assert.equal(r.listProps.connectionLost, true, 'the gate reads true after onChannelClose');
+  // onChannelClose() stamped the one accurate error + toast for the entry.
+  const toastsAfterClose = globalThis.__toasts.length;
+  assert.equal(toastsAfterClose, 1, 'onChannelClose produced exactly one toast');
+
+  const dcSent = dc.sentMessages.length;
+  // The batch click: sendAllFiles() must early-return on the lost channel —
+  // no metadata send, no re-stamped error, no extra toast.
+  await r.sendAllFiles();
+  await delay(10);
+  assert.equal(dc.sentMessages.length, dcSent, 'sendAllFiles must not touch the dead channel');
+  assert.equal(
+    globalThis.__toasts.length,
+    toastsAfterClose,
+    'the batch click must not re-stamp a connection-lost toast per pending file'
+  );
+  assert.match(
+    r.sendingFiles[key].error.message,
+    /connection lost/i,
+    'the entry keeps its single original connection-lost error, untouched by the batch click'
+  );
+  await delay(10);
+  console.log(
+    'ok - Send all files is gated on connectionLost and sendAllFiles() no-ops on a dead channel'
+  );
 }
 
 // ---- Negative control: the pre-fix $derived-over-isLost() stays stale -------

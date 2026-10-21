@@ -130,15 +130,42 @@ const receiveScript = receiveSource.slice(0, receiveSource.indexOf('</script>'))
 }
 
 // ---- Test 5: OfferPage.generateOfferLink guards the whole setup flow ----
+// AND tears down the peer the failed attempt just created. Before the fix,
+// the catch only reset `generating` and toasted: the RTCPeerConnection +
+// RTCDataChannel minted by createPeerAndDataCannel() in the try stayed live,
+// so the ICE agent, its UDP sockets and the STUN/TURN keepalives leaked until
+// the next generation (or page unload), the pending ICE-candidate timer kept
+// a reference to the dead peer, and the channel's onerror/onclose handlers
+// could fire late and stomp the current generation's isConnecting/offerLink
+// (a stale answer-code paste would run setRemoteDescription against the dead
+// peer). The catch must release both with the same guarded shape as the
+// regeneration teardown.
 {
   const body = extractFunction(offerSource, 'generateOfferLink');
-  const tryRe = /try\s*{([\s\S]*?)}\s*catch\s*(?:\([^)]*\))?\s*{([\s\S]*?)}/g;
+  // Match `try { ... } catch {`, capturing the try body; the catch body is
+  // brace-matched below so the nested if-blocks the teardown adds do not
+  // truncate it (a naive `catch { ([\s\S]*?) }` stops at the first inner `}`).
+  const tryRe = /try\s*{([\s\S]*?)\}\s*catch\s*(?:\([^)]*\))?\s*{/g;
   let m;
   let found = null;
   while ((m = tryRe.exec(body)) !== null) {
-    const [tryBody, catchBody] = [m[1], m[2]];
+    const tryBody = m[1];
     if (/await\s+createPeerAndDataCannel\(/.test(tryBody) && /createOffer\(/.test(tryBody)) {
-      found = { tryBody, catchBody };
+      const braceStart = m.index + m[0].length - 1; // the `{` that opens the catch
+      let depth = 0;
+      let catchEnd = -1;
+      for (let i = braceStart; i < body.length; i++) {
+        if (body[i] === '{') depth++;
+        else if (body[i] === '}') {
+          depth--;
+          if (depth === 0) {
+            catchEnd = i;
+            break;
+          }
+        }
+      }
+      found = { tryBody, catchBody: body.slice(braceStart, catchEnd + 1) };
+      break;
     }
   }
   assert.ok(
@@ -153,8 +180,44 @@ const receiveScript = receiveSource.slice(0, receiveSource.indexOf('</script>'))
     /addToastMessage\s*\([^;]*'error'/.test(found.catchBody),
     'generateOfferLink catch must surface an error toast'
   );
+
+  // The failed generation's pending ICE-candidate timer must be cleared, so it
+  // neither keeps a reference to the dead peer nor builds a link off it later.
+  assert.ok(
+    /clearTimeout\(\s*iceCandidateTimer\s*\)/.test(found.catchBody),
+    "the catch must clearTimeout the failed generation's pending ICE-candidate timer"
+  );
+  // The dead channel's handlers must all be detached so no late onopen/
+  // onmessage/onerror/onclose can fire against the current generation's
+  // sender/receiver — each BEFORE dataChannel.close() so nothing runs in the
+  // window between nulling and the channel actually closing.
+  const channelCloseIdx = found.catchBody.search(/dataChannel\.close\(\)/);
+  assert.ok(channelCloseIdx !== -1, 'the catch must close the dead data channel');
+  for (const handler of ['onopen', 'onmessage', 'onerror', 'onclose']) {
+    const detachIdx = found.catchBody.search(new RegExp(`dataChannel\\.${handler}\\s*=\\s*null`));
+    assert.ok(detachIdx !== -1, `the catch must null the dead channel's ${handler} handler`);
+    assert.ok(
+      detachIdx < channelCloseIdx,
+      `the ${handler} handler must be detached before dataChannel.close() so no late event can fire`
+    );
+  }
+  const channelResetIdx = found.catchBody.search(/dataChannel\s*=\s*undefined/);
+  assert.ok(
+    channelResetIdx !== -1 && channelResetIdx > channelCloseIdx,
+    'the catch must reset dataChannel to undefined after closing so the template drops the dead channel'
+  );
+  // The peer must be released with the guarded shape the rest of the file uses:
+  // close() throws InvalidStateError on an already-closed peer, so guard on
+  // connectionState. Without this the ICE agent, its UDP sockets and the
+  // STUN/TURN keepalives stay open for the page's lifetime (the P0 leak).
+  const guardedIdx = found.catchBody.search(/connectionState\s*!==\s*['"]closed['"]/);
+  const peerCloseIdx = found.catchBody.search(/connection\.close\(\)/);
+  assert.ok(
+    guardedIdx !== -1 && peerCloseIdx !== -1 && guardedIdx < peerCloseIdx,
+    "the catch must close the RTCPeerConnection, guarded on connectionState !== 'closed'"
+  );
   console.log(
-    'ok - OfferPage.svelte: generateOfferLink guards the setup flow, resets generating, toasts'
+    'ok - OfferPage.svelte: generateOfferLink catch tears down the failed generation (timer, channel, peer)'
   );
 }
 

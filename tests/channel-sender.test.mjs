@@ -15,6 +15,10 @@
 //      createChannelSender(dataChannel), and NEITHER still carries its own
 //      `if (connectionLost || dataChannel.readyState !== 'open')` guarded
 //      send body — the copies are gone, not moved into two more helpers.
+//      (A thin UI-flip wrapper around the helper in Sender.svelte is allowed
+//      and separately pinned: it only mirrors the helper's lost flag into the
+//      component's $state UI gate and must not re-implement the guard — see
+//      tests/sender-connection-lost.test.mjs, static section.)
 import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -128,10 +132,29 @@ for (const name of ['sender/Sender.svelte', 'receiver/Receiver.svelte']) {
     !/connectionLost\s*\|\|\s*dataChannel\.readyState\s*!==\s*'open'/.test(source),
     `${component} must no longer carry its own guarded-send body (readyState check)`
   );
-  assert.ok(
-    !/function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean/.test(source),
-    `${component} must no longer define its own guarded send(message): boolean`
-  );
+  if (component === 'Sender.svelte') {
+    // A thin wrapper around the helper send is allowed in the sender ONLY to
+    // mirror the helper's lost flag into the component's $state UI gate
+    // (pinned in tests/sender-connection-lost.test.mjs, static section). The
+    // guard itself (readyState check / throwing catch / direct channel send)
+    // must NOT be re-implemented here.
+    assert.equal(
+      (source.match(/function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean/g) || []).length,
+      1,
+      'Sender.svelte defines exactly one send() wrapper around the helper'
+    );
+    assert.ok(
+      /function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean\s*\{[\s\S]{0,200}?channelSender\.send\(message\)/.test(
+        source
+      ),
+      "Sender.svelte's send() wrapper must delegate to channelSender.send(message)"
+    );
+  } else {
+    assert.ok(
+      !/function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean/.test(source),
+      `${component} must not define its own send(message): boolean — the guard lives in the shared helper`
+    );
+  }
   assert.equal(
     (source.match(/dataChannel\.send\(/g) || []).length,
     0,

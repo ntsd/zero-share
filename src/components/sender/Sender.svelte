@@ -27,14 +27,26 @@
   // full rationale.
   const channelSender = createChannelSender(dataChannel);
 
-  // The SendingFileList's Resend/Continue/Send gating reads this live; the
-  // helper flips it once (on the close that mutates sendingFiles), so the
-  // list re-renders from the $state mutation and reads the up-to-date flag
-  // at that moment.
-  const connectionLost = $derived(channelSender.isLost());
-  // Call sites keep their plain send(...) shape — only the implementation
-  // moved into the helper.
-  const { send } = channelSender;
+  // Dead-channel flag for the SendingFileList's Resend/Continue/Send gating.
+  // This is a $state the template reacts to — NOT a $derived over
+  // channelSender.isLost(): isLost() reads a plain closure variable in the
+  // helper and touches no Svelte signal, so a $derived over it evaluates
+  // once, is marked CLEAN, and caches `false` for the whole component
+  // lifetime — the gate would never engage after onChannelClose()/a throwing
+  // send. The helper stays the single source of truth for the send() guard
+  // (pipeline correctness); this is the UI-facing copy the template reads.
+  // Flipped below in onChannelClose() and in the send() wrapper.
+  let connectionLost = $state(false);
+  // Thin wrapper around the helper's guarded send: call sites keep their
+  // plain send(...) shape. When the helper flips its lost flag (a throwing
+  // send on the close-timing race), mirror it into the UI flag so the gate
+  // re-renders — onChannelClose() covers the normal close, this the
+  // throw-first race.
+  function send(message: Uint8Array): boolean {
+    const ok = channelSender.send(message);
+    if (channelSender.isLost()) connectionLost = true;
+    return ok;
+  }
 
   // Fired by the owning page's dataChannel onclose/onerror: mark every file
   // that cannot complete any more with an accurate "connection lost" error
@@ -44,6 +56,7 @@
   export function onChannelClose() {
     if (channelSender.isLost()) return;
     channelSender.markLost();
+    connectionLost = true;
     for (const key of Object.keys(sendingFiles)) {
       const f = sendingFiles[key];
       if (!f || f.status === FileStatus.Success) continue;
@@ -404,9 +417,10 @@
 <div class="grid gap-4">
   <DragAndDrop {onFilesPick} />
   {#if Object.keys(sendingFiles).length > 0}
-    <!-- connectionLost is a $derived (not $state): it flips exactly once, on
-         the same close that mutates sendingFiles, so the list re-renders from
-         the $state mutation and reads the up-to-date flag at that moment. -->
+    <!-- connectionLost is a $state (not a $derived over the helper): the
+         template re-renders from its write, on the same close that mutates
+         sendingFiles, so the list reads the up-to-date flag. A $derived over
+         channelSender.isLost() would be permanently cached `false`. -->
     <SendingFileList {sendingFiles} {connectionLost} {onRemove} {onSend} {onStop} {onContinue} />
     <button class="btn btn-primary mt-2" onclick={sendAllFiles}>Send all files</button>
   {:else}

@@ -140,8 +140,9 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
 
   async function sendBuffer(buffer) {
     const encrypted = await Promise.resolve(new Uint8Array(buffer)); // stub encryptAesGcm
-    if (sendingFile.stop) return;
+    if (sendingFile.stop) return false;
     send({ kind: 'chunk', key });
+    return true;
   }
 
   async function sendNextChunk() {
@@ -157,9 +158,11 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
       toasts.push(`File ${sendingFile.metaData.name} failed: invalid chunk size`);
       return;
     }
-    await sendBuffer(buffer);
+    const sent = await sendBuffer(buffer);
+    if (sent) {
+      offset += buffer.byteLength;
+    }
     if (sendingFile.stop) return;
-    offset += buffer.byteLength;
     fileStats.progress = Math.round((offset / sendingFile.metaData.size) * 100);
     if (fileStats.progress >= fileStats.nextProgressUpdate) {
       sendingFile.progress = fileStats.progress;
@@ -183,7 +186,8 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
   event.on('EVENT_RECEIVED_CHUNK', async () => {
     const f = sendingFiles[key];
     if (!f) return;
-    if (f.stop) return;
+    if (f.stop && offset < sendingFile.metaData.size) return;
+    if (f.status === FileStatus.Success) return;
     if (f.error || f.status != FileStatus.Processing) {
       f.progress = 0;
       f.status = FileStatus.Pending;
@@ -201,6 +205,7 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
     const f2 = sendingFiles[key];
     if (!f2) return;
     f2.status = FileStatus.Success;
+    f2.stop = false;
     toasts.push(`File ${sendingFile.metaData.name} sent successfully`);
   });
   event.on('EVENT_VALIDATE_ERROR', () => {

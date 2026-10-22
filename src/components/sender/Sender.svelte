@@ -132,7 +132,23 @@
     sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK), async () => {
       const f = sendingFiles[key];
       if (!f) return;
-      if (f.stop) {
+      // A stop only matters while bytes are still to send: the closure's
+      // offset advances as chunks hit the wire, so stop with offset < size
+      // is a mid-file pause — bail out as before. But stop with offset >=
+      // size means every byte was delivered before the stop clicked (Stop
+      // during the final chunk's send/ack window): the completion ack must
+      // still finish the entry, or the file stays stuck in Processing and a
+      // later Continue re-sends the last chunk, which the receiver's
+      // exact-size gate rejects as an overshoot.
+      if (f.stop && offset < sendingFile.metaData.size) {
+        return;
+      }
+      // Terminal state: a completed entry must never bounce — a stray or
+      // synthetic ack (e.g. one emitted by onContinue from a Continue button
+      // that was still rendered when the completion ack raced in) reaching
+      // this point would otherwise walk the bounce branch below and demote
+      // Success back to Pending.
+      if (f.status === FileStatus.Success) {
         return;
       }
       if (f.error || f.status != FileStatus.Processing) {
@@ -154,6 +170,11 @@
       const f2 = sendingFiles[key];
       if (!f2) return;
       f2.status = FileStatus.Success;
+      // A stop click in the final chunk's send/ack window leaves stop=true
+      // here; without clearing it, the list renders Continue for a finished
+      // entry and a click would bounce it back to Pending through the
+      // bounce branch above.
+      f2.stop = false;
       addToastMessage(`File ${sendingFile.metaData.name} sent successfully`, 'success');
     });
 
@@ -186,24 +207,28 @@
           // file has already been marked "connection lost" by
           // onChannelClose() — the old path threw here and re-fired the
           // failure toast per chunk as "Failed to send chunk: ...".
-          if (sendingFile.stop) return;
+          if (sendingFile.stop) return false;
+          // Report wire reality to the caller: this chunk IS on the wire
+          // even if stop flipped between encryption finishing and the send,
+          // so the caller's offset bookkeeping must cover it.
           send(
             Message.encode({
               id: key,
               chunk: encrypted
             }).finish()
           );
-          return;
+          return true;
         }
       }
 
-      if (sendingFile.stop) return;
+      if (sendingFile.stop) return false;
       send(
         Message.encode({
           id: key,
           chunk: new Uint8Array(buffer)
         }).finish()
       );
+      return true;
     }
 
     async function sendNextChunk() {
@@ -234,13 +259,21 @@
         return;
       }
 
-      await sendBuffer(buffer);
-
-      // A Remove during the send marks stop; don't bookkeep progress into an
-      // entry that is (or will be) gone.
+      // A stop may flip between the slice being read and here (Remove or
+      // Stop clicked mid-flight). The chunk was still put on the wire by
+      // sendBuffer() — it returned true only when send() actually ran — so
+      // the closure's offset must cover it: skipping the bookkeeping on stop
+      // left offset behind the wire after a stop during the final chunk's
+      // send/ack window, and a later Continue would re-slice the last bytes
+      // and re-send them, which the receiver's exact-size gate rejects as
+      // an overshoot on a fully delivered file. Progress UI for a
+      // removed/aborted entry is cosmetic: the pipeline stops, so skipping
+      // it on stop is safe.
+      const sent = await sendBuffer(buffer);
+      if (sent) {
+        offset += buffer.byteLength;
+      }
       if (sendingFile.stop) return;
-
-      offset += buffer.byteLength;
 
       // calculate progress
       fileStats.progress = Math.round((offset / sendingFile.metaData.size) * 100);

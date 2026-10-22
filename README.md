@@ -75,7 +75,7 @@ sequenceDiagram
 
 Requirements
 
-- Node (^16.14 || >=18)
+- Node (>=22.18 — tests rely on Node's built-in TypeScript type-stripping, enabled by default since v22.18.0)
 - NPM
 
 Installation
@@ -90,7 +90,7 @@ Run development (hot reload)
 npm run dev
 ```
 
-Test (playwright)
+Test (node --test, built-in test runner)
 
 ```sh
 npm run test

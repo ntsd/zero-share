@@ -2,6 +2,9 @@
   "name": "zero-share",
   "type": "module",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=22.18"
+  },
   "author": "Jirawat Boonkumnerd <contact@ntsd.dev> (https://ntsd.dev)",
   "scripts": {
     "dev": "astro dev",

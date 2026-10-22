@@ -27,14 +27,26 @@
   // full rationale.
   const channelSender = createChannelSender(dataChannel);
 
-  // The SendingFileList's Resend/Continue/Send gating reads this live; the
-  // helper flips it once (on the close that mutates sendingFiles), so the
-  // list re-renders from the $state mutation and reads the up-to-date flag
-  // at that moment.
-  const connectionLost = $derived(channelSender.isLost());
-  // Call sites keep their plain send(...) shape — only the implementation
-  // moved into the helper.
-  const { send } = channelSender;
+  // Dead-channel flag for the SendingFileList's Resend/Continue/Send gating.
+  // This is a $state the template reacts to — NOT a $derived over
+  // channelSender.isLost(): isLost() reads a plain closure variable in the
+  // helper and touches no Svelte signal, so a $derived over it evaluates
+  // once, is marked CLEAN, and caches `false` for the whole component
+  // lifetime — the gate would never engage after onChannelClose()/a throwing
+  // send. The helper stays the single source of truth for the send() guard
+  // (pipeline correctness); this is the UI-facing copy the template reads.
+  // Flipped below in onChannelClose() and in the send() wrapper.
+  let connectionLost = $state(false);
+  // Thin wrapper around the helper's guarded send: call sites keep their
+  // plain send(...) shape. When the helper flips its lost flag (a throwing
+  // send on the close-timing race), mirror it into the UI flag so the gate
+  // re-renders — onChannelClose() covers the normal close, this the
+  // throw-first race.
+  function send(message: Uint8Array): boolean {
+    const ok = channelSender.send(message);
+    if (channelSender.isLost()) connectionLost = true;
+    return ok;
+  }
 
   // Fired by the owning page's dataChannel onclose/onerror: mark every file
   // that cannot complete any more with an accurate "connection lost" error
@@ -44,6 +56,7 @@
   export function onChannelClose() {
     if (channelSender.isLost()) return;
     channelSender.markLost();
+    connectionLost = true;
     for (const key of Object.keys(sendingFiles)) {
       const f = sendingFiles[key];
       if (!f || f.status === FileStatus.Success) continue;
@@ -119,7 +132,23 @@
     sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK), async () => {
       const f = sendingFiles[key];
       if (!f) return;
-      if (f.stop) {
+      // A stop only matters while bytes are still to send: the closure's
+      // offset advances as chunks hit the wire, so stop with offset < size
+      // is a mid-file pause — bail out as before. But stop with offset >=
+      // size means every byte was delivered before the stop clicked (Stop
+      // during the final chunk's send/ack window): the completion ack must
+      // still finish the entry, or the file stays stuck in Processing and a
+      // later Continue re-sends the last chunk, which the receiver's
+      // exact-size gate rejects as an overshoot.
+      if (f.stop && offset < sendingFile.metaData.size) {
+        return;
+      }
+      // Terminal state: a completed entry must never bounce — a stray or
+      // synthetic ack (e.g. one emitted by onContinue from a Continue button
+      // that was still rendered when the completion ack raced in) reaching
+      // this point would otherwise walk the bounce branch below and demote
+      // Success back to Pending.
+      if (f.status === FileStatus.Success) {
         return;
       }
       if (f.error || f.status != FileStatus.Processing) {
@@ -141,6 +170,11 @@
       const f2 = sendingFiles[key];
       if (!f2) return;
       f2.status = FileStatus.Success;
+      // A stop click in the final chunk's send/ack window leaves stop=true
+      // here; without clearing it, the list renders Continue for a finished
+      // entry and a click would bounce it back to Pending through the
+      // bounce branch above.
+      f2.stop = false;
       addToastMessage(`File ${sendingFile.metaData.name} sent successfully`, 'success');
     });
 
@@ -173,24 +207,28 @@
           // file has already been marked "connection lost" by
           // onChannelClose() — the old path threw here and re-fired the
           // failure toast per chunk as "Failed to send chunk: ...".
-          if (sendingFile.stop) return;
+          if (sendingFile.stop) return false;
+          // Report wire reality to the caller: this chunk IS on the wire
+          // even if stop flipped between encryption finishing and the send,
+          // so the caller's offset bookkeeping must cover it.
           send(
             Message.encode({
               id: key,
               chunk: encrypted
             }).finish()
           );
-          return;
+          return true;
         }
       }
 
-      if (sendingFile.stop) return;
+      if (sendingFile.stop) return false;
       send(
         Message.encode({
           id: key,
           chunk: new Uint8Array(buffer)
         }).finish()
       );
+      return true;
     }
 
     async function sendNextChunk() {
@@ -221,13 +259,21 @@
         return;
       }
 
-      await sendBuffer(buffer);
-
-      // A Remove during the send marks stop; don't bookkeep progress into an
-      // entry that is (or will be) gone.
+      // A stop may flip between the slice being read and here (Remove or
+      // Stop clicked mid-flight). The chunk was still put on the wire by
+      // sendBuffer() — it returned true only when send() actually ran — so
+      // the closure's offset must cover it: skipping the bookkeeping on stop
+      // left offset behind the wire after a stop during the final chunk's
+      // send/ack window, and a later Continue would re-slice the last bytes
+      // and re-send them, which the receiver's exact-size gate rejects as
+      // an overshoot on a fully delivered file. Progress UI for a
+      // removed/aborted entry is cosmetic: the pipeline stops, so skipping
+      // it on stop is safe.
+      const sent = await sendBuffer(buffer);
+      if (sent) {
+        offset += buffer.byteLength;
+      }
       if (sendingFile.stop) return;
-
-      offset += buffer.byteLength;
 
       // calculate progress
       fileStats.progress = Math.round((offset / sendingFile.metaData.size) * 100);
@@ -287,6 +333,12 @@
   }
 
   async function sendAllFiles() {
+    // A dead channel must not re-enter the send pipeline (same guard as
+    // onContinue() above): send() no-ops and the dead-channel branch would
+    // re-stamp the connection-lost error + one toast per pending file, so a
+    // batch click is a toast-burst no-op — the per-file Send buttons are
+    // suppressed by the template gate, this is the code-level backstop.
+    if (channelSender.isLost()) return;
     for (const key of Object.keys(sendingFiles)) {
       const f = sendingFiles[key];
       if (!f || f.status != FileStatus.Pending || f.error) {
@@ -404,11 +456,19 @@
 <div class="grid gap-4">
   <DragAndDrop {onFilesPick} />
   {#if Object.keys(sendingFiles).length > 0}
-    <!-- connectionLost is a $derived (not $state): it flips exactly once, on
-         the same close that mutates sendingFiles, so the list re-renders from
-         the $state mutation and reads the up-to-date flag at that moment. -->
+    <!-- connectionLost is a $state (not a $derived over the helper): the
+         template re-renders from its write, on the same close that mutates
+         sendingFiles, so the list reads the up-to-date flag. A $derived over
+         channelSender.isLost() would be permanently cached `false`. -->
     <SendingFileList {sendingFiles} {connectionLost} {onRemove} {onSend} {onStop} {onContinue} />
-    <button class="btn btn-primary mt-2" onclick={sendAllFiles}>Send all files</button>
+    <!-- With the channel lost no entry can ever be sent (send() no-ops on a
+         dead channel; a batch click just re-stamps the connection-lost error
+         on every pending file), so the batch button is a guaranteed silent
+         no-op exactly like the per-file Send/Resend/Continue buttons above
+         and is gated on the same connectionLost flag — only Remove stays. -->
+    {#if !connectionLost}
+      <button class="btn btn-primary mt-2" onclick={sendAllFiles}>Send all files</button>
+    {/if}
   {:else}
     <p class="mt-4">No files selected</p>
   {/if}

@@ -59,6 +59,9 @@ export const CHUNK_SIZE_OPTIONS: number[] = [8 * 1024, 16 * 1024, 32 * 1024, 64 
 
 export const DEFAULT_RECEIVE_OPTIONS: ReceiveOptions = {
   autoAccept: true,
+  // Below the largest offered Max Size (2 GB), which in turn stays under the
+  // classic-ZIP 4 GiB per-entry cap — so the default never allows a file the
+  // bulk "Download all files (zip)" path cannot archive.
   maxSize: 1024 * 1024 * 1024 // 1GB
 };
 

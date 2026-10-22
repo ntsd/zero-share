@@ -317,6 +317,35 @@
       }, WAIT_ICE_CANDIDATES_TIMEOUT);
     } catch {
       generating = false;
+      // Offer creation failed, but the peer + channel minted above may still
+      // be live: left as-is, the ICE agent, its UDP sockets and the STUN/TURN
+      // keepalives leak until the next generation (or page unload), the
+      // pending ICE-candidate timer keeps a reference to the dead peer, and
+      // the channel's onerror/onclose handlers can fire late and stomp this
+      // generation's isConnecting/offerLink — a stale answer-code paste would
+      // also run setRemoteDescription against the dead peer. Tear down the
+      // just-created peer with the same guarded shape as the regeneration
+      // teardown above: clear the pending timer, null the handlers so no late
+      // event can run, close the channel, then close the peer (close() throws
+      // InvalidStateError on an already-closed peer, so guard on
+      // connectionState). When the failure happened before the peer/channel
+      // existed (e.g. `new RTCPeerConnection` threw), both guards skip and
+      // the still-closed previous generation is left untouched.
+      if (iceCandidateTimer !== undefined) {
+        clearTimeout(iceCandidateTimer);
+        iceCandidateTimer = undefined;
+      }
+      if (dataChannel) {
+        dataChannel.onopen = null;
+        dataChannel.onmessage = null;
+        dataChannel.onerror = null;
+        dataChannel.onclose = null;
+        dataChannel.close();
+        dataChannel = undefined;
+      }
+      if (connection && connection.connectionState !== 'closed') {
+        connection.close();
+      }
       addToastMessage('Could not generate the offer', 'error');
     }
   }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:51a641ae1725b5e48126fcccdc170d72806f17a2d98c27319e1517cc702a2d6d",
+  "pageVersion": "sha256:b6a03681db11e0a1c7a2474c53000b8e62dfa169a25eb01c264b4a30faed020e",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -28,19 +28,19 @@
     },
     {
       "id": "claim_0489f3cde91743e7b351af897e8841ab",
-      "statement": "The sender maintains per-file state in a reactive map with lifecycle Pending -> WaitingAccept -> Processing -> Success; on ACCEPT it starts the chunk loop, on REJECT or VALIDATE_ERROR it records the error and resets the file to Pending (retryable); the async event handlers re-read the live entry after each await and bail if it was removed, and chunk-send failures land as visible error entries instead of unhandled rejections (via the shared markChunkFailed helper, deduplicated in PR #70); a connectionLost flag derived from the shared createChannelSender helper's lost flag ($derived(channelSender.isLost()); flipped by onChannelClose or a throwing guarded send) marks the channel as dead so in-flight pipelines exit quietly with accurate connection-lost errors instead of per-chunk InvalidStateError failures (PR #74, shared helper PR #97), and the SendingFileList UI hides the Resend/Continue/Send buttons (leaving only Remove) when the channel is lost because each would be a guaranteed silent no-op.",
+      "statement": "The sender maintains per-file state in a reactive map with lifecycle Pending -> WaitingAccept -> Processing -> Success; on ACCEPT it starts the chunk loop, on REJECT or VALIDATE_ERROR it records the error and resets the file to Pending (retryable); the async event handlers re-read the live entry after each await and bail if it was removed, and chunk-send failures land as visible error entries instead of unhandled rejections (via the shared markChunkFailed helper, deduplicated in PR #70); a connectionLost flag — a $state the template reacts to, NOT a $derived(channelSender.isLost()) which would cache false forever since isLost() reads a plain closure variable — is flipped by onChannelClose() and by a thin send() wrapper mirroring the helper's lost flag (PR #109), marking the channel as dead so in-flight pipelines exit quietly with accurate connection-lost errors instead of per-chunk InvalidStateError failures (PR #74, shared helper PR #97), and the SendingFileList UI hides the Resend/Continue/Send buttons (leaving only Remove) when the channel is lost because each would be a guaranteed silent no-op.",
       "evidence": [
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L22-L46",
-          "version": "repo-lines-v1:sha256:d02b172dcf624b00e0a330377de476563becf931486ec25c2805b7aa09ecff3c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZTg1ZWVhZTU1NGUwNjJkMGE0MTMyYzFhODNmNWQwMGZkZGY4Mzc5ZjM5N2I2NjU4OTllMzUwMDUzNzU0ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmFmOWJjNmE0ODZmYjVlMDVkZDdkNzU5Y2NlMGU2MzQ2ZTk5N2QxODMyOGZhYzk4YzJhYzdhMWExOTUxOTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2ZmZlNWQ1ZDhhNjk5MThiMDVlNThlYTUyYjk5ZmU2YWEwMDA1ZTM2Mjk1MGVmMDM5MjI3YTcwMDA0YzM4ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZWMwZjMzYmQ3YTEwOWZkNzhiYmEzN2JjYzVjYTUwY2VjYWM0ZWY2YzBiMTYxZWJlZDAwNTY5YmRlNWI2ZDEifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L22-L49",
+          "version": "repo-lines-v1:sha256:31cf400732b0a186de5a2cfc53154a9679c68791d5096a1ace9a8e6624ac8abf:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZTg1ZWVhZTU1NGUwNjJkMGE0MTMyYzFhODNmNWQwMGZkZGY4Mzc5ZjM5N2I2NjU4OTllMzUwMDUzNzU0ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2ZmZlNWQ1ZDhhNjk5MThiMDVlNThlYTUyYjk5ZmU2YWEwMDA1ZTM2Mjk1MGVmMDM5MjI3YTcwMDA0YzM4ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzI4NThmZTJlNjQ4NDg4NmZlNDUyMmMxNTcwZDAwMDQzMzcyOTU0OGQ5OGE4MGNkYTVhZWM3N2MyYTRjM2EifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L407-L411",
-          "version": "repo-lines-v1:sha256:57618dfaacbc408a1aa949264fa18ca321991129a947c5f858bbc3a9fca06239:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTI3Y2JkZDI3NGE2MzljZDZjYzEwMGJmZDJmOGJjNTZhZGI3ZTc5NWJiMGQ0NTI5NTBkYmJmODk0MmU2YTBjNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWQ2OTE1ZmUzMTZlZDYzYTg1ZWMzZjU2NTNmNDZkZWRkOTkwYTUyMThlMTk0M2NmNDA2ZTRhODliNDZkNmJiMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjVhNGYzNzMwYWY0Mzg4ZDI4YTA0ZTA0MWQwMDI3OTE5OWZjY2EzOGRjYjJhOTk5OGVkNGZiMzNjNWQ1NGEyMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDIzY2VhZjVmOWQ0ZDYzMjVlZjllMjZiY2U3OTA3NGE1MTk3ODI3NDk0N2FlYzIwNGM2ZmQ3YTk3ZTkwYTlhOSJ9"
+          "resource": "repo://src/components/sender/Sender.svelte#L417-L425",
+          "version": "repo-lines-v1:sha256:8974026977e8d622d42b629c5267cd58c7cc85df097e046a4148a0c8028d93d7:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDFiMzcxOWU4NzJhNDJhMjljODdkYWI5MzNiZDdiNzBhMWQ5ODdmZjMxMGVhOTNlNzYwMGMyMDJlODIxYzFhOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWQ2OTE1ZmUzMTZlZDYzYTg1ZWMzZjU2NTNmNDZkZWRkOTkwYTUyMThlMTk0M2NmNDA2ZTRhODliNDZkNmJiMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDU5N2FkY2E2MTRiZGRlZWM5OTFkYmU2NmI2YjYzN2QwNDhiMWY0ZTkxOWM1NWE3NTJkOWVmZmI5N2ZjNDljOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDIzY2VhZjVmOWQ0ZDYzMjVlZjllMjZiY2U3OTA3NGE1MTk3ODI3NDk0N2FlYzIwNGM2ZmQ3YTk3ZTkwYTlhOSJ9"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L77-L170",
-          "version": "repo-lines-v1:sha256:1b5e6e3721882709b79a9558c2964d740a59ef10f0e18ada86b4610250d11c5c:eyJzZWxlY3RlZExpbmVDb3VudCI6OTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZTI4NGU4ODNmOGM0YmM0MzYzNDhhMzhjZTExMmE3NGMzOWI3OTIyMDZmOGFhNzY1YTM3N2RhOTlmYjBlYmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllYjg1MGI2MDMyN2JkOTVhODI4OGIzMmE1YzUyYTZiNDRlZTg0ZTY2ZDg4M2Y0YWNhZTBiMjY0ZTU0MjVlMTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1ZGE1NTgyNDc2MjYwNTQxZDE2OGIyMDczZTY2NWFkMTk3YjA3ZjdkYTQxMTE0ZjA5YjZkZTZiNjFkOTRlNzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzMmMyZGJlMzEyZmE5MmEyNGRhMWIwOTkzMGU1ZjQzMzJjZmJiOTBmZGZjZWY3NWY4YWU4YmYxNzdiY2IxZTEifQ"
+          "version": "repo-lines-v1:sha256:4ac67daead707aefea94310cf39236d708b6d2441f1904016e5b66dfc151e4b3:eyJzZWxlY3RlZExpbmVDb3VudCI6OTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxYjE3MWYyOGM3YTA2ZTY4NWU1NzE3NWVlNWMxMDVhZWM4NTNmMmNhZGY5MmFlOTNhZTE1M2FkNGY2ZDNhODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmNGVlZjQ0ZDNjYmUwZTYxYTk0ODQyNTQzYTlhNTk1YWMwMGFhNjhmYTI3Y2QzZTY3OTM4ZDk4MTA1ZWJkZTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExZWJmNmMzNzcxMjczNDBlMmI1ZDZmODQwMjdhMzg2NDBjNjI2M2QwYjdiNjBkYjVjMzczMmNjODFlZDg2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0NGE2Zjg0ZTRiOGJiN2YwNDkwYTZhZTczMmFhMjExMDM4NGI0MGJlZjJiOWQwYjY5OWY3NDBmYTM0NDFmNjYifQ"
         },
         {
           "resource": "repo://src/type.ts",
@@ -120,15 +120,15 @@
     },
     {
       "id": "claim_17336969115a4b90826859e4e681616a",
-      "statement": "validateFileMetadata is the single size gate and enforces two bounds because metaData.size is peer-controlled: a size that is not finite or is <= 0 is rejected with 'invalid file size' (such a value would otherwise make the receiver flip the file to Success on a partial/empty payload or break the progress math), and size > maxSize (default 1 GB via DEFAULT_RECEIVE_OPTIONS) fails with a limit message; receiver-side validation failure sends EVENT_VALIDATE_ERROR back to the sender and records the error on the file, while autoAccept (default true) makes the receiver accept valid files without user action.",
+      "statement": "validateFileMetadata is the single size gate and enforces two bounds because metaData.size is peer-controlled: a size that is not finite or is <= 0 is rejected with 'invalid file size' (such a value would otherwise make the receiver flip the file to Success on a partial/empty payload or break the progress math), and size > maxSize fails with a limit message (default 1 GB via DEFAULT_RECEIVE_OPTIONS, which stays below the largest offered Max Size of 2 GB that in turn stays under the classic-ZIP 4 GiB per-entry cap, so the default never allows a file the bulk 'Download all files (zip)' path cannot archive); receiver-side validation failure sends EVENT_VALIDATE_ERROR back to the sender and records the error on the file, while autoAccept (default true) makes the receiver accept valid files without user action.",
       "evidence": [
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L38-L114",
-          "version": "repo-lines-v1:sha256:839473b8362eea9e0011075678bf0ec72d18631fd29f07c2f00554f4fe643c19:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+          "version": "repo-lines-v1:sha256:523db2b97a9c55f80373da23ff811cfbbfd52059aa6903f01a794e14ba284e38:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZjY5MDA3YTdlNzVjY2RiMmMxOWVmYTlkOTVjNDNiZjc4N2YzM2EyYjljODI2NWM0YTVjZTY0MmZlNmRiZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0YjI1ODgwMmQ4YTAwYWYyYTc3YTE4NGJlZmNiOWFmOGFmMTIwZjEyMDFlNzhjZWQwYjhiNGQ5MTc4NTZlNWQifQ"
         },
         {
-          "resource": "repo://src/configs.ts#L60-L67",
-          "version": "repo-lines-v1:sha256:9872171cfac324314921bc630d64210d4d3a5ae90cfcf83a3e5cecdb42237ab3:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTQ2NDNlNDcxOGRlOTUyYzNkNDNjN2JhZDMxNDNkMWM1Y2Y1MTY3NWQ0ZGQ2ZDVmMmJjMzFiOGY1ODE4MWY5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+          "resource": "repo://src/configs.ts#L60-L66",
+          "version": "repo-lines-v1:sha256:e89818b7d3f5b4f80b7d729ddbd21891390565c63788ad517b31767b050dbfdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY1NTc5NTJjM2U1NjA5MzQ5NzhiZWY2MGUxYzNhNjU4MzRhNTRiODlmYTdiMWI0MjhhMGJmYTMzZWUzODQ5OSJ9"
         },
         {
           "resource": "repo://src/utils/validator.ts",
@@ -152,11 +152,11 @@
     },
     {
       "id": "claim_e5da1d3058e24c759841da47ea4689bc",
-      "statement": "onMetaData registers the file entry at WaitingAccept BEFORE the async AES key decryption, so the file is visible and removable throughout; if the RSA key unwrap fails, the entry gets a visible error, an error toast fires, and EVENT_VALIDATE_ERROR is sent to the sender (bouncing its file to Pending) instead of the file silently never appearing while the sender waits for an accept that will not come; the metadata-failed entry stays in WaitingAccept with the error shown, so it is not a Remove-only dead-end (PR #76) — but an Accept on it is refused by the onAccept guard (PR #78): explanatory toast plus EVENT_RECEIVER_REJECT, no state change, no chunk map, leaving Deny/Remove as the real exits.",
+      "statement": "onMetaData sanitizes the peer-controlled MetaData.name via sanitizeName as its first action (PR #98 — one ingestion rule covering all sinks: the bulk store-only ZIP archive and <a download>) so a path-traversal name can no longer reach either sink; it then registers the file entry at WaitingAccept BEFORE the async AES key decryption, so the file is visible and removable throughout; if the RSA key unwrap fails, the entry gets a visible error, an error toast fires, and EVENT_VALIDATE_ERROR is sent to the sender (bouncing its file to Pending) instead of the file silently never appearing while the sender waits for an accept that will not come; the metadata-failed entry stays in WaitingAccept with the error shown, so it is not a Remove-only dead-end (PR #76) — but an Accept on it is refused by the onAccept guard (PR #78): explanatory toast plus EVENT_RECEIVER_REJECT, no state change, no chunk map, leaving Deny/Remove as the real exits.",
       "evidence": [
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L38-L114",
-          "version": "repo-lines-v1:sha256:839473b8362eea9e0011075678bf0ec72d18631fd29f07c2f00554f4fe643c19:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+          "version": "repo-lines-v1:sha256:30d0e7d38b1433d378cb8820846241bfd75325d8e72eba8a0b8b5b69da45ee9e:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L384-L406",
@@ -210,27 +210,31 @@
     },
     {
       "id": "claim_93c4b7fe312044f4998181ab87d4bec6",
-      "statement": "Bulk download builds a real store-only ZIP archive in memory (createZipStoreOnly: method-0 entries, CRC-32, UTF-8 name flag, duplicate-name disambiguation that checks each candidate against every already-emitted final name so pre-suffixed peer-controlled names cannot collide, no new dependency) and saves a single zero-share-files.zip via triggerDownload, instead of the former sequential per-file raw downloads that never produced a zip; onDownload null-guards the entry so a missing/duplicated key no longer throws an unhandled TypeError and skips the per-file teardown.",
+      "statement": "Bulk download builds a real store-only ZIP archive in memory (createZipStoreOnly: method-0 entries, CRC-32, UTF-8 name flag, duplicate-name disambiguation that checks each candidate against every already-emitted final name so pre-suffixed peer-controlled names cannot collide, no new dependency) and saves a single zero-share-files.zip via triggerDownload, instead of the former sequential per-file raw downloads that never produced a zip; onDownload null-guards the entry so a missing/duplicated key no longer throws an unhandled TypeError and skips the per-file teardown. Entry names are sanitized on the way in: Receiver.onMetaData runs metaData.name = sanitizeName(metaData.name) at ingestion (one rule covering all sinks), and createZipStoreOnly/uniqueNames re-sanitize each entry as defense in depth, so a peer naming a file with embedded path traversal (zip-slip / CWE-22) can no longer land verbatim in the archive — sanitizeName keeps only the safe basename (last segment across /, \\\\, and U+2215), drops NUL/C0 control/DEL, collapses dot runs, and falls back to 'file' on empty. The bulk zip is capped by the classic-ZIP per-entry ceiling: createZipStoreOnly writes no zip64 extra fields, so it throws explicitly when any entry is >= 4 GiB (0xffffffff) or the archive's central directory starts past that value, instead of emitting a silently corrupt archive (PR #110).",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L387-L396",
-          "version": "repo-lines-v1:sha256:efa155bda12b931863a79b5a3d94966df2bfd998bfafe3ad55a5a83955bc2b29:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNDUzNTc3ZGVlYzc0NTQ5MjZiMmNkOTYyMTQ2YjAzMGNkN2VlODE2MWQwMTY1Mzk1YjExNGYxMzI1OWEzNmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhOTAyMjEwMjJkZjlmOTAxYWVmMjE0NjAxZGMzN2Q3MDA3ODc2YzllOGIyNGVmM2FlNDkyNTgzZWJjMmI2YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYWYzNGZkOGZmOTMzMzhkOGQ0Yzg0MTI0ZjY4NzI2MjA0NWRiYjg5MTBlYmYwYjNmMzc3NWRkMTlmODM4NzYifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L38-L48",
+          "version": "repo-lines-v1:sha256:6fb3ba92ed9fc28be64a19b28664865509b93cdf78d9d920d4b9709e947dc701:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkYjcwODZkYWE1NjZhZGQwOTU2OWQ0OGZiYWRhODZjNTQwZWI0OWQwYzdmOTNmMGRjYTU2YmNhNTg5YTBkY2EifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L410",
+          "version": "repo-lines-v1:sha256:31fe85fe8ef193a25e0b597c780edb42ca11f074eec0f913f5faf3f33459e95b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNDUzNTc3ZGVlYzc0NTQ5MjZiMmNkOTYyMTQ2YjAzMGNkN2VlODE2MWQwMTY1Mzk1YjExNGYxMzI1OWEzNmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3YWIxNzE0ZmQ0MjQ4YWYxZjA1ZGIyMjUxYmQwOWExMGM4ODVkNzA1NGIzYjRkZTZjNjc1ZWNlOTcyOTFiMTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhOTAyMjEwMjJkZjlmOTAxYWVmMjE0NjAxZGMzN2Q3MDA3ODc2YzllOGIyNGVmM2FlNDkyNTgzZWJjMmI2YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1OWJjZTJmMWZmMTFhODNhZTgwNjNkNDM5MWNiOWViYjM4YTJiOWVlNDAwZmYxMGZjNjQ5MWJjNTVmN2U4ZTgifQ"
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L457-L497",
-          "version": "repo-lines-v1:sha256:7db05ee86565fa1067bca09f5d5324e6084332656a9ae2bad5c9a12aa18e6735:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjlkOTNjZDU1NDNhNWViMWU0YTNiYjc1NDZkYmJhYzBlYmFkMDhlNjZjMWU5NDZjMWJhMzFkMjM4MDZkYzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5M2U0MmQxM2E4NTQ5OTI5MmVkMzZhNjY0NjZhOWYxZDA5YmE0ZTU5ZTExZGVjOGMxODJiM2QzNTJjNzYxZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNlYzQ5YzU0YWMwMGMwMzA3NzYwNTZkMDM1NjY3NDc2YjhmNTc5Y2Y0MDIxYzllYjk0MGVmNzkyNGIzYWNkYTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwZGQ2MmYxN2QwMzVmNDdkNjlhZjAzMzU5OTQyOGEzNjBlOGQ4NjQzMjgxYWNhMTliYmMyNjg3YTJiM2U2NGMifQ"
+          "version": "repo-lines-v1:sha256:58a9d6a91ef91204bb7eceeb157f0bc7fb39834bf9a95fd779553e955df0aa2d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ODVkN2ZjYzY1MmUwY2M1NzYzMjFkMGFlZmM1MTg3ZDU2ZDM0N2M5NjcxNWM0ZWIyOTRhMjdjOTlhNzFiMTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYjUxNjU4YzRmZjAzNWZlY2RlYjRjMjY5ZWZiMmQzM2E2N2FjOTkyOGEyYTZjMmQyZDlhMTQ2MzBhMGVjMzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjMDk1Mjk4ZmQ4MTY4YTA0YmIyNGFkN2Q3ODhhYTc0NmYzOTY4YjdlYWUwNzVmZWNhNzg2NDRmOWZmMGIwZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
-          "resource": "repo://src/utils/zip.ts",
-          "version": "repo-file-v1:sha256:6fed335d0e46f8ba07d50dbb135d2f2406b1aa9bd0328235f44a297681452755"
+          "resource": "repo://src/utils/zip.ts#L39-L72",
+          "version": "repo-lines-v1:sha256:deae8b2b5687cffbd84ac2ecfefac89183a9b9700b2144d39119f186bd655c90:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxYWU0MGE3ZDMyYmRmODkyMWI0NjI1ZmIwNzM0ZTEzODQ3NjQyZjY5ZDViMDUyZGJiMGFlMGE2NzVhN2EyZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxZDJkOWRkYjc5ZTExOGI3YjRjNjhlZmI3MzI2OTk3NGRiNDY0MWFmNmVhOGFkMmNkMDk3NGMyMjMzNTMwMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjNTZlMjE5ZDk2Y2YxNWRjODQwNmFhNTdkMGNjMWE1OTRlNTI0OWFiOTU2ZGFhYTVjOTgzMTZkMDE5ODczZTQifQ"
         },
         {
           "resource": "repo://tests/receiver-zip-download.test.mjs",
-          "version": "repo-file-v1:sha256:69406449fdaefddfa71866428bc683f0d43eac748b4398494fe303dfc39d762e"
+          "version": "repo-file-v1:sha256:4201e126502e0b89b2eadac265d6938dc09d87a79f5f5fa458a79acff41e6bd0"
         },
         {
           "resource": "repo://tests/zip.test.mjs",
-          "version": "repo-file-v1:sha256:aba6ab1c79693a91cceef254a06eb16b1b37a8ddd5da75b207aa3176136de579"
+          "version": "repo-file-v1:sha256:50fb286095eaedb84c6baec6b369dc37b06f9e742cbc093ae3617dd7e4bfec94"
         }
       ]
     },
@@ -260,15 +264,23 @@
     },
     {
       "id": "claim_11213eddf7234cdebeadcbe06e9cfeda",
-      "statement": "The receiver 'Max Size' dropdown options carry true byte values matching their labels (10 MB = 10 * 1024 * 1024, 100 MB = 100 * 1024 * 1024, 'Unlimit' = 1 TiB); previously the 10/100 MB options were 1024x smaller than their labels and enforced KB limits (PR #44). onChange coerces the select value with Number(maxSize) and falls back to DEFAULT_RECEIVE_OPTIONS.maxSize when not finite, because bind:value on a <select> yields a string after user interaction, so ReceiveOptions.maxSize stays a number at runtime. tests/receiver-options-size.test.mjs statically pins these option values and the coercion.",
+      "statement": "The receiver 'Max Size' dropdown options carry true byte values matching their labels (10 MB = 10 * 1024 * 1024, 100 MB = 100 * 1024 * 1024, 1 GB, and 2 GB as the largest option); previously the 10/100 MB options were 1024x smaller than their labels and enforced KB limits (PR #44). The largest option is now 2 GB rather than the former '10 GB' and 'Unlimit' (1 TiB) options, because createZipStoreOnly writes no zip64 extra fields and so can never archive an entry of 4 GiB or larger — the old 10 GB / Unlimit values made the bulk 'Download all files (zip)' path silently impossible for their own allowed sizes (PR #110). onChange coerces the select value with Number(maxSize) and falls back to DEFAULT_RECEIVE_OPTIONS.maxSize when not finite, because bind:value on a <select> yields a string after user interaction, so ReceiveOptions.maxSize stays a number at runtime. tests/receiver-options-size.test.mjs statically pins these option values, the 4-GiB classic-ZIP ceiling on the largest option, and the coercion.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/ReceiverOptions.svelte",
-          "version": "repo-file-v1:sha256:227969a7ce7a6b0f9a7436de893ba5f01edb92f0e5c41e7048dc0017c48b6290"
+          "resource": "repo://src/components/receiver/ReceiverOptions.svelte#L41-L57",
+          "version": "repo-lines-v1:sha256:76cb453cf6ae1a307858cee3b6c33c2398afc62f39ea16703c4cd493f9d21151:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExMzc2N2JjYzhiNTlhNjdmNDZiZTYyMTExOWVjM2Y3NmI1YTU2YjUxZWJmMjMzMjVkYmY4OTg3ZWM1N2MwMTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkNzEwOWI2MDVhODVmNTkwNGIyYWIzODk3YjhhMDY4MGY2N2Q5OGRkOTU2YTQ4N2ExOTRiNGVjOTI4MTk0M2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzNzEzODVhYmVjYWZjOGNjMGZmODkwODdjZjJiYjRiODg5NmY4ZTg1ZGY3OWFiODVhZWFkM2NjMDVhN2E5MjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhMjA2OTM4NTNkZDdjZWJkOWU5YzM4NzgzMDkwNWIzNzkwYzZhOGZiNGI4ODEzODhlYzdlNTdlNTIxOGY3OTYifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L60-L66",
+          "version": "repo-lines-v1:sha256:e89818b7d3f5b4f80b7d729ddbd21891390565c63788ad517b31767b050dbfdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY1NTc5NTJjM2U1NjA5MzQ5NzhiZWY2MGUxYzNhNjU4MzRhNTRiODlmYTdiMWI0MjhhMGJmYTMzZWUzODQ5OSJ9"
+        },
+        {
+          "resource": "repo://src/utils/zip.ts#L82-L119",
+          "version": "repo-lines-v1:sha256:9149ca9292a0547358fcca97f74bba507bedd70c1a46bb22cb877feee7bf8b42:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5YjAzNTRhMGEwMjRkZjBhZGE0NTRiMTMyZjY1OWY1NTNiMjdmZDNmMzlkMTY3NTViZmE5NDRiZDczZmM5YWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhYjg1MWE1M2UyMGFkMzg1YjRjOTk3YzQ0OTU1MTY2N2RjZTUwMWYyMTViYTMyOTY0MGJjMWRhOTc0YjUwMmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzRmM2ZkMGJjMzFlMGUwNTk1NDZiMGQyNGVmYzlkMDM4ZjU5M2ZkMDRkZDhmMDc0OWIzYjc3MzI2NGJhNzgifQ"
         },
         {
           "resource": "repo://tests/receiver-options-size.test.mjs",
-          "version": "repo-file-v1:sha256:394fa85500dcf2169d945212140a6248cc3f4da2364b74957275c5df00b54028"
+          "version": "repo-file-v1:sha256:d5625edfc79b6a01055124c6800e2838ee6be9f0162adad98453a3044ab2d781"
         }
       ]
     },
@@ -396,15 +408,15 @@
     },
     {
       "id": "claim_2c70f8593cd34da0892154dbaddca0d4",
-      "statement": "The guarded data-channel send is one shared helper (PR #97): createChannelSender(dataChannel) in src/utils/channelSender.ts returns send(message) — false without touching the channel when the lost flag is set or readyState !== 'open', true on success, and on a throwing send it flips the lost flag and returns false instead of leaking InvalidStateError — plus idempotent markLost() (fired by onChannelClose on both sides) and isLost() (the live read the sender's $derived connectionLost and onContinue's dead-channel refusal derive from); Sender.svelte and Receiver.svelte keep their call sites in the plain send(...) shape via destructuring.",
+      "statement": "The guarded data-channel send is one shared helper (PR #97): createChannelSender(dataChannel) in src/utils/channelSender.ts returns send(message) — false without touching the channel when the lost flag is set or readyState !== 'open', true on success, and on a throwing send it flips the lost flag and returns false instead of leaking InvalidStateError — plus idempotent markLost() (fired by onChannelClose on both sides) and isLost() (the helper's live read). The sender's connectionLost flag is a $state the template reacts to (flipped by onChannelClose() and by a thin send() wrapper mirroring isLost(), PR #109) that onContinue's dead-channel refusal and the file-list UI gate read — NOT a $derived over isLost(), which would cache false forever because isLost() reads a plain closure variable; the receiver gates on the helper's isLost() read directly. Sender.svelte and Receiver.svelte keep their call sites in the plain send(...) shape.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L108-L135",
-          "version": "repo-lines-v1:sha256:a19723bbc8573d7ec91ac55b6b70fd9152587ea3bc65bea4619c54dd2ade5a9d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZDFiNWI1YzRiNjNlOWUwY2Q5NDNjZmJiMjliMjdjMzAyNzY3NmJiNTIzMWZkYzhhMmEwNjRjZGE5OTc4YWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0MGJlZTY2Y2E2ZmUxMTZhZmNhNGYzZjU4MjVhZjFkZTU1Y2I2YjFjMWVhMDNhM2FkMzU4ZTZjMjBmNWFmY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5Nzg5ODI5NmExNTg3ZWJlYWM2ZTJkNWM4NWIwZDQ0NGI2YTg4OGUxODVjOWZkMDNjZDcwMWQ4ZTZkZDk0NzQifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L135-L147",
+          "version": "repo-lines-v1:sha256:125a9b26a62ca1913334c8ba5036b3b68238b109bcef19d17b8179852061cbfd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3NTAzMGM5YWMxNWY0ZGFmZDJjY2NkZWJkOTBlNzQwNmExNmFkMDg2ZTAwYjJjZDhhZTJmZWNjZTcxYjgxMWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmFmOWJjNmE0ODZmYjVlMDVkZDdkNzU5Y2NlMGU2MzQ2ZTk5N2QxODMyOGZhYzk4YzJhYzdhMWExOTUxOTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0ZDBlMTRmNzhmMjJhNGUyYWU4OWMyYWM5ZWQ5NjViZTRmMDU0MjM0ODIzODQ4Y2IyMDMxODA3ZTE1YmYzYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcyYWVhMjMyOGQ3NDQ5MTY3ODQ0Zjg3MzhlMzEwNzhiMjYzNzgyZThmM2RmNzlmNjAyYjg4ZGJkZjQ0MDkwYjUifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L22-L46",
-          "version": "repo-lines-v1:sha256:d02b172dcf624b00e0a330377de476563becf931486ec25c2805b7aa09ecff3c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZTg1ZWVhZTU1NGUwNjJkMGE0MTMyYzFhODNmNWQwMGZkZGY4Mzc5ZjM5N2I2NjU4OTllMzUwMDUzNzU0ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMmFmOWJjNmE0ODZmYjVlMDVkZDdkNzU5Y2NlMGU2MzQ2ZTk5N2QxODMyOGZhYzk4YzJhYzdhMWExOTUxOTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2ZmZlNWQ1ZDhhNjk5MThiMDVlNThlYTUyYjk5ZmU2YWEwMDA1ZTM2Mjk1MGVmMDM5MjI3YTcwMDA0YzM4ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZWMwZjMzYmQ3YTEwOWZkNzhiYmEzN2JjYzVjYTUwY2VjYWM0ZWY2YzBiMTYxZWJlZDAwNTY5YmRlNWI2ZDEifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L28-L49",
+          "version": "repo-lines-v1:sha256:26f1fe88689e3fec4ca199d0754416dbad03df17a9384397f1c33f32934a8868:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3NTAzMGM5YWMxNWY0ZGFmZDJjY2NkZWJkOTBlNzQwNmExNmFkMDg2ZTAwYjJjZDhhZTJmZWNjZTcxYjgxMWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUyOGNhZjdkNGFjZTZjYTA5OWVkNTM0ZDkyZTJkNTJiMjIwNzdkMWFlMTFhMjVlYjZhZmM0NzU4OWZmZWZkOWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzI4NThmZTJlNjQ4NDg4NmZlNDUyMmMxNTcwZDAwMDQzMzcyOTU0OGQ5OGE4MGNkYTVhZWM3N2MyYTRjM2EifQ"
         },
         {
           "resource": "repo://src/utils/channelSender.ts",
@@ -412,7 +424,7 @@
         },
         {
           "resource": "repo://tests/channel-sender.test.mjs",
-          "version": "repo-file-v1:sha256:8883c29743ab2ad0351df447300380b1550f7581ad1205d45ada69aba19976a0"
+          "version": "repo-file-v1:sha256:b573ed6c732f85398e7bc5d7858e4c5993aa3c22018ff929625a787cf08656e9"
         }
       ]
     },
@@ -457,10 +469,32 @@
           "version": "repo-file-v1:sha256:094f62f414cdec60062ec278ae8948bc7b7d5607c2c40ca7e5056d865296606b"
         }
       ]
+    },
+    {
+      "id": "claim_776fd976780c4e888342fe1e934d07ea",
+      "statement": "createZipStoreOnly is a classic (no-zip64) store-only ZIP writer: it writes no zip64 extra fields, so every 32-bit size and offset must fit below 0x100000000; it throws explicitly when an entry is >= 4 GiB (0xffffffff, the 'size in zip64 extra' sentinel — which would otherwise wrap the 32-bit header fields with no such extra present, producing a silently corrupt archive) or when the archive's central directory starts past that value, instead of emitting a corrupt archive. The receiver 'Max Size' dropdown's largest option is therefore capped at 2 GB (below the 4 GiB ceiling), and DEFAULT_RECEIVE_OPTIONS.maxSize (1 GB) stays below it, so the default never allows a file the bulk 'Download all files (zip)' path cannot archive (PR #110).",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/ReceiverOptions.svelte#L46-L57",
+          "version": "repo-lines-v1:sha256:25d55c8f8f248e6943ffd3746e64ad3da94006760979bd69f6ef3de22abd8833:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4MDkwMzAzNjJhMjI0NjQ5YTkwMGY2NDYwZmU1YWJmMDRkZGY3NzE0Nzg5YzE4MzVjNjA3YTA0NDI1MjE3NDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkNzEwOWI2MDVhODVmNTkwNGIyYWIzODk3YjhhMDY4MGY2N2Q5OGRkOTU2YTQ4N2ExOTRiNGVjOTI4MTk0M2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExY2IwMmU5NTdmN2UzMmJkY2QwYmYyNGFhNDFlYTdiYWQ2NDUyMGNlNTNiMGQ5OTViOTJiODI2NmU4MjY1N2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhMjA2OTM4NTNkZDdjZWJkOWU5YzM4NzgzMDkwNWIzNzkwYzZhOGZiNGI4ODEzODhlYzdlNTdlNTIxOGY3OTYifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L60-L66",
+          "version": "repo-lines-v1:sha256:e89818b7d3f5b4f80b7d729ddbd21891390565c63788ad517b31767b050dbfdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY1NTc5NTJjM2U1NjA5MzQ5NzhiZWY2MGUxYzNhNjU4MzRhNTRiODlmYTdiMWI0MjhhMGJmYTMzZWUzODQ5OSJ9"
+        },
+        {
+          "resource": "repo://src/utils/zip.ts#L82-L119",
+          "version": "repo-lines-v1:sha256:9149ca9292a0547358fcca97f74bba507bedd70c1a46bb22cb877feee7bf8b42:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5YjAzNTRhMGEwMjRkZjBhZGE0NTRiMTMyZjY1OWY1NTNiMjdmZDNmMzlkMTY3NTViZmE5NDRiZDczZmM5YWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhYjg1MWE1M2UyMGFkMzg1YjRjOTk3YzQ0OTU1MTY2N2RjZTUwMWYyMTViYTMyOTY0MGJjMWRhOTc0YjUwMmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzRmM2ZkMGJjMzFlMGUwNTk1NDZiMGQyNGVmYzlkMDM4ZjU5M2ZkMDRkZDhmMDc0OWIzYjc3MzI2NGJhNzgifQ"
+        },
+        {
+          "resource": "repo://tests/zip.test.mjs",
+          "version": "repo-file-v1:sha256:50fb286095eaedb84c6baec6b369dc37b06f9e742cbc093ae3617dd7e4bfec94"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-20T12:08:29.095Z"
+    "at": "2026-10-21T14:54:57.542Z"
   }
 }

@@ -140,8 +140,9 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
 
   async function sendBuffer(buffer) {
     const encrypted = await Promise.resolve(new Uint8Array(buffer)); // stub encryptAesGcm
-    if (sendingFile.stop) return;
+    if (sendingFile.stop) return false;
     send({ kind: 'chunk', key });
+    return true;
   }
 
   async function sendNextChunk() {
@@ -157,9 +158,11 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
       toasts.push(`File ${sendingFile.metaData.name} failed: invalid chunk size`);
       return;
     }
-    await sendBuffer(buffer);
+    const sent = await sendBuffer(buffer);
+    if (sent) {
+      offset += buffer.byteLength;
+    }
     if (sendingFile.stop) return;
-    offset += buffer.byteLength;
     fileStats.progress = Math.round((offset / sendingFile.metaData.size) * 100);
     if (fileStats.progress >= fileStats.nextProgressUpdate) {
       sendingFile.progress = fileStats.progress;
@@ -183,7 +186,8 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
   event.on('EVENT_RECEIVED_CHUNK', async () => {
     const f = sendingFiles[key];
     if (!f) return;
-    if (f.stop) return;
+    if (f.stop && offset < sendingFile.metaData.size) return;
+    if (f.status === FileStatus.Success) return;
     if (f.error || f.status != FileStatus.Processing) {
       f.progress = 0;
       f.status = FileStatus.Pending;
@@ -201,6 +205,7 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
     const f2 = sendingFiles[key];
     if (!f2) return;
     f2.status = FileStatus.Success;
+    f2.stop = false;
     toasts.push(`File ${sendingFile.metaData.name} sent successfully`);
   });
   event.on('EVENT_VALIDATE_ERROR', () => {
@@ -422,8 +427,19 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
     'Sender.svelte must not call dataChannel.send directly — every send goes through the shared guarded helper'
   );
   assert.ok(
-    !/function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean/.test(senderSource),
-    'Sender.svelte must no longer define its own guarded send(message): boolean body'
+    !/function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean\s*\{[\s\S]{0,300}?dataChannel\.readyState/.test(
+      senderSource
+    ),
+    'Sender.svelte must no longer define its own guarded send body (readyState check)'
+  );
+  // The old full guarded body is gone; what remains is exactly one thin
+  // wrapper that delegates to the helper and mirrors the helper's lost flag
+  // into the $state UI gate (the wrapper shape is pinned below).
+  assert.equal(
+    (senderSource.match(/function\s+send\s*\(\s*message:\s*Uint8Array\s*\):\s*boolean/g) || [])
+      .length,
+    1,
+    'Sender.svelte must define exactly one send() wrapper around the helper'
   );
 
   // onChannelClose(): exported, single-fires via the helper, stops in-flight
@@ -443,11 +459,45 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
     /f\.stop\s*=\s*true;/.test(senderSource),
     'onChannelClose() must stop in-flight send pipelines'
   );
-  // The live connectionLost flag still reaches the list (Resend/Continue/Send
-  // gating) — derived from the helper, flipped on the same close.
+  // The live connectionLost flag reaches the list (Resend/Continue/Send
+  // gating). It is a $state the template reacts to (flipped in onChannelClose()
+  // and the send() wrapper) — NOT a $derived over channelSender.isLost():
+  // isLost() reads a plain closure variable and touches no Svelte signal, so
+  // a $derived over it evaluates once and caches `false` forever, and the gate
+  // never engaged after a connection loss.
   assert.ok(
-    /connectionLost\s*=\s*\$derived\(channelSender\.isLost\(\)\)/.test(senderSource),
-    'the connectionLost prop for SendingFileList must be derived from the helper flag'
+    /let\s+connectionLost\s*=\s*\$state\(false\)/.test(senderSource),
+    'the connectionLost gate must be a $state the template reacts to (not a $derived over isLost())'
+  );
+  assert.ok(
+    !/connectionLost\s*=\s*\$derived\(channelSender\.isLost\(\)\)/.test(senderSource),
+    'connectionLost must NOT be a $derived over channelSender.isLost() (reads no signal -> permanently cached false)'
+  );
+  assert.equal(
+    (senderSource.match(/connectionLost\s*=\s*true;/g) || []).length,
+    2,
+    'connectionLost must be flipped exactly twice: in onChannelClose() and the send() wrapper'
+  );
+  const ocIdx = senderSource.search(/export\s+function\s+onChannelClose\s*\(\s*\)/);
+  assert.ok(ocIdx !== -1, 'onChannelClose() must be exported');
+  const ocBody = senderSource.slice(ocIdx, ocIdx + 600);
+  assert.ok(
+    /connectionLost\s*=\s*true;/.test(ocBody),
+    'onChannelClose() must set connectionLost = true (the UI gate flips with the channel)'
+  );
+  // The send() wrapper mirrors the helper's lost flag into the UI flag: when a
+  // throwing send() wins the race (the channel throws before onclose fires,
+  // so the close handler never runs), the helper flips its own flag and the
+  // wrapper must propagate it, or the gate would stay open on that path.
+  const swIdx = senderSource.search(
+    /function\s+send\s*\(\s*message:\s*Uint8Array\s*\)\s*:\s*boolean/
+  );
+  assert.ok(swIdx !== -1, 'Sender.svelte must define a send() wrapper around the helper send');
+  const swBody = senderSource.slice(swIdx, swIdx + 400);
+  assert.ok(
+    /channelSender\.send\(message\)/.test(swBody) &&
+      /channelSender\.isLost\(\)\s*\)\s*connectionLost\s*=\s*true;/.test(swBody),
+    'the send() wrapper must call channelSender.send() and mirror isLost() into connectionLost'
   );
   // The chunk sends and the metadata send go through the guarded helper.
   const sendBufferMatch = senderSource.search(/async\s+function\s+sendBuffer\s*\(/);

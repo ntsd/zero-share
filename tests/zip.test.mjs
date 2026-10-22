@@ -9,7 +9,9 @@ import { execFileSync } from 'node:child_process';
 // receive page "Download all files (zip)" button. Node strips the type
 // annotations in zip.ts natively (erasable TS syntax).
 const here = dirname(fileURLToPath(import.meta.url));
-const { createZipStoreOnly, crc32 } = await import(join(here, '..', 'src', 'utils', 'zip.ts'));
+const { createZipStoreOnly, crc32, sanitizeName } = await import(
+  join(here, '..', 'src', 'utils', 'zip.ts')
+);
 
 const dir = await mkdtemp(join(tmpdir(), 'zip-test-'));
 try {
@@ -259,6 +261,157 @@ try {
   );
 
   console.log('ok - 4 GiB classic-ZIP guard (wrap semantics + source guards)');
+
+  // --- zip-slip guard: peer-controlled names with embedded traversal ---
+  // MetaData.name is peer-controlled and was written byte-for-byte into the
+  // local header + central directory; a name like "a/b/../../../../etc/passwd"
+  // extracts OUTSIDE the archive folder on unzip (CWE-22). sanitizeName() must
+  // reduce every name to a safe basename, and the emitted archive must carry
+  // no "/", "\", or ".." in ANY entry name.
+  const unsafe = ['a/b/../../../../etc/passwd', 'sub/../../x.png', 'C:\\\\evil\\\\evil.txt'];
+  for (const n of unsafe) {
+    assert.ok(
+      !sanitizeName(n).includes('/'),
+      `sanitizeName(${JSON.stringify(n)}) must contain no '/'`
+    );
+    assert.ok(
+      !sanitizeName(n).includes('\\'),
+      `sanitizeName(${JSON.stringify(n)}) must contain no backslash`
+    );
+    assert.ok(
+      !sanitizeName(n).includes('..'),
+      `sanitizeName(${JSON.stringify(n)}) must contain no '..'`
+    );
+  }
+  assert.equal(
+    sanitizeName('a/b/../../../../etc/passwd'),
+    'passwd',
+    'POSIX traversal: basename survives, traversal removed'
+  );
+  assert.equal(
+    sanitizeName('sub/../../x.png'),
+    'x.png',
+    'relative traversal up: basename survives'
+  );
+  assert.equal(sanitizeName('..'), 'file', 'pure dot-dot must fall back to the safe default');
+  assert.equal(sanitizeName('...'), 'file', 'trailing-dots run must fall back to the safe default');
+  assert.equal(sanitizeName(''), 'file', 'empty name must fall back to the safe default');
+  assert.equal(
+    sanitizeName('..\\..\\win.txt'),
+    'win.txt',
+    'Windows backslash traversal: basename survives'
+  );
+  assert.equal(
+    sanitizeName('a\u2215b\u2215c'),
+    'c',
+    'U+2215 division slash is a path separator too'
+  );
+  assert.equal(
+    sanitizeName('a\u0000b.txt'),
+    'ab.txt',
+    'NUL/control chars are stripped, name stays a single safe token'
+  );
+  assert.equal(
+    sanitizeName('report.pdf'),
+    'report.pdf',
+    'a safe ordinary name must pass through unchanged'
+  );
+  assert.equal(
+    sanitizeName('tar.gz..'),
+    'tar.gz.',
+    'a legitimate trailing dot (e.g. "archive.") is preserved, dot runs collapse'
+  );
+  // Idempotent: a second pass must be a no-op (the receiver sanitizes at
+  // ingestion AND the zip writer re-sanitizes — the second pass must not
+  // mutate the first pass's output).
+  for (const n of [...unsafe, 'report.pdf', 'tar.gz..']) {
+    assert.equal(
+      sanitizeName(sanitizeName(n)),
+      sanitizeName(n),
+      `sanitizeName(${JSON.stringify(n)}) must be idempotent`
+    );
+  }
+
+  // End-to-end: traversal names fed to the REAL writer must be neutralized in
+  // every emitted entry name (central directory AND local headers) — no entry
+  // may resolve to a path outside the archive root, and dedup must still run
+  // on the sanitized names ("passwd" twice -> "passwd", "passwd (1)").
+  const w1 = new TextEncoder().encode('w one');
+  const w2 = new TextEncoder().encode('w two');
+  const w3 = new TextEncoder().encode('w three');
+  const traversalFiles = [
+    { name: 'a/b/../../../../etc/passwd', data: w1 },
+    { name: '../../../../passwd', data: w2 }, // duplicates the sanitized "passwd"
+    { name: 'sub/../../x.png', data: w3 }
+  ];
+  const traversalZip = await createZipStoreOnly(traversalFiles);
+  const tDV = new DataView(traversalZip.buffer);
+  let tEocd = -1;
+  for (let i = traversalZip.length - 22; i >= 0; i--) {
+    if (tDV.getUint32(i, true) === 0x06054b50) {
+      tEocd = i;
+      break;
+    }
+  }
+  assert.ok(tEocd >= 0, 'traversal.zip: EOCD signature found');
+  assert.equal(
+    tDV.getUint16(tEocd + 10, true),
+    traversalFiles.length,
+    'traversal.zip: EOCD total entries must equal the input file count'
+  );
+  const safeName = (n) =>
+    !n.includes('/') && !n.includes('\\') && !n.includes('..') && !/[\u0000-\u001f\u007f]/.test(n);
+  const tNames = [];
+  let tOff = tDV.getUint32(tEocd + 16, true); // central directory start
+  for (let i = 0; i < traversalFiles.length; i++) {
+    assert.equal(tDV.getUint32(tOff, true), 0x02014b50, 'traversal.zip: central dir signature');
+    const tNameLen = tDV.getUint16(tOff + 28, true);
+    const tName = new TextDecoder().decode(traversalZip.subarray(tOff + 46, tOff + 46 + tNameLen));
+    assert.ok(
+      safeName(tName),
+      `emitted entry name ${JSON.stringify(tName)} must contain no "/", "\\", "..", or control chars`
+    );
+    // The central-directory name must equal its local-header name.
+    const tLocalOff = tDV.getUint32(tOff + 42, true);
+    assert.equal(
+      tDV.getUint32(tLocalOff, true),
+      0x04034b50,
+      'traversal.zip: local header signature'
+    );
+    const tLNameLen = tDV.getUint16(tLocalOff + 26, true);
+    const tLName = new TextDecoder().decode(
+      traversalZip.subarray(tLocalOff + 30, tLocalOff + 30 + tLNameLen)
+    );
+    assert.equal(tLName, tName, 'traversal.zip: central and local names agree');
+    tNames.push(tName);
+    tOff += 46 + tNameLen;
+  }
+  assert.equal(
+    new Set(tNames).size,
+    tNames.length,
+    `traversal.zip central directory names must be unique, got: ${JSON.stringify(tNames)}`
+  );
+  assert.deepEqual(
+    [...tNames].sort(),
+    ['passwd', 'passwd (1)', 'x.png'],
+    'traversal.zip must contain exactly the sanitized, deduplicated entry names'
+  );
+  if (spawnSync('sh', ['-c', 'command -v unzip']).status === 0) {
+    // Real extractor proof: every file must land inside the extract dir.
+    const tZipPath = join(dir, 'traversal.zip');
+    await writeFile(tZipPath, traversalZip);
+    execFileSync('unzip', ['-o', '-q', tZipPath, '-d', dir + '/ext-trav'], { encoding: 'utf8' });
+    const { readdir } = await import('node:fs/promises');
+    const extracted = await readdir(join(dir, 'ext-trav'));
+    assert.deepEqual(
+      extracted.sort(),
+      ['passwd', 'passwd (1)', 'x.png'].sort(),
+      `unzip must extract exactly the sanitized names into the archive root, got: ${JSON.stringify(extracted)}`
+    );
+  }
+  console.log(
+    'ok - peer-controlled names with path traversal are neutralized (zip-slip / CWE-22 guard)'
+  );
 } finally {
   await rm(dir, { recursive: true, force: true });
 }

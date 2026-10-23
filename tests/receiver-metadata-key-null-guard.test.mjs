@@ -19,8 +19,8 @@
 // EVENT_VALIDATE_ERROR / EVENT_RECEIVER_REJECT so its file sits in
 // WaitingAccept forever.
 //
-// Every OTHER post-await path in this file already null-guards the same
-// access (onChunkData, processChunk, onRemove, onDownload, onAccept, onDeny);
+// Every OTHER path in this file already null-guards the same access
+// (onChunkData, processChunk, onRemove, onDownload, onAccept, onDeny);
 // line 79 was the one missing it. The fix re-reads receivingFiles[id] and
 // bails when the entry was removed in the decryption window, the same shape
 // as onRemove/onDownload.

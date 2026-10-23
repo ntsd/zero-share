@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:403d33fa24f1278e0899976ed6b9ed19acfc335d4dfc2c60a0ea48354c17fef5",
+  "pageVersion": "sha256:6ded3d145256eaab2497b6512b8723b9e5a1a5c681a059ceefd010a79e9ac50f",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -156,11 +156,11 @@
       "evidence": [
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L38-L114",
-          "version": "repo-lines-v1:sha256:30d0e7d38b1433d378cb8820846241bfd75325d8e72eba8a0b8b5b69da45ee9e:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZDhhYmM5MDY5NDg3YzE1OTdjZGNlYTZhOTI3ZGU3MWI3NDBiODY3MWYxMWE1MjkzNDRiZTE5MzZjOTEyOTYifQ"
+          "version": "repo-lines-v1:sha256:523db2b97a9c55f80373da23ff811cfbbfd52059aa6903f01a794e14ba284e38:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZjY5MDA3YTdlNzVjY2RiMmMxOWVmYTlkOTVjNDNiZjc4N2YzM2EyYjljODI2NWM0YTVjZTY0MmZlNmRiZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0YjI1ODgwMmQ4YTAwYWYyYTc3YTE4NGJlZmNiOWFmOGFmMTIwZjEyMDFlNzhjZWQwYjhiNGQ5MTc4NTZlNWQifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L406",
-          "version": "repo-lines-v1:sha256:21184284b3104b42e2c68c5bfea36d4c3b7b5d4143c47ae08cb122f10dc2a0b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L414",
+          "version": "repo-lines-v1:sha256:8e8d916945b42c38811b444da0336733bb8820bfb75877b4ab99f1d5fc66e4c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNDUzNTc3ZGVlYzc0NTQ5MjZiMmNkOTYyMTQ2YjAzMGNkN2VlODE2MWQwMTY1Mzk1YjExNGYxMzI1OWEzNmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5NTZjZGVhMWQ4Zjc2YzIwNTk1YTNiMTNjZGE2N2M2NzI0YjQ1ZTBlZGM2MTVhY2M3NzRmZjQzOWZjZmVlNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhOTAyMjEwMjJkZjlmOTAxYWVmMjE0NjAxZGMzN2Q3MDA3ODc2YzllOGIyNGVmM2FlNDkyNTgzZWJjMmI2YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRjZTE3NmI5Y2Q4YWViYTlmNDgwMjA0OGM1NDM4MzY3MTZhOTViNDIxNWMzMTJlYmI3ZDkwN2E2MWVlZTE4YzUifQ"
         },
         {
           "resource": "repo://src/components/receiver/ReceivingFileList.svelte#L18-L32",
@@ -217,12 +217,12 @@
           "version": "repo-lines-v1:sha256:6fb3ba92ed9fc28be64a19b28664865509b93cdf78d9d920d4b9709e947dc701:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWU1MmI1YmU5MWU0Mjc3YzI3NDY0MTY3MzEzNGM2MTk2ZjY0OWFjYjAyMDFkYmJhODk2NDlhMjU5MGNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQ2ZTIzOTcwODY0OGJlMGExOTViNjEwMzVlNTI1ZjNjMDdjYzdjYzY0MTU1NjcwMzM5NDJjMWNmOGNiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkYjcwODZkYWE1NjZhZGQwOTU2OWQ0OGZiYWRhODZjNTQwZWI0OWQwYzdmOTNmMGRjYTU2YmNhNTg5YTBkY2EifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L410",
-          "version": "repo-lines-v1:sha256:31fe85fe8ef193a25e0b597c780edb42ca11f074eec0f913f5faf3f33459e95b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNDUzNTc3ZGVlYzc0NTQ5MjZiMmNkOTYyMTQ2YjAzMGNkN2VlODE2MWQwMTY1Mzk1YjExNGYxMzI1OWEzNmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3YWIxNzE0ZmQ0MjQ4YWYxZjA1ZGIyMjUxYmQwOWExMGM4ODVkNzA1NGIzYjRkZTZjNjc1ZWNlOTcyOTFiMTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhOTAyMjEwMjJkZjlmOTAxYWVmMjE0NjAxZGMzN2Q3MDA3ODc2YzllOGIyNGVmM2FlNDkyNTgzZWJjMmI2YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1OWJjZTJmMWZmMTFhODNhZTgwNjNkNDM5MWNiOWViYjM4YTJiOWVlNDAwZmYxMGZjNjQ5MWJjNTVmN2U4ZTgifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L414",
+          "version": "repo-lines-v1:sha256:8e8d916945b42c38811b444da0336733bb8820bfb75877b4ab99f1d5fc66e4c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNDUzNTc3ZGVlYzc0NTQ5MjZiMmNkOTYyMTQ2YjAzMGNkN2VlODE2MWQwMTY1Mzk1YjExNGYxMzI1OWEzNmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5NTZjZGVhMWQ4Zjc2YzIwNTk1YTNiMTNjZGE2N2M2NzI0YjQ1ZTBlZGM2MTVhY2M3NzRmZjQzOWZjZmVlNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhOTAyMjEwMjJkZjlmOTAxYWVmMjE0NjAxZGMzN2Q3MDA3ODc2YzllOGIyNGVmM2FlNDkyNTgzZWJjMmI2YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRjZTE3NmI5Y2Q4YWViYTlmNDgwMjA0OGM1NDM4MzY3MTZhOTViNDIxNWMzMTJlYmI3ZDkwN2E2MWVlZTE4YzUifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L457-L497",
-          "version": "repo-lines-v1:sha256:58a9d6a91ef91204bb7eceeb157f0bc7fb39834bf9a95fd779553e955df0aa2d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ODVkN2ZjYzY1MmUwY2M1NzYzMjFkMGFlZmM1MTg3ZDU2ZDM0N2M5NjcxNWM0ZWIyOTRhMjdjOTlhNzFiMTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYjUxNjU4YzRmZjAzNWZlY2RlYjRjMjY5ZWZiMmQzM2E2N2FjOTkyOGEyYTZjMmQyZDlhMTQ2MzBhMGVjMzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjMDk1Mjk4ZmQ4MTY4YTA0YmIyNGFkN2Q3ODhhYTc0NmYzOTY4YjdlYWUwNzVmZWNhNzg2NDRmOWZmMGIwZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L466-L509",
+          "version": "repo-lines-v1:sha256:ae7d9878334fc0d4854cd17f311e10e106ded1fc9deb59cbca6e5ad4c561d4ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjlkOTNjZDU1NDNhNWViMWU0YTNiYjc1NDZkYmJhYzBlYmFkMDhlNjZjMWU5NDZjMWJhMzFkMjM4MDZkYzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYjUxNjU4YzRmZjAzNWZlY2RlYjRjMjY5ZWZiMmQzM2E2N2FjOTkyOGEyYTZjMmQyZDlhMTQ2MzBhMGVjMzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNlYzQ5YzU0YWMwMGMwMzA3NzYwNTZkMDM1NjY3NDc2YjhmNTc5Y2Y0MDIxYzllYjk0MGVmNzkyNGIzYWNkYTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://src/utils/zip.ts#L39-L72",
@@ -383,8 +383,8 @@
       "statement": "onAccept (the shared entry point of autoAccept and the list UI's Accept button) guards up front against metadata-failed entries — error set (key decryption or max-size validation), or an encrypted session with no aesKey (PR #78): it toasts 'Cannot accept <name>: the metadata/key failed to process — the sender must resend the file', sends EVENT_RECEIVER_REJECT, leaves the entry in WaitingAccept + error, and creates no chunk map (so late-arriving chunks are dropped by the onChunkData guard); without a usable key the transfer can never succeed — an encrypted session would either assemble the raw ciphertext as a Success blob or hit rejectCorruptChunk on every chunk (an N-toast storm per resend) — and only entries that pass the guard emit EVENT_RECEIVER_ACCEPT, flip to Processing, and get their chunk/stats maps.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L384-L429",
-          "version": "repo-lines-v1:sha256:faf8652ff31f590338693efbb5bfda5569be94c5ea69257c042637c782dbdfe7:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzYzNiNWRjNWZhMzg2NDM4NzFhYTFhNzhlMjdmMWZjNzQzZGQxNGU3NGQzMzhkZTdkMjVkOWFmOTg5OTUxNTIifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L394-L452",
+          "version": "repo-lines-v1:sha256:fd23a3823e3b32df25dc0833293d5f5907bcf825932fa0cd2f175468cf6cd63f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5MzU4NzdhYjRjNGY5YTU5MTlhMTQ0MTc1NjI5YWYyMjU5OWVkNmJhYTI3OTEwZGMyOTdlYjY1ZjFiNmY1ODEifQ"
         },
         {
           "resource": "repo://tests/receiver-key-decryption-failure.test.mjs",
@@ -452,7 +452,7 @@
         },
         {
           "resource": "repo://tests/receiver-metadata-key-null-guard.test.mjs",
-          "version": "repo-file-v1:sha256:cf04803fdec35e70d0ed9b5088da94619d3e2e0b2db79a27f1e6a2cb60a3d920"
+          "version": "repo-file-v1:sha256:4e95aada28613cb8bf0165a46c0d4fe962ccf216322cb7a2339d05d198974110"
         }
       ]
     },
@@ -545,6 +545,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-23T00:43:41.789Z"
+    "at": "2026-10-23T02:26:17.432Z"
   }
 }

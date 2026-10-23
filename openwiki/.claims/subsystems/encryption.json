@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:08c415870bb48adef56549c948cff08d7f86bbc1d865efcc37f414e18ac964d8",
+  "pageVersion": "sha256:10380524f4e7a1aa0797bbd51bb875fdcc712ddeeed79a6a9fdaea8d501c12b6",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -62,7 +62,7 @@
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L384-L429",
-          "version": "repo-lines-v1:sha256:faf8652ff31f590338693efbb5bfda5569be94c5ea69257c042637c782dbdfe7:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzYzNiNWRjNWZhMzg2NDM4NzFhYTFhNzhlMjdmMWZjNzQzZGQxNGU3NGQzMzhkZTdkMjVkOWFmOTg5OTUxNTIifQ"
+          "version": "repo-lines-v1:sha256:38a141d0d13f7594deebe594f89088d7e78837e1b03f2a647896f743d700a1fe:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzYzNiNWRjNWZhMzg2NDM4NzFhYTFhNzhlMjdmMWZjNzQzZGQxNGU3NGQzMzhkZTdkMjVkOWFmOTg5OTUxNTIifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L330-L401",
@@ -186,7 +186,7 @@
         },
         {
           "resource": "repo://src/components/receiver/Receiver.svelte#L384-L406",
-          "version": "repo-lines-v1:sha256:21184284b3104b42e2c68c5bfea36d4c3b7b5d4143c47ae08cb122f10dc2a0b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
+          "version": "repo-lines-v1:sha256:b80c2d8ed39cf6bb650ff109fba607bb9a3e9703a076f8a8b2e926b3c38d6426:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
         },
         {
           "resource": "repo://src/components/receiver/ReceivingFileList.svelte#L18-L32",
@@ -208,7 +208,7 @@
         },
         {
           "resource": "repo://tests/receiver-metadata-key-null-guard.test.mjs",
-          "version": "repo-file-v1:sha256:cf04803fdec35e70d0ed9b5088da94619d3e2e0b2db79a27f1e6a2cb60a3d920"
+          "version": "repo-file-v1:sha256:4e95aada28613cb8bf0165a46c0d4fe962ccf216322cb7a2339d05d198974110"
         }
       ]
     },
@@ -229,6 +229,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-23T00:43:41.789Z"
+    "at": "2026-10-23T02:26:17.432Z"
   }
 }

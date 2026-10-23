@@ -393,6 +393,16 @@
 
   function onAccept(id: string) {
     const receivingFile = receivingFiles[id];
+    // The entry is removable between the rendered Accept button and this click
+    // (onChannelClose / onRemove / onDeny can delete receivingFiles[id] in the
+    // window before Svelte re-renders and hides the button). If it is gone,
+    // bail before signaling ACCEPT or writing state: a removed entry must not
+    // advance the sender, and writing receivingFiles[id].status on a missing
+    // entry threw "Cannot set properties of undefined (setting 'status')".
+    // Same null-guard convention as onChunkData / onRemove / onDownload.
+    // onAccept has no top-level await, so if receivingFile is present here it
+    // stays live for the whole function and the writes below are safe.
+    if (!receivingFile) return;
     // Refuse entries whose metadata failed (key decryption or max-size
     // validation): without a usable aesKey the transfer can never succeed —
     // on an encrypted session processChunk would skip decryption and assemble
@@ -401,7 +411,7 @@
     // WaitingAccept + error so Deny/Remove remain available (#76), and reject
     // so the sender (bounced to Pending by EVENT_VALIDATE_ERROR) does not sit
     // in WaitingAccept for a file it can never deliver.
-    if (receivingFile?.error || (isEncrypt && !receivingFile?.aesKey)) {
+    if (receivingFile.error || (isEncrypt && !receivingFile.aesKey)) {
       addToastMessage(
         `Cannot accept ${receivingFile?.metaData.name ?? id}: the metadata/key failed to process — the sender must resend the file`,
         'error'
@@ -422,8 +432,10 @@
       }).finish()
     );
 
-    receivingFiles[id].status = FileStatus.Processing;
-    receivingFiles[id].startTime = Date.now();
+    // Write through the captured reference (re-reading the map here would
+    // re-introduce the unguarded-write race).
+    receivingFile.status = FileStatus.Processing;
+    receivingFile.startTime = Date.now();
 
     // initiali non state maps
     receivingFileChunkMap[id] = {

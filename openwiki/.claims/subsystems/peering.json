@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8c744df22aba0e28964160a2cd844e948a3cdbd7d26afab63a7f85f25c95104d",
+  "pageVersion": "sha256:3c1e77e602e47820f17467af6b368aaccc96da7d4680489c6ad6caeeab084e60",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
@@ -216,7 +216,7 @@
         },
         {
           "resource": "repo://tests/sender-connection-lost.test.mjs",
-          "version": "repo-file-v1:sha256:15bd7c2695ff2d5dd5c94d81c72df35f5766a72dbd53de8c88a3aff6c743c729"
+          "version": "repo-file-v1:sha256:1c869983ac5c54d52f13fabede8be793741a9a16324096f5e607f486a3cf1667"
         }
       ]
     },
@@ -241,6 +241,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-21T14:54:57.542Z"
+    "at": "2026-10-23T00:43:41.789Z"
   }
 }

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e2871d589d41275e635df306fc741146ebdc427486954b95f636bc0bd9e5a41e",
+  "pageVersion": "sha256:eda485b5a37ef5014cff66326e1370131963d2e5025e065b7114ee1126d83012",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
-      "statement": "Zero Share is a serverless client-side P2P file-sharing app built as a static Astro 5 + Svelte 5 site (output 'static', PWA service worker) with Tailwind 4/DaisyUI; file transfer runs over a direct WebRTC data channel with a public STUN server for NAT traversal (a user-typed custom STUN/TURN URL is also accepted through the shared isSupportedIceServer/resolveIceServer predicate in src/configs.ts), with optional per-file encryption.",
+      "statement": "Zero Share is a serverless client-side P2P file-sharing app built as a static Astro 5 + Svelte 5 site (output 'static', PWA service worker) with Tailwind 4/DaisyUI; file transfer runs over a direct WebRTC data channel with a public STUN server for NAT traversal (a user-typed custom STUN/TURN URL is also accepted through the shared isSupportedIceServer/resolveIceServer predicate in src/configs.ts), with optional per-file encryption. package.json declares `engines.node >= 22.18` (PR #113): the test suite relies on Node's built-in TypeScript type-stripping (enabled by default since v22.18.0), and the README's Requirements section states the same floor.",
       "evidence": [
         {
           "resource": "repo://README.md#L1-L18",
@@ -15,12 +15,12 @@
           "version": "repo-lines-v1:sha256:d8286958a3c6a6453553d20e544bd29f4fec5cf029bd2ace9ae479dce7a327dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1NzQxYTU1ZDgwYzE5NTJkNmFhMGUwOTIxOTQ2NDYzNmI2MmQ3NTIxYWQyY2EyMjhmYWIzMDNkYjQwMTg4OTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
-          "resource": "repo://package.json#L1-L40",
-          "version": "repo-lines-v1:sha256:8f1f8fa3ea1bb2c92b45ec5210bbed0361c4f838d08a02505774cbb99875ece9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NWY5YjVhYjM5NTFlMjcyMGYyNTZjNmYzNzllOGU1ZmU5ZWY5NzE4YTFlNTQ1MGViMzlkNDc1OWNhYTg1ZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMmJjMDliYWY5MGI4MDk4MDg2YmNlYzE2NjRlMGU1OWZjZmJmNjc1YjE5MTMyYzg1MmZlZjg3YzFiMGZlOGUifQ"
+          "resource": "repo://package.json#L1-L10",
+          "version": "repo-lines-v1:sha256:544caa04a49047050af179dce1433b1ed2e563b53d4167344587117d2826c5a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmNmYxMjhhOGIwMjBmMjYwZTBiNTM5NWM5ZTBkNjBlNmU5Mzk3MDljOTE2ZjA5ZWY4MGQ0YTVjYjg3NzBlZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiNzY0MWJlMWZlOWIxMjhkMTBkNGNjNzIxYmU5MjJlMmFjZDUzM2JlMTQ4MzBjN2RmMTZkYzlhY2YxYzcxZTMifQ"
         },
         {
           "resource": "repo://src/configs.ts#L1-L60",
-          "version": "repo-lines-v1:sha256:99f21398be30875bf60a3d3d7e37743738fcb8507c75720ef1136c11fc94f7ca:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZWMyM2NiMWY3YjZhZDRkN2RiNjU3MTg3YmJhYjUzMzkyYjM3Y2EyZDU2ZmQxODlkYzIxNjA5MGJjMzcwNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkMmMyMTZiYTgwODUyOGYzZjU0MmU5NmI2ZGM3OTNhZTU3ZDYxODA4ZDc2NDUzNjRlOTVlNDJhNDE2Y2FiODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5NjcyZDdjZGZjZDE1MDBiODE0MTE0YjZiNmE3ZjQzMGRmZjBlMDRkMDc2NzdkOGQwNDBhM2U2Nzk4YjZjZTgifQ"
+          "version": "repo-lines-v1:sha256:99f21398be30875bf60a3d3d7e37743738fcb8507c75720ef1136c11fc94f7ca:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZWMyM2NiMWY3YjZhZDRkN2RiNjU3MTg3YmJhYjUzMzkyYjM3Y2EyZDU2ZmQxODlkYzIxNjA5MGJjMzcwNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkMmMyMTZiYTgwODUyOGYzZjU0MmU5NmI2ZGM3OTNhZTU3ZDYxODA4ZDc2NDUzNjRlOTVlNDJhNDE2Y2FiODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0ZDE4MjMzMGNlNjdmYWFmODk4YjhhZTgwNTEzMGFiZTM3ODBkY2Y5M2ZmMGE5NGJmZjUxNWQyOWJiYjliM2MifQ"
         }
       ]
     },
@@ -142,17 +142,17 @@
       "evidence": [
         {
           "resource": "repo://package-lock.json",
-          "version": "repo-file-v1:sha256:ea64023ecfe9d8ccb675abb4f8b2df7f9c3e061dc917a8a05e948093092a355b"
+          "version": "repo-file-v1:sha256:a3084ace6784c4eae75d1f7450b35089904b35f33ceb1c47b6f4580b6dd8b6de"
         },
         {
           "resource": "repo://package.json",
-          "version": "repo-file-v1:sha256:10cf7ce5d12318ba8e1961ebcaabd6c541d6f1ea71f319fe7bdf38c12bc8e1ed"
+          "version": "repo-file-v1:sha256:82399339c0372d72f9e88d93fdf52298710559a8c2d37aee3b891b6e063609ba"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-21T14:54:57.542Z"
+    "at": "2026-10-23T00:43:41.789Z"
   }
 }

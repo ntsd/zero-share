@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e0320169a8e4377b56b457dd078731ccbf347643b5ca58636d4b346262a76d75",
+  "pageVersion": "sha256:c1bbb1f3142e18a32694711d2e2f9228a19f9122787b7cd16d53182cd2bb8366",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -149,10 +149,24 @@
           "version": "repo-file-v1:sha256:82399339c0372d72f9e88d93fdf52298710559a8c2d37aee3b891b6e063609ba"
         }
       ]
+    },
+    {
+      "id": "claim_e3c00ef8916e42d299ef4610155dabf0",
+      "statement": "tests/receiver-double-accept.test.mjs (PR #117) is a regression-guard file that `npm test` runs via `node --no-warnings --test \\\"tests/*.test.mjs\\\"` (bringing the repo's regression-guard file count from 42 to 43). It pins the onAccept double-accept re-entrancy guard: a second Accept click landing in the same frame as the first (before Svelte re-renders the button away, while the entry is already Processing) previously passed the bare null guard and sent a second EVENT_RECEIVER_ACCEPT, re-initializing the chunk/stats maps so the sender's persistent ACCEPT handler fired sendNextChunk() concurrently and the same chunk went on the wire twice (double-counting receivedSize, so the fully delivered file was marked Success with duplicated bytes or rejected as oversized). The combined guard `if (!receivingFile || receivingFile.status !== FileStatus.WaitingAccept) return;` bails before the ACCEPT send, also covers dead-channel entries bounced to Pending, and does not short-circuit the metadata-failure reject branch — the test pins all of it with a pre-fix control (two ACCEPTs), post-fix no-op proofs (one ACCEPT, chunk map not recreated, a dead-channel Pending entry stays Pending), a metadata-failure entry still rejecting, and static regex guards on the real onAccept.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L394-L418",
+          "version": "repo-lines-v1:sha256:c8aba19eb15e7a0fc51f227219da9b81fcb2cf991dd60064c4853c0a9b2a5887:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkYjA1MGFjOTg1YjMwNGExZGY3ODMyYWEyY2Y1OTM4OTkzY2ViYjU4ZTE4Zjg1NWE2N2YyMDU0OWMxYTU4MzAifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-double-accept.test.mjs",
+          "version": "repo-file-v1:sha256:072e797c0ce7d084e154543fcfd577fb6e4d6ddb09915fbb12632c082f9d4762"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-23T02:26:17.432Z"
+    "at": "2026-10-24T01:49:31.401Z"
   }
 }

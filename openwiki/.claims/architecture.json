@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ef7cd68b547fcc1ed16aa770eb3092339c5c84b91df279d52c4d59da1c0b0144",
+  "pageVersion": "sha256:2ff45670757a520eaa47599602e5a8b688acad97ebc7e47aebca320a4c4cdf1b",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -229,8 +229,8 @@
           "version": "repo-lines-v1:sha256:bae95bc02645dd877df2cbd9f79b02526c5ea4111747a041f485f6228e6e3046:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmYTQ3NzVjOWIzMTFmNGQ4NTliMDQ3NTgxMWQ5ZGY0ZDQ1YmI0Nzc3MWI1OWMwMTA2MmUyNzA4MTk3NjZhYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxMDc0ZDZmN2E3YzZmNjMxNzVjNDk5YTMwOTlkYzJhOGVlZDBiMWE0MjcyNjlmYzVlYWI5MGIxOTIwZWExM2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4M2MzZjY4OWIyYmYxMmM2OTlkYzkxZDQwZmZmMjFlZmVjNjVlMWJmYjlmZjU5ZTY2YzBlOTJhNWM5OGQ2MmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxYTYzNDRjMTg5ZTg4ODIzMzY5NGU2OWMxMjIzOGFkOTBiZTdiNzBkNTA5MjhjZGY0ZThlYjc1NTFmOWEyZTgifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L370-L509",
-          "version": "repo-lines-v1:sha256:37b1c4bbc5281a8a9956a6e6bd619b7e3f7e65cd688807bb39f852239fe96f8a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1ZWI1MTY1OGM0ZmYwMzVmZWNkZWI0YzI2OWVmYjJkMzNhNjdhYzk5MjhhMmE2YzJkMmQ5YTE0NjMwYTBlYzM1IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4NDQyMDYwNjk4MmI0YmI0Y2M1M2U1Y2JkYzFmOTZlZWMwOWRhOTQ3ZTZjNTk3ZTY1NjA0MmIzNzQxZTJmYmE2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L372-L505",
+          "version": "repo-lines-v1:sha256:92e994dbc08c5dd72d8c0c8853cbe13ea60e1fb93eb766f79dc6d7b57c471954:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmNjNlYzNkM2I5MTI3MTExNGU0YmJkYzI4OWU4MzBiMDI1MDcwN2I1ZGI0YjNlMDE0YjM5MGQ4NTNkZTUzNzllIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzZWM0OWM1NGFjMDBjMDMwNzc2MDU2ZDAzNTY2NzQ3NmI4ZjU3OWNmNDAyMWM5ZWI5NDBlZjc5MjRiM2FjZGE3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1M2U0MDJkNDk1MzllNjkwYjc4ODZmYWI2Mzc4OGRjNGRiMzY1YzdkM2YzYTUxMThjZDIyMTkzN2UzNDhiYjJjIn0"
         }
       ]
     },
@@ -301,10 +301,24 @@
           "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
         }
       ]
+    },
+    {
+      "id": "claim_a576d1929e53499389e3459c9d1b7ec7",
+      "statement": "onAccept bails on a combined null + status guard before the ACCEPT send — `if (!receivingFile || receivingFile.status !== FileStatus.WaitingAccept) return;` (PR #117): a second Accept click that lands in the same frame as the first (before Svelte re-renders the button away) previously passed the bare null guard and sent a second EVENT_RECEIVER_ACCEPT, re-initializing the per-file chunk/stats maps and deleting the chunkQueue entry; the sender's persistent ACCEPT handler then fired sendNextChunk() concurrently, the same chunk went on the wire twice, receivedSize double-counted, and the receiver marked a fully-delivered file Success or rejected it as oversized via rejectOversizedStream. The same guard also covers entries that onChannelClose already bounced to Pending (+error), where re-accepting would re-initialize chunk state for a file that can never complete. The guard runs before, and does not short-circuit, the metadata-failure reject branch — a WaitingAccept entry carrying error / a missing aesKey still reaches the PR #78 'Cannot accept ... the metadata/key failed to process' reject path. Pinned by tests/receiver-double-accept.test.mjs: a pre-fix control proving the double click sends two EVENT_RECEIVER_ACCEPT, a post-fix no-op proof (exactly one ACCEPT, chunk map not recreated, a dead-channel Pending entry stays Pending with no ACCEPT sent), a metadata-failure-entry-still-rejects check, and static regex guards that the real onAccept carries the combined null+status guard after the entry capture and before the reject branch.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L394-L418",
+          "version": "repo-lines-v1:sha256:c8aba19eb15e7a0fc51f227219da9b81fcb2cf991dd60064c4853c0a9b2a5887:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkYjA1MGFjOTg1YjMwNGExZGY3ODMyYWEyY2Y1OTM4OTkzY2ViYjU4ZTE4Zjg1NWE2N2YyMDU0OWMxYTU4MzAifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-double-accept.test.mjs",
+          "version": "repo-file-v1:sha256:072e797c0ce7d084e154543fcfd577fb6e4d6ddb09915fbb12632c082f9d4762"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-23T02:26:17.432Z"
+    "at": "2026-10-24T01:49:31.401Z"
   }
 }

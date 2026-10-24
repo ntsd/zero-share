@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-23T02:26:17.432Z
+    at: 2026-10-24T01:49:31.401Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -44,9 +44,11 @@ sources:
     resource: repo://tests/peer-message-handler.test.mjs
   - id: openwiki-source-edd2d815ffc75024b7c21d45
     resource: repo://tests/protocol-size.test.mjs
+  - id: openwiki-source-0833980019f1ab44ca66a28e
+    resource: repo://tests/receiver-double-accept.test.mjs
   - id: openwiki-source-cc2aa5000eb243dbf0af9518
     resource: repo://tests/regen-offer-stale-peer-crypto.test.mjs
-generated: { by: 'hermes', at: '2026-10-23T00:43:41.789Z' }
+generated: { by: 'hermes', at: '2026-10-24T01:49:31.401Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -82,7 +84,7 @@ Both pages dispatch incoming messages through the shared `handlePeerMessage` hel
 
 **Outgoing frames go through one shared guarded-send helper.** The copy-pasted guarded data-channel `send` (dead-channel flag + `readyState` check + throwing-send `catch`) that lived separately in `Sender.svelte` and `Receiver.svelte` is now the `createChannelSender(dataChannel)` factory in `src/utils/channelSender.ts` (PR #97, mirroring the `peerMessage.ts` handler dedup): it returns `{ send(message), isLost(), markLost() }` — `send` no-ops with `false` when the lost flag is set or `readyState !== 'open'`, returns `true` on a successful send, and on a throwing send flips the lost flag and returns `false` instead of letting an `InvalidStateError` escape; `markLost()` is the idempotent flip fired by the owning component's `onChannelClose()`; `isLost()` is the helper's live read. The sender's `connectionLost` flag is a plain **`$state`** that the template reacts to — **not** a `$derived` over `channelSender.isLost()`, which would cache `false` forever (a `$derived` evaluates against the signals it reads; `isLost()` reads a plain closure variable, so such a `$derived` would be permanently clean) — flipped by `onChannelClose()` and by a thin `send()` wrapper that mirrors the helper's lost flag into it, so the file-list UI gate and `onContinue`'s dead-channel refusal re-render on the dead-channel close instead of staying stale (PR #109). [`repo://src/utils/channelSender.ts`], [`repo://src/components/sender/Sender.svelte#L24-L49`], [`repo://src/components/receiver/Receiver.svelte#L108-L124`], [`repo://tests/channel-sender.test.mjs`]
 
-The transfer protocol is **receiver-ack chunking**: the sender emits metadata, waits for `RECEIVER_ACCEPT`, then sends chunks one per `RECEIVER_RECEIVED_CHUNK` acknowledgment — a simple backpressure loop that paces the transfer. File lifecycle is modeled per file as `Pending → WaitingAccept → Processing → Success` with error/reject returns to `Pending`. The receiver's `onAccept` entry point is guarded (PR #78): an entry whose metadata failed — its `error` is set, or an encrypted session with no `aesKey` — is refused with an explanatory toast plus `EVENT_RECEIVER_REJECT` (the entry stays in `WaitingAccept` so Deny/Remove remain available), because without a usable key the transfer can never succeed. The completion gate is an **exact byte match**: the receiver flips a file to `Success` only when `receivedSize === metaData.size` (not `>=`), and when a chunk pushes `receivedSize` past the declared size the whole file is rejected via `rejectOversizedStream` instead of being marked complete from a truncated prefix. See `subsystems/file-transfer.md`.
+The transfer protocol is **receiver-ack chunking**: the sender emits metadata, waits for `RECEIVER_ACCEPT`, then sends chunks one per `RECEIVER_RECEIVED_CHUNK` acknowledgment — a simple backpressure loop that paces the transfer. File lifecycle is modeled per file as `Pending → WaitingAccept → Processing → Success` with error/reject returns to `Pending`. The receiver's `onAccept` entry point is guarded (PR #78): an entry whose metadata failed — its `error` is set, or an encrypted session with no `aesKey` — is refused with an explanatory toast plus `EVENT_RECEIVER_REJECT` (the entry stays in `WaitingAccept` so Deny/Remove remain available), because without a usable key the transfer can never succeed. `onAccept` also bails on a **null + status guard** before the ACCEPT send — `if (!receivingFile || receivingFile.status !== FileStatus.WaitingAccept) return;` — so a second Accept click that lands in the same frame as the first (before Svelte re-renders the button away) no longer sends a second `EVENT_RECEIVER_ACCEPT` or re-initializes the per-file chunk state (which previously drove the sender's persistent ACCEPT handler to fire `sendNextChunk()` concurrently, putting the same chunk on the wire twice; PR #117, `tests/receiver-double-accept.test.mjs`). The completion gate is an **exact byte match**: the receiver flips a file to `Success` only when `receivedSize === metaData.size` (not `>=`), and when a chunk pushes `receivedSize` past the declared size the whole file is rejected via `rejectOversizedStream` instead of being marked complete from a truncated prefix. See `subsystems/file-transfer.md`.
 
 ## Security layering
 

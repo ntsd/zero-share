@@ -402,7 +402,20 @@
     // Same null-guard convention as onChunkData / onRemove / onDownload.
     // onAccept has no top-level await, so if receivingFile is present here it
     // stays live for the whole function and the writes below are safe.
-    if (!receivingFile) return;
+    // A second Accept click can land in the same frame as the first, before
+    // Svelte re-renders the button away (onAccept flips the entry to
+    // Processing only after the ACCEPT send). Without a status guard both
+    // calls send EVENT_RECEIVER_ACCEPT — the sender's persistent handler
+    // fires sendNextChunk() concurrently, the same chunk goes on the wire
+    // twice, the byte count double-counts, and the receiver rejects a
+    // fully-sent file as oversized (or never completes). The same guard also
+    // covers clicks on entries that onChannelClose already bounced to Pending
+    // (+error): re-accepting them would re-initialize chunk state for a file
+    // that can never complete. Not actionable outside WaitingAccept, so bail
+    // before the ACCEPT send and the state writes.
+    if (!receivingFile || receivingFile.status !== FileStatus.WaitingAccept) {
+      return;
+    }
     // Refuse entries whose metadata failed (key decryption or max-size
     // validation): without a usable aesKey the transfer can never succeed —
     // on an encrypted session processChunk would skip decryption and assemble

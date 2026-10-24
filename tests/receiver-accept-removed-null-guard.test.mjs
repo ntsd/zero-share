@@ -278,11 +278,14 @@ function makeEntry(name = 'a.bin', size = 300) {
 
   // The post-fix shape: onAccept captures the entry and bails on a missing
   // one before anything else (the reject guard and the accept send included).
+  // The guard may be the standalone null check or the combined
+  // null+status guard (`!receivingFile || status !== WaitingAccept`) added
+  // for the double-click re-entrancy race — both null-guard the entry first.
   assert.ok(
-    /function\s+onAccept\s*\(\s*id:\s*string\s*\)\s*\{\s*const\s+receivingFile\s*=\s*receivingFiles\[id\];[\s\S]*?if\s*\(\s*!receivingFile\s*\)\s*return;/.test(
+    /function\s+onAccept\s*\(\s*id:\s*string\s*\)\s*\{\s*const\s+receivingFile\s*=\s*receivingFiles\[id\];[\s\S]*?if\s*\(\s*!receivingFile\s*(?:\|\|\s*receivingFile\.status\s*!==\s*FileStatus\.WaitingAccept)?\s*\)\s*(?:\{\s*return;?\s*\}|return;)/.test(
       onAcceptBody
     ),
-    'onAccept must capture receivingFiles[id] and null-guard it before the reject guard / accept send / state writes'
+    'onAccept must capture receivingFiles[id] and null-guard it (optionally with a status guard) before the reject guard / accept send / state writes'
   );
 
   // The writes go through the captured reference, not a bare map re-read.

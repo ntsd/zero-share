@@ -78,7 +78,18 @@
     // param always matches what this peer's RTCPeerConnection actually uses —
     // the receiver honors exactly this value (same predicate in configs)
     const iceServer = resolveIceServer(sendOptions.iceServer);
-    offerLink = buildURL(location.href.split('?')[0], 'receive', {
+    // Build the link from location.href's ORIGIN, not its raw value: the
+    // app's pages deep-link with fragments (e.g. a restored tab or a URL
+    // pasted with `#how-does-it-work`), and a fragment left in the base
+    // would land BEFORE `/receive` in the generated link, where URL parsing
+    // treats everything after `#` as a fragment — so the peer's browser
+    // would navigate to the origin root and the `s` param would never reach
+    // ReceivePage. The app is a static site with no sub-path routing
+    // (astro.config.mjs exposes only `/` and `/receive/`), so the origin
+    // alone is the always-correct base: it drops the query string, the
+    // fragment, and any incidental path component (e.g. `index.html`) in
+    // one step.
+    offerLink = buildURL(new URL(location.href).origin, 'receive', {
       s: sdp,
       i: DEFAULT_SEND_OPTIONS.iceServer === iceServer ? '' : iceServer,
       c:

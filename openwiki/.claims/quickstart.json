@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:c1bbb1f3142e18a32694711d2e2f9228a19f9122787b7cd16d53182cd2bb8366",
+  "pageVersion": "sha256:2a6cb2f7a954070e137b678814dcafde6c3618222b774d0ca74d75103c3fd67f",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -70,7 +70,7 @@
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 44), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 40 regression-guard files).",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-three tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 47), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 43 regression-guard files).",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh#L28-L45",
@@ -167,6 +167,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-24T01:49:31.401Z"
+    "at": "2026-10-25T01:00:59.781Z"
   }
 }

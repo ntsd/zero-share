@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:b6bbe4afd5453f795cbfe953cbc80eff08140fd17d98c87f0cf3f1cd8cde44bd",
+  "pageVersion": "sha256:2054f0e9aabd1163ffc7885e94584cd590d7f015d155cf61b24f8f7cdb3def1b",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -28,7 +28,7 @@
     },
     {
       "id": "claim_0489f3cde91743e7b351af897e8841ab",
-      "statement": "The sender maintains per-file state in a reactive map with lifecycle Pending -> WaitingAccept -> Processing -> Success; on ACCEPT it starts the chunk loop, on REJECT or VALIDATE_ERROR it records the error and resets the file to Pending (retryable); the async event handlers re-read the live entry after each await and bail if it was removed, and chunk-send failures land as visible error entries instead of unhandled rejections (via the shared markChunkFailed helper, deduplicated in PR #70); a connectionLost flag — a $state the template reacts to, NOT a $derived(channelSender.isLost()) which would cache false forever since isLost() reads a plain closure variable — is flipped by onChannelClose() and by a thin send() wrapper mirroring the helper's lost flag (PR #109), marking the channel as dead so in-flight pipelines exit quietly with accurate connection-lost errors instead of per-chunk InvalidStateError failures (PR #74, shared helper PR #97), and the SendingFileList UI hides the Resend/Continue/Send buttons (leaving only Remove) when the channel is lost because each would be a guaranteed silent no-op.",
+      "statement": "The sender maintains per-file state in a reactive map with lifecycle Pending -> WaitingAccept -> Processing -> Success; on ACCEPT it starts the chunk loop, on REJECT or VALIDATE_ERROR it records the error and resets the file to Pending (retryable); the async event handlers re-read the live entry after each await and bail if it was removed, and chunk-send failures land as visible error entries instead of unhandled rejections (via the shared markChunkFailed helper, deduplicated in PR #70); a connectionLost flag — a $state the template reacts to, NOT a $derived(channelSender.isLost()) which would cache false forever since isLost() reads a plain closure variable — is flipped by onChannelClose() and by a thin send() wrapper mirroring the helper's lost flag (PR #109), marking the channel as dead so in-flight pipelines exit quietly with accurate connection-lost errors instead of per-chunk InvalidStateError failures (PR #74, shared helper PR #97), and the SendingFileList UI hides the Resend/Continue/Send buttons (leaving only Remove) when the channel is lost because each would be a guaranteed silent no-op. Since PR #121 the EVENT_RECEIVER_ACCEPT handler additionally resets the closure clock `fileStats.startTime = Date.now()` next to the entry-level `f.startTime = Date.now()`, so the 'Sending: X/sec' bitrate divides by time-since-ACCEPT (mirroring the receiver's onAccept entry clock) instead of time-since-Send-click, which any waiting-accept delay would have inflated and grossly under-reported throughput.",
       "evidence": [
         {
           "resource": "repo://src/components/sender/Sender.svelte#L22-L49",
@@ -36,11 +36,11 @@
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L419-L441",
-          "version": "repo-lines-v1:sha256:402d7da5aaff9f7c8645f593107de98ea3b31eab7d4f35b6f4b4707ee5c6d846:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkOTNiMjM3YjBhZDUwZTFiMGY4MzQzZWY1ZTU0Y2Q2NzJlM2U1MzJjZTQyZmM5MjNjZDQ0ZmYyNTgyNDYyMjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3ODAzYTBiYjZhMWJmZGQxNGQ2ZGM3YTIyNDcyNTFkOTdjNTUzMTY2NzNmOTBlNjUzM2FjOTgyOTY5OWNkMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxMzQxZDBjNTg4MmU5MWE2NmM2MGNiODYwMjBiMjQ3ZjBhZmMzMzZjZGY3NmMwYWUxOGJjZDIwYWM4ZmUxZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVmYjY1ZTY1MGQzMjU1MWVmNDIyZTEwZGU3ZGRiZWE5NGM5YTdkYjVmZWFiYjQxZjA3OTUxMjA0Y2QwYjMxOTgifQ"
+          "version": "repo-lines-v1:sha256:9b5f199b4755fe8be9326633e41d98ec4148a5988f4a06df487fe8b6c11bbbdd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlY2U4MjM5OGRlZTI4YzVmMjQ4YmU3OGYxYjM1YjY5MDdiZDM1ZWU1YTk1Mzg5ZjQ0YTg0MDAyYmIwNjNhMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkNDRjN2RkOTExYWMzZmVkNDU1OTRhZTNjMTRkMjM4NmQyYWI3ZDUyMThkY2MxZjhjYzQwODhjNzZkMjY3ZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MzFlZTUxNTY0MzIxMTU4NmRjMzI5NGYxZTE2MDg5MjJlOWZiY2ViYWYwYWYzMjExMGM1NTgyZTliNmQ5YmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5ZTE4Y2U0YmIyOGUwZWMwNGIzOTg5YTEyYmFjOTRiNDQwMmQzOGJiNmQwZmNjNWFjZjUxOTQzMWJmZjMxZmIifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L81-L195",
-          "version": "repo-lines-v1:sha256:577092202a8680e08c5ffb06d76daa874ea3b7a97f7e6c3f364d150e8f31e33a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNDM1NTgxOTJlMmZlNDMxYmJhYTA0ZGI0ZDRiMzZjNTlkMmFhNjUzYTU4NmI2YWMwZmY4NzIzNjA0MmI2OGE5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5N2Q4NjMyZTU0ZTkyOThhYmI5NTg3MjdlMmQ1MTQwOGFiYWYxMzY2MDM1Mzc5MTAxNDBhYmY2NWIzMGFiNjEzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MzE1ZWQ4M2VlYmE1ZDZiNmFjY2RmNTBjNzkzMjcwZjgwODgzMmMxNjE0OTk1NjExZWJmOGNkZDMyZDhiM2FmIn0"
+          "resource": "repo://src/components/sender/Sender.svelte#L81-L203",
+          "version": "repo-lines-v1:sha256:67f85b90f09080ed148f435a5b94aa51a07d19cc3720c6e3d9917f4868edb8a6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNDM1NTgxOTJlMmZlNDMxYmJhYTA0ZGI0ZDRiMzZjNTlkMmFhNjUzYTU4NmI2YWMwZmY4NzIzNjA0MmI2OGE5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5N2Q4NjMyZTU0ZTkyOThhYmI5NTg3MjdlMmQ1MTQwOGFiYWYxMzY2MDM1Mzc5MTAxNDBhYmY2NWIzMGFiNjEzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MzE1ZWQ4M2VlYmE1ZDZiNmFjY2RmNTBjNzkzMjcwZjgwODgzMmMxNjE0OTk1NjExZWJmOGNkZDMyZDhiM2FmIn0"
         },
         {
           "resource": "repo://src/type.ts",
@@ -555,10 +555,24 @@
           "version": "repo-file-v1:sha256:072e797c0ce7d084e154543fcfd577fb6e4d6ddb09915fbb12632c082f9d4762"
         }
       ]
+    },
+    {
+      "id": "claim_43a489a682bf409f87fc1c1edd7fd68f",
+      "statement": "The sender bitrate clock is reset at accept, not at the Send click (PR #121): onSend initializes the closure fileStats with `startTime: Date.now()` at click time, but the chunk pipeline only starts on the peer's EVENT_RECEIVER_ACCEPT, so any waiting-accept delay (e.g. Auto accept off) inflated the bitrate denominator and made 'Sending: X/sec' under-report real throughput for the whole transfer; the EVENT_RECEIVER_ACCEPT handler now writes `fileStats.startTime = Date.now()` so the denominator is time-since-ACCEPT, mirroring the receiver which starts `receivingFiles[id].startTime` in onAccept() — progress (an offset/size ratio) is unaffected. Pinned by tests/sender-bitrate-clock.test.mjs via static source inspection of both components.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L119-L133",
+          "version": "repo-lines-v1:sha256:686dd9c36f79ecfb01868e23a4ce7dbc00a7026fe62afdadc7508ae2203d59ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMjZjNzU5ZDZmY2U5MmZhY2FhNzViNTJlMGU0NGI4MGMyMGNlZmUzNjQwNGYxMWVjNmM2Y2IwN2QyZjI3OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1YzdhNjU5YjUzZDZkNGI5NjhkNDE3ZjJiYjMzZDg5ZGYwMmQ0NDI0ZmM3MjVmOTc4OWFlZDllOTNlMmUxYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjOTVlMjg1YTQ1Y2ZkM2ZiMzQ3YzE1OGUzZDU1NmNkMjI5YzNhODRiZTI4OGJkZDkwNjdjYjI1OTg5OWVmM2YifQ"
+        },
+        {
+          "resource": "repo://tests/sender-bitrate-clock.test.mjs",
+          "version": "repo-file-v1:sha256:5eebdafa37b1a2f20a0f525e3ef38f9e36980550b6883e117c095e8c92932737"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-25T01:00:59.781Z"
+    "at": "2026-10-26T02:50:07.023Z"
   }
 }

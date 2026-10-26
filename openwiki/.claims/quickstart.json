@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:2a6cb2f7a954070e137b678814dcafde6c3618222b774d0ca74d75103c3fd67f",
+  "pageVersion": "sha256:2d2b7258b0c11a1801353b1089909c4d4da9ddc09f0b12877b66c3606057cdb0",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -29,12 +29,12 @@
       "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (ICE server override — the sender emits resolveIceServer(sendOptions.iceServer), i.e. the built-in STUN allowlist or a well-formed stun:/turn: custom URL, and the receive side accepts it only when it passes the same shared isSupportedIceServer predicate, else the default ICE server is used with an error toast), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only; a malformed key downgrades the session to plaintext with an error toast); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>, where an empty key portion is the receiver's deliberate plaintext downgrade and is handled, not treated as malformed. sdpDecode throws synchronously on empty, invalid-base64, or non-SDP input, so both user-controllable decode sites (the s link param and the answer code) are guarded with try/catch and surface an error toast instead of crashing the page (PR #45).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L63-L78",
-          "version": "repo-lines-v1:sha256:50eea80bf288166dba0fa8d5d5c8afc443ffb9e685d6a2d66cc17e2c561e1ea7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3MmVkZmNmMTQ4ZjIzNjA5MjAwYTNhNjdmM2I4N2M0MmI5MTg0ZDNlNDJlYTQyZTYzYWMzZWI3MjkxZGJhMDQifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L63-L89",
+          "version": "repo-lines-v1:sha256:cbc815b10a5079608e3c12315ab66559256c7ba60c5aefee81d0e8f1d713c6a6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2YzI5MzdiNTZkNWI5Zjk3ZjMyODJiMDcxZDQ0NGM5ZDAwYzE1MzFkZTcyYjhiYzgwZTMwNTdlMzQ0MDAyNGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjZmQxM2FkNmFiNTIzYzgwN2M3Njg1NzgxODE1MTljNjdhNGI1MzNlYThkMTNjNjM2ZTdkZDEzYzcxYmVmY2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzNTZmNjk1YmM3YTk2ZWY3MWJkZTFkNTVmMjg0YTUyMTQ1M2JmMTUwOGY5MGNjMDQ1MGIyZTlkMjlhM2YzNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1ZDQ2NzllMDU0Y2Y5NTU3ZjUwNGZkZGFiODBhNzIyZTdhNTE1MjliNjE2NjgzMTEzNTIzMTFjYzg1OGU5ZDMifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L138-L154",
-          "version": "repo-lines-v1:sha256:8a921d866b04cd1fc67d4f9bf386ccbc74759f1adb29a072082ad40cdccede85:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYzc1MDBlMjA3ZDdkOTY1MTRhYTFhZTg0ZmUwZTJkMDE5YWU5MzA5NDEwNTFkMzk2MzgxZmVhNzI2ZTE4YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkY2E0NDA1MWU2NTRmOTUyOGViMThkYjViNDcyNDBhM2QwMDQ5NmFkODcwYTVhNWUzOWU4YTIxZWM5NThjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljNzU4NDgxZDQyMDUyOWE1YzhmOTUyMTg1NGVlYzIyYjdkNTRiNmFmMzA2YmMyMTMxZDQ3MWVmYjYwMGNkYTQifQ"
+          "version": "repo-lines-v1:sha256:9994efe6f756ff629970f35bf0c897594088cfe3ac9bd5cb430562e389cebc6b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMjY0OTkxOWU0YjAyOGMxNzkxZWQ5YmY2ZmIwNjk1MTllYjA2MTE3NGYwOGQ2MGU3ODg4N2U2ODVlMjkzZGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFlNmMyZDg2ZGNhNDAxYjM2NDQ5MjNmZWUzZGNjZDgxMWMxYjg3MjQ4MzBiYjg3MmFiYmQ5NGJmY2Q5ZjEzZmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwNTlmNDI5ZjU5YTk0MzRhN2E4MGEzMWY3NjVmNzYxYjM4YTNjNGY2OTA2MmQ2ZGFhOTc4OTQ3Y2NjMGU2MGQifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L33-L77",
@@ -51,16 +51,16 @@
       "statement": "Connection setup is offer-link driven: the offer peer mints its RSA keypair exactly once per generateOfferLink() invocation (before the peer exists) and creates the RTCPeerConnection (with the shared-predicate-resolved ICE server), data channel, and SDP offer, building the link at most once via a per-invocation offerBuilt flag across the onicecandidate-completion and 3-second timeout paths; regeneration first tears down the previous generation (stale ICE timer cleared, old data channel and peer closed, settled peer crypto and dead-generation UI state reset) and bumps the offerGeneration token so a stale timer can never build a link with the old key; a failed offer creation tears down the just-created generation with the same guarded shape (PR #108). The answer peer decodes the user-controllable offer SDP from the URL inside a try/catch (toast 'Invalid SDP in link' instead of a page crash, PR #45), awaits that promise before createAnswer with a signalingState have-remote-offer check so a rejected setRemoteDescription surfaces an offerFailed error state instead of a stuck spinner (PR #49), awaits the validated p-param key import, generates the answer plus its RSA key pair (when encrypted; an empty-key downgrade is honored via the answer code), and returns the answer code; the channel opens on both sides once the offer peer accepts it (answer SDP decode also guarded with try/catch, toast 'Invalid answer code', PR #45). Once open, both pages wire dataChannel onerror/onclose to the file engines' onChannelClose() and additionally close the RTCPeerConnection itself guarded on connectionState !== 'closed' (PR #104), so a mid-transfer close surfaces an accurate connection-lost error instead of per-chunk failures (PR #74).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L177-L351",
+          "resource": "repo://src/components/OfferPage.svelte#L188-L362",
           "version": "repo-lines-v1:sha256:7e5a02e54589ff1274dfe45abfb24d8364f06e5d72dc8a92a55c2bf288634805:eyJzZWxlY3RlZExpbmVDb3VudCI6MTc1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjU2NTQ5MDk5NzcyNmUxYzVhNGY1N2VhYWE0ZGU2Mzg3NmZkNTgwNjE3ZjI0YTU2NjM0N2I1ZjcxNmZjYzY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZWVlZmRkNTExM2Q5OTA1NmYxZTE5ZGUxYjdkNWJlZGU2ZTBhMzAxZjllOGY3YmU0ZWFkM2Y4ZjhkYTg2NmM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MTM2M2M4YzBkM2Q3NTUzZGQxMjNlMDQ3MjhjMzcwNDk4NDAzOTNiOTBkMmI1YWE0ZWM2MmY1MjNiNDAxMjlmIn0"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L378-L443",
+          "resource": "repo://src/components/OfferPage.svelte#L389-L454",
           "version": "repo-lines-v1:sha256:27a25995b0e82f3bb9a25901c3675516649ff5f726c714cf84314f5aff375ebc:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMjkwZjk3YWM5NmIzY2U4ZmJmYjM0YjcwYTIzOTA2NzM1MjhjOWVhNTNkMDNhNGFiZTJjMWY4MmVjOTdjODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNWQ2MmY4NTViODQ3YWM3NTEwMDFiY2QyZTE3ZTYzYjU3MmE5ZGIwY2I4NDQ0ZWRhNjAzYTBmNjlkZDdkYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxN2M0YmJhNzkxYTViZTI0OTkxMDgxNzMwNmI3YzRjY2Q3ZWVlOTVkZjIwZmVhMDAxZmRlOGIwMGQ0N2E1MTcifQ"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L68-L120",
-          "version": "repo-lines-v1:sha256:24c23fba1367edffd407e3dcbb95e461e360239b2f8ac88940e97d80a0f41319:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkOGYxMzg5YTc1NmI2OTFjMTUwNzc2YmRkODBjZmIyM2Y0OTczOGJmZThjNGUyMDNkNjkzNzE4NmU1NDY0ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwODAxNGJiNmE2ZmE3ZGFhYTVkMDQ2NTg0MzZhZTZhNWQ1MmZkYzk4YTU4OWViYmUxNTVjMTRjNWVlMTRmY2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4NjJkMDc4Zjk3ZjA3NDdmNGU3NDE2OThlMGY0NzUwMDdmY2Y5NDZiOWY2NDgwYzcyNDZkNTU3ZjUwNDJhZGQifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L68-L131",
+          "version": "repo-lines-v1:sha256:bd504da7be8b73677ca1baabe5b7f47cc5d1686b21661e5381b043e21cdfd34d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkOGYxMzg5YTc1NmI2OTFjMTUwNzc2YmRkODBjZmIyM2Y0OTczOGJmZThjNGUyMDNkNjkzNzE4NmU1NDY0ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwODAxNGJiNmE2ZmE3ZGFhYTVkMDQ2NTg0MzZhZTZhNWQ1MmZkYzk4YTU4OWViYmUxNTVjMTRjNWVlMTRmY2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4NjJkMDc4Zjk3ZjA3NDdmNGU3NDE2OThlMGY0NzUwMDdmY2Y5NDZiOWY2NDgwYzcyNDZkNTU3ZjUwNDJhZGQifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L122-L242",
@@ -70,7 +70,7 @@
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-three tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 47), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 43 regression-guard files).",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-five tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 49), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 45 regression-guard files).",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh#L28-L45",
@@ -163,10 +163,24 @@
           "version": "repo-file-v1:sha256:072e797c0ce7d084e154543fcfd577fb6e4d6ddb09915fbb12632c082f9d4762"
         }
       ]
+    },
+    {
+      "id": "claim_7accdac862314baa82e1a7422d255887",
+      "statement": "tests/sender-bitrate-clock.test.mjs (PR #121) is a regression-guard file that `npm test` runs via `node --no-warnings --test \\\"tests/*.test.mjs\\\"` (bringing the repo's regression-guard file count from 44 to 45, with 49 test cases total). It pins the sender bitrate accept-time clock reset: onSend's closure fileStats started with startTime at the Send click, so any waiting-accept delay inflated the 'Sending: X/sec' denominator; the EVENT_RECEIVER_ACCEPT handler now writes fileStats.startTime = Date.now() making the denominator time-since-ACCEPT, mirroring the receiver's onAccept entry clock — pinned by static source inspection of both components.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L119-L133",
+          "version": "repo-lines-v1:sha256:686dd9c36f79ecfb01868e23a4ce7dbc00a7026fe62afdadc7508ae2203d59ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMjZjNzU5ZDZmY2U5MmZhY2FhNzViNTJlMGU0NGI4MGMyMGNlZmUzNjQwNGYxMWVjNmM2Y2IwN2QyZjI3OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1YzdhNjU5YjUzZDZkNGI5NjhkNDE3ZjJiYjMzZDg5ZGYwMmQ0NDI0ZmM3MjVmOTc4OWFlZDllOTNlMmUxYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjOTVlMjg1YTQ1Y2ZkM2ZiMzQ3YzE1OGUzZDU1NmNkMjI5YzNhODRiZTI4OGJkZDkwNjdjYjI1OTg5OWVmM2YifQ"
+        },
+        {
+          "resource": "repo://tests/sender-bitrate-clock.test.mjs",
+          "version": "repo-file-v1:sha256:5eebdafa37b1a2f20a0f525e3ef38f9e36980550b6883e117c095e8c92932737"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-25T01:00:59.781Z"
+    "at": "2026-10-26T02:50:07.023Z"
   }
 }

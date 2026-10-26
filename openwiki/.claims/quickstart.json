@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:3122d452a38ac2ee6a94a91bfc64ce7d89a4d1968e76dafa299bca63d6d1772b",
+  "pageVersion": "sha256:2d2b7258b0c11a1801353b1089909c4d4da9ddc09f0b12877b66c3606057cdb0",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -70,7 +70,7 @@
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-three tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 47), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 43 regression-guard files).",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-five tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 49), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 45 regression-guard files).",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh#L28-L45",
@@ -163,10 +163,24 @@
           "version": "repo-file-v1:sha256:072e797c0ce7d084e154543fcfd577fb6e4d6ddb09915fbb12632c082f9d4762"
         }
       ]
+    },
+    {
+      "id": "claim_7accdac862314baa82e1a7422d255887",
+      "statement": "tests/sender-bitrate-clock.test.mjs (PR #121) is a regression-guard file that `npm test` runs via `node --no-warnings --test \\\"tests/*.test.mjs\\\"` (bringing the repo's regression-guard file count from 44 to 45, with 49 test cases total). It pins the sender bitrate accept-time clock reset: onSend's closure fileStats started with startTime at the Send click, so any waiting-accept delay inflated the 'Sending: X/sec' denominator; the EVENT_RECEIVER_ACCEPT handler now writes fileStats.startTime = Date.now() making the denominator time-since-ACCEPT, mirroring the receiver's onAccept entry clock — pinned by static source inspection of both components.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L119-L133",
+          "version": "repo-lines-v1:sha256:686dd9c36f79ecfb01868e23a4ce7dbc00a7026fe62afdadc7508ae2203d59ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMjZjNzU5ZDZmY2U5MmZhY2FhNzViNTJlMGU0NGI4MGMyMGNlZmUzNjQwNGYxMWVjNmM2Y2IwN2QyZjI3OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1YzdhNjU5YjUzZDZkNGI5NjhkNDE3ZjJiYjMzZDg5ZGYwMmQ0NDI0ZmM3MjVmOTc4OWFlZDllOTNlMmUxYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjOTVlMjg1YTQ1Y2ZkM2ZiMzQ3YzE1OGUzZDU1NmNkMjI5YzNhODRiZTI4OGJkZDkwNjdjYjI1OTg5OWVmM2YifQ"
+        },
+        {
+          "resource": "repo://tests/sender-bitrate-clock.test.mjs",
+          "version": "repo-file-v1:sha256:5eebdafa37b1a2f20a0f525e3ef38f9e36980550b6883e117c095e8c92932737"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-26T01:11:16.844Z"
+    "at": "2026-10-26T02:50:07.023Z"
   }
 }

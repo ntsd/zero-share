@@ -7,6 +7,7 @@
     WAIT_ICE_CANDIDATES_TIMEOUT
   } from '../configs';
   import { addToastMessage } from '../stores/toastStore';
+  import { receiveBounceTarget } from '../utils/path';
   import Eye from '../components/icons/Eye.svelte';
   import Collapse from '../components/layout/Collapse.svelte';
   import { handlePeerMessage } from '../utils/peerMessage';
@@ -27,7 +28,14 @@
 
   const sdpEncoded = params['s'];
   if (sdpEncoded === null || !sdpEncoded) {
-    window.location.assign(window.location.origin);
+    // Bounce to the app's OFFER page, not the deployment origin: on a
+    // sub-path host the offer page lives at `<base>/` (e.g.
+    // `https://<org>.github.io/zero-share/`), and bouncing to the bare
+    // origin would drop the peer off the app entirely. `receiveBounceTarget`
+    // strips the `receive` route leaf from the current URL and takes the
+    // containing directory of the remainder — the offer page's URL — with no
+    // query/fragment leakage.
+    window.location.assign(receiveBounceTarget(window.location.href));
     throw new Error('no sdp found');
   }
 

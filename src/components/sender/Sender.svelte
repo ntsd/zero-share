@@ -123,6 +123,14 @@
       if (!f) return;
       f.status = FileStatus.Processing;
       f.startTime = Date.now();
+      // The chunk pipeline only starts on accept, so the bitrate denominator
+      // (fileStats.startTime, read at the progress update below) must be
+      // time-since-ACCEPT — not time-since-Send-click from onSend(). Without
+      // this reset any waiting-accept delay (e.g. manual accept) inflates the
+      // denominator and "Sending: X/sec" grossly under-reports throughput for
+      // the whole transfer. Mirrors the receiver, which starts its entry
+      // clock in onAccept() and computes its bitrate from it.
+      fileStats.startTime = Date.now();
       try {
         await sendNextChunk();
       } catch (err) {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e39919ea1508011cfb4f39e1f196f6da0bb6ada51aa40b0780a5bc1b1422ee9f",
+  "pageVersion": "sha256:c56705d816cc2f79b6c929ede39a4d719b74c61dcc99d184d7c80ce72fb8c27d",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -49,8 +49,8 @@
       "statement": "Peer connections are configured with a single ICE server (default stun:stun.l.google.com:19302) resolved through the shared isSupportedIceServer/resolveIceServer predicates in src/configs.ts, which accept the built-in STUN allowlist plus any well-formed stun:/turns: URL; the sender enforces the predicate on both the emitted `i` link param and its own RTCPeerConnection and the receiver enforces the same predicate on the accepted `i` param, so a custom/TURN server chosen on the sender is always honored and the two peers can never diverge; anything else falls back to the default with an error toast on both sides, and no relay server exists.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L63-L85",
-          "version": "repo-lines-v1:sha256:30b5c16f83fc5c9dba97171c7690348e37493c5fe12f06198030d97b37959359:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxMzBiY2FiYjk2MDIyMzY2NjJmZmI4YTMzNThkOGRlMDJhZDU0MWRkMDY5ODgzMGU5ODdlNWMwMzY5M2JlZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmMDA5OWNkYjI4OGFlMDViMmQ5ZmMxNjI4NzFmMmM3Zjg1ZjFkYWYwMGJkZDgyYzcyN2ZhNWJhMGUwYjdmZmIifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L75-L108",
+          "version": "repo-lines-v1:sha256:1fd892358350bc4a5738e07b4aa92c219570281dce7ac20b9e9b3b571987af07:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxMzBiY2FiYjk2MDIyMzY2NjJmZmI4YTMzNThkOGRlMDJhZDU0MWRkMDY5ODgzMGU5ODdlNWMwMzY5M2JlZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmMDA5OWNkYjI4OGFlMDViMmQ5ZmMxNjI4NzFmMmM3Zjg1ZjFkYWYwMGJkZDgyYzcyN2ZhNWJhMGUwYjdmZmIifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L62-L77",
@@ -319,6 +319,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-25T01:00:59.781Z"
+    "at": "2026-10-26T01:11:16.844Z"
   }
 }

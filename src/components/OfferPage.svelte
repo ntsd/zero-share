@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { buildURL } from '../utils/path';
+  import { appBaseFrom, buildURL } from '../utils/path';
   import { addToastMessage } from '../stores/toastStore';
   import {
     DEFAULT_SEND_OPTIONS,
@@ -78,18 +78,27 @@
     // param always matches what this peer's RTCPeerConnection actually uses —
     // the receiver honors exactly this value (same predicate in configs)
     const iceServer = resolveIceServer(sendOptions.iceServer);
-    // Build the link from location.href's ORIGIN, not its raw value: the
-    // app's pages deep-link with fragments (e.g. a restored tab or a URL
-    // pasted with `#how-does-it-work`), and a fragment left in the base
-    // would land BEFORE `/receive` in the generated link, where URL parsing
-    // treats everything after `#` as a fragment — so the peer's browser
-    // would navigate to the origin root and the `s` param would never reach
-    // ReceivePage. The app is a static site with no sub-path routing
-    // (astro.config.mjs exposes only `/` and `/receive/`), so the origin
-    // alone is the always-correct base: it drops the query string, the
-    // fragment, and any incidental path component (e.g. `index.html`) in
-    // one step.
-    offerLink = buildURL(new URL(location.href).origin, 'receive', {
+    // Build the link from the app's deployment base, not from location.href's
+    // ORIGIN: the offer page is always the deployment's base-root page (`/` or
+    // `index.html` inside it), so the always-correct base is the directory of
+    // the offer page's own URL — origin + the pathname up to and including its
+    // last '/'. The app's pages deep-link with fragments (e.g. a restored tab
+    // or a URL pasted with `#how-does-it-work`), and a fragment left in the
+    // base would land BEFORE `/receive` in the generated link, where URL
+    // parsing treats everything after `#` as a fragment — so the peer's
+    // browser would navigate to the origin root and the `s` param would never
+    // reach ReceivePage. The base must therefore come from a URL object (which
+    // drops the query string and fragment), and — unlike a bare origin — must
+    // PRESERVE the deployment location: the app indeed has no sub-path
+    // ROUTES, but the static build is routinely served under a sub-path (an
+    // org GitHub Pages site like `https://<org>.github.io/zero-share/`, or a
+    // self-hosted build on a sub-path, both documented in the README's
+    // "Deployment" section). Origin-only dropped that sub-path, so the peer's
+    // browser would navigate to a nonexistent `/receive` at the deployment
+    // root and 404. appBaseFrom drops the fragment, the query string, and any
+    // incidental leaf component (e.g. `index.html`) in one step, while keeping
+    // every directory above it intact.
+    offerLink = buildURL(appBaseFrom(location.href), 'receive', {
       s: sdp,
       i: DEFAULT_SEND_OPTIONS.iceServer === iceServer ? '' : iceServer,
       c:

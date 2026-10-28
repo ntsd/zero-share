@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:2d2b7258b0c11a1801353b1089909c4d4da9ddc09f0b12877b66c3606057cdb0",
+  "pageVersion": "sha256:be9338c2f0569a1753ded15adfeccadd0461ea7a7190879f5850bdc708ac40ce",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -29,20 +29,20 @@
       "statement": "The wire formats are: SDP encoded via sdp-compact plus URL-safe substitutions (/ -> _, + -> ~, = -> -); offer link ?s=<offerSDP> plus optional i (ICE server override — the sender emits resolveIceServer(sendOptions.iceServer), i.e. the built-in STUN allowlist or a well-formed stun:/turn: custom URL, and the receive side accepts it only when it passes the same shared isSupportedIceServer predicate, else the default ICE server is used with an error toast), c (chunk size, validated against CHUNK_SIZE_OPTIONS with 32 KB fallback), and p (base64 RSA public key, encryption only; a malformed key downgrades the session to plaintext with an error toast); answer code <encodedAnswerSDP>|<base64 RSA public key or empty>, where an empty key portion is the receiver's deliberate plaintext downgrade and is handled, not treated as malformed. sdpDecode throws synchronously on empty, invalid-base64, or non-SDP input, so both user-controllable decode sites (the s link param and the answer code) are guarded with try/catch and surface an error toast instead of crashing the page (PR #45).",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L63-L89",
-          "version": "repo-lines-v1:sha256:cbc815b10a5079608e3c12315ab66559256c7ba60c5aefee81d0e8f1d713c6a6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2YzI5MzdiNTZkNWI5Zjk3ZjMyODJiMDcxZDQ0NGM5ZDAwYzE1MzFkZTcyYjhiYzgwZTMwNTdlMzQ0MDAyNGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjZmQxM2FkNmFiNTIzYzgwN2M3Njg1NzgxODE1MTljNjdhNGI1MzNlYThkMTNjNjM2ZTdkZDEzYzcxYmVmY2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzNTZmNjk1YmM3YTk2ZWY3MWJkZTFkNTVmMjg0YTUyMTQ1M2JmMTUwOGY5MGNjMDQ1MGIyZTlkMjlhM2YzNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1ZDQ2NzllMDU0Y2Y5NTU3ZjUwNGZkZGFiODBhNzIyZTdhNTE1MjliNjE2NjgzMTEzNTIzMTFjYzg1OGU5ZDMifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L75-L110",
+          "version": "repo-lines-v1:sha256:c1f7629621dc487ad7bdae94727fe131cac86eb21205546c761980bbe93447ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNjJhMGYwYzY0YjczMmYyY2UyZTIxYTAxMDM5NzMzMTRiMzFhZWY3MjAzOGE3NTgxMjRjYTdkODdiNDJmOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGNjZDA4MDQ2YjE4NGIyMmRkMTQxM2Q3MWM2MDE1NDM3YTVjYjE3YzUwOTUyYWE1YTU3MmU4MmM0MTUyYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3MmVkZmNmMTQ4ZjIzNjA5MjAwYTNhNjdmM2I4N2M0MmI5MTg0ZDNlNDJlYTQyZTYzYWMzZWI3MjkxZGJhMDQifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L138-L154",
-          "version": "repo-lines-v1:sha256:9994efe6f756ff629970f35bf0c897594088cfe3ac9bd5cb430562e389cebc6b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMjY0OTkxOWU0YjAyOGMxNzkxZWQ5YmY2ZmIwNjk1MTllYjA2MTE3NGYwOGQ2MGU3ODg4N2U2ODVlMjkzZGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFlNmMyZDg2ZGNhNDAxYjM2NDQ5MjNmZWUzZGNjZDgxMWMxYjg3MjQ4MzBiYjg3MmFiYmQ5NGJmY2Q5ZjEzZmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwNTlmNDI5ZjU5YTk0MzRhN2E4MGEzMWY3NjVmNzYxYjM4YTNjNGY2OTA2MmQ2ZGFhOTc4OTQ3Y2NjMGU2MGQifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L205-L245",
+          "version": "repo-lines-v1:sha256:176f87e11e3d45d9f17f70cb396384598db3804d8e36fdbd1e03613e2a194284:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4M2Q4MDFhMjdjNGEwOWI5NDBkMmNkMTkwMjBiODk3ZjI1YTVlMWE3ODgwNDA0ZTYzZGM1ZjRhM2M4NDMyYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjODlkYTlmYmI2YzA2YmE0ZmIyYjM1YzIzYjRkNjYxZGY2ZDk2YzcyMGJlMmIwOTM4YzgyYjJjNjg1MzdlODEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZDIzODI0MGY3NzAzN2FiYjY2NGYwMDAxYjFiODcwMDQ2YjlkM2QxZDY1ZTRhOWNhZTM5NTY5YWQxMTdkMzAifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L33-L77",
-          "version": "repo-lines-v1:sha256:8ad95c354b97f7007e5e66391dcb33b26116c4b58515cc4fd06ef85e2a3facf2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmM2RjMGU0ZTFkYjczYjg5ZThmNjZhMWMzMDA3MDAzOWIwYzZiMWRlMzFjN2UwZjI5ZWU2MTk5YjMzNTZjMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkYThhNTY3ODQ0MTFmNTI5NmY5MjNiZGU3NTZlYWE2M2EzZDJhM2IzZDBjNjc3ZjE2MWI5NDdiNWQzMGNiYzMifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L44-L60",
+          "version": "repo-lines-v1:sha256:0fb0f3dd1cb410b3244d773459c055accaa13ea767da559405174977f17a9617:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMGQ3Yjk5OTc2OTRiYmNhMzQxYWVkZThkNDcwODQ2MjU5MDdiM2Y2YjRlOGRlYTU0ZDUwZmY0ZDE3NTQxZWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhOTgzYjgwMTkyODhjOTcyZWUwNTlhMmZjNWUzODI5MmZlN2JmNDYxOTE2ZmU0YmJjYmZkYzI4ZDkzYWMzOTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmNmUwYzgyNGNhNGJiNjEyN2RjN2Q5OWJkOTkxY2FiYThiM2RjZmQ1NmU3ODc3M2U1MzM3ZWMxZmYzOTNjODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyNTE1OTA5OTIyOGQzY2JjNjRhMjFkMDZlY2RiMTFjNjg0Y2MzZGFiZjhiZWY0ZjgyNDI2YzZiYjRiYTA2OGEifQ"
         },
         {
-          "resource": "repo://src/utils/sdpEncode.ts#L1-L14",
-          "version": "repo-lines-v1:sha256:09ef7b5faf799f49424b876f746592ad7607e9fd4f59131fa790fa286c5884a7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZmUyOWI3N2Y3M2M2N2VmMjFmOThiNzBhNTU4NjVlMWMyNmM4YTc4ZWJhOWNjODVkMjgwZDg4OGEwZTVlOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/utils/sdpEncode.ts",
+          "version": "repo-file-v1:sha256:09ef7b5faf799f49424b876f746592ad7607e9fd4f59131fa790fa286c5884a7"
         }
       ]
     },
@@ -60,7 +60,7 @@
         },
         {
           "resource": "repo://src/components/OfferPage.svelte#L68-L131",
-          "version": "repo-lines-v1:sha256:bd504da7be8b73677ca1baabe5b7f47cc5d1686b21661e5381b043e21cdfd34d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkOGYxMzg5YTc1NmI2OTFjMTUwNzc2YmRkODBjZmIyM2Y0OTczOGJmZThjNGUyMDNkNjkzNzE4NmU1NDY0ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwODAxNGJiNmE2ZmE3ZGFhYTVkMDQ2NTg0MzZhZTZhNWQ1MmZkYzk4YTU4OWViYmUxNTVjMTRjNWVlMTRmY2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4NjJkMDc4Zjk3ZjA3NDdmNGU3NDE2OThlMGY0NzUwMDdmY2Y5NDZiOWY2NDgwYzcyNDZkNTU3ZjUwNDJhZGQifQ"
+          "version": "repo-lines-v1:sha256:907b5c0765b4e24e7ba74046430cac9c6fef5f423848e4717138eff143f42066:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkOGYxMzg5YTc1NmI2OTFjMTUwNzc2YmRkODBjZmIyM2Y0OTczOGJmZThjNGUyMDNkNjkzNzE4NmU1NDY0ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwODAxNGJiNmE2ZmE3ZGFhYTVkMDQ2NTg0MzZhZTZhNWQ1MmZkYzk4YTU4OWViYmUxNTVjMTRjNWVlMTRmY2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MDU1YzhhZTY2MDRkNzQxYmM1ZjVkOWEzZTJiOGY0ZmJmYzQxOGNmNGEyOTUwYTk5MjZlNjA0ZDFlY2YyMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4NjJkMDc4Zjk3ZjA3NDdmNGU3NDE2OThlMGY0NzUwMDdmY2Y5NDZiOWY2NDgwYzcyNDZkNTU3ZjUwNDJhZGQifQ"
         },
         {
           "resource": "repo://src/components/ReceivePage.svelte#L122-L242",
@@ -181,6 +181,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-26T02:50:07.023Z"
+    "at": "2026-10-28T00:50:57.893Z"
   }
 }

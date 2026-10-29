@@ -9,7 +9,7 @@
 #   1. npm ci            install dependencies from the lockfile
 #   2. npx tsc --noEmit  typecheck gate
 #   3. npm run build     astro build gate
-#   4. npm test          45-file / 49-test regression-guard suite
+#   4. npm test          regression-guard suite (tests/*.test.mjs)
 #
 # NOTE: do NOT add `astro check` here — @astrojs/check is not a devDependency
 # and its install prompt hangs non-interactive shells. The gate set is exactly

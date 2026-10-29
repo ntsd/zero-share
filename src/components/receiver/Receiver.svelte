@@ -34,6 +34,14 @@
   const receivingFileStatsMap: {
     [fileId: string]: ReceivingFileStats;
   } = {};
+  // Per-file attempt generation: re-offers of a still-active file bump it, so
+  // acks and chunk pushes that were in flight for an older attempt (their
+  // serializeTask continuations survive a `delete chunkQueue[id]`) are dropped
+  // instead of landing on the new attempt's chunk map (double-counted
+  // receivedSize -> early completion with a truncated Blob). The chunk map is
+  // the single source of truth; this is the generation guard that fences
+  // post-await continuations that captured the old map reference.
+  const receivingFileGeneration: { [fileId: string]: number } = {};
 
   export async function onMetaData(id: string, metaData: MetaData) {
     // Sanitize the peer-controlled name at ingestion — one rule covering all
@@ -45,6 +53,52 @@
     // sanitizeName() keeps only a safe basename; createZipStoreOnly()
     // re-sanitizes as defense in depth.
     metaData.name = sanitizeName(metaData.name);
+
+    // Re-offer of a file we still hold (the sender's Resend button re-sends the
+    // same metadata for the same id after a failed first attempt). A
+    // SUCCESSFUL entry is terminal — never clobber it. Every other existing
+    // entry is reset; when the previous attempt is still actively receiving
+    // (chunk map present), two more things must happen first:
+    //   - send EVENT_RECEIVER_REJECT so the sender's still-running pipeline
+    //     stops cleanly,
+    //   - bump the per-file generation, so in-flight serializeTask
+    //     continuations from the old attempt (their .then runs even after its
+    //     key is deleted from chunkQueue) are DROPPED by processChunk /
+    //     rejectCorruptChunk instead of landing on the NEW attempt's chunk map
+    //     — where they would double-count receivedSize and fire the completion
+    //     gate early (truncated Blob marked Success).
+    // For the already-failed case (Pending + error, no chunk map) the old
+    // pipeline is already dead: tear down silently WITHOUT rejecting — there
+    // is no live attempt to abort, and the reject would only add a "Receiver
+    // reject the file" toast around a resend that is about to be accepted.
+    const existing = receivingFiles[id];
+    if (existing && existing.status === FileStatus.Success) {
+      // Terminal: the sender's Resend button only exists for failed files, and
+      // a fresh file pick gets a fresh id, so a metadata frame for a completed
+      // id is stale/duplicate. Ignore it instead of clobbering the Success
+      // entry (blob, status) with a fresh WaitingAccept that would never
+      // receive chunks.
+      return;
+    }
+    if (existing) {
+      if (receivingFileChunkMap[id]) {
+        // Guarded send (same convention as every other reject path): on a
+        // live channel this reject reaches the sender's still-running pipeline
+        // and stops it cleanly; if the channel is already closing it no-ops
+        // instead of throwing an InvalidStateError out of onMetaData.
+        send(
+          Message.encode({
+            id: id,
+            receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+          }).finish()
+        );
+        addToastMessage(`Retrying ${metaData.name}: previous transfer aborted`, 'info');
+      }
+      receivingFileGeneration[id] = (receivingFileGeneration[id] ?? 0) + 1;
+      delete receivingFileChunkMap[id];
+      delete receivingFileStatsMap[id];
+      delete chunkQueue[id];
+    }
 
     // Register the file entry before the async key decryption so the file is
     // visible (and removable) throughout; chunk processing stays safe because
@@ -172,23 +226,41 @@
     // before chunk N's processing has settled, so the ack is still sent in
     // arrival order (sender stays one round-trip ahead) and the decrypted
     // chunks are pushed in the exact order they were received.
-    serializeTask(chunkQueue, id, () => processChunk(id, receivingFile, chunk)).catch(() => {
-      // A chunk that failed (e.g. corrupt chunk failing AES-GCM auth) is
-      // handled inside processChunk via rejectCorruptChunk; that path resolves
-      // (returns), so it never reaches here. This catch is the safety net for
-      // any unexpected error that would otherwise leave the file permanently
-      // incomplete: surface it the same way instead of swallowing it silently.
-      // rejectCorruptChunk is a no-op once the per-file chunk map is gone, so
-      // it will not double-fire.
-      rejectCorruptChunk(id, receivingFile);
-    });
+    //
+    // Capture this attempt's generation NOW (pre-await): a re-offer of this
+    // file bumps it, so a chunk enqueued by a previous attempt's pipeline is
+    // dropped instead of landing on the recreated chunk map (its bytes belong
+    // to an attempt the sender is no longer streaming — counting them would
+    // advance the new attempt and double-count receivedSize).
+    const generation = receivingFileGeneration[id] ?? 0;
+    serializeTask(chunkQueue, id, () => processChunk(id, receivingFile, chunk, generation)).catch(
+      () => {
+        // A chunk that failed (e.g. corrupt chunk failing AES-GCM auth) is
+        // handled inside processChunk via rejectCorruptChunk; that path resolves
+        // (returns), so it never reaches here. This catch is the safety net for
+        // any unexpected error that would otherwise leave the file permanently
+        // incomplete: surface it the same way instead of swallowing it silently.
+        // rejectCorruptChunk is a no-op once the per-file chunk map is gone, so
+        // it will not double-fire.
+        rejectCorruptChunk(id, receivingFile, generation);
+      }
+    );
   }
 
   async function processChunk(
     id: string,
     receivingFile: FileDetail,
-    chunk: Uint8Array<ArrayBuffer>
+    chunk: Uint8Array<ArrayBuffer>,
+    generation: number
   ) {
+    // This chunk was enqueued by a previous attempt of this file (its re-offer
+    // bumped the generation and recreated the chunk map): drop it without
+    // decrypting/acking — acking would advance the sender past a chunk the NEW
+    // attempt already sent, desynchronizing the re-transfer.
+    if ((receivingFileGeneration[id] ?? 0) !== generation) {
+      return;
+    }
+
     let arrayBuffer = chunk;
 
     if (isEncrypt && receivingFile.aesKey) {
@@ -199,7 +271,7 @@
         // byte count can never catch up to the total. Surface the error and
         // reject the file so the sender stops cleanly instead of leaving it
         // stuck in Processing forever.
-        rejectCorruptChunk(id, receivingFile);
+        rejectCorruptChunk(id, receivingFile, generation);
         return;
       }
     }
@@ -209,6 +281,16 @@
     // without acking (an ack would advance the sender past a rejected file).
     const chunkMap = receivingFileChunkMap[id];
     if (!chunkMap) {
+      return;
+    }
+
+    // Re-check the generation AFTER the decrypt await (the pre-decrypt check
+    // only avoids wasted work): a re-offer may have bumped it while this chunk
+    // was suspended in the decrypt, and the chunk map above is then the NEW
+    // attempt's. An ack/push from this stale chunk would advance and
+    // double-count the new attempt (whose sender already re-streamed these
+    // bytes) — drop it instead of landing on the new map.
+    if ((receivingFileGeneration[id] ?? 0) !== generation) {
       return;
     }
 
@@ -338,7 +420,14 @@
   // encryption but emits garbage). The sender has no retransmission, so the
   // file can never complete. Reject so the sender stops cleanly — mirroring
   // EVENT_VALIDATE_ERROR / EVENT_RECEIVER_REJECT handling on the sender side.
-  function rejectCorruptChunk(id: string, receivingFile: FileDetail) {
+  //
+  // Generation-fenced: a reject that belongs to a previous attempt (its
+  // re-offer bumped the generation) must NOT reject the NEW attempt's chunk
+  // map — that would kill the retry the user just started.
+  function rejectCorruptChunk(id: string, receivingFile: FileDetail, generation: number) {
+    if ((receivingFileGeneration[id] ?? 0) !== generation) {
+      return;
+    }
     rejectFile(
       id,
       receivingFile,

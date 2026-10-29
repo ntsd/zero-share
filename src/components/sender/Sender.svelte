@@ -96,6 +96,13 @@
     // reset value
     sendingFile.error = undefined;
     sendingFile.stop = false;
+    // Resend after a failed first attempt: clear the attempt-scoped UI values
+    // so the re-transfer starts clean. `f.bitrate` otherwise shows the first
+    // attempt's stale value until the next progress update (the fileStats
+    // object below is fresh, but the UI reads `f.bitrate`), and `f.startTime`
+    // is set by the EVENT_RECEIVER_ACCEPT listener, not here.
+    sendingFile.bitrate = 0;
+    sendingFile.startTime = 0;
 
     sendingFile.event = new EventEmitter();
 
@@ -131,6 +138,15 @@
       // the whole transfer. Mirrors the receiver, which starts its entry
       // clock in onAccept() and computes its bitrate from it.
       fileStats.startTime = Date.now();
+      // This ACCEPT belongs to the CURRENT attempt (its listeners are wired
+      // to the event emitter created in onSend for this attempt). A re-offer
+      // of a still-active file makes the receiver abort the previous attempt
+      // with EVENT_RECEIVER_REJECT before accepting the new one — that reject
+      // is queued on this same emitter and would otherwise re-set f.error,
+      // dead-ending the resend. The receiver has re-offered and accepted, so
+      // any error state here is stale: clear it and start cleanly.
+      f.error = undefined;
+      f.stop = false;
       try {
         await sendNextChunk();
       } catch (err) {

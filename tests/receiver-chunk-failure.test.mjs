@@ -287,12 +287,14 @@ function makeSource(size) {
   );
 
   // The decrypt failure must be handled and routed to the reject handler
-  // instead of being swallowed by a bare catch.
+  // instead of being swallowed by a bare catch. It must pass the per-attempt
+  // generation so a stale in-flight chunk from a previous attempt cannot reject
+  // the NEW attempt's chunk map after a Resend re-offer.
   const rejectFn = receiverSource.search(/function\s+rejectCorruptChunk\s*\(/);
   assert.ok(rejectFn !== -1, 'rejectCorruptChunk() must exist');
   assert.ok(
-    /rejectCorruptChunk\(\s*id,\s*receivingFile\s*\)/.test(body),
-    'processChunk must call rejectCorruptChunk on a decrypt failure'
+    /rejectCorruptChunk\(\s*id,\s*receivingFile,\s*generation\s*\)/.test(body),
+    'processChunk must call rejectCorruptChunk(id, receivingFile, generation) on a decrypt failure'
   );
   // rejectCorruptChunk must surface the error and stop the sender.
   assert.ok(/receivingFile\.status\s*=\s*FileStatus\.Pending/.test(receiverSource));

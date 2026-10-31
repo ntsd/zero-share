@@ -268,6 +268,7 @@
       delete receivingFileChunkMap[id];
       delete receivingFileStatsMap[id];
       delete chunkQueue[id];
+      delete receivingFileGeneration[id];
     }
   }
 
@@ -414,6 +415,9 @@
       addToastMessage(`Received ${receivingFiles[id].metaData.name}`, 'success');
       // No more chunks will arrive for this file; release the chain entry.
       delete chunkQueue[id];
+      // The entry is terminal Success (a Success re-offer is ignored), so the
+      // generation can never matter again — release it with the rest.
+      delete receivingFileGeneration[id];
     } else if (receivingFileStatsMap[id].receivedSize > receivingFile.metaData.size) {
       // Overshoot: this chunk pushed the received byte count PAST the declared
       // size, so the peer's declared size is a lie (truncated file on the wire).
@@ -457,6 +461,7 @@
     delete receivingFileChunkMap[id];
     delete receivingFileStatsMap[id];
     delete chunkQueue[id];
+    delete receivingFileGeneration[id];
   }
 
   // The peer streamed more bytes than its declared metaData.size: the
@@ -513,6 +518,7 @@
     delete receivingFileChunkMap[key];
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
+    delete receivingFileGeneration[key];
     delete receivingFiles[key];
   }
 
@@ -620,6 +626,7 @@
     delete receivingFileChunkMap[key];
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
+    delete receivingFileGeneration[key];
     delete receivingFiles[key];
   }
 

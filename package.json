@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "typecheck": "tsc --noEmit",
     "test": "node --no-warnings --test \"tests/*.test.mjs\"",
     "preview": "astro preview",
     "astro": "astro",

@@ -49,10 +49,10 @@ sources:
     resource: repo://tests/sdp-robustness.test.mjs
   - id: openwiki-source-7be198dd84c7db602ffe529e
     resource: repo://tests/sender-connection-lost.test.mjs
-generated: { by: 'hermes', at: '2026-10-28T00:50:57.893Z' }
+generated: { by: 'hermes', at: '2026-10-31T10:27:22.702Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-30T06:42:53.746Z
+    at: 2026-10-31T10:27:22.702Z
 ---
 
 # Subsystem: WebRTC Peering and SDP Links
@@ -94,7 +94,7 @@ The **offer** side is the data-channel creator (`createDataChannel('data', { ord
 
 ## QR exchange
 
-`QrModal` renders any shareable artifact (offer link or answer code) as a QR code — byte mode, US-ASCII ECI 27, error-correction level M, auto version — via `buildQrDataUrl` in `src/utils/qr.ts`, and the data URL is **derived** (`$derived`) from the `qrData` prop so the QR always encodes the _current_ artifact: re-generating the offer (or any `qrData` change) re-renders the code instead of showing the stale mount-time copy (PR #53). `ScanQrModal` wraps `qr-scanner` to decode a counterparty's QR from the camera and feed it back as if pasted (offer page uses it to accept the answer; the receive page shows its answer QR). This makes link/code exchange camera-only, no keyboard. **Camera lifecycle is explicit:** a successful scan closes the modal programmatically (the checkbox `change` never fires), so `ScanQrModal` calls `stop()` on the scanner in the decode callback to release the camera stream + decode worker, and `onDestroy` repeats it if the component unmounts mid-scan; `stop()` is a no-op when already stopped. Both modals use per-instance DOM ids from a module-scope counter (safe because the pages mount Svelte `client:only` — no SSR), so multiple modals on one page never share toggles or video elements. [`repo://src/utils/qr.ts#L1-L29`], [`repo://src/components/qr/QrModal.svelte`], [`repo://src/components/qr/ScanQrModal.svelte`], [`repo://src/components/OfferPage.svelte#L425-L441`], [`repo://tests/qr.test.mjs`], [`repo://tests/scan-qr-lifecycle.test.mjs`]
+`QrModal` renders any shareable artifact (offer link or answer code) as a QR code — byte mode via `new QRByte(data)` with no custom callback, so the library's built-in UTF-8 encoder (surrogate-pair aware) emits the matching ECI hint (`EncodingHint.UTF8` = 26), error-correction level M, auto version — via `buildQrDataUrl` in `src/utils/qr.ts`, and the data URL is **derived** (`$derived`) from the `qrData` prop so the QR always encodes the _current_ artifact: re-generating the offer (or any `qrData` change) re-renders the code instead of showing the stale mount-time copy (PR #53). The built-in encoder is deliberate: a bespoke byte/ECI callback previously truncated non-ASCII code points to their low UTF-16 byte and declared a wrong ECI (US-ASCII 27), corrupting any non-ASCII payload; PR #128 removed it so do not reintroduce one. `ScanQrModal` wraps `qr-scanner` to decode a counterparty's QR from the camera and feed it back as if pasted (offer page uses it to accept the answer; the receive page shows its answer QR). This makes link/code exchange camera-only, no keyboard. **Camera lifecycle is explicit:** a successful scan closes the modal programmatically (the checkbox `change` never fires), so `ScanQrModal` calls `stop()` on the scanner in the decode callback to release the camera stream + decode worker, and `onDestroy` repeats it if the component unmounts mid-scan; `stop()` is a no-op when already stopped. Both modals use per-instance DOM ids from a module-scope counter (safe because the pages mount Svelte `client:only` — no SSR), so multiple modals on one page never share toggles or video elements. [`repo://src/utils/qr.ts#L1-L23`], [`repo://src/components/qr/QrModal.svelte`], [`repo://src/components/qr/ScanQrModal.svelte`], [`repo://src/components/OfferPage.svelte#L425-L441`], [`repo://tests/qr.test.mjs`], [`repo://tests/scan-qr-lifecycle.test.mjs`]
 
 ## Failure behavior
 

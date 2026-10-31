@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8571d2ddeb6f8c820ffb42e2a5c8e97ba6e722312954cdae520ed68569df933d",
+  "pageVersion": "sha256:22e803ae9e6f0493eb1aed8f636a90c8d6446e57cc4f293264bf6a27bd418df7",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -120,19 +120,27 @@
     },
     {
       "id": "claim_17336969115a4b90826859e4e681616a",
-      "statement": "validateFileMetadata is the single size gate and enforces two bounds because metaData.size is peer-controlled: a size that is not finite or is <= 0 is rejected with 'invalid file size' (such a value would otherwise make the receiver flip the file to Success on a partial/empty payload or break the progress math), and size > maxSize fails with a limit message (default 1 GB via DEFAULT_RECEIVE_OPTIONS, which stays below the largest offered Max Size of 2 GB that in turn stays under the classic-ZIP 4 GiB per-entry cap, so the default never allows a file the bulk 'Download all files (zip)' path cannot archive); receiver-side validation failure sends EVENT_VALIDATE_ERROR back to the sender and records the error on the file, while autoAccept (default true) makes the receiver accept valid files without user action.",
+      "statement": "validateFileMetadata is the single size gate and enforces three bounds because metaData.size is peer-controlled: a size that is not finite, is <= 0, or is not an integer (PR #127) is rejected with 'invalid file size' (a fractional size can never equal the integer sum of chunk byte lengths that the exact-match gate receivedSize === size compares against, so accepting it would complete then dead-end the transfer), and size > maxSize fails with a humanFileSize-rendered limit message (default 1 GB via DEFAULT_RECEIVE_OPTIONS, which stays below the largest offered Max Size of 2 GB that in turn stays under the classic-ZIP 4 GiB per-entry cap, so the default never allows a file the bulk 'Download all files (zip)' path cannot archive); receiver-side validation failure sends EVENT_VALIDATE_ERROR back to the sender and records the error on the file, while autoAccept (default true) makes the receiver accept valid files without user action.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L159-L197",
-          "version": "repo-lines-v1:sha256:56be992930617fab6bc9ef6c9425732f6a48ba8b19fea1d7b12c33786b3926a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkYTZkNTMxMjhkNDdjZjFhN2RjZjAxYzg0ZTJlYzg0OGEwMzU2NzZhZmY2NjFiZjgwZjBmNDkwNDRhYmNjMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2MjBkYTgwZWFkZDdhNjkwODE4OTc1MDdiYTVmOWI3ZTIyYzg4YjIxZWZlYzU0ZDVlZDM2Y2Y1YjcxOWE5ZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMWJlZmZjNmQ4MjFmYWMxNzc4ZmRkODA5NWJhNTJiNzdiMjFlZTAwMjk5YjZiYWI5OWI1MGU2ZGM0OGNjMGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM2N2Q1MWY4ZjgxZTExMWQxOGExODU4N2IzYzQyMGY0Nzc2YzkxMjUwNjg1MjZlOGIzYmRkN2NiNWJjOGMyMmQifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L217-L231",
+          "version": "repo-lines-v1:sha256:9ca26a1faaccc2811c67aad0d27e2f9b1da7416ab9de575589af8a0034e9fbe4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkYTZkNTMxMjhkNDdjZjFhN2RjZjAxYzg0ZTJlYzg0OGEwMzU2NzZhZmY2NjFiZjgwZjBmNDkwNDRhYmNjMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMWJlZmZjNmQ4MjFmYWMxNzc4ZmRkODA5NWJhNTJiNzdiMjFlZTAwMjk5YjZiYWI5OWI1MGU2ZGM0OGNjMGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjZjczZmI3NDQyN2ZkOTlkMjhlMTFjYTM4MmM4OGU5NzVmZmQyMWM1Y2Y3MmEwNTIyZmNhY2ZmMDA1YTlkMDkifQ"
         },
         {
           "resource": "repo://src/configs.ts#L60-L66",
-          "version": "repo-lines-v1:sha256:e89818b7d3f5b4f80b7d729ddbd21891390565c63788ad517b31767b050dbfdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY1NTc5NTJjM2U1NjA5MzQ5NzhiZWY2MGUxYzNhNjU4MzRhNTRiODlmYTdiMWI0MjhhMGJmYTMzZWUzODQ5OSJ9"
+          "version": "repo-lines-v1:sha256:e89818b7d3f5b4f80b7d729ddbd21891390565c63788ad517b31767b050dbfdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzI3YmVkMzEyOGI4OTFhYzUwMGNlY2Y4MmQ2NmViMmVhM2FjNWQ5NDBlMjNjMDRhZjQzYTkxZjdiNjQ5ZjA1ZCJ9"
         },
         {
-          "resource": "repo://src/utils/validator.ts",
-          "version": "repo-file-v1:sha256:907e6759e7939025dc82c228417f7086ded31a75efd40be1d987e69235fca8a3"
+          "resource": "repo://src/utils/validator.ts#L4-L17",
+          "version": "repo-lines-v1:sha256:f7cbfd1e6f1ad1cc46158885859484c3d85f9f14529801466fef0bc4f863916b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlYjdiMDM2N2Q4NTBjMzM5YjYzZThhMDNiMjI4YWQyODcyYjUwODMwZTg5YjQzYThjZmM3YTQzOTgwMTI2M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5NWQyYmQyMzQyMThmYTViMWY1MmYzNDBmOTE0NmRlMDc5MTM1ZGUyM2E0MDAwODgwYWI2MWQ4ZDM4OTNiNzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5ZGY4NDhkNjg5NjU5NjQ2YWNhYTBhYzIzNWVhMGQ1YTRlMzAzNGUzMjAyNWNlZjNjYzJiZjg1NWRhY2YxOWYifQ"
+        },
+        {
+          "resource": "repo://tests/human-file-size.test.mjs",
+          "version": "repo-file-v1:sha256:422aaa88f9df8c9791faa8f53d7929459ef5e9dcbb01282ed19f0302d3ff7070"
+        },
+        {
+          "resource": "repo://tests/receiver-metadata-size.test.mjs",
+          "version": "repo-file-v1:sha256:3af18519b3ea8304da7eb9797e94685c39f4e03d52b3227176be19defaa7fbe8"
         }
       ]
     },
@@ -362,15 +370,15 @@
     },
     {
       "id": "claim_bf41ad03065343e487feec36c4676f7f",
-      "statement": "Because metaData.size is peer-controlled and is the receiver's completion gate, the receiver validates it with a lower bound: validateFileMetadata rejects a size that is not finite or is <= 0 with an explicit 'invalid file size' error (such a value would otherwise complete the file on the first chunk with a partial/empty payload, or make the progress math NaN/negative and break the progress UI), and the per-chunk progress ratio is clamped to [0, 100] before reaching the UI as defense in depth on top of the exact-match gate and the overshoot reject.",
+      "statement": "Because metaData.size is peer-controlled and is the receiver's completion gate, the receiver validates it with a lower bound and an integer bound: validateFileMetadata rejects a size that is not finite, is <= 0, or is not an integer (PR #127) with an explicit 'invalid file size' error (such a value would otherwise complete the file on the first chunk with a partial/empty payload, make the progress math NaN/negative and break the progress UI, or dead-end the transfer on a fractional size the exact-match gate can never satisfy), and the per-chunk progress ratio is clamped to [0, 100] before reaching the UI as defense in depth on top of the exact-match gate and the overshoot reject.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L208-L218",
-          "version": "repo-lines-v1:sha256:921912279dd4a3d3dd32952654108585e091a93782572c4d91d0bc2be0879ab3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZTIyZTBmMDRmNTBiNWQ4YmRjN2U5MDg2MzlhMjIwZDQyNmUxOTE3Yjc2ZjlhODljZGFhOTVlYTkzMDUzOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwODIxN2M2Nzk3OWE1M2MwY2EyY2U4NzZiMjc4OWI2M2RhZWRlNmVhYzA1YTk1NmVlMTM4NTY3MmE5NTdiMjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkNGJkMDY1NjgxZDIwMzQwMDhiYzZhNTQ0NjNiYThiMzU1Yzk4MzllZjFjN2UwYTMzYTI1NmQyODMwMmIyNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjliOWM3Njc3MTVlOWM3YWY1MzJmNDVkYzQ0NmRiZTc3N2YwYjUzNmY2ODc2MDNhMmEyMjgwY2UxZTZlNzVmNjcifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L372-L384",
+          "version": "repo-lines-v1:sha256:a658a200c64cb7ab1c5b067efb210017f196305590b940df17dd1a950341577b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZTIyZTBmMDRmNTBiNWQ4YmRjN2U5MDg2MzlhMjIwZDQyNmUxOTE3Yjc2ZjlhODljZGFhOTVlYTkzMDUzOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiOGE3OTRjMDIyODA2ZDFlNDAwYzU5YWVhMmJhYzQ0MzJiN2QxMmQ4ZWI0NDM4MWUxMjRhZDBkZGQzMThjMTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkNGJkMDY1NjgxZDIwMzQwMDhiYzZhNTQ0NjNiYThiMzU1Yzk4MzllZjFjN2UwYTMzYTI1NmQyODMwMmIyNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY4M2MzZjY4OWIyYmYxMmM2OTlkYzkxZDQwZmZmMjFlZmVjNjVlMWJmYjlmZjU5ZTY2YzBlOTJhNWM5OGQ2MmYifQ"
         },
         {
-          "resource": "repo://src/utils/validator.ts",
-          "version": "repo-file-v1:sha256:907e6759e7939025dc82c228417f7086ded31a75efd40be1d987e69235fca8a3"
+          "resource": "repo://src/utils/validator.ts#L4-L17",
+          "version": "repo-lines-v1:sha256:f7cbfd1e6f1ad1cc46158885859484c3d85f9f14529801466fef0bc4f863916b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlYjdiMDM2N2Q4NTBjMzM5YjYzZThhMDNiMjI4YWQyODcyYjUwODMwZTg5YjQzYThjZmM3YTQzOTgwMTI2M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5NWQyYmQyMzQyMThmYTViMWY1MmYzNDBmOTE0NmRlMDc5MTM1ZGUyM2E0MDAwODgwYWI2MWQ4ZDM4OTNiNzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5ZGY4NDhkNjg5NjU5NjQ2YWNhYTBhYzIzNWVhMGQ1YTRlMzAzNGUzMjAyNWNlZjNjYzJiZjg1NWRhY2YxOWYifQ"
         },
         {
           "resource": "repo://tests/receiver-metadata-size.test.mjs",
@@ -569,10 +577,32 @@
           "version": "repo-file-v1:sha256:5eebdafa37b1a2f20a0f525e3ef38f9e36980550b6883e117c095e8c92932737"
         }
       ]
+    },
+    {
+      "id": "claim_b8994a1977564c1e94e15e949dcd2768",
+      "statement": "Incoming-file admission caps (PR #131) bound peer-driven resource exhaustion: before registering a new entry, onMetaData counts active (non-Success) entries against MAX_INCOMING_FILES (32) and the total declared size of every not-yet-removed entry against MAX_TOTAL_RECEIVED_BYTES (8 GiB); a frame that would exceed either is not registered and is rejected back to the sender with EVENT_RECEIVER_REJECT plus a single error toast. The frame's own id is excluded from both counts so a re-offer of an already-held file resets the same entry without counting against the caps, and the terminal-Success early-return runs before the caps so a completed id is never counted; the rendered toast list is separately bounded to the most recent MAX_VISIBLE_TOASTS (10) in Toast.svelte.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/Toast.svelte#L1-L12",
+          "version": "repo-lines-v1:sha256:a139a888acb1f4cab268182b15f26cbaf6befb56e5502ee08d8d43ad5734faa9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YWJjOGVkNzU0MzgyMjA2NWMwMjlmNWVhMjUyZDEyMjNkNzZhYTdkMmQzZDRmYjEyNTgxMmY2YjVhOTlkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMTEyNGI2MWExMjQ0YTAyNzk1NGM3ODcwYWVkOGIzMTY4N2I1OGQxMGQ4NGZiMDVkMjQxYTIwZjU1NzRmOTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmYzI0NDY3Y2IwYzZkMDEwMDY3ODA4OWQ0ZjhmMTRiYjIzNzVkOGI4YjkzODcxMjAzMTc3ZmIwMmY5MjdlNjIifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L63-L122",
+          "version": "repo-lines-v1:sha256:6a428319f218a0d0ee2387b01a9cc24dc939472eeb303917102b40225e82c651:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwZTQwMWYwNDMzZjY3MTljZTY2ZTRhMGI0ZWVjODQ2NDg1YzkwZGJlMDI5NjBhYWVlNDYzMzJlYTdjNWNlZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMDEyMzdjYzgxMDI1ZTJhZjUxNzlkYTRkNDk1ZjY1ZGIxNjU2NzgwNjQ1MjRhOGZlZWY1MmM3MDMxOTBkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUzMzU4NjhlNzY0OWQ5YmE5ZDI0MGNjMDg1YjZhODhlN2JhMDI4MjE1ZWI5NmVjNzNkZDY0OWJmOTMzN2ZiMDkifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L68-L91",
+          "version": "repo-lines-v1:sha256:e99d076d9f0e60ae74091a1992f6c704d8f5cadca5c7ac691b368e6c86b9d2b5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiZTk5NmYxNmNmNzUyMDZkNjhmZTIyZjQwZjU4Y2YwNGRiYmMwZTZmMjExNDY5YjJkMjYzMTVkMWEwMjU2ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmYzVmOTVjZDc2ZmZjMGYyOWQ5MGNjZTI4MjNlNjEyMzg3ZWIyMmVkYWUzYjA1NThkZTcxNmIxYzkwMmFkNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmZjBhMzE1ZTM3MTk1YjQ3ZjA3M2QyNWQ0ZjNmNTY3MzNlNDQ5YTNlZTc2MjNlYzg3NGE3NjgwM2E2MDFkM2YifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-incoming-caps.test.mjs",
+          "version": "repo-file-v1:sha256:1d6d4dec85f2eebb0f0dbf4810232a37b0a993d5e76f94b62d8b213ecc80e3b0"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-30T06:42:53.746Z"
+    "at": "2026-10-31T10:27:22.702Z"
   }
 }

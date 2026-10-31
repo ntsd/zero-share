@@ -34,6 +34,13 @@
 //   4. the canonical root build stays byte-identical on og:image
 //      (`https://zero-share.github.io/cover.png`) and root-absolute links —
 //      the documented deployment is unchanged.
+//   5. the service-worker registration auto-injected by
+//      astrojs-service-worker is base-prefixed
+//      (`<base>/service-worker.js`), and the emitted `service-worker.js`
+//      (outDir root) precaches RELATIVE urls only — the same class of
+//      deployment-location-sensitive reference: a root-absolute
+//      registration or precache URL would 404 against the `<base>/` SW
+//      scope on a sub-path host and silently break PWA install/offline.
 //
 // The build assertions run a real `astro build` (repo's installed bin); if
 // the bin is missing they are skipped (the source/manifest guards still run).
@@ -177,6 +184,55 @@ if (existsSync(astroBin)) {
     );
   }
 
+  // Pinned on every build variant: the registration script auto-injected by
+  // astrojs-service-worker (head-inline, single or double-quoted, mirroring
+  // the attribute-quoting tolerance above) and the emitted SW's precache
+  // urls, which must stay RELATIVE — they resolve against the SW's scope
+  // (the registration URL's directory = `<base>/`). A root-absolute
+  // precache url would 404 on a sub-path host and silently break the
+  // offline install.
+  function checkServiceWorker(label, out, base) {
+    for (const page of ['index.html', join('receive', 'index.html')]) {
+      const html = readFileSync(join(out, page), 'utf8');
+      const regRe = new RegExp(
+        'navigator\\.serviceWorker\\.register\\(\\s*["\']' +
+          base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+          '/service-worker\\.js["\']\\s*\\)'
+      );
+      assert.ok(
+        regRe.test(html),
+        `${label}: ${page} must register the service worker at ${base}/service-worker.js (base-prefixed when a base is set)`
+      );
+    }
+    const swPath = join(out, 'service-worker.js');
+    assert.ok(existsSync(swPath), `${label}: service-worker.js must be emitted at the outDir root`);
+    const sw = readFileSync(swPath, 'utf8');
+    assert.ok(
+      sw.includes('precacheAndRoute(['),
+      `${label}: the emitted service worker must call precacheAndRoute([...])`
+    );
+    const precacheUrls = [...sw.matchAll(/\{url:"([^"]*)"/g)].map((m) => m[1]);
+    assert.ok(precacheUrls.length > 0, `${label}: precacheAndRoute must list at least one url`);
+    for (const url of precacheUrls) {
+      assert.ok(
+        !url.startsWith('/'),
+        `${label}: precache url ${JSON.stringify(url)} must be relative (root-absolute 404s against the ${base || ''}/ SW scope)`
+      );
+    }
+    // Known entries that must keep precaching: the entry page, the manifest,
+    // and a hashed _astro chunk.
+    for (const expected of ['index.html', 'manifest.webmanifest']) {
+      assert.ok(
+        precacheUrls.includes(expected),
+        `${label}: precache must include ${JSON.stringify(expected)}`
+      );
+    }
+    assert.ok(
+      precacheUrls.some((u) => u.startsWith('_astro/')),
+      `${label}: precache must include a hashed _astro/... chunk`
+    );
+  }
+
   // Sub-path: an org GitHub Pages host serving the app under /zero-share/.
   {
     const outDir = 'build-subpath-test';
@@ -237,9 +293,10 @@ if (existsSync(astroBin)) {
       existsSync(join(out, 'cover.png')),
       'the cover asset the sub-path og:image points at must be in the build'
     );
+    checkServiceWorker('sub-path build', out, '/zero-share');
     rmSync(out, { recursive: true, force: true });
     console.log(
-      `ok - sub-path build: og:image on the target host + base, base-prefixed links, relative manifest resolves`
+      `ok - sub-path build: og:image on the target host + base, base-prefixed links, relative manifest resolves, base-prefixed SW registration + relative precache`
     );
   }
 
@@ -283,9 +340,10 @@ if (existsSync(astroBin)) {
         `root build: icon ${icon.src} must exist in the output`
       );
     }
+    checkServiceWorker('root build', out, '');
     rmSync(out, { recursive: true, force: true });
     console.log(
-      'ok - root build: og:image/links byte-identical to the canonical deployment, manifest resolves'
+      'ok - root build: og:image/links byte-identical to the canonical deployment, manifest resolves, root-absolute SW registration + relative precache'
     );
   }
 
@@ -304,8 +362,11 @@ if (existsSync(astroBin)) {
       !/https?:\/\//.test(indexHtml.match(/<meta property="og:image" content=(["'])([^"']*)\1/)[2]),
       'no-site build: og:image must carry no hardcoded origin'
     );
+    checkServiceWorker('no-site build', join(repo, outDir), '/zero-share');
     rmSync(join(repo, outDir), { recursive: true, force: true });
-    console.log('ok - no-site build: og:image falls back to the base-prefixed relative path');
+    console.log(
+      'ok - no-site build: og:image falls back to the base-prefixed relative path, base-prefixed SW registration + relative precache'
+    );
   }
 } else {
   console.log(

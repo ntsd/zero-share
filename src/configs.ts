@@ -65,6 +65,30 @@ export const DEFAULT_RECEIVE_OPTIONS: ReceiveOptions = {
   maxSize: 1024 * 1024 * 1024 // 1GB
 };
 
+// Admission cap on peer-driven incoming files (resource-exhaustion guard): a
+// live data channel can stream an unbounded sequence of metadata frames, and
+// autoAccept accepts each one without any user action — every accepted frame
+// grows the receiving list (one FileCard DOM node), the per-file chunk maps,
+// and the toast list, and on completion retains a Blob of the whole file.
+// This bounds the number of concurrently ACTIVE (non-Success) receiving
+// entries; a new metadata frame that would exceed it is rejected back to the
+// sender with EVENT_RECEIVER_REJECT instead of being registered.
+export const MAX_INCOMING_FILES = 32;
+
+// Aggregate cap on total received bytes: per-file maxSize bounds ONE file, but
+// without an aggregate bound a peer can pin gigabytes of completed Blobs
+// resident (32 x 1 GB under the default maxSize). Enforced at the same
+// admission point as MAX_INCOMING_FILES: it counts the declared size of every
+// not-yet-removed entry — active and completed (a completed entry's Blob is
+// exactly its declared size, per the exact-match completion gate), until the
+// user Removes it.
+export const MAX_TOTAL_RECEIVED_BYTES = 8 * 1024 * 1024 * 1024; // 8 GiB
+
+// Bound on the rendered toast list (src/components/Toast.svelte): peer-driven
+// toasts (one per rejected/failed incoming file) must not grow the DOM
+// unboundedly — the list keeps only the most recent MAX_VISIBLE_TOASTS.
+export const MAX_VISIBLE_TOASTS = 10;
+
 export const WAIT_ICE_CANDIDATES_TIMEOUT = 3000; // 3 seconds
 
 export const PROGRESS_UPDATE_UI_STEP = 3; // percentage

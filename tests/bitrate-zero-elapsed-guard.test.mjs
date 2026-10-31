@@ -8,38 +8,37 @@
 // receivingFiles[id].startTime, set in onAccept()). For a small file
 // whose slice.arrayBuffer()/decrypt + first chunk settle within the same
 // millisecond, the raw elapsed time is 0, so the division is
-// offset / 0 -> Infinity (or NaN): a non-finite value stored in $state
+// bytes / 0 -> Infinity (or NaN): a non-finite value stored in $state
 // and rendered through FileCard as a misleading "Sending/Receiving:
 // 0 B/sec" (humanFileSize guards non-finite input by returning '0 B')
 // until the next 3%-step progress update re-computes with a non-zero
 // elapsed time. Verified: Math.round(32768 / (0 / 1000)) === Infinity.
 //
-// The fix floors the elapsed-time denominator to a 1 ms minimum at both
-// call sites:
-//   - src/components/sender/Sender.svelte (sendNextChunk progress update)
-//     const elapsedMs = Math.max(1, Date.now() - fileStats.startTime);
-//     sendingFile.bitrate = Math.round(offset / (elapsedMs / 1000));
-//   - src/components/receiver/Receiver.svelte (processChunk progress
-//     update)
-//     const elapsedMs = Math.max(1, Date.now() - receivingFiles[id].startTime);
-//     receivingFiles[id].bitrate =
-//       Math.round(receivingFileStatsMap[id].receivedSize / (elapsedMs / 1000));
+// The progress + bitrate UI-update block that both call sites shared was
+// copy-pasted in lockstep and has now been deduplicated into
+// src/utils/transferProgress.ts (updateTransferProgress). The zero-elapsed
+// floor — the ONLY fix this guard pins — therefore lives in exactly one
+// place: the helper. This test asserts the guarded shape in the helper and
+// keeps a thin call-site assertion that BOTH components still route their
+// progress update through it (so a future refactor cannot silently drop the
+// update from one side, re-introducing a second copy of the floor).
 //
-// This keeps the accept-time clock semantics pinned by
-// tests/sender-bitrate-clock.test.mjs intact (no clock reset, no
-// restructuring of the numerator) and removes only the division-by-zero.
+// The accept-time clock semantics pinned by
+// tests/sender-bitrate-clock.test.mjs stay intact (no clock reset, no
+// restructuring of the numerator) and are asserted there, not here.
 //
-// This test is a static source guard over the real components (the
-// established style of tests/sender-bitrate-clock.test.mjs /
+// This test is a static source guard over the real helper + components
+// (the established style of tests/sender-bitrate-clock.test.mjs /
 // tests/receiver-generation-cleanup.test.mjs): Node cannot mount Svelte
-// DOM components, so the guard shape is asserted via regex, plus a
-// runtime probe that the guarded expression is finite at 0 elapsed ms.
+// DOM components, so the guard shape is asserted via regex, plus a runtime
+// probe that the guarded expression is finite at 0 elapsed ms.
 import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
+const helperSource = readFileSync(join(here, '..', 'src', 'utils', 'transferProgress.ts'), 'utf8');
 const senderSource = readFileSync(
   join(here, '..', 'src', 'components', 'sender', 'Sender.svelte'),
   'utf8'
@@ -74,118 +73,95 @@ const humanFileSizeSource = readFileSync(
   console.log('ok - probe: 1 ms floor makes the bitrate finite at 0 elapsed ms');
 }
 
-// ---- Sender: the bitrate division uses a 1 ms-floored elapsed time ----
-// The fix keeps the guard as a single, local shape: a const whose
-// initializer floors the accept-time clock to a 1 ms minimum, and a
-// bitrate division by that const. Both halves are pinned.
+// ---- Helper: the bitrate division uses a 1 ms-floored elapsed time ----
+// The floor sits in the shared helper as a single local shape: a const whose
+// initializer floors the accept-time clock (stats.startTime) to a 1 ms
+// minimum, and a bitrate division by that const. Both halves are pinned.
 // The source is prettier-formatted, so the expression may span several
 // lines — match with whitespace-tolerant separators (\s* includes \n).
 {
-  const SENDER_ELAPSED_FLOOR =
-    /const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,\s*Date\.now\(\)\s*-\s*fileStats\.startTime\s*\)/;
-  const SENDER_BITRATE_DIVISION =
-    /sendingFile\.bitrate\s*=\s*Math\.round\(\s*offset\s*\/\s*\(\s*elapsedMs\s*\/\s*1000\s*\)/;
+  const HELPER_ELAPSED_FLOOR =
+    /const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,\s*Date\.now\(\)\s*-\s*stats\.startTime\s*\)/;
+  const HELPER_BITRATE_DIVISION =
+    /writeTo\.bitrate\s*=\s*Math\.round\(\s*sentBytes\s*\/\s*\(\s*elapsedMs\s*\/\s*1000\s*\)/;
   assert.ok(
-    SENDER_ELAPSED_FLOOR.test(senderSource),
-    'the sender must floor the accept-time clock to a 1 ms minimum (const elapsedMs = Math.max(1, Date.now() - fileStats.startTime))'
+    HELPER_ELAPSED_FLOOR.test(helperSource),
+    'the helper must floor the accept-time clock to a 1 ms minimum (const elapsedMs = Math.max(1, Date.now() - stats.startTime))'
   );
   assert.ok(
-    SENDER_BITRATE_DIVISION.test(senderSource),
-    'the sender bitrate must divide offset by that floored elapsed time (offset / (elapsedMs / 1000))'
+    HELPER_BITRATE_DIVISION.test(helperSource),
+    'the helper bitrate must divide sentBytes by that floored elapsed time (sentBytes / (elapsedMs / 1000))'
   );
   // The floor must sit inside the progress-update block, immediately
   // before the division it protects.
-  const floorIdx = senderSource.search(SENDER_ELAPSED_FLOOR);
-  const divIdx = senderSource.search(SENDER_BITRATE_DIVISION);
+  const floorIdx = helperSource.search(HELPER_ELAPSED_FLOOR);
+  const divIdx = helperSource.search(HELPER_BITRATE_DIVISION);
   assert.ok(
     floorIdx !== -1 && divIdx !== -1 && floorIdx < divIdx && divIdx - floorIdx < 400,
-    'the sender elapsed-time floor must sit just before the bitrate division'
+    'the helper elapsed-time floor must sit just before the bitrate division'
   );
 
   // Negative: the unguarded shape — dividing by the raw
-  // (Date.now() - fileStats.startTime) / 1000 — must be gone entirely.
+  // (Date.now() - stats.startTime) / 1000 — must not exist in the helper.
   assert.ok(
-    !/offset\s*\/\s*\(\s*\(\s*Date\.now\(\)\s*-\s*fileStats\.startTime\s*\)\s*\/\s*1000\s*\)/.test(
-      senderSource
+    !/sentBytes\s*\/\s*\(\s*\(\s*Date\.now\(\)\s*-\s*stats\.startTime\s*\)\s*\/\s*1000\s*\)/.test(
+      helperSource
     ),
-    'the sender must not divide by an unguarded (Date.now() - fileStats.startTime) / 1000'
+    'the helper must not divide by an unguarded (Date.now() - stats.startTime) / 1000'
   );
 
-  // The clock is untouched by the guard: exactly one reset of the
-  // closure clock in the whole file (the ACCEPT handler), none added by
-  // the fix. A second reset anywhere would restart the clock
-  // mid-transfer and re-inflate the denominator.
-  assert.equal(
-    (senderSource.match(/fileStats\.startTime\s*=\s*Date\.now\(\)/g) || []).length,
-    1,
-    'the sender must keep exactly one fileStats.startTime reset (the ACCEPT handler); the zero-elapsed guard must not add a clock reset'
-  );
-
-  // The numerator and the progress throttle are untouched.
-  assert.ok(
-    /fileStats\.progress\s*=\s*Math\.round\(\s*\(\s*offset\s*\/\s*sendingFile\.metaData\.size\s*\)\s*\*\s*100\s*\)/.test(
-      senderSource
-    ),
-    'the sender progress ratio must stay an offset/size ratio (unchanged)'
-  );
-
-  console.log('ok - sender: bitrate division is 1 ms-floored, clock and progress untouched');
+  console.log('ok - helper: bitrate division is 1 ms-floored (single source of truth)');
 }
 
-// ---- Receiver: the bitrate division uses a 1 ms-floored elapsed time ----
-// Same single local shape: const floor + division by that const.
+// ---- Call sites: both components still route through the helper ----
+// The dedup moved the floor out of the two components; a thin assertion that
+// each still calls updateTransferProgress (and no longer carries its own
+// bitrate floor) keeps the update wired on BOTH sides — a regression that
+// dropped the call from one side, or reintroduced a second copy of the
+// floor, would fail here.
 {
-  const RECEIVER_ELAPSED_FLOOR =
-    /const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,\s*Date\.now\(\)\s*-\s*receivingFiles\[id\]\.startTime\s*\)/;
-  const RECEIVER_BITRATE_DIVISION =
-    /receivingFiles\[id\]\.bitrate\s*=\s*Math\.round\(\s*receivingFileStatsMap\[id\]\.receivedSize\s*\/\s*\(\s*elapsedMs\s*\/\s*1000\s*\)/;
   assert.ok(
-    RECEIVER_ELAPSED_FLOOR.test(receiverSource),
-    'the receiver must floor the onAccept-time clock to a 1 ms minimum (const elapsedMs = Math.max(1, Date.now() - receivingFiles[id].startTime))'
+    senderSource.includes("import { updateTransferProgress } from '../../utils/transferProgress';"),
+    'the sender must import the shared progress helper'
   );
   assert.ok(
-    RECEIVER_BITRATE_DIVISION.test(receiverSource),
-    'the receiver bitrate must divide receivedSize by that floored elapsed time (receivedSize / (elapsedMs / 1000))'
+    /updateTransferProgress\(\s*fileStats\s*,\s*offset\s*,\s*sendingFile\.metaData\.size\s*,\s*sendingFile\s*\)/.test(
+      senderSource
+    ),
+    'the sender must compute its progress + bitrate through updateTransferProgress'
   );
-  // The floor must sit inside the progress-update block, immediately
-  // before the division it protects.
-  const floorIdx = receiverSource.search(RECEIVER_ELAPSED_FLOOR);
-  const divIdx = receiverSource.search(RECEIVER_BITRATE_DIVISION);
   assert.ok(
-    floorIdx !== -1 && divIdx !== -1 && floorIdx < divIdx && divIdx - floorIdx < 400,
-    'the receiver elapsed-time floor must sit just before the bitrate division'
+    receiverSource.includes(
+      "import { updateTransferProgress } from '../../utils/transferProgress';"
+    ),
+    'the receiver must import the shared progress helper'
   );
-
-  // Negative: the unguarded shape — dividing by the raw
-  // (Date.now() - receivingFiles[id].startTime) / 1000 (in any line
-  // layout) — must be gone entirely.
   assert.ok(
-    !/receivedSize\s*\/\s*\(\s*\(\s*Date\.now\(\)\s*-\s*receivingFiles\[id\]\.startTime\s*\)\s*\/\s*1000\s*\)/.test(
+    /updateTransferProgress\(\s*receivingFileStatsMap\[id\]\s*,\s*receivingFileStatsMap\[id\]\.receivedSize\s*,\s*receivingFile\.metaData\.size\s*,\s*receivingFiles\[id\]\s*\)/.test(
       receiverSource
     ),
-    'the receiver must not divide by an unguarded (Date.now() - receivingFiles[id].startTime) / 1000'
+    'the receiver must compute its progress + bitrate through updateTransferProgress'
   );
 
-  // The clock is untouched by the guard: the entry clock still starts
-  // at ACCEPT time, and exactly once — the fix must not reset or
-  // duplicate it.
-  assert.equal(
-    (receiverSource.match(/receivingFile\.startTime\s*=\s*Date\.now\(\)/g) || []).length,
-    1,
-    'the receiver must keep exactly one receivingFile.startTime reset (onAccept); the zero-elapsed guard must not add a clock reset'
-  );
-
-  // The progress clamp in the same block stays in place: bitrate was the
-  // only remaining unbounded derived value there.
-  assert.ok(
-    /receivingFileStatsMap\[id\]\.progress\s*=\s*Math\.min\(\s*100\s*,\s*Math\.max\(\s*0\s*,\s*Number\.isNaN\(rawProgress\)\s*\?\s*0\s*:\s*rawProgress\s*\)\s*\)/.test(
-      receiverSource
-    ),
-    'the receiver progress clamp must stay in the same progress-update block'
-  );
+  // The old per-component floor copies must be gone: the floor now exists
+  // only in the helper, so no component may declare its own `elapsedMs`
+  // floored to 1, or divide a bitrate by a locally-derived raw elapsed time.
+  for (const [name, source] of [
+    ['sender', senderSource],
+    ['receiver', receiverSource]
+  ]) {
+    assert.ok(
+      !/const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,/.test(source),
+      `${name} must no longer declare its own 1 ms elapsed-time floor (it lives in the helper)`
+    );
+    assert.ok(
+      !/\.bitrate\s*=\s*Math\.round\(\s*[^)]*\/\s*1000/.test(source),
+      `${name} must no longer compute its own bitrate division (it lives in the helper)`
+    );
+  }
 
   console.log(
-    'ok - receiver: bitrate division is 1 ms-floored, clock and progress clamp untouched'
+    'ok - call sites: both components route their progress + bitrate through the shared helper'
   );
 }
 

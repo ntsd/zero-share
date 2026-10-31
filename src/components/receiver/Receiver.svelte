@@ -2,8 +2,7 @@
   import {
     DEFAULT_RECEIVE_OPTIONS,
     MAX_INCOMING_FILES,
-    MAX_TOTAL_RECEIVED_BYTES,
-    PROGRESS_UPDATE_UI_STEP
+    MAX_TOTAL_RECEIVED_BYTES
   } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import { validateFileMetadata } from '../../utils/validator';
@@ -20,6 +19,7 @@
   } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
   import { createChannelSender } from '../../utils/channelSender';
+  import { updateTransferProgress } from '../../utils/transferProgress';
   import { createZipStoreOnly, sanitizeName } from '../../utils/zip';
   import { serializeTask } from '../../utils/serialize';
 
@@ -370,36 +370,20 @@
     chunkMap.receivedChunks.push(arrayBuffer);
     receivingFileStatsMap[id].receivedSize += receivingSize;
 
-    // calculate progress — clamp to [0, 100]: a peer that claims a size
-    // smaller than the payload it actually streams pushes the ratio past 100
-    // until the overshoot reject below fires (NaN is coerced to 0 as a safe
-    // fallback). The clamp is defense in depth on top of the exact-match
-    // gate: never hand the UI a progress value it cannot render sensibly.
-    const rawProgress = Math.round(
-      (receivingFileStatsMap[id].receivedSize / receivingFile.metaData.size) * 100
+    // Progress + bitrate UI update: shared with the sender's sendNextChunk
+    // via src/utils/transferProgress.ts (the two call sites were copy-pasted
+    // in lockstep — the #134 zero-elapsed bitrate floor had to land in both
+    // byte-identically). The helper's progress clamp keeps the UI value
+    // renderable for a peer that claims a size smaller than the payload it
+    // streams (defense in depth; the exact-match gate below still rejects
+    // that stream), and it reads the onAccept-time clock
+    // (receivingFiles[id].startTime) untouched for the bitrate denominator.
+    updateTransferProgress(
+      receivingFileStatsMap[id],
+      receivingFileStatsMap[id].receivedSize,
+      receivingFile.metaData.size,
+      receivingFiles[id]
     );
-    receivingFileStatsMap[id].progress = Math.min(
-      100,
-      Math.max(0, Number.isNaN(rawProgress) ? 0 : rawProgress)
-    );
-    if (receivingFileStatsMap[id].progress >= receivingFileStatsMap[id].nextProgressUpdate) {
-      // update UI
-      receivingFiles[id].progress = receivingFileStatsMap[id].progress;
-      // calculate bitrate and update UI
-      // Floor the elapsed time to 1 ms: a small file whose accept and first
-      // acked chunk settle in the same millisecond makes the raw denominator
-      // 0, and bytes / 0 is Infinity (or NaN) — a value that would be stored
-      // in $state and render as a misleading "0 B/sec".
-      const elapsedMs = Math.max(1, Date.now() - receivingFiles[id].startTime);
-      receivingFiles[id].bitrate = Math.round(
-        receivingFileStatsMap[id].receivedSize / (elapsedMs / 1000)
-      );
-      // schedule next update
-      receivingFileStatsMap[id].nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
-      if (receivingFileStatsMap[id].nextProgressUpdate > 100) {
-        receivingFileStatsMap[id].nextProgressUpdate = 100;
-      }
-    }
 
     if (receivingFileStatsMap[id].receivedSize === receivingFile.metaData.size) {
       // Complete ONLY on an exact byte count. metaData.size is peer-controlled

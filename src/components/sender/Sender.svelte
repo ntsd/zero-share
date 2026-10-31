@@ -7,8 +7,8 @@
   import { validateFileMetadata } from '../../utils/validator';
   import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../../proto/message';
   import { addToastMessage } from '../../stores/toastStore';
-  import { PROGRESS_UPDATE_UI_STEP } from '../../configs';
   import { createChannelSender } from '../../utils/channelSender';
+  import { updateTransferProgress } from '../../utils/transferProgress';
 
   type Props = {
     dataChannel: RTCDataChannel;
@@ -299,24 +299,13 @@
       }
       if (sendingFile.stop) return;
 
-      // calculate progress
-      fileStats.progress = Math.round((offset / sendingFile.metaData.size) * 100);
-      if (fileStats.progress >= fileStats.nextProgressUpdate) {
-        // update UI
-        sendingFile.progress = fileStats.progress;
-        // calculate bitrate and update UI
-        // Floor the elapsed time to 1 ms: a small file whose accept and
-        // first progress update share a millisecond makes the raw
-        // denominator 0, and offset / 0 is Infinity (or NaN) — a value that
-        // would be stored in $state and render as a misleading "0 B/sec".
-        const elapsedMs = Math.max(1, Date.now() - fileStats.startTime);
-        sendingFile.bitrate = Math.round(offset / (elapsedMs / 1000));
-        // schedule next update
-        fileStats.nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
-        if (fileStats.nextProgressUpdate > 100) {
-          fileStats.nextProgressUpdate = 100;
-        }
-      }
+      // Progress + bitrate UI update: shared with the receiver's processChunk
+      // via src/utils/transferProgress.ts (the two call sites were copy-pasted
+      // in lockstep — the #134 zero-elapsed bitrate floor had to land in both
+      // byte-identically). The accept-time clock (fileStats.startTime, reset
+      // in the ACCEPT handler above) stays untouched; the helper reads it for
+      // the bitrate denominator.
+      updateTransferProgress(fileStats, offset, sendingFile.metaData.size, sendingFile);
     }
 
     // send meta data: send() guards a dead channel — Resend after the peer

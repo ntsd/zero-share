@@ -255,13 +255,16 @@ function mockEncryptThatRemoves(remove, key, tag) {
     /sendingFile\.aesKey/.test(senderSource),
     'sendBuffer must read aesKey from the captured sendingFile reference'
   );
+  // The progress + bitrate UI writes now run in the shared helper
+  // (src/utils/transferProgress.ts, deduplicated from the inline block);
+  // the invariant is unchanged in spirit: the WRITE TARGET must be the
+  // captured `sendingFile` reference, not a `sendingFiles[key]` re-read,
+  // so a Remove mid-pipeline still lands the UI update on the live entry.
   assert.ok(
-    /sendingFile\.progress = /.test(senderSource),
-    'sendNextChunk must write progress to the captured sendingFile reference'
-  );
-  assert.ok(
-    /sendingFile\.bitrate = /.test(senderSource),
-    'sendNextChunk must write bitrate to the captured sendingFile reference'
+    /updateTransferProgress\(\s*fileStats\s*,\s*offset\s*,\s*sendingFile\.metaData\.size\s*,\s*sendingFile\s*\)/.test(
+      senderSource
+    ),
+    'sendNextChunk must pass the captured sendingFile reference to updateTransferProgress as the UI write target'
   );
 
   // The pipeline's stop guard relies on onRemove marking in-flight files and

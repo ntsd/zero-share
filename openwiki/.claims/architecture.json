@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:0c1e6e3a5ab0e5f63a9cf4b4621fb644544a24df56d34efbeb0aeefd1b44ae1b",
+  "pageVersion": "sha256:dcea191f7911591fa90aab109e2f47e9a9b706aa98808d68c583be5cba1d8503",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -315,10 +315,50 @@
           "version": "repo-file-v1:sha256:072e797c0ce7d084e154543fcfd577fb6e4d6ddb09915fbb12632c082f9d4762"
         }
       ]
+    },
+    {
+      "id": "claim_6c6881a796b74da698d8e2b886761e66",
+      "statement": "The receiver bounds peer-driven incoming files against resource exhaustion (PR #131): before registering a new entry, onMetaData counts active (non-Success) entries against MAX_INCOMING_FILES (32) and the total declared size of every not-yet-removed entry against MAX_TOTAL_RECEIVED_BYTES (8 GiB); a frame that would exceed either cap is not registered and is rejected back to the sender with EVENT_RECEIVER_REJECT plus a single error toast, and the frame's own id is excluded from both counts so a re-offer of an already-held file never counts against the caps.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/Toast.svelte#L1-L12",
+          "version": "repo-lines-v1:sha256:a139a888acb1f4cab268182b15f26cbaf6befb56e5502ee08d8d43ad5734faa9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YWJjOGVkNzU0MzgyMjA2NWMwMjlmNWVhMjUyZDEyMjNkNzZhYTdkMmQzZDRmYjEyNTgxMmY2YjVhOTlkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMTEyNGI2MWExMjQ0YTAyNzk1NGM3ODcwYWVkOGIzMTY4N2I1OGQxMGQ4NGZiMDVkMjQxYTIwZjU1NzRmOTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmYzI0NDY3Y2IwYzZkMDEwMDY3ODA4OWQ0ZjhmMTRiYjIzNzVkOGI4YjkzODcxMjAzMTc3ZmIwMmY5MjdlNjIifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L63-L124",
+          "version": "repo-lines-v1:sha256:7c2fbcbdbc924bd132cb1ff5d00e7c20a76dac1ab84e604847fa41e9cb990e7b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwZTQwMWYwNDMzZjY3MTljZTY2ZTRhMGI0ZWVjODQ2NDg1YzkwZGJlMDI5NjBhYWVlNDYzMzJlYTdjNWNlZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZDI4YzYwNTBlZWFjNTZjNGRmNmIyOGEyMDI0NGVhNGE3ZjNjOWRhMjkyMjUzZDdhYmY2YzllNTE4MzA0NDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMDEyMzdjYzgxMDI1ZTJhZjUxNzlkYTRkNDk1ZjY1ZGIxNjU2NzgwNjQ1MjRhOGZlZWY1MmM3MDMxOTBkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljMzZkNWU1OWE2ZWM2ODk4ZjdhNjUxMzEwNDlmY2U5ZTQ4MzJiODdjNDkwNDgzOTc1ODcyMzAxOGMzNDE5YjAifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L68-L91",
+          "version": "repo-lines-v1:sha256:e99d076d9f0e60ae74091a1992f6c704d8f5cadca5c7ac691b368e6c86b9d2b5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiZTk5NmYxNmNmNzUyMDZkNjhmZTIyZjQwZjU4Y2YwNGRiYmMwZTZmMjExNDY5YjJkMjYzMTVkMWEwMjU2ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmYzVmOTVjZDc2ZmZjMGYyOWQ5MGNjZTI4MjNlNjEyMzg3ZWIyMmVkYWUzYjA1NThkZTcxNmIxYzkwMmFkNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmZjBhMzE1ZTM3MTk1YjQ3ZjA3M2QyNWQ0ZjNmNTY3MzNlNDQ5YTNlZTc2MjNlYzg3NGE3NjgwM2E2MDFkM2YifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-incoming-caps.test.mjs",
+          "version": "repo-file-v1:sha256:1d6d4dec85f2eebb0f0dbf4810232a37b0a993d5e76f94b62d8b213ecc80e3b0"
+        }
+      ]
+    },
+    {
+      "id": "claim_3ce7c96eae8442cab819dba7a3515ad9",
+      "statement": "Metadata size is validated to be a positive integer (PR #127): validateFileMetadata rejects a MetaData.size that is non-finite, <= 0, or not an integer, because a fractional size can never satisfy the receiver's exact-match completion gate (receivedSize === metaData.size over integer chunk byte lengths); humanFileSize clamps its unit index on both ends (Math.max(0, ...)) so a peer-controlled size in (0, 1) floors to unit 0 instead of indexing units[-1] to undefined.",
+      "evidence": [
+        {
+          "resource": "repo://src/utils/humanFileSize.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:e0ca042e6196a7e14da5537dbde585d69cb960062248b3f1cbc66d3a6b7de41b:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ3MDJjNTczMDgzNDdiNzVjMzY4OTViMDJiYmQzOTgyMzBjMmE3MjVhZDYzYjQ0ZjMwOGJhOWRkODBmMzI3ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://src/utils/validator.ts#L7-L17",
+          "version": "repo-lines-v1:sha256:394bf2bef7aa46f2464ed4d60e911a7d2eec4ae1ad1c1cd35a1523868801e309:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MDg5ZjAzNzlkMzI3ZTBmZjBlNTNjMGQ1Y2U2MThmYzlhNzk2NjQyZjgxMzJmYmQwOWVkODU3OTliYTJiNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUwMjU0NzhhY2Y3Mjk2OWZjZDk5OWZjYWFlNzZkNWM4MDkyMmE5YTA3NWIxM2U2ZjI2YmZjMWRhMmM1OTg4OTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5ZGY4NDhkNjg5NjU5NjQ2YWNhYTBhYzIzNWVhMGQ1YTRlMzAzNGUzMjAyNWNlZjNjYzJiZjg1NWRhY2YxOWYifQ"
+        },
+        {
+          "resource": "repo://tests/human-file-size.test.mjs",
+          "version": "repo-file-v1:sha256:422aaa88f9df8c9791faa8f53d7929459ef5e9dcbb01282ed19f0302d3ff7070"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-30T06:42:53.746Z"
+    "at": "2026-10-31T10:27:22.702Z"
   }
 }

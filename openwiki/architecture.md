@@ -4,7 +4,7 @@ title: 'Architecture: Serverless WebRTC P2P Sharing'
 openwiki_generated: true
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-30T06:42:53.746Z
+    at: 2026-10-31T10:27:22.702Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs
@@ -16,6 +16,8 @@ sources:
     resource: repo://src/components/receiver/Receiver.svelte
   - id: openwiki-source-d6db73741d251c8c754ff256
     resource: repo://src/components/sender/Sender.svelte
+  - id: openwiki-source-b1aa5a3b08379fe5ef08f2fc
+    resource: repo://src/components/Toast.svelte
   - id: openwiki-source-578f160ff71c06304de2a610
     resource: repo://src/configs.ts
   - id: openwiki-source-1b681c4ce8d10cbab258bb09
@@ -30,14 +32,20 @@ sources:
     resource: repo://src/utils/channelSender.ts
   - id: openwiki-source-825971ed9c72d5969af1b150
     resource: repo://src/utils/crypto.ts
+  - id: openwiki-source-47d3ea352c700687b4d4e56b
+    resource: repo://src/utils/humanFileSize.ts
   - id: openwiki-source-43ba2ea6141a6d37347e98ea
     resource: repo://src/utils/peerMessage.ts
+  - id: openwiki-source-7273c5aba858442dede2d981
+    resource: repo://src/utils/validator.ts
   - id: openwiki-source-c60571bff5134e29cac41e94
     resource: repo://tests/channel-sender.test.mjs
   - id: openwiki-source-bc79428fbabf9194d0ff47c4
     resource: repo://tests/clipboard-copy-robustness.test.mjs
   - id: openwiki-source-0b2db294eb601cd0fa00b625
     resource: repo://tests/dead-channel-peer-close.test.mjs
+  - id: openwiki-source-a5278bf8b97199f7999994bd
+    resource: repo://tests/human-file-size.test.mjs
   - id: openwiki-source-cbda1b574339ff50701cd203
     resource: repo://tests/offer-peer-lifecycle.test.mjs
   - id: openwiki-source-6620ca09e313d24486b5e413
@@ -46,9 +54,11 @@ sources:
     resource: repo://tests/protocol-size.test.mjs
   - id: openwiki-source-0833980019f1ab44ca66a28e
     resource: repo://tests/receiver-double-accept.test.mjs
+  - id: openwiki-source-7abe0dab8d8fc8d1ed9b7e13
+    resource: repo://tests/receiver-incoming-caps.test.mjs
   - id: openwiki-source-cc2aa5000eb243dbf0af9518
     resource: repo://tests/regen-offer-stale-peer-crypto.test.mjs
-generated: { by: 'hermes', at: '2026-10-26T01:11:16.844Z' }
+generated: { by: 'hermes', at: '2026-10-31T10:27:22.702Z' }
 ---
 
 # Architecture: Serverless WebRTC P2P Sharing
@@ -90,10 +100,15 @@ The transfer protocol is **receiver-ack chunking**: the sender emits metadata, w
 
 1. **DTLS** — inherent to WebRTC; protects the data channel in transit but is exposed to MITM on the SDP offer/answer exchange (the links are unauthenticated).
 2. **Optional application-layer encryption** — when enabled, each file is encrypted with its own **AES-256-GCM** key, and that key is wrapped with the receiver's **RSA-OAEP-2048** public key and delivered inside the `metaData` message. This makes file content confidential even if the SDP exchange is intercepted. It is off by default (`isEncrypt: false`). The offer side tracks the effective session encryption in `effectiveEncrypt`: while no offer link exists, `onOptionsUpdate` re-syncs it from the live setting (and clears any imported peer key); once the link is live the session's mode is **settled** by the handshake — the accepted answer's key portion pins it (present = encrypted, empty = plaintext) — so a post-generation settings toggle (chunk size, ICE server, or a synthetic encryption flip) must not desync the Sender/Receiver from the peer's settled mode. [`repo://src/utils/crypto.ts#L1-L11`], [`repo://src/components/OfferPage.svelte#L38`], [`repo://src/components/OfferPage.svelte#L287-L367`], [`repo://src/configs.ts#L41-L45`]. See `subsystems/encryption.md`.
+3. **Receiver admission caps (resource-exhaustion guard, PR #131)** — a live data channel can stream an unbounded sequence of peer-controlled metadata frames, and with `autoAccept` (default) every one is accepted without user action; each accepted frame grows the receiving list (one `FileCard` DOM node), the per-file chunk maps, the toast list, and on completion retains a `Blob` of the whole file. Before registering a _new_ entry, `onMetaData` therefore counts the active (non-`Success`) entries and the total declared size of every not-yet-removed entry (active and completed alike — a completed entry's Blob is exactly its declared size, per the exact-match completion gate): a frame that would push past `MAX_INCOMING_FILES` (32 active files) or `MAX_TOTAL_RECEIVED_BYTES` (8 GiB) is **not** registered — the guarded `send()` rejects it back to the sender with `EVENT_RECEIVER_REJECT` (the sender's reject path bounces the file to `Pending` with an error, the same recovery as every other reject) and emits **one** error toast, because a per-file toast per rejected frame would itself be the unbounded toast fan-out this guard stops. The frame's own id is excluded from both counts so a re-offer of an already-held file resets the same entry without counting against the caps. The rendered toast list is separately bounded to the most recent `MAX_VISIBLE_TOASTS` (10) in `Toast.svelte`. [`repo://src/configs.ts#L68-L91`], [`repo://src/components/receiver/Receiver.svelte#L63-L124`], [`repo://src/components/Toast.svelte#L1-L12`], [`repo://tests/receiver-incoming-caps.test.mjs`]. See `subsystems/file-transfer.md`.
 
 ## State model
 
 File state is held entirely in client memory (Svelte 5 `$state` maps keyed by file id — `crypto.randomUUID()` on the sender side, so same-named files never collide). Reactivity-sensitive UI state (progress, bitrate) is throttled by keeping per-file stats in **non-reactive** maps and flushing to reactive state every `PROGRESS_UPDATE_UI_STEP` (3) percentage points, avoiding render storms during transfers. The per-side `connectionLost` flag is **not** an independent copy on each side: both `Sender` and `Receiver` create a `createChannelSender(dataChannel)` (see the data-flow section above) — the **sender** keeps a plain **`$state`** `connectionLost` that the template reacts to, flipped by `onChannelClose()` and by a thin `send()` wrapper mirroring the helper's lost flag (a `$derived` over `channelSender.isLost()` would cache `false` forever because `isLost()` reads a plain closure variable, not a Svelte signal — PR #109), while the **receiver** gates on the helper's `isLost()` read directly — so the dead-channel flag, the guarded `send()`, and the UI gating all read one shared source of truth rather than two copies that must be kept in sync. [`repo://src/type.ts#L1-L78`], [`repo://src/components/sender/Sender.svelte#L22-L49`], [`repo://src/components/receiver/Receiver.svelte#L25-L35`], [`repo://src/configs.ts#L65-L67`]
+
+**Incoming-file admission caps** (PR #131) bound the in-memory receiving state against a peer that streams an unbounded sequence of metadata frames: before registering a _new_ entry, `onMetaData` counts the active (non-`Success`) entries against `MAX_INCOMING_FILES` (32) and the total declared size of every not-yet-removed entry against `MAX_TOTAL_RECEIVED_BYTES` (8 GiB); a frame that would exceed either cap is not registered and is rejected back to the sender with a single error toast (see the Security-layering section above). The frame's own id is excluded from both counts so a re-offer of an already-held file never counts against them, and a metadata frame for a completed (`Success`) id is terminal and ignored before the caps run so it is never counted. The rendered toast list is separately bounded to the most recent `MAX_VISIBLE_TOASTS` (10). [`repo://src/configs.ts#L68-L91`], [`repo://src/components/receiver/Receiver.svelte#L63-L124`], [`repo://src/components/Toast.svelte#L1-L12`], [`repo://tests/receiver-incoming-caps.test.mjs`]
+
+**Metadata size is validated to be a positive integer.** `validateFileMetadata` rejects a `MetaData.size` that is non-finite, ≤ 0, **or not an integer** (PR #127): a fractional size (e.g. 0.5) can never satisfy the receiver's exact-match completion gate (`receivedSize === metaData.size`, where `receivedSize` is a sum of integer chunk byte lengths), so accepting it would dead-end the transfer forever; rejecting it early surfaces a clean "invalid file size" error instead. `humanFileSize`, which renders such peer-controlled sizes, clamps its unit index on **both** ends — `Math.max(0, …)` floors a size in (0, 1) to unit 0 ("0.50 B") instead of indexing `units[-1]` to `undefined` ("0.50 undefined"). [`repo://src/utils/validator.ts#L1-L20`], [`repo://src/utils/humanFileSize.ts#L1-L10`], [`repo://tests/human-file-size.test.mjs`]
 
 There is **no persistence**: received files are assembled into `Blob`s held in memory and downloaded on demand; nothing is stored in IndexedDB, localStorage, or server-side.
 

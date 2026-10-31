@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:dfad026ff5ba580a7b03c4377bec8796ca896c22fe4797fca6a6bc94290db70d",
+  "pageVersion": "sha256:bf8511b9289c9bb8c31a521369306195190e085c4012b93334b610c3aba990e2",
   "claims": [
     {
       "id": "claim_723fc0d4ed98488bbf69000602bbdb1a",
@@ -158,7 +158,7 @@
     },
     {
       "id": "claim_f494c80366444f64ad561e77fc827565",
-      "statement": "QR exchange replaces keyboard entry: QrModal renders the offer link or answer code as a QR (byte mode, US-ASCII ECI 27, error-correction level M, auto version) via buildQrDataUrl in src/utils/qr.ts with the data URL $derived from the qrData prop so re-generating the offer never shows a stale mount-time QR (PR #53), and ScanQrModal decodes a counterparty QR from the camera, feeding the decoded text back through the same accept/copy path as pasting; the scanner is stopped explicitly on the programmatic close/success path (stop() in the decode callback and in onDestroy) so the camera stream + decode worker are released, and both modals use per-instance DOM ids so multiple modals on one page never share toggles or video elements.",
+      "statement": "QR exchange replaces keyboard entry: QrModal renders the offer link or answer code as a QR (byte mode via `new QRByte(data)` with no custom callback — the library's built-in UTF-8 encoder, surrogate-pair aware, emits the matching ECI hint EncodingHint.UTF8 = 26; PR #128 replaced a bespoke byte/ECI callback that previously truncated non-ASCII code points to their low UTF-16 byte and declared a wrong ECI US-ASCII 27, error-correction level M, auto version) via buildQrDataUrl in src/utils/qr.ts with the data URL $derived from the qrData prop so re-generating the offer never shows a stale mount-time QR (PR #53), and ScanQrModal decodes a counterparty QR from the camera, feeding the decoded text back through the same accept/copy path as pasting; the scanner is stopped explicitly on the programmatic close/success path (stop() in the decode callback and in onDestroy) so the camera stream + decode worker are released, and both modals use per-instance DOM ids so multiple modals on one page never share toggles or video elements.",
       "evidence": [
         {
           "resource": "repo://src/components/qr/QrModal.svelte",
@@ -169,12 +169,12 @@
           "version": "repo-file-v1:sha256:a0205fbfb2aabdc1d3b0ad93f51d1bdd163c78190c83a7a600cc826a184b3c8d"
         },
         {
-          "resource": "repo://src/utils/qr.ts#L1-L29",
-          "version": "repo-lines-v1:sha256:53322341c666aba331b0cbec784a8af0be1b7fb24a3881585b3f37bd73a35f90:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxOGE4Yzc1NTI2YWU0ZjFhZWZlYmRjNTYxZWE4OWUzZGVhYzMwOWMwYmRhNzNkZjEwMzRkYzc5M2M4OTU5ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/utils/qr.ts#L1-L23",
+          "version": "repo-lines-v1:sha256:4d758ccdfb3e706023c8942763ae7390da18429bbede2cef88c954a3f25149c0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxOGE4Yzc1NTI2YWU0ZjFhZWZlYmRjNTYxZWE4OWUzZGVhYzMwOWMwYmRhNzNkZjEwMzRkYzc5M2M4OTU5ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://tests/qr.test.mjs",
-          "version": "repo-file-v1:sha256:cf98ebc31860274bd7171530c1241cc2b411a6d5f8d5f74b39baf5c3a148e6e9"
+          "version": "repo-file-v1:sha256:bf747f7bc70a076ef4b26306989d8fbdbe21255499db30091412ffc0da077d6c"
         },
         {
           "resource": "repo://tests/scan-qr-lifecycle.test.mjs",
@@ -249,6 +249,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-30T06:42:53.746Z"
+    "at": "2026-10-31T10:27:22.702Z"
   }
 }

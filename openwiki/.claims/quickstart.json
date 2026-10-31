@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f1041dc9581599452e34266247da5087cbb21fb4688a24c829f9d0c0cbaeb11a",
+  "pageVersion": "sha256:2c3c5e3d9830f42507ed0caa8752fe1fd7cbf763a12e6eb5ac27de8a52037564",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -70,7 +70,7 @@
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-five tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 49), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 45 regression-guard files).",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), typecheck (tsc --noEmit — added in PR #130 as the one-command typecheck gate, since the lockfile previously pinned typescript 5.6.3 while package.json declared ^5.9.3, breaking clean installs with 11× TS2315 'Uint8Array is not generic'), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-nine tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 59), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 49 regression-guard files).",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh#L28-L45",
@@ -81,8 +81,8 @@
           "version": "repo-lines-v1:sha256:03ed159d53c8506c1a7428c5d4a9f7d40d99e83239b5e44031e5ce3081ad5453:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2ZTU2OGNmYWEyMGNjMjk0YzU1MmY1M2VhYTNiM2U3OTM1NjVmNzI4MzE3NDdiMjQ0ZmQzNTRiMGE2Zjg0NmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0YTJiZWNmZjhhZmIzNGRiMjYwZGFiYzk2OTE1ZmZlY2ZkZTg0ODkyOTU0MWM2MTkzZGU2ZDE2NGMyMWU4ZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhMzhiMjJiZGM2NGYxMDZiMTQwYzE4ODcyZDMzMzg3NzQwOTU3ZDgzODMxZTdmMDgwNjUyYTFiOWIwOTBiZjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExNzU1MGY2ODE3ODAwNGExNmE0MjBmODgwNmRlYzQ0MWMzZjdlMTM3ZjJiODQ4Y2Q1ZTlmYTRkNDVmYmVlOGYifQ"
         },
         {
-          "resource": "repo://package.json#L6-L16",
-          "version": "repo-lines-v1:sha256:eb3fe01a51ac2c79bb10755d6e5b99a612ca823fdb0de2ce4fab0231cc4910ac:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlNzAwOGQ5YTYwZDM3YjgxNzA4OGYxMWNlN2ZiYmViOGFjOGEyZDMyMDlhODUwMmNkZTE2YzMzNzkwZTZmZjIifQ"
+          "resource": "repo://package.json#L6-L21",
+          "version": "repo-lines-v1:sha256:6cc95efa3851173ae392ad0914a51a77728b57d7ec782fa434111baed2702adb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkOWRjMDIwMjJkN2UyOTNlZjhkYjJhZjg1Njg1OTQzMzczNzI5OWFjMjAyN2MxNjc1ZGJlMDNjYmY2Njc1MjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYzRkZTdlZDM1YTIzMzY0NTM5ODY0ZGFkYjkzOGI4NzIzMzM3OTE3OWQ2MjkyYjlmZjVmNjE5YTZjMTMxNjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjZmQxNWU4MzA3OWIwZmYxYWU5ZDU2MmU3MTIyMDQwMGZjNzkxYTlhNWRiZWE0ZjdjMzE4OTQwYWYzMWM0YTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0MTM1NTI1YmRmZjM4YTI0YjdmZjAyNzYzYTNlOTU3NWFlMzNmZjhlODEwNTVjMTY0ZjI2MjRkNDI4OThiYzMifQ"
         }
       ]
     },
@@ -138,15 +138,15 @@
     },
     {
       "id": "claim_e523154479b2420ead1bdae75613b273",
-      "statement": "The protobuf runtime used by src/proto/message.ts and the tests is now declared directly in package.json devDependencies as @bufbuild/protobuf ^2.9.0 (PR #100): before the declaration, src/proto/message.ts's `import ... from '@bufbuild/protobuf/wire'` resolved only via ts-proto's transitive dependency hoisting, so build/tests worked by luck and a ts-proto upgrade that unhooks the transitive version could break the resolution; the declaration is pinned with package-lock.json.",
+      "statement": "The protobuf runtime used by src/proto/message.ts and the tests is now declared directly in package.json devDependencies as @bufbuild/protobuf ^2.9.0 (PR #100): before the declaration, src/proto/message.ts's `import ... from '@bufbuild/protobuf/wire'` resolved only via ts-proto's transitive dependency hoisting, so build/tests worked by luck and a ts-proto upgrade that unhooks the transitive version could break the resolution; the declaration is pinned with package-lock.json. (PR #129 also added sharp ^0.34.4 as a declared devDependency so tests/qr.test.mjs no longer imports a phantom transitive dependency of astro, and PR #130's lockfile re-resolves typescript to 5.9.x to satisfy the declared ^5.9.3 range and the 5.7.0 generic-TypedArray lib floor.)",
       "evidence": [
         {
           "resource": "repo://package-lock.json",
-          "version": "repo-file-v1:sha256:a3084ace6784c4eae75d1f7450b35089904b35f33ceb1c47b6f4580b6dd8b6de"
+          "version": "repo-file-v1:sha256:c5feb298a9e43815610a90f87263a47720b42d94e92aea2df87dde700c930f2b"
         },
         {
-          "resource": "repo://package.json",
-          "version": "repo-file-v1:sha256:82399339c0372d72f9e88d93fdf52298710559a8c2d37aee3b891b6e063609ba"
+          "resource": "repo://package.json#L17-L21",
+          "version": "repo-lines-v1:sha256:db1d2160b6eceb054b4bc0a2be75eb6ffef3f5767827bc429bb7fa78c3a6cde5:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmRkNmU5MjdkZTEyNzE4ZGNjMzdmYTBhODJlOTRkNzgyMDFmMjFlNmQwNTRjMTA5MjRjYWY3MmE5YzdjNGZlZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRjNGRlN2VkMzVhMjMzNjQ1Mzk4NjRkYWRiOTM4Yjg3MjMzMzc5MTc5ZDYyOTJiOWZmNWY2MTlhNmMxMzE2NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzcxODgwNTUyMDFhZjFlM2E2MGRjYzViMTNiZTU1MjM1MWZhNWFiNzdlZDllZjQyMGY0MWVmMzlhNDQ5Mjk5MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzQxMzU1MjViZGZmMzhhMjRiN2ZmMDI3NjNhM2U5NTc1YWUzM2ZmOGU4MTA1NWMxNjRmMjYyNGQ0Mjg5OGJjMyJ9"
         }
       ]
     },
@@ -181,6 +181,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-30T06:42:53.746Z"
+    "at": "2026-10-31T10:27:22.702Z"
   }
 }

@@ -17,6 +17,7 @@
     importRsaPublicKeyFromBase64
   } from '../utils/crypto';
   import { sdpDecode, sdpEncode } from '../utils/sdpEncode';
+  import { createChannelTeardown } from '../utils/channelTeardown';
   import type { SendOptions } from '../type';
   import Sender from './sender/Sender.svelte';
   import Receiver from './receiver/Receiver.svelte';
@@ -151,47 +152,30 @@
         onReceiveEvent: (id, receiveEvent) => sender?.onReceiveEvent(id, receiveEvent)
       });
     };
-    dataChannel.onerror = () => {
-      addToastMessage('WebRTC error', 'error');
-      isConnecting = false;
-      offerLink = '';
-      // A failed channel never recovers: propagate "connection lost" into the
-      // file pipelines so in-flight/queued work exits with an accurate error
-      // instead of dead-ending or re-firing false per-chunk errors.
-      sender?.onChannelClose();
-      receiver?.onChannelClose();
-      // Closing the data channel does NOT close the RTCPeerConnection: without
-      // this, the ICE agent, its UDP sockets, and the STUN/TURN keepalives
-      // stay open for the rest of the page's lifetime (same leak the
-      // regeneration teardown above handles for its dead peer). Guarded on
-      // connectionState because close() throws InvalidStateError on an
-      // already-closed peer (error+close double-fire, or a regeneration that
-      // raced this handler).
-      if (connection && connection.connectionState !== 'closed') {
-        connection.close();
+    // The channel will never deliver again: the shared teardown owns the
+    // toast, the isConnecting reset, the pipeline propagation, and the
+    // guarded peer release (see src/utils/channelTeardown.ts). `connection`
+    // is read at fire time (not captured): it is reassigned to a new peer on
+    // every "Generate Offer" regeneration, and a handler that survives a
+    // regeneration race must close the peer that actually owns the dying
+    // generation.
+    const channelTeardown = createChannelTeardown({
+      getConnection: () => connection,
+      getSender: () => sender,
+      getReceiver: () => receiver,
+      markNotConnecting: () => {
+        isConnecting = false;
+      },
+      // The dead generation's offer link must not survive its channel: it
+      // would keep the "2. Accept Answer" section open on a dead SDP (the
+      // template keys on `offerLink !== ''`), and its `p` key belongs to the
+      // keypair that a regeneration re-mints. ReceivePage has no link.
+      onChannelLost: () => {
+        offerLink = '';
       }
-    };
-    dataChannel.onclose = () => {
-      addToastMessage('Disconnected', 'error');
-      isConnecting = false;
-      offerLink = '';
-      // The channel will never deliver again (peer closed the tab, dropped
-      // the network, or a "Generate Offer" regeneration closed it): mark the
-      // in-flight files on both sides "connection lost" and stop their
-      // pipelines — the old handlers only reset link state, leaving files in
-      // Processing forever and queued chunks re-firing corrupt-chunk toasts.
-      sender?.onChannelClose();
-      receiver?.onChannelClose();
-      // Release the WebRTC peer with the channel: closing the data channel
-      // alone leaves the RTCPeerConnection (ICE agent, UDP sockets,
-      // STUN/TURN keepalives) live until the browser's ICE timeout or page
-      // unload. Same guarded shape as the regeneration teardown — a
-      // double-fire (error then close) or a racing regeneration must not
-      // throw InvalidStateError from close().
-      if (connection && connection.connectionState !== 'closed') {
-        connection.close();
-      }
-    };
+    });
+    dataChannel.onerror = channelTeardown.onerror;
+    dataChannel.onclose = channelTeardown.onclose;
   }
 
   async function generateOfferLink() {

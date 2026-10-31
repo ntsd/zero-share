@@ -4,7 +4,7 @@
 //   onSend() creates the closure's fileStats with `startTime: Date.now()`
 //   at the Send CLICK. The entry then sits in FileStatus.WaitingAccept
 //   until the peer's ACCEPT event arrives, and the chunk pipeline only
-//   starts on accept. The progress update computed the bitrate as
+//   starts on accept. The progress update used to compute the bitrate as
 //   `offset / ((Date.now() - fileStats.startTime) / 1000)` — i.e. bytes
 //   sent divided by time-since-Send-click. Any wait between Send and
 //   Accept (e.g. receiver with Auto accept = Off) inflated the
@@ -21,9 +21,19 @@
 // progress-throttle change: progress is an offset/size ratio and is
 // unaffected.
 //
+// The progress + bitrate UI-update block both sides shared was copy-pasted
+// in lockstep and has since been deduplicated into
+// src/utils/transferProgress.ts (updateTransferProgress). The bitrate
+// denominator therefore now reads `stats.startTime` in the helper — this
+// test keeps pinning the CLOCK the denominator derives from (the
+// accept-time clock, reset exactly once, before the pipeline starts), and
+// verifies the helper's shape against it. The zero-elapsed floor the
+// denominator is wrapped in is pinned separately by
+// tests/bitrate-zero-elapsed-guard.test.mjs.
+//
 // This test is static source inspection: Node cannot mount Svelte DOM
-// components, so it reads src/components/sender/Sender.svelte and
-// asserts the fix shape, mirroring tests/drag-drop-paste.test.mjs and
+// components, so it reads the helper and the two components and asserts
+// the fix shape, mirroring tests/drag-drop-paste.test.mjs and
 // tests/sender-stop-final-ack.test.mjs.
 import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
@@ -31,6 +41,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
+const helperSource = readFileSync(join(here, '..', 'src', 'utils', 'transferProgress.ts'), 'utf8');
 const senderSource = readFileSync(
   join(here, '..', 'src', 'components', 'sender', 'Sender.svelte'),
   'utf8'
@@ -107,52 +118,44 @@ function extractAcceptHandler(source) {
   console.log('ok - sender: the ACCEPT handler resets the closure bitrate clock');
 }
 
-// ---- Test 2: the bitrate expression divides by the closure clock ----
+// ---- Test 2: the shared helper divides by the accept-time clock ----
 {
-  // The progress update must still compute the bitrate as bytes-sent /
-  // elapsed-time, and the elapsed time must come from fileStats.startTime
-  // (the clock reset at accept), not f.startTime (entry-level, vestigial
-  // on the sender side) nor any other clock.
-  // The elapsed term is floored to a 1 ms minimum (const elapsedMs =
-  // Math.max(1, ...)) before the division: a same-millisecond accept +
-  // first progress update would otherwise divide by 0 and store
-  // Infinity/NaN in $state. The guard shape is pinned by
-  // tests/bitrate-zero-elapsed-guard.test.mjs; this test keeps pinning
-  // the CLOCK the guard must not touch.
+  // The deduped progress + bitrate update lives in
+  // src/utils/transferProgress.ts. The denominator must stay
+  // time-since-ACCEPT: it derives from stats.startTime (the per-file clock
+  // the components reset on accept), not from any entry-level clock, and
+  // the floor (const elapsedMs = Math.max(1, ...)) must not reset or
+  // duplicate the clock — a reset anywhere would restart it mid-transfer
+  // and re-inflate the denominator. The floor shape is pinned by
+  // tests/bitrate-zero-elapsed-guard.test.mjs; this test pins the CLOCK.
   assert.ok(
-    /const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,\s*Date\.now\(\)\s*-\s*fileStats\.startTime\s*\)/.test(
-      senderSource
-    ),
-    'the elapsed-time denominator must be derived from fileStats.startTime (the accept-time clock)'
+    /Date\.now\(\)\s*-\s*stats\.startTime/.test(helperSource),
+    'the helper elapsed-time denominator must be derived from stats.startTime (the accept-time clock)'
   );
   assert.ok(
-    /sendingFile\.bitrate\s*=\s*Math\.round\(\s*offset\s*\/\s*\(\s*elapsedMs\s*\/\s*1000\s*\)/.test(
-      senderSource
-    ),
-    'the bitrate must divide offset by the floored elapsed time'
+    /writeTo\.bitrate\s*=\s*Math\.round\(/.test(helperSource),
+    'the helper must write the rounded bitrate to the UI entry'
   );
-  // The pre-fix / buggy shape — a denominator derived from the entry
-  // clock — must not exist anywhere on the sender side.
+  // The pre-fix / buggy shape — a denominator derived from an entry-level
+  // clock — must not exist anywhere in the helper.
   assert.ok(
-    !/bitrate\s*=.*(?:f\.startTime|sendingFile\.startTime)/.test(senderSource),
-    'the sender bitrate must not be derived from the entry-level startTime'
+    !/bitrate\s*=.*(?:f\.startTime|\.startTime\s*=\s*Date)/.test(helperSource),
+    'the helper bitrate must not be derived from an entry-level startTime'
   );
 
   // The progress throttle itself is out of scope for the fix and must be
-  // untouched: progress stays an offset/size ratio on the same
+  // untouched: progress stays a sentBytes/totalBytes ratio on the same
   // nextProgressUpdate schedule.
   assert.ok(
-    /fileStats\.progress\s*=\s*Math\.round\(\s*\(\s*offset\s*\/\s*sendingFile\.metaData\.size\s*\)\s*\*\s*100\s*\)/.test(
-      senderSource
-    ),
-    'progress must stay an offset/size ratio (unchanged by the bitrate fix)'
+    /Math\.round\(\s*\(?\s*sentBytes\s*\/\s*totalBytes\s*\)?\s*\*\s*100\s*\)/.test(helperSource),
+    'progress must stay a sentBytes/totalBytes ratio (unchanged by the bitrate fix)'
   );
   assert.ok(
-    /fileStats\.nextProgressUpdate\s*\+=\s*PROGRESS_UPDATE_UI_STEP;/.test(senderSource),
+    /stats\.nextProgressUpdate\s*\+=\s*PROGRESS_UPDATE_UI_STEP;/.test(helperSource),
     'the progress throttle step must be unchanged'
   );
 
-  console.log('ok - sender: the bitrate expression uses the closure clock, throttle intact');
+  console.log('ok - helper: the bitrate expression uses the accept-time clock, throttle intact');
 }
 
 // ---- Test 3: a Resend gets a clean clock (fresh fileStats per onSend) ----
@@ -179,24 +182,22 @@ function extractAcceptHandler(source) {
   // The receiver already starts its entry clock in onAccept() and
   // computes "Receiving: X/sec" from it — this guard pins the symmetry so
   // the sender fix cannot drift away from the established semantics.
-  // The denominator is a floored const (see
-  // tests/bitrate-zero-elapsed-guard.test.mjs); the clock it derives
-  // from must still be receivingFiles[id].startTime (time-since-accept).
   assert.ok(
     /receivingFile\.startTime\s*=\s*Date\.now\(\);/.test(receiverSource),
     'the receiver must keep starting its entry clock at ACCEPT time'
   );
+
+  // After the dedup the denominator no longer appears in the component:
+  // the receiver routes through the shared helper, passing its entry
+  // (receivingFiles[id], whose startTime is the accept-time clock) as the
+  // UI write target and its stats (receivingFileStatsMap[id]) as the clock
+  // + throttle holder. Pin that wiring so the accept-time clock stays the
+  // denominator's source of truth.
   assert.ok(
-    /const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,\s*Date\.now\(\)\s*-\s*receivingFiles\[id\]\.startTime\s*\)/.test(
+    /updateTransferProgress\(\s*receivingFileStatsMap\[id\]\s*,\s*receivingFileStatsMap\[id\]\.receivedSize\s*,\s*receivingFile\.metaData\.size\s*,\s*receivingFiles\[id\]\s*\)/.test(
       receiverSource
     ),
-    'the receiver elapsed time must stay derived from receivingFiles[id].startTime (time-since-accept)'
-  );
-  assert.ok(
-    /receivingFiles\[id\]\.bitrate\s*=\s*Math\.round\(\s*receivingFileStatsMap\[id\]\.receivedSize\s*\/\s*\(\s*elapsedMs\s*\/\s*1000\s*\)/.test(
-      receiverSource
-    ),
-    'the receiver bitrate must keep dividing received bytes by the time-since-accept elapsed time'
+    'the receiver must keep deriving its bitrate from the accept-time clock via updateTransferProgress'
   );
 
   console.log('ok - receiver: symmetric accept-time clock semantics intact');

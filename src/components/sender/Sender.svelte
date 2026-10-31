@@ -305,7 +305,12 @@
         // update UI
         sendingFile.progress = fileStats.progress;
         // calculate bitrate and update UI
-        sendingFile.bitrate = Math.round(offset / ((Date.now() - fileStats.startTime) / 1000));
+        // Floor the elapsed time to 1 ms: a small file whose accept and
+        // first progress update share a millisecond makes the raw
+        // denominator 0, and offset / 0 is Infinity (or NaN) — a value that
+        // would be stored in $state and render as a misleading "0 B/sec".
+        const elapsedMs = Math.max(1, Date.now() - fileStats.startTime);
+        sendingFile.bitrate = Math.round(offset / (elapsedMs / 1000));
         // schedule next update
         fileStats.nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
         if (fileStats.nextProgressUpdate > 100) {

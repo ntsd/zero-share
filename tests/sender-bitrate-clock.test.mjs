@@ -113,13 +113,23 @@ function extractAcceptHandler(source) {
   // elapsed-time, and the elapsed time must come from fileStats.startTime
   // (the clock reset at accept), not f.startTime (entry-level, vestigial
   // on the sender side) nor any other clock.
-  // The source is prettier-formatted, so the expression may span several
-  // lines — match with whitespace-tolerant separators.
+  // The elapsed term is floored to a 1 ms minimum (const elapsedMs =
+  // Math.max(1, ...)) before the division: a same-millisecond accept +
+  // first progress update would otherwise divide by 0 and store
+  // Infinity/NaN in $state. The guard shape is pinned by
+  // tests/bitrate-zero-elapsed-guard.test.mjs; this test keeps pinning
+  // the CLOCK the guard must not touch.
   assert.ok(
-    /sendingFile\.bitrate\s*=\s*Math\.round\(\s*offset\s*\/\s*\(\s*\(\s*Date\.now\(\)\s*-\s*fileStats\.startTime\s*\)\s*\/\s*1000\s*\)/.test(
+    /const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,\s*Date\.now\(\)\s*-\s*fileStats\.startTime\s*\)/.test(
       senderSource
     ),
-    'the bitrate must divide offset by time elapsed since fileStats.startTime'
+    'the elapsed-time denominator must be derived from fileStats.startTime (the accept-time clock)'
+  );
+  assert.ok(
+    /sendingFile\.bitrate\s*=\s*Math\.round\(\s*offset\s*\/\s*\(\s*elapsedMs\s*\/\s*1000\s*\)/.test(
+      senderSource
+    ),
+    'the bitrate must divide offset by the floored elapsed time'
   );
   // The pre-fix / buggy shape — a denominator derived from the entry
   // clock — must not exist anywhere on the sender side.
@@ -169,15 +179,24 @@ function extractAcceptHandler(source) {
   // The receiver already starts its entry clock in onAccept() and
   // computes "Receiving: X/sec" from it — this guard pins the symmetry so
   // the sender fix cannot drift away from the established semantics.
+  // The denominator is a floored const (see
+  // tests/bitrate-zero-elapsed-guard.test.mjs); the clock it derives
+  // from must still be receivingFiles[id].startTime (time-since-accept).
   assert.ok(
     /receivingFile\.startTime\s*=\s*Date\.now\(\);/.test(receiverSource),
     'the receiver must keep starting its entry clock at ACCEPT time'
   );
   assert.ok(
-    /receivingFiles\[id\]\.bitrate\s*=\s*Math\.round\([\s\S]*?receivingFileStatsMap\[id\]\.receivedSize\s*\/[\s\S]*?receivingFiles\[id\]\.startTime/.test(
+    /const\s+elapsedMs\s*=\s*Math\.max\(\s*1\s*,\s*Date\.now\(\)\s*-\s*receivingFiles\[id\]\.startTime\s*\)/.test(
       receiverSource
     ),
-    'the receiver bitrate must keep dividing received bytes by time-since-accept'
+    'the receiver elapsed time must stay derived from receivingFiles[id].startTime (time-since-accept)'
+  );
+  assert.ok(
+    /receivingFiles\[id\]\.bitrate\s*=\s*Math\.round\(\s*receivingFileStatsMap\[id\]\.receivedSize\s*\/\s*\(\s*elapsedMs\s*\/\s*1000\s*\)/.test(
+      receiverSource
+    ),
+    'the receiver bitrate must keep dividing received bytes by the time-since-accept elapsed time'
   );
 
   console.log('ok - receiver: symmetric accept-time clock semantics intact');

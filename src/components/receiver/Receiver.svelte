@@ -386,9 +386,13 @@
       // update UI
       receivingFiles[id].progress = receivingFileStatsMap[id].progress;
       // calculate bitrate and update UI
+      // Floor the elapsed time to 1 ms: a small file whose accept and first
+      // acked chunk settle in the same millisecond makes the raw denominator
+      // 0, and bytes / 0 is Infinity (or NaN) — a value that would be stored
+      // in $state and render as a misleading "0 B/sec".
+      const elapsedMs = Math.max(1, Date.now() - receivingFiles[id].startTime);
       receivingFiles[id].bitrate = Math.round(
-        receivingFileStatsMap[id].receivedSize /
-          ((Date.now() - receivingFiles[id].startTime) / 1000)
+        receivingFileStatsMap[id].receivedSize / (elapsedMs / 1000)
       );
       // schedule next update
       receivingFileStatsMap[id].nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;

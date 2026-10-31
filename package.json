@@ -36,6 +36,7 @@
     "prettier-plugin-svelte": "^3.2.7",
     "qr-scanner": "^1.4.2",
     "sdp-compact": "^0.0.8",
+    "sharp": "^0.34.4",
     "svelte": "^5.39.6",
     "tailwindcss": "^4.1.13",
     "ts-proto": "^2.7.7",

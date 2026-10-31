@@ -99,10 +99,16 @@
     // Resend after a failed first attempt: clear the attempt-scoped UI values
     // so the re-transfer starts clean. `f.bitrate` otherwise shows the first
     // attempt's stale value until the next progress update (the fileStats
-    // object below is fresh, but the UI reads `f.bitrate`), and `f.startTime`
-    // is set by the EVENT_RECEIVER_ACCEPT listener, not here.
+    // object below is fresh, but the UI reads `f.bitrate`), `f.startTime`
+    // is set by the EVENT_RECEIVER_ACCEPT listener, not here, and `f.progress`
+    // (the entry field the shared updateTransferProgress helper writes) would
+    // otherwise show the prior attempt's percentage from the Resend click
+    // until the first acked chunk of the new attempt ticks the throttle.
+    // A first send is unaffected: onFilesPick registers progress: 0, so this
+    // is a no-op there.
     sendingFile.bitrate = 0;
     sendingFile.startTime = 0;
+    sendingFile.progress = 0;
 
     sendingFile.event = new EventEmitter();
 

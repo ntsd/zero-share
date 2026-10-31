@@ -1,7 +1,13 @@
 <script lang="ts">
-  import { DEFAULT_RECEIVE_OPTIONS, PROGRESS_UPDATE_UI_STEP } from '../../configs';
+  import {
+    DEFAULT_RECEIVE_OPTIONS,
+    MAX_INCOMING_FILES,
+    MAX_TOTAL_RECEIVED_BYTES,
+    PROGRESS_UPDATE_UI_STEP
+  } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import { validateFileMetadata } from '../../utils/validator';
+  import { humanFileSize } from '../../utils/humanFileSize';
   import { Message, MetaData, ReceiveEvent } from '../../proto/message';
   import ReceivingFileList from './ReceivingFileList.svelte';
   import ReceiverOptions from './ReceiverOptions.svelte';
@@ -54,6 +60,67 @@
     // re-sanitizes as defense in depth.
     metaData.name = sanitizeName(metaData.name);
 
+    const existing = receivingFiles[id];
+    if (existing && existing.status === FileStatus.Success) {
+      // Terminal: the sender's Resend button only exists for failed files, and
+      // a fresh file pick gets a fresh id, so a metadata frame for a completed
+      // id is stale/duplicate. Ignore it instead of clobbering the Success
+      // entry (blob, status) with a fresh WaitingAccept that would never
+      // receive chunks. (This check runs before the admission caps so a
+      // completed id is never subject to — or counted toward — them.)
+      return;
+    }
+
+    // Admission cap against peer-driven resource exhaustion: a live channel
+    // can stream an unbounded sequence of metadata frames, and with
+    // autoAccept (default) every one is accepted without any user action —
+    // each growing the receiving list, the per-file chunk maps, the toast
+    // list, and on completion retaining a Blob of the whole file. Before
+    // registering a NEW entry, count the active (non-Success) entries and
+    // the total declared size of every not-yet-removed entry (active and
+    // completed alike — a completed entry's Blob is exactly its declared
+    // size, per the exact-match completion gate, and it stays resident
+    // until the user removes it); a frame that would push either past its
+    // cap is NOT registered: the guarded send() rejects it back to the
+    // sender (whose handler bounces the file to Pending with an error, the
+    // same recovery as every other reject path) and ONE error toast — a
+    // per-file toast per rejected frame would itself be the unbounded toast
+    // fan-out this cap exists to stop.
+    //
+    // The frame's own id is excluded from both counts: a re-offer of an
+    // already-held file resets the SAME entry (no new registration), so it
+    // must never count against the caps and be rejected by itself.
+    const otherEntries = Object.keys(receivingFiles)
+      .filter((key) => key !== id)
+      .map((key) => receivingFiles[key]);
+    if (otherEntries.filter((f) => f.status !== FileStatus.Success).length >= MAX_INCOMING_FILES) {
+      addToastMessage(
+        `Too many files being received — ${metaData.name} was rejected (limit ${MAX_INCOMING_FILES} active files)`,
+        'error'
+      );
+      send(
+        Message.encode({
+          id: id,
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+        }).finish()
+      );
+      return;
+    }
+    const totalReceivedBytes = otherEntries.reduce((sum, f) => sum + f.metaData.size, 0);
+    if (totalReceivedBytes + metaData.size > MAX_TOTAL_RECEIVED_BYTES) {
+      addToastMessage(
+        `Too many bytes being received — ${metaData.name} was rejected (total limit ${humanFileSize(MAX_TOTAL_RECEIVED_BYTES)})`,
+        'error'
+      );
+      send(
+        Message.encode({
+          id: id,
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+        }).finish()
+      );
+      return;
+    }
+
     // Re-offer of a file we still hold (the sender's Resend button re-sends the
     // same metadata for the same id after a failed first attempt). A
     // SUCCESSFUL entry is terminal — never clobber it. Every other existing
@@ -71,15 +138,6 @@
     // pipeline is already dead: tear down silently WITHOUT rejecting — there
     // is no live attempt to abort, and the reject would only add a "Receiver
     // reject the file" toast around a resend that is about to be accepted.
-    const existing = receivingFiles[id];
-    if (existing && existing.status === FileStatus.Success) {
-      // Terminal: the sender's Resend button only exists for failed files, and
-      // a fresh file pick gets a fresh id, so a metadata frame for a completed
-      // id is stale/duplicate. Ignore it instead of clobbering the Success
-      // entry (blob, status) with a fresh WaitingAccept that would never
-      // receive chunks.
-      return;
-    }
     if (existing) {
       if (receivingFileChunkMap[id]) {
         // Guarded send (same convention as every other reject path): on a

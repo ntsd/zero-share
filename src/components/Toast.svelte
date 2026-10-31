@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { MAX_VISIBLE_TOASTS } from '../configs';
   import { toastAtom, type ToastMessage } from '../stores/toastStore';
 
   let toasts: ToastMessage[] = $state([]);
@@ -6,7 +7,10 @@
   toastAtom.subscribe((toastMessage) => {
     if (toastMessage) {
       const toast = { ...toastMessage };
-      toasts = [toast, ...toasts];
+      // Bounded rendered list: peer-driven toasts (one per rejected or failed
+      // incoming file, one per chunk failure, ...) must not grow the DOM
+      // unboundedly — keep only the most recent MAX_VISIBLE_TOASTS.
+      toasts = [toast, ...toasts].slice(0, MAX_VISIBLE_TOASTS);
 
       setTimeout(() => {
         toasts = toasts.filter((t) => t.id !== toast.id);

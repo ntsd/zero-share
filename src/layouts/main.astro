@@ -11,6 +11,21 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+
+// og:image must point at the host this build targets, not a hardcoded
+// canonical domain: derive it from the configured site origin + build base
+// so a sub-path deployment (org Pages site, self-hosted base) points at the
+// cover on its own host. `import.meta.env.BASE_URL` is Vite's build base
+// ('/' at the root, '/<base>' under a sub-path — no trailing slash);
+// `base.endsWith('/') ? base : base + '/'` normalizes it so
+// `${base}cover.png` is '/cover.png' at the root and '/<base>/cover.png'
+// under a sub-path. Without a `site` configured there is no origin to
+// absolutize against — fall back to the base-prefixed path, which scrapers
+// resolve against the page URL.
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const ogImage = Astro.site ? new URL(`${base}cover.png`, Astro.site).toString() : `${base}cover.png`;
 ---
 
 <!DOCTYPE html>
@@ -18,15 +33,15 @@ const { title, description } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <title>{title}</title>
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href={`${base}favicon.ico`} />
     <meta name="viewport" content="width=device-width" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="manifest" href={`${base}manifest.webmanifest`} />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#fff" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://zero-share.github.io/cover.png" />
+    <meta property="og:image" content={ogImage} />
   </head>
 
   <body>

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:5981cf4ca9ee82dbbabba72c9b020af0783c6f2e9f0240a94acb648272371f80",
+  "pageVersion": "sha256:90c9c2eef3592d246776f1a85002299a5aaf8f8245c9271de002b7d5e45977eb",
   "claims": [
     {
       "id": "claim_6e2e967350044918ae012dec264dff6b",
@@ -57,12 +57,12 @@
       "statement": "Each picked file gets a fresh AES-256-GCM key that is exported raw and RSA-wrapped with the receiver's public key — and a pick made while encryption is on but the peer's rsaPub has not been imported yet (the offer is still pending) is rejected with an error toast instead of being registered with an empty wrapped key. The wrapped key bytes travel in MetaData.key and the receiver unwraps them with its private key in onMetaData, keeping the result on the file detail for chunk decryption; before that unwrap, onMetaData sanitizes the peer-controlled MetaData.name via sanitizeName (one rule covering all sinks — the bulk store-only ZIP archive and <a download> — so a path-traversal name can no longer reach either, PR #98). The receiver registers the file entry at WaitingAccept BEFORE the async key decryption, and on unwrap failure sets a visible error on the entry, toasts, sends EVENT_VALIDATE_ERROR to the sender, and returns without accepting. A metadata-failed entry (error set, or missing aesKey on an encrypted session) additionally cannot be force-accepted: Receiver.onAccept guards its entry point — including the PR #117 combined null+status guard that bails on entries that are gone or no longer WaitingAccept — and refuses metadata-failed entries with a toast plus EVENT_RECEIVER_REJECT instead of starting a transfer that can never succeed (PR #78). Pick-time crypto failures are equally visible: onFilesPick iterates with an async for...of (not a fire-and-forget forEach) so a generateAesKey/encryptAesKeyWithRsaPublicKey rejection toasts and skips the entry instead of escaping as an unhandled rejection (PR #75). A metadata-validation failure at pick time is treated the same way (PR #96): the shared validateFileMetadata rejects size <= 0 / non-finite (e.g. a 0-byte file), toasts, and continues — the entry is never registered in sendingFiles, because such a file can never complete (the receiver bounces it with EVENT_VALIDATE_ERROR on every resend and processChunk's exact-match gate can never be satisfied by an empty payload), so registering it as a Resend-able Pending entry was a guaranteed dead-end that re-fired a 'Receiver validate error' toast on every retry.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L483-L528",
-          "version": "repo-lines-v1:sha256:a82af7a70becff984b5fce502b8d6360dbb56fd7c1e0a8c825a50af03448e7fe:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwOTY1NDQ2MzE2NzZlZTA4OWRjNjViNjkxZmI5YjNjNGY2Yjc0ZmYzMWQ4YTM3MGJhYjEyMTQ5NTIyOTlmOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMjk0MDI1Mzc5ZGQ3ODI1NTEyN2ViZGM1OWZmMWFmY2U0M2JjZjA3Njg1Zjg2MGFmZTQyMjQ3YjM4YTgzMDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4ZGNkNzUwMDRhNmJjODc2ZTAwMjRlY2QwOTBmNWJlZjYwMGUxMDM0NTc3YTQ3MmIzYzg4ZDBiZmU0NmVlMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQwZjViZTIyMDI2YTU0ODkxZWVkMmU0ZTI0NjZmOTM0ZjA3OWY4NTU2NTg4YTdlNGE3NjdiYjUyNDljYzY0ZDEifQ"
-        },
-        {
           "resource": "repo://src/components/receiver/Receiver.svelte#L52-L236",
           "version": "repo-lines-v1:sha256:c7e861d8949b1145ead5b2448d23703971bb75855b5f9977440ec1d6e865913d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTg1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3ZTllNTJiNWJlOTFlNDI3N2MyNzQ2NDE2NzMxMzRjNjE5NmY2NDlhY2IwMjAxZGJiYTg5NjQ5YTI1OTBjZTdmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzYzhlOTliMGMxNmY1ZThkZjQzYzM3YjExMDE3OTQ1NjdmN2RmMzhmMjc1MjVlNzg2NDhhZDZjYzk1NDhhMjM2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0NGQ4YWJjOTA2OTQ4N2MxNTk3Y2RjZWE2YTkyN2RlNzFiNzQwYjg2NzFmMTFhNTI5MzQ0YmUxOTM2YzkxMjk2In0"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L535-L580",
+          "version": "repo-lines-v1:sha256:4acf9bbce280acc81bfa2ca2d2daf78b6eddaefb5b919e5752fd59ef20feba64:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L406-L477",
@@ -105,16 +105,12 @@
       "statement": "Chunk-level encryption wraps the transfer framing: the sender encrypts each chunk buffer before Message-encoding it as a chunk (falling back to a plaintext chunk if the per-file aesKey is missing), and the receiver decrypts each decoded chunk (only when isEncrypt and the per-file aesKey are both present), inside the per-file serialized processChunk task, before accumulating bytes toward the declared file size; the receiver's EVENT_RECEIVED_CHUNK ack is sent only after successful decryption and after re-checking the file is still active and the attempt generation is current, so a corrupt chunk never advances the sender.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L216-L365",
-          "version": "repo-lines-v1:sha256:0914153cf58603330ca18341d5a707780f88d48084c6315534c7bc3092c2836e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYzZmZjRiMjRjNzUwZmYwODAxODBlMzI4NzdkNmVkMDQ3MWNhNmQ4ZDc2NDk2ZGNhYmNjOWFlOGFlZDczNzVhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5N2Q4NjMyZTU0ZTkyOThhYmI5NTg3MjdlMmQ1MTQwOGFiYWYxMzY2MDM1Mzc5MTAxNDBhYmY2NWIzMGFiNjEzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MmY5Nzc5M2I5ZGUyMWM0YTY2ZDlmOTJkNGQxYjUwMDg4MDAzZTViNzdiNDYzMGJhMWM2NDgwMmE1NDRjYWM0In0"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L309-L392",
+          "version": "repo-lines-v1:sha256:5d5a9be432ce0763722043387730401b56122f27b319ba9fc374b9adca8c752b:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3OWI3NWI3N2M4Zjc1OTA1OGQ4NDljM2U0ZGRjYzQxOWExYWMyNWMxNzIxYmYyYjRjNjc2ZDdhMTY3NTFlMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmYmIzMjlhYTdiNmIzYTZhNDc5M2VjMzEwZjE1MmVjNTI2ZjNjMjYyY2NjMzI5NzMxZTBhMjU5MTdlNWRkZDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3MGZkNWJhOWRmZTczNjU2NWM3N2ZiNTg0OGRiOTE1MmVhNGUwZDRmNTA1MGY0NmJlNmZlZjFhYWNkM2YxNzcifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L221-L256",
-          "version": "repo-lines-v1:sha256:98b2a87b7af52ceade20d14d4df1c4c556e63a1a38c61957d7534741892a46e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhYWRhYmNmN2I4NjM4ZjI3ZTAzYjg3NjczYzBhMTA1NTcwYmI4ZDE4N2FmNGMzYTVjZmU1YmU1ZWNjMWMzMzAifQ"
-        },
-        {
-          "resource": "repo://src/components/sender/Sender.svelte#L258-L315",
-          "version": "repo-lines-v1:sha256:b0af57d988dcb5fcf2764d58259f2ff6ab01695fd5e86fcd684c108cf76cbca4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhMDk5MDNmMTk1MWRkMTIyOWM2NDJkNWZmYTA0MzkxMGQ0MjM5ODgzNWM3YjRkNjFkMGQ4ZmM5M2YxZjMyYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlY2VmMTM2NWE4NDc3OTI5MjkyY2U5ZGU3N2QzODUzMmMzMmQ5ZWMyY2YwYWZlMjNlOGUxNDE0ODA1Y2M3ZDQifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L227-L264",
+          "version": "repo-lines-v1:sha256:b8efb862304fc1e56d55fc8a09a0e32f13ee1c575d1571d0cae82fea8c48848c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyMTBlZWMxNmVkMjk4NjQyZTExOWQzZDVlZWNlYzQwYmE1NGRhZDVjZjRhZjRlZTk0YmRhZjNmZGQ3YTM1ZWEifQ"
         }
       ]
     },
@@ -181,12 +177,12 @@
       "statement": "Receiver key-unwrap failure is visible, not silent, and it signals the sender: onMetaData sanitizes the peer-controlled MetaData.name at ingestion (sanitizeName, PR #98) and then, if decryptAesKeyWithRsaPrivateKey rejects for an incoming file, the already-registered entry gets an error set, an error toast fires, and onMetaData sends EVENT_VALIDATE_ERROR back to the sender (bouncing its file to Pending) before returning without accepting. The metadata-failed entry stays in WaitingAccept with the error shown (FileCard error banner) and is not a Remove-only dead-end (PR #76) — but Accept on it is refused (PR #78): onAccept checks the entry's error/aesKey state up front, toasts 'Cannot accept <name>: the metadata/key failed to process — the sender must resend the file', and sends EVENT_RECEIVER_REJECT instead of EVENT_RECEIVER_ACCEPT, so the entry stays in WaitingAccept with Deny/Remove as the real exits. The PR #117 status guard (bail when the entry is gone or status !== WaitingAccept) runs before this reject branch, so a metadata-failed WaitingAccept entry still reaches the reject path.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L483-L528",
-          "version": "repo-lines-v1:sha256:a82af7a70becff984b5fce502b8d6360dbb56fd7c1e0a8c825a50af03448e7fe:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwOTY1NDQ2MzE2NzZlZTA4OWRjNjViNjkxZmI5YjNjNGY2Yjc0ZmYzMWQ4YTM3MGJhYjEyMTQ5NTIyOTlmOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMjk0MDI1Mzc5ZGQ3ODI1NTEyN2ViZGM1OWZmMWFmY2U0M2JjZjA3Njg1Zjg2MGFmZTQyMjQ3YjM4YTgzMDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4ZGNkNzUwMDRhNmJjODc2ZTAwMjRlY2QwOTBmNWJlZjYwMGUxMDM0NTc3YTQ3MmIzYzg4ZDBiZmU0NmVlMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQwZjViZTIyMDI2YTU0ODkxZWVkMmU0ZTI0NjZmOTM0ZjA3OWY4NTU2NTg4YTdlNGE3NjdiYjUyNDljYzY0ZDEifQ"
-        },
-        {
           "resource": "repo://src/components/receiver/Receiver.svelte#L52-L236",
           "version": "repo-lines-v1:sha256:c7e861d8949b1145ead5b2448d23703971bb75855b5f9977440ec1d6e865913d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTg1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3ZTllNTJiNWJlOTFlNDI3N2MyNzQ2NDE2NzMxMzRjNjE5NmY2NDlhY2IwMjAxZGJiYTg5NjQ5YTI1OTBjZTdmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzYzhlOTliMGMxNmY1ZThkZjQzYzM3YjExMDE3OTQ1NjdmN2RmMzhmMjc1MjVlNzg2NDhhZDZjYzk1NDhhMjM2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0NGQ4YWJjOTA2OTQ4N2MxNTk3Y2RjZWE2YTkyN2RlNzFiNzQwYjg2NzFmMTFhNTI5MzQ0YmUxOTM2YzkxMjk2In0"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L535-L580",
+          "version": "repo-lines-v1:sha256:4acf9bbce280acc81bfa2ca2d2daf78b6eddaefb5b919e5752fd59ef20feba64:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjdlZDlhYjE2NDFjYTE1ZmI1ZDdkMzFkNzM5MjgwYmEzNGE1MWJjYzM2N2RhNDRkNTAyYjA4YzIxMjQ1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzJiZmE2YTEzMzY5ODFhOTNlOGVmZTcyOGIzN2QzZGE4ODcxZTE0MzI3ZTc0ZTYxYzg3MmFkYzYyNjVlODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3OTU3ZjBlZDJiZDI3MmU2NzlhY2QwODlkNThlNTA2Njk0MTczNGU5MjkwZTdhZTFlZGFjZGRhNDk4MDJmNjEifQ"
         },
         {
           "resource": "repo://src/components/receiver/ReceivingFileList.svelte#L18-L32",
@@ -251,6 +247,6 @@
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-31T10:27:22.702Z"
+    "at": "2026-11-01T07:26:15.531Z"
   }
 }

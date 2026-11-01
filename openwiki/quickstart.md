@@ -29,18 +29,22 @@ sources:
     resource: repo://src/pages/receive.astro
   - id: openwiki-source-ebef8d66c8ea768663c3c87f
     resource: repo://src/type.ts
+  - id: openwiki-source-0e698853465c9989cf094030
+    resource: repo://src/utils/channelTeardown.ts
   - id: openwiki-source-50c9d20caf7661d393640fd7
     resource: repo://src/utils/sdpEncode.ts
+  - id: openwiki-source-83081aa52e694d199e18f046
+    resource: repo://src/utils/transferProgress.ts
   - id: openwiki-source-bc79428fbabf9194d0ff47c4
     resource: repo://tests/clipboard-copy-robustness.test.mjs
   - id: openwiki-source-0833980019f1ab44ca66a28e
     resource: repo://tests/receiver-double-accept.test.mjs
   - id: openwiki-source-1ceaf1c541610b31bdca86ee
     resource: repo://tests/sender-bitrate-clock.test.mjs
-generated: { by: 'hermes', at: '2026-10-31T10:27:22.702Z' }
+generated: { by: 'hermes', at: '2026-11-01T07:26:15.531Z' }
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-31T10:27:22.702Z
+    at: 2026-11-01T07:26:15.531Z
 ---
 
 # Quickstart: Zero Share P2P File Sharing
@@ -51,7 +55,7 @@ verified:
 
 ## How a transfer works (end-to-end)
 
-1. **Alice (offer):** opens `/`, clicks _Generate Offer_. The app mints the RSA keypair (once, before the peer exists), creates an `RTCPeerConnection` with a data channel, and generates an SDP offer; it waits for ICE candidates (3 s timeout) and produces an **offer link** — `/receive?s=<encoded offer SDP>` plus optional params. Regeneration tears down the previous generation safely (stale timer cleared, old peer/channel closed, settled peer crypto and UI state reset); a **failed** generation is torn down the same way — the offer-creation `catch` clears the pending ICE-candidate timer, nulls the just-created channel's four handlers before `dataChannel.close()`, and closes the just-created `RTCPeerConnection` guarded on `connectionState !== 'closed'` (PR #108), so the offer page now has four guarded `connection.close()` call sites.
+1. **Alice (offer):** opens `/`, clicks _Generate Offer_. The app mints the RSA keypair (once, before the peer exists), creates an `RTCPeerConnection` with a data channel, and generates an SDP offer; it waits for ICE candidates (3 s timeout) and produces an **offer link** — `/receive?s=<encoded offer SDP>` plus optional params. Regeneration tears down the previous generation safely (stale timer cleared, old peer/channel closed, settled peer crypto and UI state reset); a **failed** generation is torn down the same way — the offer-creation `catch` clears the pending ICE-candidate timer, nulls the just-created channel's four handlers before `dataChannel.close()`, and closes the just-created `RTCPeerConnection` guarded on `connectionState !== 'closed'` (PR #108), so the offer page carries two local guarded `connection.close()` call sites (the regeneration teardown and the offer-creation catch) — the two channel-death handlers moved into the shared `createChannelTeardown()` helper (PR #135).
 2. **Bob (answer):** opens the offer link. His browser decodes the SDP (guarded: malformed input toasts instead of crashing), generates an SDP answer + (if encrypted) a fresh RSA key pair, and produces the **answer code** `sdp|rsaPubBase64`.
 3. **Alice accepts:** pastes or QR-scans the answer code (also guarded); the channel opens on both sides.
 4. **Transfer:** files are sent as protobuf `Message`s (metadata → receiver accept → ack-paced chunks), in either direction on the same channel. If the channel closes mid-transfer both sides mark in-flight files "connection lost" with an accurate error instead of leaking misleading per-chunk failures.

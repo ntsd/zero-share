@@ -399,17 +399,20 @@ function buildReceiver({ size, name }) {
     ['ReceivePage.svelte', receivePage]
   ]) {
     const closeHandlers = source.match(/dataChannel\.on(?:close|error)\s*=/g) || [];
-    assert.equal(
-      (source.match(/sender\?\.onChannelClose\(\);/g) || []).length,
-      2,
-      `${name}: sender?.onChannelClose() must be wired into both onclose and onerror`
-    );
-    assert.equal(
-      (source.match(/receiver\?\.onChannelClose\(\);/g) || []).length,
-      2,
-      `${name}: receiver?.onChannelClose() must be wired into both onclose and onerror`
-    );
     assert.ok(closeHandlers.length >= 2, `${name}: onclose/onerror handlers must still exist`);
+    // The death handlers no longer carry the pipeline calls inline: both
+    // pages delegate dataChannel.onclose/onerror to the shared teardown
+    // (tests/dead-channel-peer-close.test.mjs pins the delegation), and the
+    // helper propagates "connection lost" into both pipelines — so each page
+    // must pass live sender/receiver getters instead of a copied call site.
+    assert.ok(
+      /getSender\s*:\s*\(\)\s*=>\s*sender/.test(source),
+      `${name} must pass its live Sender ref to the shared teardown (getSender: () => sender)`
+    );
+    assert.ok(
+      /getReceiver\s*:\s*\(\)\s*=>\s*receiver/.test(source),
+      `${name} must pass its live Receiver ref to the shared teardown (getReceiver: () => receiver)`
+    );
   }
   console.log('ok - static: receiver guarded send + onChannelClose + page wiring');
 }

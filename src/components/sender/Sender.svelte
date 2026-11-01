@@ -7,8 +7,8 @@
   import { validateFileMetadata } from '../../utils/validator';
   import { Message, MetaData, ReceiveEvent, receiveEventToJSON } from '../../proto/message';
   import { addToastMessage } from '../../stores/toastStore';
-  import { PROGRESS_UPDATE_UI_STEP } from '../../configs';
   import { createChannelSender } from '../../utils/channelSender';
+  import { updateTransferProgress } from '../../utils/transferProgress';
 
   type Props = {
     dataChannel: RTCDataChannel;
@@ -99,10 +99,16 @@
     // Resend after a failed first attempt: clear the attempt-scoped UI values
     // so the re-transfer starts clean. `f.bitrate` otherwise shows the first
     // attempt's stale value until the next progress update (the fileStats
-    // object below is fresh, but the UI reads `f.bitrate`), and `f.startTime`
-    // is set by the EVENT_RECEIVER_ACCEPT listener, not here.
+    // object below is fresh, but the UI reads `f.bitrate`), `f.startTime`
+    // is set by the EVENT_RECEIVER_ACCEPT listener, not here, and `f.progress`
+    // (the entry field the shared updateTransferProgress helper writes) would
+    // otherwise show the prior attempt's percentage from the Resend click
+    // until the first acked chunk of the new attempt ticks the throttle.
+    // A first send is unaffected: onFilesPick registers progress: 0, so this
+    // is a no-op there.
     sendingFile.bitrate = 0;
     sendingFile.startTime = 0;
+    sendingFile.progress = 0;
 
     sendingFile.event = new EventEmitter();
 
@@ -299,19 +305,13 @@
       }
       if (sendingFile.stop) return;
 
-      // calculate progress
-      fileStats.progress = Math.round((offset / sendingFile.metaData.size) * 100);
-      if (fileStats.progress >= fileStats.nextProgressUpdate) {
-        // update UI
-        sendingFile.progress = fileStats.progress;
-        // calculate bitrate and update UI
-        sendingFile.bitrate = Math.round(offset / ((Date.now() - fileStats.startTime) / 1000));
-        // schedule next update
-        fileStats.nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
-        if (fileStats.nextProgressUpdate > 100) {
-          fileStats.nextProgressUpdate = 100;
-        }
-      }
+      // Progress + bitrate UI update: shared with the receiver's processChunk
+      // via src/utils/transferProgress.ts (the two call sites were copy-pasted
+      // in lockstep — the #134 zero-elapsed bitrate floor had to land in both
+      // byte-identically). The accept-time clock (fileStats.startTime, reset
+      // in the ACCEPT handler above) stays untouched; the helper reads it for
+      // the bitrate denominator.
+      updateTransferProgress(fileStats, offset, sendingFile.metaData.size, sendingFile);
     }
 
     // send meta data: send() guards a dead channel — Resend after the peer

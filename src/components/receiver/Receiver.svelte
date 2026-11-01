@@ -1,7 +1,12 @@
 <script lang="ts">
-  import { DEFAULT_RECEIVE_OPTIONS, PROGRESS_UPDATE_UI_STEP } from '../../configs';
+  import {
+    DEFAULT_RECEIVE_OPTIONS,
+    MAX_INCOMING_FILES,
+    MAX_TOTAL_RECEIVED_BYTES
+  } from '../../configs';
   import { addToastMessage } from '../../stores/toastStore';
   import { validateFileMetadata } from '../../utils/validator';
+  import { humanFileSize } from '../../utils/humanFileSize';
   import { Message, MetaData, ReceiveEvent } from '../../proto/message';
   import ReceivingFileList from './ReceivingFileList.svelte';
   import ReceiverOptions from './ReceiverOptions.svelte';
@@ -14,6 +19,7 @@
   } from '../../type';
   import { decryptAesGcm, decryptAesKeyWithRsaPrivateKey } from '../../utils/crypto';
   import { createChannelSender } from '../../utils/channelSender';
+  import { updateTransferProgress } from '../../utils/transferProgress';
   import { createZipStoreOnly, sanitizeName } from '../../utils/zip';
   import { serializeTask } from '../../utils/serialize';
 
@@ -54,6 +60,67 @@
     // re-sanitizes as defense in depth.
     metaData.name = sanitizeName(metaData.name);
 
+    const existing = receivingFiles[id];
+    if (existing && existing.status === FileStatus.Success) {
+      // Terminal: the sender's Resend button only exists for failed files, and
+      // a fresh file pick gets a fresh id, so a metadata frame for a completed
+      // id is stale/duplicate. Ignore it instead of clobbering the Success
+      // entry (blob, status) with a fresh WaitingAccept that would never
+      // receive chunks. (This check runs before the admission caps so a
+      // completed id is never subject to — or counted toward — them.)
+      return;
+    }
+
+    // Admission cap against peer-driven resource exhaustion: a live channel
+    // can stream an unbounded sequence of metadata frames, and with
+    // autoAccept (default) every one is accepted without any user action —
+    // each growing the receiving list, the per-file chunk maps, the toast
+    // list, and on completion retaining a Blob of the whole file. Before
+    // registering a NEW entry, count the active (non-Success) entries and
+    // the total declared size of every not-yet-removed entry (active and
+    // completed alike — a completed entry's Blob is exactly its declared
+    // size, per the exact-match completion gate, and it stays resident
+    // until the user removes it); a frame that would push either past its
+    // cap is NOT registered: the guarded send() rejects it back to the
+    // sender (whose handler bounces the file to Pending with an error, the
+    // same recovery as every other reject path) and ONE error toast — a
+    // per-file toast per rejected frame would itself be the unbounded toast
+    // fan-out this cap exists to stop.
+    //
+    // The frame's own id is excluded from both counts: a re-offer of an
+    // already-held file resets the SAME entry (no new registration), so it
+    // must never count against the caps and be rejected by itself.
+    const otherEntries = Object.keys(receivingFiles)
+      .filter((key) => key !== id)
+      .map((key) => receivingFiles[key]);
+    if (otherEntries.filter((f) => f.status !== FileStatus.Success).length >= MAX_INCOMING_FILES) {
+      addToastMessage(
+        `Too many files being received — ${metaData.name} was rejected (limit ${MAX_INCOMING_FILES} active files)`,
+        'error'
+      );
+      send(
+        Message.encode({
+          id: id,
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+        }).finish()
+      );
+      return;
+    }
+    const totalReceivedBytes = otherEntries.reduce((sum, f) => sum + f.metaData.size, 0);
+    if (totalReceivedBytes + metaData.size > MAX_TOTAL_RECEIVED_BYTES) {
+      addToastMessage(
+        `Too many bytes being received — ${metaData.name} was rejected (total limit ${humanFileSize(MAX_TOTAL_RECEIVED_BYTES)})`,
+        'error'
+      );
+      send(
+        Message.encode({
+          id: id,
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT
+        }).finish()
+      );
+      return;
+    }
+
     // Re-offer of a file we still hold (the sender's Resend button re-sends the
     // same metadata for the same id after a failed first attempt). A
     // SUCCESSFUL entry is terminal — never clobber it. Every other existing
@@ -71,15 +138,6 @@
     // pipeline is already dead: tear down silently WITHOUT rejecting — there
     // is no live attempt to abort, and the reject would only add a "Receiver
     // reject the file" toast around a resend that is about to be accepted.
-    const existing = receivingFiles[id];
-    if (existing && existing.status === FileStatus.Success) {
-      // Terminal: the sender's Resend button only exists for failed files, and
-      // a fresh file pick gets a fresh id, so a metadata frame for a completed
-      // id is stale/duplicate. Ignore it instead of clobbering the Success
-      // entry (blob, status) with a fresh WaitingAccept that would never
-      // receive chunks.
-      return;
-    }
     if (existing) {
       if (receivingFileChunkMap[id]) {
         // Guarded send (same convention as every other reject path): on a
@@ -210,6 +268,7 @@
       delete receivingFileChunkMap[id];
       delete receivingFileStatsMap[id];
       delete chunkQueue[id];
+      delete receivingFileGeneration[id];
     }
   }
 
@@ -311,32 +370,20 @@
     chunkMap.receivedChunks.push(arrayBuffer);
     receivingFileStatsMap[id].receivedSize += receivingSize;
 
-    // calculate progress — clamp to [0, 100]: a peer that claims a size
-    // smaller than the payload it actually streams pushes the ratio past 100
-    // until the overshoot reject below fires (NaN is coerced to 0 as a safe
-    // fallback). The clamp is defense in depth on top of the exact-match
-    // gate: never hand the UI a progress value it cannot render sensibly.
-    const rawProgress = Math.round(
-      (receivingFileStatsMap[id].receivedSize / receivingFile.metaData.size) * 100
+    // Progress + bitrate UI update: shared with the sender's sendNextChunk
+    // via src/utils/transferProgress.ts (the two call sites were copy-pasted
+    // in lockstep — the #134 zero-elapsed bitrate floor had to land in both
+    // byte-identically). The helper's progress clamp keeps the UI value
+    // renderable for a peer that claims a size smaller than the payload it
+    // streams (defense in depth; the exact-match gate below still rejects
+    // that stream), and it reads the onAccept-time clock
+    // (receivingFiles[id].startTime) untouched for the bitrate denominator.
+    updateTransferProgress(
+      receivingFileStatsMap[id],
+      receivingFileStatsMap[id].receivedSize,
+      receivingFile.metaData.size,
+      receivingFiles[id]
     );
-    receivingFileStatsMap[id].progress = Math.min(
-      100,
-      Math.max(0, Number.isNaN(rawProgress) ? 0 : rawProgress)
-    );
-    if (receivingFileStatsMap[id].progress >= receivingFileStatsMap[id].nextProgressUpdate) {
-      // update UI
-      receivingFiles[id].progress = receivingFileStatsMap[id].progress;
-      // calculate bitrate and update UI
-      receivingFiles[id].bitrate = Math.round(
-        receivingFileStatsMap[id].receivedSize /
-          ((Date.now() - receivingFiles[id].startTime) / 1000)
-      );
-      // schedule next update
-      receivingFileStatsMap[id].nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
-      if (receivingFileStatsMap[id].nextProgressUpdate > 100) {
-        receivingFileStatsMap[id].nextProgressUpdate = 100;
-      }
-    }
 
     if (receivingFileStatsMap[id].receivedSize === receivingFile.metaData.size) {
       // Complete ONLY on an exact byte count. metaData.size is peer-controlled
@@ -356,6 +403,9 @@
       addToastMessage(`Received ${receivingFiles[id].metaData.name}`, 'success');
       // No more chunks will arrive for this file; release the chain entry.
       delete chunkQueue[id];
+      // The entry is terminal Success (a Success re-offer is ignored), so the
+      // generation can never matter again — release it with the rest.
+      delete receivingFileGeneration[id];
     } else if (receivingFileStatsMap[id].receivedSize > receivingFile.metaData.size) {
       // Overshoot: this chunk pushed the received byte count PAST the declared
       // size, so the peer's declared size is a lie (truncated file on the wire).
@@ -399,6 +449,7 @@
     delete receivingFileChunkMap[id];
     delete receivingFileStatsMap[id];
     delete chunkQueue[id];
+    delete receivingFileGeneration[id];
   }
 
   // The peer streamed more bytes than its declared metaData.size: the
@@ -455,6 +506,7 @@
     delete receivingFileChunkMap[key];
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
+    delete receivingFileGeneration[key];
     delete receivingFiles[key];
   }
 
@@ -562,6 +614,7 @@
     delete receivingFileChunkMap[key];
     delete receivingFileStatsMap[key];
     delete chunkQueue[key];
+    delete receivingFileGeneration[key];
     delete receivingFiles[key];
   }
 

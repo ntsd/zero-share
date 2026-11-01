@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8571d2ddeb6f8c820ffb42e2a5c8e97ba6e722312954cdae520ed68569df933d",
+  "pageVersion": "sha256:13a3059c0ef19d4ecd5412e97f028e078ffcac7eb9bdc7befbc8d0fd85d06c98",
   "claims": [
     {
       "id": "claim_3369f40c8d314d63a420a5470f5510e6",
@@ -28,7 +28,7 @@
     },
     {
       "id": "claim_0489f3cde91743e7b351af897e8841ab",
-      "statement": "The sender maintains per-file state in a reactive map with lifecycle Pending -> WaitingAccept -> Processing -> Success; on ACCEPT it starts the chunk loop, on REJECT or VALIDATE_ERROR it records the error and resets the file to Pending (retryable); the async event handlers re-read the live entry after each await and bail if it was removed, and chunk-send failures land as visible error entries instead of unhandled rejections (via the shared markChunkFailed helper, deduplicated in PR #70); a connectionLost flag — a $state the template reacts to, NOT a $derived(channelSender.isLost()) which would cache false forever since isLost() reads a plain closure variable — is flipped by onChannelClose() and by a thin send() wrapper mirroring the helper's lost flag (PR #109), marking the channel as dead so in-flight pipelines exit quietly with accurate connection-lost errors instead of per-chunk InvalidStateError failures (PR #74, shared helper PR #97), and the SendingFileList UI hides the Resend/Continue/Send buttons (leaving only Remove) when the channel is lost because each would be a guaranteed silent no-op. Since PR #121 the EVENT_RECEIVER_ACCEPT handler additionally resets the closure clock `fileStats.startTime = Date.now()` next to the entry-level `f.startTime = Date.now()`, so the 'Sending: X/sec' bitrate divides by time-since-ACCEPT (mirroring the receiver's onAccept entry clock) instead of time-since-Send-click, which any waiting-accept delay would have inflated and grossly under-reported throughput.",
+      "statement": "The sender maintains per-file state in a reactive map with lifecycle Pending -> WaitingAccept -> Processing -> Success; on ACCEPT it starts the chunk loop, on REJECT or VALIDATE_ERROR it records the error and resets the file to Pending (retryable); the async event handlers re-read the live entry after each await and bail if it was removed, and chunk-send failures land as visible error entries instead of unhandled rejections (via the shared markChunkFailed helper, deduplicated in PR #70); a connectionLost flag - a $state the template reacts to, NOT a $derived(channelSender.isLost()) which would cache false forever since isLost() reads a plain closure variable - is flipped by onChannelClose() and by a thin send() wrapper mirroring the helper's lost flag (PR #109), marking the channel as dead so in-flight pipelines exit quietly with accurate connection-lost errors instead of per-chunk InvalidStateError failures (PR #74, shared helper PR #97), and the SendingFileList UI hides the Resend/Continue/Send buttons (leaving only Remove) when the channel is lost because each would be a guaranteed silent no-op. Since PR #121 the EVENT_RECEIVER_ACCEPT handler additionally resets the closure clock fileStats.startTime = Date.now() next to the entry-level f.startTime = Date.now(), so the 'Sending: X/sec' bitrate divides by time-since-ACCEPT (mirroring the receiver's onAccept entry clock) instead of time-since-Send-click, which any waiting-accept delay would have inflated and grossly under-reported throughput. Since PR #137, onSend on the Resend path also resets the attempt-scoped progress to 0 (in addition to bitrate and startTime from PR #125), so a Resend no longer leaves the file's UI progress bar stuck at the prior attempt's percentage until the first acked chunk of the new attempt ticks the throttle (a first send is unaffected - onFilesPick registers progress: 0, so the reset is a no-op there).",
       "evidence": [
         {
           "resource": "repo://src/components/sender/Sender.svelte#L22-L49",
@@ -40,29 +40,37 @@
         },
         {
           "resource": "repo://src/components/sender/Sender.svelte#L81-L215",
-          "version": "repo-lines-v1:sha256:b700456ddd2e345a7b2b2302c1c235d4fe26e42bc5a663f255401eee1e40212f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNDM1NTgxOTJlMmZlNDMxYmJhYTA0ZGI0ZDRiMzZjNTlkMmFhNjUzYTU4NmI2YWMwZmY4NzIzNjA0MmI2OGE5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI2ZjRlZWY0NGQzY2JlMGU2MWE5NDg0MjU0M2E5YTU5NWFjMDBhYTY4ZmEyN2NkM2U2NzkzOGQ5ODEwNWViZGU3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5N2Q4NjMyZTU0ZTkyOThhYmI5NTg3MjdlMmQ1MTQwOGFiYWYxMzY2MDM1Mzc5MTAxNDBhYmY2NWIzMGFiNjEzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjNDRhNmY4NGU0YjhiYjdmMDQ5MGE2YWU3MzJhYTIxMTAzODRiNDBiZWYyYjlkMGI2OTlmNzQwZmEzNDQxZjY2In0"
+          "version": "repo-lines-v1:sha256:9d09312cd6751590127f7d1478d73de37dea39edda3ad7ca2f7ddbca84dbc18d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNDM1NTgxOTJlMmZlNDMxYmJhYTA0ZGI0ZDRiMzZjNTlkMmFhNjUzYTU4NmI2YWMwZmY4NzIzNjA0MmI2OGE5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiYWNhNDMxNTQzMTQ0Yzg3MWM3MmIyMTY1MjJhNDg5NTA0ZGM1NjMyN2U0M2JjNDExMDA5Zjk1ZTlmNDM4NjI1IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5N2Q4NjMyZTU0ZTkyOThhYmI5NTg3MjdlMmQ1MTQwOGFiYWYxMzY2MDM1Mzc5MTAxNDBhYmY2NWIzMGFiNjEzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIyNDM4OGI1MzczZTUzYWViMjZiYzE3ODQ4NzU0ODM5MzJlMmMyYzZjMTk2ZjY3OWRjYjVmYzNkOTllMDYwZTdmIn0"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L96-L111",
+          "version": "repo-lines-v1:sha256:a3ba5d083a87ea45b9945a4a30db9545c70e36cd2fd4ef2971176af2fbfc7cd7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiMTU1OGY5YzdkZWZlM2JhZjIxODkwZjVkZDljMjIwYjU1NTgwMmQ0NzBiMWIzMWEzMTc4YjI1NWU0MDcyN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyYWYwZDc1NjJkYTNlYWZkNjU3YmI3YzY4NjE5MzI3MGRkZjRjMGNmNGY3NjhhZTEwODBmMGZjZjgxYWI3NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlMTFlN2NhZTg0Y2MxMzU5N2YxNzk0OTJhNGJiODRjZTdjZGNlOTVlYTIxNmY5M2JjMTA0MmY5YzcyODlkNjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjZTY1NWI5NjFhOTI4Y2EyNDFmYWM1ODY3YWIzMGJlYjJjMDg1ODgwYzMwODlmNTA4NGNkNTdiN2M3NTNmNmEifQ"
         },
         {
           "resource": "repo://src/type.ts",
           "version": "repo-file-v1:sha256:58b8b09bbcc8eb620455c42c4fb966e782ae93083d670f4e222cef0c853d2573"
+        },
+        {
+          "resource": "repo://tests/sender-resend-progress-reset.test.mjs",
+          "version": "repo-file-v1:sha256:c289d55a81e3aafbd9d8fba72674022907dc9dbce83b57e6fce0bed20655d285"
         }
       ]
     },
     {
       "id": "claim_fa837c572a3542b392cf3d6ec0f34834",
-      "statement": "The transfer protocol is receiver-ack chunking: the receiver enqueues each incoming chunk onto a per-file serialized chain (onChunkData), and processChunk sends EVENT_RECEIVED_CHUNK after successful decryption and a re-check that the file is still active, so the sender sends at most one next chunk per ack until offset reaches metaData.size — backpressure pacing the transfer with the sender one round-trip ahead.",
+      "statement": "The transfer protocol is receiver-ack chunking: the receiver enqueues each incoming chunk onto a per-file serialized chain (onChunkData), and processChunk sends EVENT_RECEIVED_CHUNK after successful decryption and a re-check that the file is still active, so the sender sends at most one next chunk per ack until offset reaches metaData.size - backpressure pacing the transfer with the sender one round-trip ahead.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L216-L248",
+          "resource": "repo://src/components/receiver/Receiver.svelte#L275-L307",
           "version": "repo-lines-v1:sha256:e55ec56d85aea31d17d6746e394ca7bf8f4589a9cc31370da10feecb0e78a90b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjNmZmNGIyNGM3NTBmZjA4MDE4MGUzMjg3N2Q2ZWQwNDcxY2E2ZDhkNzY0OTZkY2FiY2M5YWU4YWVkNzM3NWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQwYTcxYTRlZTE1ZWNhZDAxN2YyMDdmOWRmNWYxNGMyMDYyMjg2MGIxNzJhN2VhOTVlNzQ2Zjc5NzI5MjRmM2EifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L330-L344",
-          "version": "repo-lines-v1:sha256:1e9203a2c36a4cdabaf5778517af9079afd8be2f42b5bcee5f7f1e99cf932649:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmYTQ3NzVjOWIzMTFmNGQ4NTliMDQ3NTgxMWQ5ZGY0ZDQ1YmI0Nzc3MWI1OWMwMTA2MmUyNzA4MTk3NjZhYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzZjMzNzI1ZjMxMDlhMjE3ODQ1ZDYxYTMzZDcyZjQzOGU3M2YwMGMwM2U1ZTJkOWNiOWIwNzIxNDA4OTczMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4M2MzZjY4OWIyYmYxMmM2OTlkYzkxZDQwZmZmMjFlZmVjNjVlMWJmYjlmZjU5ZTY2YzBlOTJhNWM5OGQ2MmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmZGY0YzdmZjFkNDJiMWYxODEwNjljMjA4NjdjMDBiN2FkMTM4YjcwZDBlY2QxMDE3MDhkZjE5ZjJkOWI3MWMifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L362-L371",
+          "version": "repo-lines-v1:sha256:c46e139db6cd5393460413f73f7a2ab3e400e2c3a53d879874c232132fcfbb6c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzYWI1NDU3OGVjNjg3YzQwNGI4ZTRhNTg0MDI4Y2FkNzEwZDY3M2IyMmUxMDU4MWE0MmZmODQxNTljMzkwMjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNzY4ZjQyODZiZTY2ZGU0MjJhNmQxZTMyZGUwNDBjOTg4ZDk3ZGNlNzUzYzMzYWQ3ZmI1MTFmNWMzYzFiM2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc3YjI2MmRlZjhkMzg0MDllNDNhOTM4NzFmMWRlMzJlMTlhM2JiYzMwNzllZWFhMGI1YTYwMDMyNGE3NmZlOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZlODQ4OWVmYzhkOWE2YzkxYjUwOWQzZWNjMTE3NWEwMWI0MWU3Y2ZkNjIyOTczNjA4ZWU3ZGFmNmE1ODhiOTMifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L156-L188",
-          "version": "repo-lines-v1:sha256:3cbc9c29510e5222975cec10d04d40073011b2513b30dbf7952712938a3a08ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2ZGI5MWEzZDRkZmUwN2VlMTc4NzE4NTA3OGZjODZiYzk0ZTdmN2NmZDIyMWVlYmZhNTgxOTY0MDAwZWE2ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ZDIyMmY1NTY0MTI2MWMyMGVlMGMxMWEzMmRkOTUzNDE1MTA3ZTdiMTQ3ODgxMDA1MjE4YjkyNTc3MDgwN2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyNDcxOTZhOWM5Mzk4ZTJkNmI4ZGJhYjc3OTlmNGNjMzY4OWFlM2YyYjY4MGIxNGNjMmY4MjRmOGRkOGJiYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhZTg4YjhmZmNkN2Q3NDUwMTE1MWUyMWM4MmJlMGUxNDJkMDBmMTc2MjkwYjU4MTc3YjBlMWFiNjE0MDE3Y2YifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L162-L225",
+          "version": "repo-lines-v1:sha256:cf71e6fe9f219d2eaa296058d2b872effdffe118d7d12ccaa12fabcad7553b36:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2ZGI5MWEzZDRkZmUwN2VlMTc4NzE4NTA3OGZjODZiYzk0ZTdmN2NmZDIyMWVlYmZhNTgxOTY0MDAwZWE2ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyNDcxOTZhOWM5Mzk4ZTJkNmI4ZGJhYjc3OTlmNGNjMzY4OWFlM2YyYjY4MGIxNGNjMmY4MjRmOGRkOGJiYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUzMTVlZDgzZWViYTVkNmI2YWNjZGY1MGM3OTMyNzBmODA4ODMyYzE2MTQ5OTU2MTFlYmY4Y2RkMzJkOGIzYWYifQ"
         }
       ]
     },
@@ -78,19 +86,27 @@
     },
     {
       "id": "claim_390ca4161cab44d1a713439e1d4b2172",
-      "statement": "Progress and bitrate UI updates are throttled by PROGRESS_UPDATE_UI_STEP (3 percentage points) using non-reactive stats mirrors, and pause/resume is implemented via a per-file stop flag where onContinue re-emits a synthetic RECEIVED_CHUNK event to restart the chunk loop — except on a dead channel, where onContinue no-ops (channelSender.isLost() check) so a resume cannot emit a synthetic ack into a pipeline whose next send would just no-op.",
+      "statement": "Progress and bitrate UI updates are throttled by PROGRESS_UPDATE_UI_STEP (3 percentage points) using non-reactive stats mirrors, and the per-file progress + bitrate write is now the shared updateTransferProgress(stats, sentBytes, totalBytes, writeTo) helper in src/utils/transferProgress.ts (PR #136, deduplicated from the copy-pasted blocks in Sender.sendNextChunk and Receiver.processChunk): it clamps progress to [0,100] with a NaN->0 fallback, computes bitrate = sentBytes / elapsed where elapsed is time-since-ACCEPT floored to a 1 ms minimum (PR #134), and advances nextProgressUpdate by PROGRESS_UPDATE_UI_STEP clamped to 100. Pause/resume is implemented via a per-file stop flag where onContinue re-emits a synthetic RECEIVED_CHUNK event to restart the chunk loop - except on a dead channel, where onContinue no-ops (channelSender.isLost() check) so a resume cannot emit a synthetic ack into a pipeline whose next send would just no-op.",
       "evidence": [
         {
           "resource": "repo://src/components/sender/Sender.svelte#L233-L245",
-          "version": "repo-lines-v1:sha256:7cbb3410121b925ddc6d3e77b8aee0c54d6783abd5cf24f2b28316e45ca5b858:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiNDA5NzRiMzU4YTQwMTBhNGI5ZTM4ZjNlNTAwM2M4YjY0MzY5NmE0ZjRkZWJkMWZiZmRmZTAxNzIxZWIxMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxODFkZDMzMmNkMWY0YzdmMjA2NGRiOTRhODI4YWUzMjAyNmEyMWI3YjAzYjg5NDY3YWIyYWQ4YWMzMmJkNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlY2VmMTM2NWE4NDc3OTI5MjkyY2U5ZGU3N2QzODUzMmMzMmQ5ZWMyY2YwYWZlMjNlOGUxNDE0ODA1Y2M3ZDQifQ"
+          "version": "repo-lines-v1:sha256:1455542b35a27d4b2789183709ff23940be09bbdedcd8b9cf2ec3f8b5cc5f6c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmNWFkYWEyNTQ4MDkxYWVkMGZjN2JjZjI5NDk4MjUxMDdjNGMzZjA1OWMyZWJkYmMyMmM5YTg1MzM3MWJlZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhYzg5YjNmMGU4ZmQ5NjU2ZDliZDNjMDhlOWIyZTY4ZjllNTUzOTU2ZDg0YWYxYWNhNzY4YjZmMzdlMTRhODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4MzI5ZjI0NzhlOGMwMWEyMzI2ZmUxNGI4NDc5NzA1MTc2ZmU4ZmJkMDQ3ZTM1ZDg0NzAzMTQzNWUyNGU3ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjZGI2N2E5ZjJiZDU2NTk5NjMzZTI5Y2E4MTY5NDYxYTRmZWQ0YzY0NGQ5M2Y5MDM1Y2FmODFhYjkzN2NmMWIifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L304-L313",
-          "version": "repo-lines-v1:sha256:0d83a5f14ba39fdf86079079cad77120e9b7c9a4fecd1a20fb67c0e44e2ae84c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhOTFhNGYyNGFmOGIwNTVhY2Y5YmMyNWM4M2ZmYjEwMDNkZTcxNjQ1NWFlOGRiYzNkNjBmNGM2YWQ5MjY2MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzFkNzEwMWVhODU5NTJjYTVkNTI0ZDMyOGUzOWQ4YWM1MzlkNmNhMzg0MzFhMzg0NjA0YWVkOGMzZGZkZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2NjZjZmM1MWVkNGFmYTI4OTYzNjRiNWZiOTljMDMzNGY1OWVmOWRjZmEzMTVlZjBjYjZlZTQ5Zjg5MDU5ZDIifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L308-L314",
+          "version": "repo-lines-v1:sha256:ad72e3f0c6582ebd063b1d27738d11bea9e179e45de57cfdeb9379d8e0a748ef:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFmYzAzNGUxZGQyMjQ0ZDc0YWI5Yzg2MzYyYTA0MDMyOWJlNWYxMDk2YjRhNzZjNWI1MjI0MGMyOGJmYjYwZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RjZjQ1NzgyMWUxMzAyMWVkNjFiYzdmNGE0NTE1ZTNlODZmOGQ4NzBjNWZlZDc5MzZhMDVjM2NlMDM1NDc2MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGIzMTJlN2Y0ODE1MzBjOWIyODEwZjY0ZmJiM2UzOTQyNGU5OWMyODQ3MWI5NDA0ZjgyM2YwZjU5NGI5M2QxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWI5ZTU0MThmNGVkOTViOTBjNzVmZWI1ZDk4MTU2YzZiY2FmNzMxNmJiODY3YTU0NTdiZTBhNmEzYzhlOTI3ZSJ9"
         },
         {
           "resource": "repo://src/configs.ts#L65-L67",
-          "version": "repo-lines-v1:sha256:bff0a315e37195b47f073d25d4f3f56733e449a3ee7623ec874a76803a601d3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjUxYjNkYjY1ZmVlZWJiOTQ2ODkyYmQ3Nzk3ZTRlZjdmMDkyNmQxZTQ0N2NmMDBkMjQxYzhhMmU5OTUzMzVmNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTQ2NDNlNDcxOGRlOTUyYzNkNDNjN2JhZDMxNDNkMWM1Y2Y1MTY3NWQ0ZGQ2ZDVmMmJjMzFiOGY1ODE4MWY5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWZjNWY5NWNkNzZmZmMwZjI5ZDkwY2NlMjgyM2U2MTIzODdlYjIyZWRhZTNiMDU1OGRlNzE2YjFjOTAyYWQ0MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+          "version": "repo-lines-v1:sha256:efc5f95cd76ffc0f29d90cce2823e612387eb22edae3b0558de716b1c902ad43:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk1MzQ0OTlhN2YyOGU2ZDQ2N2JmZWExMTFjOGI4NTkyNzIzYTk2ZDMyYWRjZGUxNThhMzVkMTA5YmFlOTliOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTYxN2U3Mjc5OTc5ZGU1NTliNGMyZTA4OGRjODA5MWM4YjZlZGI0MTNhYjk0ZTFjYjk0ZGRlZDExMGYwYjYxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDQwODI2ZWE3ODRkMmUwNmYxMDM4MmY3YjU5OGRhNTZiZWIwZWQxYTk5OWE0ZDMwZWM4NDk2MDA1ODA4YmVjMSJ9"
+        },
+        {
+          "resource": "repo://src/utils/transferProgress.ts#L52-L72",
+          "version": "repo-lines-v1:sha256:c5f0c12f8d6e8ad4bcb240a07f3d3f1c1ae68007f78527c3e2bfda2f0de6d2a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1Y2ExODFkNjcyYWRhZWU4MWUxOTNiM2YyMzdiM2FlMzk3YzFhNWQ5OWJmNWM3YWUwOGM4NWExYmE2ZjQzZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMxOTVkNTQ3NWUwODgzYTcyZTU3MjMwNzBkZTMxM2FhYWNlMWI5OGI2MDBkZjQ5MTdlYzBhMzkyYzRhZDE1MjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/transfer-progress.test.mjs",
+          "version": "repo-file-v1:sha256:0ced2d515df7d40d286e62f8c4a351419e9b66da16faa8ecc3d1bc969662574a"
         }
       ]
     },
@@ -110,29 +126,41 @@
     },
     {
       "id": "claim_5024585bc4fd4034b5c20dcd04ae50c2",
-      "statement": "On completion (receivedSize exactly equals the declared size) the receiver builds the file Blob immediately, deletes both per-file state maps, and releases the file's chunkQueue entry — releasing the raw per-chunk buffers so a large file is not held twice in memory.",
+      "statement": "On completion (receivedSize exactly equals the declared size) the receiver builds the file Blob immediately, deletes the per-file chunk/stats/queue maps AND, since PR #133, the receivingFileGeneration entry (a Success entry is terminal and a Success re-offer is ignored, so its generation can never matter again), releasing the raw per-chunk buffers so a large file is not held twice in memory.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L248-L272",
-          "version": "repo-lines-v1:sha256:d76908534f89d631e28c4976d12c057899b8e6ad8f057550512b56b0927890e2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNTVmNzgxNjJiMGQ2YzBhMWY3MGEyNzZjOWRlNzg3OTZmMWI5OTRhM2VkMDY5YWYxYjhiYTI2YjEyZjE0ZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzYTVkNThjNmYyY2I0MzgzNTE2Njc4ZjVjM2NlYTU3MTc4ZmY3YjAxNGNkNmVmMDgxZGQ4MGQyNGExYTUwYWQifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L388-L408",
+          "version": "repo-lines-v1:sha256:efec921497799cee977475bd47b37bb3e08541684493cb6c51cf52784d57bdd7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNTVmNzgxNjJiMGQ2YzBhMWY3MGEyNzZjOWRlNzg3OTZmMWI5OTRhM2VkMDY5YWYxYjhiYTI2YjEyZjE0ZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3MzU4YTU2NGEyZDk1NzYyZGVjNmY5ZGQ0Nzg5MzI4ZjJjYTZlZjgyZDljZjE3OGM2NjBjMDRlZTM5NDExYWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4YzFlM2ViMzBiYzU2ODc4MDRiNWJlYzliZjRjZTE5MmZhNmZlYzRiNjZmM2MwMDNkY2ZiZmIyZWViNDY5YzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyODc5ZmRiYzJiYzQ4YjE1MjRiZTk4YTExZmI1YmU0ZTg2YzE0OThkNDljNjQxNjk3MmE3ZjY1ZjQxODE3YjcifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-generation-cleanup.test.mjs",
+          "version": "repo-file-v1:sha256:4b77898f9a8e170e4702d13dacaf57bfbcbb317dcb0447fe23396f05a38556d0"
         }
       ]
     },
     {
       "id": "claim_17336969115a4b90826859e4e681616a",
-      "statement": "validateFileMetadata is the single size gate and enforces two bounds because metaData.size is peer-controlled: a size that is not finite or is <= 0 is rejected with 'invalid file size' (such a value would otherwise make the receiver flip the file to Success on a partial/empty payload or break the progress math), and size > maxSize fails with a limit message (default 1 GB via DEFAULT_RECEIVE_OPTIONS, which stays below the largest offered Max Size of 2 GB that in turn stays under the classic-ZIP 4 GiB per-entry cap, so the default never allows a file the bulk 'Download all files (zip)' path cannot archive); receiver-side validation failure sends EVENT_VALIDATE_ERROR back to the sender and records the error on the file, while autoAccept (default true) makes the receiver accept valid files without user action.",
+      "statement": "validateFileMetadata is the single size gate and enforces three bounds because metaData.size is peer-controlled: a size that is not finite, is <= 0, or is not an integer (PR #127) is rejected with 'invalid file size' (a fractional size can never equal the integer sum of chunk byte lengths that the exact-match gate receivedSize === size compares against, so accepting it would complete then dead-end the transfer), and size > maxSize fails with a humanFileSize-rendered limit message (default 1 GB via DEFAULT_RECEIVE_OPTIONS, which stays below the largest offered Max Size of 2 GB that in turn stays under the classic-ZIP 4 GiB per-entry cap, so the default never allows a file the bulk 'Download all files (zip)' path cannot archive); receiver-side validation failure sends EVENT_VALIDATE_ERROR back to the sender and records the error on the file, while autoAccept (default true) makes the receiver accept valid files without user action.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L159-L197",
-          "version": "repo-lines-v1:sha256:56be992930617fab6bc9ef6c9425732f6a48ba8b19fea1d7b12c33786b3926a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkYTZkNTMxMjhkNDdjZjFhN2RjZjAxYzg0ZTJlYzg0OGEwMzU2NzZhZmY2NjFiZjgwZjBmNDkwNDRhYmNjMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2MjBkYTgwZWFkZDdhNjkwODE4OTc1MDdiYTVmOWI3ZTIyYzg4YjIxZWZlYzU0ZDVlZDM2Y2Y1YjcxOWE5ZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMWJlZmZjNmQ4MjFmYWMxNzc4ZmRkODA5NWJhNTJiNzdiMjFlZTAwMjk5YjZiYWI5OWI1MGU2ZGM0OGNjMGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM2N2Q1MWY4ZjgxZTExMWQxOGExODU4N2IzYzQyMGY0Nzc2YzkxMjUwNjg1MjZlOGIzYmRkN2NiNWJjOGMyMmQifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L217-L231",
+          "version": "repo-lines-v1:sha256:9ca26a1faaccc2811c67aad0d27e2f9b1da7416ab9de575589af8a0034e9fbe4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkYTZkNTMxMjhkNDdjZjFhN2RjZjAxYzg0ZTJlYzg0OGEwMzU2NzZhZmY2NjFiZjgwZjBmNDkwNDRhYmNjMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMWJlZmZjNmQ4MjFmYWMxNzc4ZmRkODA5NWJhNTJiNzdiMjFlZTAwMjk5YjZiYWI5OWI1MGU2ZGM0OGNjMGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjZjczZmI3NDQyN2ZkOTlkMjhlMTFjYTM4MmM4OGU5NzVmZmQyMWM1Y2Y3MmEwNTIyZmNhY2ZmMDA1YTlkMDkifQ"
         },
         {
           "resource": "repo://src/configs.ts#L60-L66",
-          "version": "repo-lines-v1:sha256:e89818b7d3f5b4f80b7d729ddbd21891390565c63788ad517b31767b050dbfdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY1NTc5NTJjM2U1NjA5MzQ5NzhiZWY2MGUxYzNhNjU4MzRhNTRiODlmYTdiMWI0MjhhMGJmYTMzZWUzODQ5OSJ9"
+          "version": "repo-lines-v1:sha256:e89818b7d3f5b4f80b7d729ddbd21891390565c63788ad517b31767b050dbfdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQyYzIxNmJhODA4NTI4ZjNmNTQyZTk2YjZkYzc5M2FlNTdkNjE4MDhkNzY0NTM2NGU5NWU0MmE0MTZjYWI4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY1NmNjMGUzMzllZDM2ODQ3ZmFlNDJlM2ZlYzZhY2QxYzdiYzMzY2RiNDQwZTM3NWEzZTIzZWU2NjdiYzVjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzI3YmVkMzEyOGI4OTFhYzUwMGNlY2Y4MmQ2NmViMmVhM2FjNWQ5NDBlMjNjMDRhZjQzYTkxZjdiNjQ5ZjA1ZCJ9"
         },
         {
-          "resource": "repo://src/utils/validator.ts",
-          "version": "repo-file-v1:sha256:907e6759e7939025dc82c228417f7086ded31a75efd40be1d987e69235fca8a3"
+          "resource": "repo://src/utils/validator.ts#L4-L17",
+          "version": "repo-lines-v1:sha256:f7cbfd1e6f1ad1cc46158885859484c3d85f9f14529801466fef0bc4f863916b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlYjdiMDM2N2Q4NTBjMzM5YjYzZThhMDNiMjI4YWQyODcyYjUwODMwZTg5YjQzYThjZmM3YTQzOTgwMTI2M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5NWQyYmQyMzQyMThmYTViMWY1MmYzNDBmOTE0NmRlMDc5MTM1ZGUyM2E0MDAwODgwYWI2MWQ4ZDM4OTNiNzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5ZGY4NDhkNjg5NjU5NjQ2YWNhYTBhYzIzNWVhMGQ1YTRlMzAzNGUzMjAyNWNlZjNjYzJiZjg1NWRhY2YxOWYifQ"
+        },
+        {
+          "resource": "repo://tests/human-file-size.test.mjs",
+          "version": "repo-file-v1:sha256:422aaa88f9df8c9791faa8f53d7929459ef5e9dcbb01282ed19f0302d3ff7070"
+        },
+        {
+          "resource": "repo://tests/receiver-metadata-size.test.mjs",
+          "version": "repo-file-v1:sha256:abd49f4e7c3b83b4a5b13b3c7fbdccbb154f1007461a24c1fcbef34abd0265aa"
         }
       ]
     },
@@ -304,19 +332,15 @@
     },
     {
       "id": "claim_e5d9301a3cb54569b1dad0720e9bd1ff",
-      "statement": "A chunk that fails AES-GCM authentication is rejected visibly, not dropped: processChunk routes the decrypt failure to rejectCorruptChunk, which delegates to the shared rejectFile(id, receivingFile, error, toastMessage) helper (PR #94) — it marks the file errored ('corrupt data in transit'), bounces the status back to Pending, toasts the failure, sends EVENT_RECEIVER_REJECT so the sender stops cleanly, and tears down the per-file chunk/stats/queue state — instead of the byte count never catching up and the file sitting in Processing forever; the EVENT_RECEIVED_CHUNK ack is sent only after successful decryption so a corrupt chunk never advances the sender.",
+      "statement": "A chunk that fails AES-GCM authentication is rejected visibly, not dropped: processChunk routes the decrypt failure to rejectCorruptChunk, which is generation-fenced (PR #125) and delegates to the shared rejectFile(id, receivingFile, error, toastMessage) helper (PR #94) - it marks the file errored ('corrupt data in transit'), bounces the status back to Pending, toasts the failure, sends EVENT_RECEIVER_REJECT so the sender stops cleanly, and tears down the per-file chunk/stats/queue state and, since PR #133, the receivingFileGeneration entry - instead of the byte count never catching up and the file sitting in Processing forever; the EVENT_RECEIVED_CHUNK ack is sent only after successful decryption so a corrupt chunk never advances the sender.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L216-L248",
-          "version": "repo-lines-v1:sha256:e55ec56d85aea31d17d6746e394ca7bf8f4589a9cc31370da10feecb0e78a90b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjNmZmNGIyNGM3NTBmZjA4MDE4MGUzMjg3N2Q2ZWQwNDcxY2E2ZDhkNzY0OTZkY2FiY2M5YWU4YWVkNzM3NWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQwYTcxYTRlZTE1ZWNhZDAxN2YyMDdmOWRmNWYxNGMyMDYyMjg2MGIxNzJhN2VhOTVlNzQ2Zjc5NzI5MjRmM2EifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L309-L336",
+          "version": "repo-lines-v1:sha256:59e0e36d69ed0f696fb9f9934733209b119c051379f9e04e190679650d9c8fd7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3OWI3NWI3N2M4Zjc1OTA1OGQ4NDljM2U0ZGRjYzQxOWExYWMyNWMxNzIxYmYyYjRjNjc2ZDdhMTY3NTFlMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0MmZjZTY0YjBiNWVmOGQ2ZTI1ODgyZWQ4OTJiZWU0Y2U2MzQ2ZDZjOGQwNjk0MDQzYTE2NWY1NWRjOWRlMjQifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L250-L295",
-          "version": "repo-lines-v1:sha256:ae4928d75e541f3bb5440ca6ec2dbf2835ead56e573eab2296abe00ce8a8ad13:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3OWI3NWI3N2M4Zjc1OTA1OGQ4NDljM2U0ZGRjYzQxOWExYWMyNWMxNzIxYmYyYjRjNjc2ZDdhMTY3NTFlMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY1ZTFkM2I3NGU0NzE1Y2RlMGQ5NjEwZmYzZGM4YTQ1YWQ2Y2VmZmRiNWI5ZDI3YTJjYTQzZTAwYjI5YjQyNjQifQ"
-        },
-        {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L386-L437",
-          "version": "repo-lines-v1:sha256:29b75fa73c52f169c9a9c83b938d6a18bbbaf7a1d79f0b649565c14000268856:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2MGQ0YWJkNWI0YzVkY2IxZmNjYWEyNDhlMWYzNDhjZmFiNzQ4NWNiZWMyOGFiNGQxYjkzNGU4ZjkyNjFkOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1MDFjMzM2MWE0YmUyZTNiNTAwYjllYjkzMDY4NmRhYTVjODE1YjZjYWM4ZTAyYmE2YjVkNDM4MGZiZjRlMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5NTk1MzkzYTA0ODU1ZTVlMWU1M2Q4ZWY2NzM1NWUyN2EwYzYxYjEyOThjODAzYzY4MzU4YTM2NmNmMzg2ZjgifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L436-L453",
+          "version": "repo-lines-v1:sha256:47cd71d93000e7ce6381d6f100c2db33e2ce06328807fc22a620d881304dfb5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2MGQ0YWJkNWI0YzVkY2IxZmNjYWEyNDhlMWYzNDhjZmFiNzQ4NWNiZWMyOGFiNGQxYjkzNGU4ZjkyNjFkOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1MDFjMzM2MWE0YmUyZTNiNTAwYjllYjkzMDY4NmRhYTVjODE1YjZjYWM4ZTAyYmE2YjVkNDM4MGZiZjRlMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzYTVkNThjNmYyY2I0MzgzNTE2Njc4ZjVjM2NlYTU3MTc4ZmY3YjAxNGNkNmVmMDgxZGQ4MGQyNGExYTUwYWQifQ"
         },
         {
           "resource": "repo://tests/receiver-chunk-failure.test.mjs",
@@ -340,41 +364,45 @@
     },
     {
       "id": "claim_41f3607445754c79a1129328ab10276e",
-      "statement": "Removing a file while its chunk pipeline is in flight is safe: onRemove sets the stop flag (when Processing) before deleting the entry; the async pipeline only ever dereferences the entry reference captured at onSend entry (never a live re-read of sendingFiles[key] after an await), re-checks stop and the live entry at every await boundary, and the event handlers bail when the live entry is gone — so no continuation can dereference a deleted entry (previously an uncaught TypeError from sendingFiles[key].aesKey/.progress) or send a chunk into the void; onContinue likewise refuses to re-enter the pipeline on a dead channel (channelSender.isLost()).",
+      "statement": "Removing a file while its chunk pipeline is in flight is safe: onRemove sets the stop flag (when Processing) before deleting the entry; the async pipeline only ever dereferences the entry reference captured at onSend entry (never a live re-read of sendingFiles[key] after an await), re-checks stop and the live entry at every await boundary, and the event handlers bail when the live entry is gone - so no continuation can dereference a deleted entry (previously an uncaught TypeError from sendingFiles[key].aesKey/.progress) or send a chunk into the void; onContinue likewise refuses to re-enter the pipeline on a dead channel (channelSender.isLost()).",
       "evidence": [
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L197-L232",
-          "version": "repo-lines-v1:sha256:98b2a87b7af52ceade20d14d4df1c4c556e63a1a38c61957d7534741892a46e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhYWRhYmNmN2I4NjM4ZjI3ZTAzYjg3NjczYzBhMTA1NTcwYmI4ZDE4N2FmNGMzYTVjZmU1YmU1ZWNjMWMzMzAifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L227-L357",
+          "version": "repo-lines-v1:sha256:90e27efc4a8301768992893f807a4acb52251b80b7061d8b51995f218d39bc18:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4ZTMwMTU2YTE5N2U1MGE2MmUxZjEyOTkxYzM1YTRiY2ZiOGUwZTc1MDMxYzE1MWIyYjM2NDc0NzZhZTQyYWYwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyNDM4OGI1MzczZTUzYWViMjZiYzE3ODQ4NzU0ODM5MzJlMmMyYzZjMTk2ZjY3OWRjYjVmYzNkOTllMDYwZTdmIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkMDlkYmQ3NjBlYTUzMjc4OWE5MDA2OThlZTlhOTBhOWFkMGIwYThiYzczNjFiOWY1MjM5NTA5ZGUzMmNkZjYzIn0"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L234-L291",
-          "version": "repo-lines-v1:sha256:b0af57d988dcb5fcf2764d58259f2ff6ab01695fd5e86fcd684c108cf76cbca4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhMDk5MDNmMTk1MWRkMTIyOWM2NDJkNWZmYTA0MzkxMGQ0MjM5ODgzNWM3YjRkNjFkMGQ4ZmM5M2YxZjMyYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlY2VmMTM2NWE4NDc3OTI5MjkyY2U5ZGU3N2QzODUzMmMzMmQ5ZWMyY2YwYWZlMjNlOGUxNDE0ODA1Y2M3ZDQifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L380-L389",
+          "version": "repo-lines-v1:sha256:0d83a5f14ba39fdf86079079cad77120e9b7c9a4fecd1a20fb67c0e44e2ae84c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhOTFhNGYyNGFmOGIwNTVhY2Y5YmMyNWM4M2ZmYjEwMDNkZTcxNjQ1NWFlOGRiYzNkNjBmNGM2YWQ5MjY2MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MzFkNzEwMWVhODU5NTJjYTVkNTI0ZDMyOGUzOWQ4YWM1MzlkNmNhMzg0MzFhMzg0NjA0YWVkOGMzZGZkZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2NjZjZmM1MWVkNGFmYTI4OTYzNjRiNWZiOTljMDMzNGY1OWVmOWRjZmEzMTVlZjBjYjZlZTQ5Zjg5MDU5ZDIifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L351-L374",
-          "version": "repo-lines-v1:sha256:29764bdd8ee915d57b0100402e67e7736a73340529b48b7b09bb5e29ad157da1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmMTJmM2NlNTg4OWMyMDJjN2E1NTE2ZmU3NGFmMmRhYmE4MzkxODFiODBiZDcwNWI3ZjAxNGRhNzM2MTI5ODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFjZDEyYTUxMDA4OTNkNzNhZDA1NGQyYmZmZjBiNDNlN2NhYjIwMjY4YzMwYzRhN2Q5NjUxNDg5MDFlOGRiODAifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L391-L398",
+          "version": "repo-lines-v1:sha256:bc456b7bbd7894744bc97f7a3a3f0ceb2c4ef46112af57dd059acce9a83fb83c:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTVlOGU1NjgzZjkyOGEzMWY3ZWNmMDJhY2EyNjQxOGVlNTk4MjkyODQ0NmY3YmU0NjgyNDJjMmUzOTI5NTUxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDA3M2RiZGQxZWU4Yzc3YzI5OTVjOWUwYmZhY2U2NjAzOTZhMWEwN2IzZTEzNjdjZDUyY2M1ODg3NzYyYjFhMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWNkMTJhNTEwMDg5M2Q3M2FkMDU0ZDJiZmZmMGI0M2U3Y2FiMjAyNjhjMzBjNGE3ZDk2NTE0ODkwMWU4ZGI4MCJ9"
         },
         {
           "resource": "repo://tests/sender-remove-inflight.test.mjs",
-          "version": "repo-file-v1:sha256:82cdbbbaf7225e44d5d1484a3d2fc666d7bf37caac15a17a4c16bd1b8d8f4bf8"
+          "version": "repo-file-v1:sha256:4865fb6c884c1ba1a8f2cc5de19a5cb09b9b118bc71fce24b09713d38ae1f0da"
         }
       ]
     },
     {
       "id": "claim_bf41ad03065343e487feec36c4676f7f",
-      "statement": "Because metaData.size is peer-controlled and is the receiver's completion gate, the receiver validates it with a lower bound: validateFileMetadata rejects a size that is not finite or is <= 0 with an explicit 'invalid file size' error (such a value would otherwise complete the file on the first chunk with a partial/empty payload, or make the progress math NaN/negative and break the progress UI), and the per-chunk progress ratio is clamped to [0, 100] before reaching the UI as defense in depth on top of the exact-match gate and the overshoot reject.",
+      "statement": "Because metaData.size is peer-controlled and is the receiver's completion gate, the receiver validates it with a lower bound and an integer bound: validateFileMetadata rejects a size that is not finite, is <= 0, or is not an integer (PR #127) with an explicit 'invalid file size' error (such a value would otherwise complete the file on the first chunk with a partial/empty payload, make the progress math NaN/negative and break the progress UI, or dead-end the transfer on a fractional size the exact-match gate can never satisfy), and the per-chunk progress ratio is clamped to [0, 100] before reaching the UI as defense in depth on top of the exact-match gate and the overshoot reject. Since PR #136 this clamp lives in the shared updateTransferProgress helper (src/utils/transferProgress.ts), so it is uniform for both the sender's sendNextChunk and the receiver's processChunk.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L208-L218",
-          "version": "repo-lines-v1:sha256:921912279dd4a3d3dd32952654108585e091a93782572c4d91d0bc2be0879ab3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZTIyZTBmMDRmNTBiNWQ4YmRjN2U5MDg2MzlhMjIwZDQyNmUxOTE3Yjc2ZjlhODljZGFhOTVlYTkzMDUzOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwODIxN2M2Nzk3OWE1M2MwY2EyY2U4NzZiMjc4OWI2M2RhZWRlNmVhYzA1YTk1NmVlMTM4NTY3MmE5NTdiMjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkNGJkMDY1NjgxZDIwMzQwMDhiYzZhNTQ0NjNiYThiMzU1Yzk4MzllZjFjN2UwYTMzYTI1NmQyODMwMmIyNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjliOWM3Njc3MTVlOWM3YWY1MzJmNDVkYzQ0NmRiZTc3N2YwYjUzNmY2ODc2MDNhMmEyMjgwY2UxZTZlNzVmNjcifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L381-L386",
+          "version": "repo-lines-v1:sha256:e58e8f5c30a1a290d55bfb06ec3b7f6073593e1e79a4e3d568a501b9c15c36ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTNlZjY4NmQyYWI2OGY2N2I0YjRiZTYzYzRkZDIwMzdlZjk0NjgxYTJhYTI2MmNiMmZiZGVmNDY3YzFkY2JhYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODRlNDIwOGNkNmZmYjhjNGEzNTQ3YjJmNTRhZGExOTk3OGMzZjM2NWU3OGY5NTAyZWY1MTQ1Y2RkMmFhODU0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQ1NzZmZDY3Yzc2ODVjZDVhNGYzZmQxMmJmOTdjYjU2ZWJlNjg4NWU4NmZhMTQyODc0MzU1NDUxMjI1MjA2MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODFlNDA3MmQ5M2RkYWI3NjU3ZTYxNWEzZDhkYjAzZDcxODRmNWZmNjdlMmFmOGE1YTJjNjkyZWRjMTZjZjI1YSJ9"
         },
         {
-          "resource": "repo://src/utils/validator.ts",
-          "version": "repo-file-v1:sha256:907e6759e7939025dc82c228417f7086ded31a75efd40be1d987e69235fca8a3"
+          "resource": "repo://src/utils/transferProgress.ts#L60-L62",
+          "version": "repo-lines-v1:sha256:1966c0f09308a674ea73e8f53fef198727b58e2c7d1973287bf89be60da2afe4:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmI4NDgzM2U4ZWYxOGQ5MmM2ZjY1ZTZkOTU3ZTI1MjQ3ZjUzZmZkN2M0ODYzYjM4MWVmYjY5MDliZjkyMGZiOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjViZGEzZTIxZWI4MDgyNzY2NmU2ZjBiYjMxMTYxOWZkNDkyMjIyY2I0NTg3MjNkNmI0YWYwM2NkMmY5OTg1ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTQzMjBjZWMwZWNhYWMzMTgyZTI4ZWU1OWRjOWJkYmExOGNlZDc2MDA3MjFlMmQ5ZjRjMjNiYzk5ODk0MTY2NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDVjYjJhMzIzMzUzMDFlMzZlNGUwNzBmZWRlMGExZmU3ZDM5NjdjZDljMGJmNjliZTcyNWUyYmJiMzg2MmI3ZiJ9"
+        },
+        {
+          "resource": "repo://src/utils/validator.ts#L4-L17",
+          "version": "repo-lines-v1:sha256:f7cbfd1e6f1ad1cc46158885859484c3d85f9f14529801466fef0bc4f863916b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlYjdiMDM2N2Q4NTBjMzM5YjYzZThhMDNiMjI4YWQyODcyYjUwODMwZTg5YjQzYThjZmM3YTQzOTgwMTI2M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5NWQyYmQyMzQyMThmYTViMWY1MmYzNDBmOTE0NmRlMDc5MTM1ZGUyM2E0MDAwODgwYWI2MWQ4ZDM4OTNiNzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5ZGY4NDhkNjg5NjU5NjQ2YWNhYTBhYzIzNWVhMGQ1YTRlMzAzNGUzMjAyNWNlZjNjYzJiZjg1NWRhY2YxOWYifQ"
         },
         {
           "resource": "repo://tests/receiver-metadata-size.test.mjs",
-          "version": "repo-file-v1:sha256:3af18519b3ea8304da7eb9797e94685c39f4e03d52b3227176be19defaa7fbe8"
+          "version": "repo-file-v1:sha256:abd49f4e7c3b83b4a5b13b3c7fbdccbb154f1007461a24c1fcbef34abd0265aa"
         }
       ]
     },
@@ -394,15 +422,19 @@
     },
     {
       "id": "claim_da9dda33ba3147d18ec974ec833ba051",
-      "statement": "The receiver's two reject paths (rejectOversizedStream for a stream that exceeds the declared metaData.size, rejectCorruptChunk for a chunk that fails AES-GCM auth) are thin wrappers over one shared rejectFile(id, receivingFile, error, toastMessage) helper (PR #94), which guards on receivingFileChunkMap[id] as source of truth (no-op if the file is no longer being actively received), sets the entry's error, bounces status to Pending, toasts, sends EVENT_RECEIVER_REJECT via the guarded send() so the sender bounces to Pending instead of reporting a successful transfer, and deletes the per-file chunk/stats/queue maps; this deduplicated ~25 lines of copy-pasted teardown that had to stay in sync, and tests/receiver-metadata-size.test.mjs follows the delegation when extracting the rejectOversizedStream body.",
+      "statement": "The receiver's two reject paths (rejectOversizedStream for a stream that exceeds the declared metaData.size, rejectCorruptChunk for a chunk that fails AES-GCM auth) are thin wrappers over one shared rejectFile(id, receivingFile, error, toastMessage) helper (PR #94), which guards on receivingFileChunkMap[id] as source of truth (no-op if the file is no longer being actively received), sets the entry's error, bounces status to Pending, toasts, sends EVENT_RECEIVER_REJECT via the guarded send() so the sender bounces to Pending instead of reporting a successful transfer, and deletes the per-file chunk/stats/queue maps AND, since PR #133, the receivingFileGeneration entry (the delete sits after the sibling map deletes, and after the live-attempt guard, so a no-op reject never burns the entry); this deduplicated ~25 lines of copy-pasted teardown that had to stay in sync, and tests/receiver-metadata-size.test.mjs follows the delegation when extracting the rejectOversizedStream body.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L386-L437",
-          "version": "repo-lines-v1:sha256:29b75fa73c52f169c9a9c83b938d6a18bbbaf7a1d79f0b649565c14000268856:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2MGQ0YWJkNWI0YzVkY2IxZmNjYWEyNDhlMWYzNDhjZmFiNzQ4NWNiZWMyOGFiNGQxYjkzNGU4ZjkyNjFkOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1MDFjMzM2MWE0YmUyZTNiNTAwYjllYjkzMDY4NmRhYTVjODE1YjZjYWM4ZTAyYmE2YjVkNDM4MGZiZjRlMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5NTk1MzkzYTA0ODU1ZTVlMWU1M2Q4ZWY2NzM1NWUyN2EwYzYxYjEyOThjODAzYzY4MzU4YTM2NmNmMzg2ZjgifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L436-L453",
+          "version": "repo-lines-v1:sha256:47cd71d93000e7ce6381d6f100c2db33e2ce06328807fc22a620d881304dfb5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2MGQ0YWJkNWI0YzVkY2IxZmNjYWEyNDhlMWYzNDhjZmFiNzQ4NWNiZWMyOGFiNGQxYjkzNGU4ZjkyNjFkOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1MDFjMzM2MWE0YmUyZTNiNTAwYjllYjkzMDY4NmRhYTVjODE1YjZjYWM4ZTAyYmE2YjVkNDM4MGZiZjRlMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzYTVkNThjNmYyY2I0MzgzNTE2Njc4ZjVjM2NlYTU3MTc4ZmY3YjAxNGNkNmVmMDgxZGQ4MGQyNGExYTUwYWQifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-generation-cleanup.test.mjs",
+          "version": "repo-file-v1:sha256:4b77898f9a8e170e4702d13dacaf57bfbcbb317dcb0447fe23396f05a38556d0"
         },
         {
           "resource": "repo://tests/receiver-metadata-size.test.mjs",
-          "version": "repo-file-v1:sha256:3af18519b3ea8304da7eb9797e94685c39f4e03d52b3227176be19defaa7fbe8"
+          "version": "repo-file-v1:sha256:abd49f4e7c3b83b4a5b13b3c7fbdccbb154f1007461a24c1fcbef34abd0265aa"
         }
       ]
     },
@@ -508,15 +540,15 @@
     },
     {
       "id": "claim_94901a1e53dd45528730cc9f7fd5f75f",
-      "statement": "sendBuffer reports whether the chunk actually hit the wire (true when send() ran, false when the stop check bailed before sending — the chunk is on the wire even if stop flipped between encryption finishing and the send), and sendNextChunk advances the closure's offset only when it did; skipping the bookkeeping on stop used to leave offset behind the wire after a stop during the final chunk's send/ack window, so a later Continue would re-slice and re-send the last bytes, which the receiver's exact-size gate rejects as an overshoot. Progress UI for a removed/aborted entry is cosmetic, so skipping it on stop is safe.",
+      "statement": "sendBuffer reports whether the chunk actually hit the wire (true when send() ran, false when the stop check bailed before sending - the chunk is on the wire even if stop flipped between encryption finishing and the send), and sendNextChunk advances the closure's offset only when it did; skipping the bookkeeping on stop used to leave offset behind the wire after a stop during the final chunk's send/ack window, so a later Continue would re-slice and re-send the last bytes, which the receiver's exact-size gate rejects as an overshoot. Progress UI for a removed/aborted entry is cosmetic, so skipping it on stop is safe.",
       "evidence": [
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L197-L232",
-          "version": "repo-lines-v1:sha256:98b2a87b7af52ceade20d14d4df1c4c556e63a1a38c61957d7534741892a46e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzAxNTZhMTk3ZTUwYTYyZTFmMTI5OTFjMzVhNGJjZmI4ZTBlNzUwMzFjMTUxYjJiMzY0NzQ3NmFlNDJhZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0Mzg4YjUzNzNlNTNhZWIyNmJjMTc4NDg3NTQ4MzkzMmUyYzJjNmMxOTZmNjc5ZGNiNWZjM2Q5OWUwNjBlN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhYWRhYmNmN2I4NjM4ZjI3ZTAzYjg3NjczYzBhMTA1NTcwYmI4ZDE4N2FmNGMzYTVjZmU1YmU1ZWNjMWMzMzAifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L227-L357",
+          "version": "repo-lines-v1:sha256:90e27efc4a8301768992893f807a4acb52251b80b7061d8b51995f218d39bc18:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4ZTMwMTU2YTE5N2U1MGE2MmUxZjEyOTkxYzM1YTRiY2ZiOGUwZTc1MDMxYzE1MWIyYjM2NDc0NzZhZTQyYWYwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyNDM4OGI1MzczZTUzYWViMjZiYzE3ODQ4NzU0ODM5MzJlMmMyYzZjMTk2ZjY3OWRjYjVmYzNkOTllMDYwZTdmIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkMDlkYmQ3NjBlYTUzMjc4OWE5MDA2OThlZTlhOTBhOWFkMGIwYThiYzczNjFiOWY1MjM5NTA5ZGUzMmNkZjYzIn0"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L234-L291",
-          "version": "repo-lines-v1:sha256:b0af57d988dcb5fcf2764d58259f2ff6ab01695fd5e86fcd684c108cf76cbca4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiYTczMDhjYzc4MTg3Mzg3MWI0OGY3MDdkMTg3NmRjY2Y4YTFhY2Y4MzQ1MDdjZDEzZDU2NjQyYzg5ZDQ3N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhMDk5MDNmMTk1MWRkMTIyOWM2NDJkNWZmYTA0MzkxMGQ0MjM5ODgzNWM3YjRkNjFkMGQ4ZmM5M2YxZjMyYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlY2VmMTM2NWE4NDc3OTI5MjkyY2U5ZGU3N2QzODUzMmMzMmQ5ZWMyY2YwYWZlMjNlOGUxNDE0ODA1Y2M3ZDQifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L233-L245",
+          "version": "repo-lines-v1:sha256:1455542b35a27d4b2789183709ff23940be09bbdedcd8b9cf2ec3f8b5cc5f6c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmNWFkYWEyNTQ4MDkxYWVkMGZjN2JjZjI5NDk4MjUxMDdjNGMzZjA1OWMyZWJkYmMyMmM5YTg1MzM3MWJlZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhYzg5YjNmMGU4ZmQ5NjU2ZDliZDNjMDhlOWIyZTY4ZjllNTUzOTU2ZDg0YWYxYWNhNzY4YjZmMzdlMTRhODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4MzI5ZjI0NzhlOGMwMWEyMzI2ZmUxNGI4NDc5NzA1MTc2ZmU4ZmJkMDQ3ZTM1ZDg0NzAzMTQzNWUyNGU3ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjZGI2N2E5ZjJiZDU2NTk5NjMzZTI5Y2E4MTY5NDYxYTRmZWQ0YzY0NGQ5M2Y5MDM1Y2FmODFhYjkzN2NmMWIifQ"
         },
         {
           "resource": "repo://tests/sender-stop-final-ack.test.mjs",
@@ -558,21 +590,51 @@
     },
     {
       "id": "claim_43a489a682bf409f87fc1c1edd7fd68f",
-      "statement": "The sender bitrate clock is reset at accept, not at the Send click (PR #121): onSend initializes the closure fileStats with `startTime: Date.now()` at click time, but the chunk pipeline only starts on the peer's EVENT_RECEIVER_ACCEPT, so any waiting-accept delay (e.g. Auto accept off) inflated the bitrate denominator and made 'Sending: X/sec' under-report real throughput for the whole transfer; the EVENT_RECEIVER_ACCEPT handler now writes `fileStats.startTime = Date.now()` so the denominator is time-since-ACCEPT, mirroring the receiver which starts `receivingFiles[id].startTime` in onAccept() — progress (an offset/size ratio) is unaffected. Pinned by tests/sender-bitrate-clock.test.mjs via static source inspection of both components.",
+      "statement": "The sender bitrate clock is reset at accept, not at the Send click (PR #121): onSend initializes the closure fileStats with startTime: Date.now() at click time, but the chunk pipeline only starts on the peer's EVENT_RECEIVER_ACCEPT, so any waiting-accept delay (e.g. Auto accept off) inflated the bitrate denominator and made 'Sending: X/sec' under-report real throughput for the whole transfer; the EVENT_RECEIVER_ACCEPT handler now writes fileStats.startTime = Date.now() so the denominator is time-since-ACCEPT, mirroring the receiver which starts receivingFiles[id].startTime in onAccept() - progress (an offset/size ratio) is unaffected. Since PR #134 the shared updateTransferProgress helper floors the elapsed denominator to a 1 ms minimum so a small file whose accept and first progress update share a millisecond no longer divides by 0 to Infinity, and since PR #136 the progress+bitrate write routes through that one helper at both call sites. Pinned by tests/sender-bitrate-clock.test.mjs and tests/bitrate-zero-elapsed-guard.test.mjs via static source inspection of both components plus the shared helper.",
       "evidence": [
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L119-L133",
-          "version": "repo-lines-v1:sha256:686dd9c36f79ecfb01868e23a4ce7dbc00a7026fe62afdadc7508ae2203d59ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMjZjNzU5ZDZmY2U5MmZhY2FhNzViNTJlMGU0NGI4MGMyMGNlZmUzNjQwNGYxMWVjNmM2Y2IwN2QyZjI3OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1YzdhNjU5YjUzZDZkNGI5NjhkNDE3ZjJiYjMzZDg5ZGYwMmQ0NDI0ZmM3MjVmOTc4OWFlZDllOTNlMmUxYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjOTVlMjg1YTQ1Y2ZkM2ZiMzQ3YzE1OGUzZDU1NmNkMjI5YzNhODRiZTI4OGJkZDkwNjdjYjI1OTg5OWVmM2YifQ"
+          "resource": "repo://src/components/sender/Sender.svelte#L119-L146",
+          "version": "repo-lines-v1:sha256:cf6f3b5aade7f6b21f65c2dea4736b847ff4e18e8bf02660d2fbac8855a5b12f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNzRmYTI2ZTFiNTYwZTYzYzc5MjViYTZhNTM3NWFhYzgzZjJmZjQxYjFjNDdjYTViZmUxNWVjZTI3ODMwMDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1YzdhNjU5YjUzZDZkNGI5NjhkNDE3ZjJiYjMzZDg5ZGYwMmQ0NDI0ZmM3MjVmOTc4OWFlZDllOTNlMmUxYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY2ZGVhNTUwMzJiOGI4MWMzYzZiYzc5M2Y1YjIwMzkwNWQ5YjM4MWRlM2NjOGRlMjg1ODQ3YjAzZGVmN2NkZGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlMGY2MTIwYjVkYmM3MGU4ODYwNWE0Y2ZhYjliZDQwYWI1YjY0YjU3ZmU0YWU1MjQxYzc1YzE3ODk3NTliMjMifQ"
+        },
+        {
+          "resource": "repo://src/utils/transferProgress.ts#L62-L66",
+          "version": "repo-lines-v1:sha256:967611743fc5ac11e04b9608eb4744428a9db9b9c5495276bbbe8968be13a43d:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjViZGEzZTIxZWI4MDgyNzY2NmU2ZjBiYjMxMTYxOWZkNDkyMjIyY2I0NTg3MjNkNmI0YWYwM2NkMmY5OTg1ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzkxMGExMDlmNzIyYTFlODc2NDg5YTliOTdiOTY3ODJiZTJkYTdhY2YzN2YxMzVhZDY5ODk5MWY4Y2M1M2NiNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDA3NjZkMzY3YzNlMzBlYTgxYWI3YTg2MzdjYzYwNTc1MWQyNTA2ZDc0ZGJkYjdiMmY2MDJlNDk1NTU2YzFiZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWY0ZDM2ZjQ5MDUwMmU2N2U0OGRkMTkzYjlhMGU3NThkZjliZTU2YTk1OGVkYzA0YzE1ZjBjNGNiNjliYTExYiJ9"
+        },
+        {
+          "resource": "repo://tests/bitrate-zero-elapsed-guard.test.mjs",
+          "version": "repo-file-v1:sha256:233eafbc8b00a4ccda8cb213e8604751ec0127af92a2d0ab2e75d3c673e41ab9"
         },
         {
           "resource": "repo://tests/sender-bitrate-clock.test.mjs",
-          "version": "repo-file-v1:sha256:5eebdafa37b1a2f20a0f525e3ef38f9e36980550b6883e117c095e8c92932737"
+          "version": "repo-file-v1:sha256:aadcb71f770da019939479d6403119fd40813a1f13b860e5904a542f2af58f0d"
+        }
+      ]
+    },
+    {
+      "id": "claim_b8994a1977564c1e94e15e949dcd2768",
+      "statement": "Incoming-file admission caps (PR #131) bound peer-driven resource exhaustion: before registering a new entry, onMetaData counts active (non-Success) entries against MAX_INCOMING_FILES (32) and the total declared size of every not-yet-removed entry against MAX_TOTAL_RECEIVED_BYTES (8 GiB); a frame that would exceed either is not registered and is rejected back to the sender with EVENT_RECEIVER_REJECT plus a single error toast. The frame's own id is excluded from both counts so a re-offer of an already-held file resets the same entry without counting against the caps, and the terminal-Success early-return runs before the caps so a completed id is never counted; the rendered toast list is separately bounded to the most recent MAX_VISIBLE_TOASTS (10) in Toast.svelte.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/Toast.svelte#L1-L12",
+          "version": "repo-lines-v1:sha256:a139a888acb1f4cab268182b15f26cbaf6befb56e5502ee08d8d43ad5734faa9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YWJjOGVkNzU0MzgyMjA2NWMwMjlmNWVhMjUyZDEyMjNkNzZhYTdkMmQzZDRmYjEyNTgxMmY2YjVhOTlkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMTEyNGI2MWExMjQ0YTAyNzk1NGM3ODcwYWVkOGIzMTY4N2I1OGQxMGQ4NGZiMDVkMjQxYTIwZjU1NzRmOTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmYzI0NDY3Y2IwYzZkMDEwMDY3ODA4OWQ0ZjhmMTRiYjIzNzVkOGI4YjkzODcxMjAzMTc3ZmIwMmY5MjdlNjIifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L63-L122",
+          "version": "repo-lines-v1:sha256:6a428319f218a0d0ee2387b01a9cc24dc939472eeb303917102b40225e82c651:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwZTQwMWYwNDMzZjY3MTljZTY2ZTRhMGI0ZWVjODQ2NDg1YzkwZGJlMDI5NjBhYWVlNDYzMzJlYTdjNWNlZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMDEyMzdjYzgxMDI1ZTJhZjUxNzlkYTRkNDk1ZjY1ZGIxNjU2NzgwNjQ1MjRhOGZlZWY1MmM3MDMxOTBkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUzMzU4NjhlNzY0OWQ5YmE5ZDI0MGNjMDg1YjZhODhlN2JhMDI4MjE1ZWI5NmVjNzNkZDY0OWJmOTMzN2ZiMDkifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L68-L91",
+          "version": "repo-lines-v1:sha256:e99d076d9f0e60ae74091a1992f6c704d8f5cadca5c7ac691b368e6c86b9d2b5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiZTk5NmYxNmNmNzUyMDZkNjhmZTIyZjQwZjU4Y2YwNGRiYmMwZTZmMjExNDY5YjJkMjYzMTVkMWEwMjU2ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmYzVmOTVjZDc2ZmZjMGYyOWQ5MGNjZTI4MjNlNjEyMzg3ZWIyMmVkYWUzYjA1NThkZTcxNmIxYzkwMmFkNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmZjBhMzE1ZTM3MTk1YjQ3ZjA3M2QyNWQ0ZjNmNTY3MzNlNDQ5YTNlZTc2MjNlYzg3NGE3NjgwM2E2MDFkM2YifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-incoming-caps.test.mjs",
+          "version": "repo-file-v1:sha256:1d6d4dec85f2eebb0f0dbf4810232a37b0a993d5e76f94b62d8b213ecc80e3b0"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-30T06:42:53.746Z"
+    "at": "2026-11-01T07:26:15.531Z"
   }
 }

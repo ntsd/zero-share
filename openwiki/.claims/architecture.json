@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:0c1e6e3a5ab0e5f63a9cf4b4621fb644544a24df56d34efbeb0aeefd1b44ae1b",
+  "pageVersion": "sha256:9b9974ff00a1662e490b81ade49a5d915c018490a9ce3b2496fac65e6b45ec1b",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -68,19 +68,23 @@
     },
     {
       "id": "claim_662ea9b9ec004cd98a9410f3d8b63ddd",
-      "statement": "Offer establishment mints the RSA keypair exactly once at the top of generateOfferLink (before the peer exists), creates the RTCPeerConnection with a data channel (ordered:false) using the predicate-resolved ICE server, generates the local offer, then waits for ICE candidates to finish or a 3-second timeout (WAIT_ICE_CANDIDATES_TIMEOUT) before building the offer link; a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once and the timeout fallback can never rotate the key. Regeneration is generation-safe: before minting, generateOfferLink clears the pending ICE-candidate timer, nulls the handlers and closes the old data channel and RTCPeerConnection (unless already closed), resets the settled peer crypto (rsaPub to undefined, effectiveEncrypt re-pinned from the live setting) and the dead generation's UI state (new-file badge, isConnecting, pending answer code, and the dead generation's offer link so a failed regeneration returns to the clean generate state with no dead link to copy/QR/accept), and bumps a monotonically increasing offerGeneration token; the timeout fallback re-checks that token at fire time so a stale timer holding the previous generation's public key can never build a link from the new peer's SDP. Synchronous construction/offer-creation failures (a rejected createOffer()/setLocalDescription() or a synchronous constructor throw) are caught, toasted, and — since PR #108 — the just-created generation is torn down with the same guarded shape as the regeneration teardown: the pending ICE-candidate timer is cleared, the new data channel's four handlers are nulled before dataChannel.close() and the variable reset to undefined, and the new RTCPeerConnection is closed guarded on connectionState !== 'closed' (when the failure happened before the peer/channel existed both guards skip) — otherwise the failed peer's ICE agent, UDP sockets, and STUN/TURN keepalives would leak until the next generation or page unload. The offer page therefore has four guarded connection.close() call sites (the two channel-death handlers, the regeneration teardown, and the offer-creation catch).",
+      "statement": "Offer establishment mints the RSA keypair exactly once at the top of generateOfferLink (before the peer exists), creates the RTCPeerConnection with a data channel (ordered:false) using the predicate-resolved ICE server, generates the local offer, then waits for ICE candidates to finish or a 3-second timeout (WAIT_ICE_CANDIDATES_TIMEOUT) before building the offer link; a per-invocation offerBuilt flag claims the build synchronously so the two paths build the link at most once and the timeout fallback can never rotate the key. Regeneration is generation-safe: before minting, generateOfferLink clears the pending ICE-candidate timer, nulls the handlers and closes the old data channel and RTCPeerConnection (unless already closed), resets the settled peer crypto (rsaPub to undefined, effectiveEncrypt re-pinned from the live setting) and the dead generation's UI state (new-file badge, isConnecting, pending answer code, and the dead generation's offer link so a failed regeneration returns to the clean generate state with no dead link to copy/QR/accept), and bumps a monotonically increasing offerGeneration token; the timeout fallback re-checks that token at fire time so a stale timer holding the previous generation's public key can never build a link from the new peer's SDP. Synchronous construction/offer-creation failures (a rejected createOffer()/setLocalDescription() or a synchronous constructor throw) are caught, toasted, and — since PR #108 — the just-created generation is torn down with the same guarded shape as the regeneration teardown: the pending ICE-candidate timer is cleared, the new data channel's four handlers are nulled before dataChannel.close() and the variable reset to undefined, and the new RTCPeerConnection is closed guarded on connectionState !== 'closed' (when the failure happened before the peer/channel existed both guards skip) — otherwise the failed peer's ICE agent, UDP sockets, and STUN/TURN keepalives would leak until the next generation or page unload. Since PR #135 the two channel-death handlers no longer carry a local guarded close (their peer release moved into the shared createChannelTeardown() helper), so the offer page now has TWO local guarded connection.close() call sites — the regeneration teardown and the offer-creation catch — and tests/dead-channel-peer-close.test.mjs pins that the offer page closes the peer in exactly those two places and never inside a death handler, while ReceivePage locally never closes the peer.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L177-L256",
-          "version": "repo-lines-v1:sha256:641a089b74e6b305db2899a7db8ced9bdd026820c5f7bd54f7b15e42756bd3ee:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2NTY1NDkwOTk3NzI2ZTFjNWE0ZjU3ZWFhYTRkZTYzODc2ZmQ1ODA2MTdmMjRhNTY2MzQ3YjVmNzE2ZmNjNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlMjAzZjA0YjNmNjZjY2Y1ZGRlNzc4YjYyYzhjMjU3OTI1MDkxZjFlMWMyZGEyODVhMzJmYmI4ZjA4ZGI0YmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5MzI3YTVkZjgyMzI2YjkzOGIzY2U0MzMxMmRmZTEwODZmYjllNjZiYWFlNzVjYzA3YzNmYTRkYTUwMTFkZDMifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L181-L220",
+          "version": "repo-lines-v1:sha256:5e7b8e1d5a35f93ba4751471e93f85d7ca0ede90d3e1eb3c1cfa2874b36fb6ee:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2NTY1NDkwOTk3NzI2ZTFjNWE0ZjU3ZWFhYTRkZTYzODc2ZmQ1ODA2MTdmMjRhNTY2MzQ3YjVmNzE2ZmNjNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1ZDYxZGU4MTQ3MWVkOTY5M2E1ZjQyNDZlNGUzZWFjMTkyOTVjMWI5ODI4ZTgxNjE0NjUyY2E3Mzg4NWRkMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3NmRmMWM5YjMyYWI3YWE2NGJhODg4ZWVjYmU3ZTRiMmM1MTI2OGJiZmUxNjMyZWM3NjQzZTg5NWZlM2MzODYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcyNDcyOTdiNmQ2MDgxNzJiYzBiY2QzYmQwYjM5ZjhkOGZjY2I3NmQ3NjgwZjlkNDdlY2FiYTQwMzYxMjNlMmYifQ"
         },
         {
-          "resource": "repo://src/components/OfferPage.svelte#L267-L350",
-          "version": "repo-lines-v1:sha256:53b3841faad2280b355ffe591bb8aa31a3360a8a132a3e410d7b3026fddd1bc8:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExZGY4N2E0NzMxNmM3MDhjNTUwMjA5OGU5YWY2YzQ0NTM0ZWI4MGJlYWRjZjYwNjMwMjhlZmNhODU5MzdhYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2NjMxN2M4ZGExMjU3ZjkxYTY0OTBkMWM1OWMzNmJiNTdhMzI4ZTg2OTk3ZDUzODRlZTQ1ZTU4MmZhMTVlNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzMjI4OWJhMjVjYTA1OWZmYWFkNWZjMDFjZGI2ZGI4ZjE2ZGRjZThhYjNmNjA2NzhjOTFlNmVhZjM2MWZhZjIifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L330-L358",
+          "version": "repo-lines-v1:sha256:0839206e8de32ea3fdf89606ac6d1e0b2aba699c8d3dc041236129963f3e6380:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwMmE0OGVlMzdjZTUxNDMxYmEzNTYxMWU4MWY5NDIxZDZhN2MyNGY2MjJmZWJiODUwMDViNGQxYWUxMGVjYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExZGY4N2E0NzMxNmM3MDhjNTUwMjA5OGU5YWY2YzQ0NTM0ZWI4MGJlYWRjZjYwNjMwMjhlZmNhODU5MzdhYmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlY2Q0ZDQ4NWVhZjZlYzliNjg5Nzg4ZTA3NDZhNzMyYTEzNDM0Y2RiNmY5NmNmZjMwOWI5NTE5YWJjYWFkMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmODQ5ZmE3ZDc5YTg5YzhlNjRlY2ZmZmM2YjE5NjY1Y2IxZmQ3MzVjOTdlNzE5ODUxMjdmYTU0M2U1N2NjODkifQ"
+        },
+        {
+          "resource": "repo://src/utils/channelTeardown.ts",
+          "version": "repo-file-v1:sha256:bafcfa10f93b8a661ebfa56e617d3d40b75396424e6d5941f11e213718be059a"
         },
         {
           "resource": "repo://tests/dead-channel-peer-close.test.mjs",
-          "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
+          "version": "repo-file-v1:sha256:3c803c777bb099be47930e807a298435a0f86eacc59f4662306898901d91b6d2"
         },
         {
           "resource": "repo://tests/offer-peer-lifecycle.test.mjs",
@@ -126,27 +130,23 @@
     },
     {
       "id": "claim_311d6dea83ac47ecbb8e7a3de45ee72a",
-      "statement": "Both pages dispatch incoming data-channel messages through the shared handlePeerMessage helper in src/utils/peerMessage.ts (deduplicated from the two identical per-page handlers in PR #71): the same oneof switch (metaData routes to Receiver.onMetaData, chunk to Receiver.onChunkData, receiveEvent to Sender.onReceiveEvent), with Message.decode on the peer-controlled bytes wrapped in try/catch inside the helper so a malformed/truncated protobuf frame drops the frame and toasts 'Invalid message from peer' instead of crashing the page uncaught (PR #46). Both pages pin dataChannel.binaryType = 'arraybuffer' at channel acquisition (offer side at the createDataChannel site; answer side at the ondatachannel site) because WebRTC's default 'blob' would make new Uint8Array(Blob) zero-length and silently drop every frame (PR #95). Both pages additionally wire the data channel's onerror/onclose to sender?.onChannelClose() and receiver?.onChannelClose() so a dead channel marks in-flight/queued files 'connection lost' and stops their pipelines instead of leaking InvalidStateError into chunk pipelines (PR #74) — and, since PR #104, both handlers additionally call connection.close() guarded on connectionState !== 'closed', because closing the data channel does not close the RTCPeerConnection and would otherwise leave the ICE agent, UDP sockets, and STUN/TURN keepalives live until the browser's ICE timeout or page unload; close() throws InvalidStateError on an already-closed peer, so the guard keeps an error+close double-fire or a racing regeneration from surfacing one. tests/dead-channel-peer-close.test.mjs statically pins the guarded close() in both pages' handlers plus the handlers' onChannelClose() calls, and now also asserts the offer page carries four guarded connection.close() sites (regeneration + two death handlers + the PR #108 offer-creation catch).",
+      "statement": "Both pages dispatch incoming data-channel messages through the shared handlePeerMessage helper in src/utils/peerMessage.ts (deduplicated from the two identical per-page handlers in PR #71): the same oneof switch (metaData routes to Receiver.onMetaData, chunk to Receiver.onChunkData, receiveEvent to Sender.onReceiveEvent), with Message.decode on the peer-controlled bytes wrapped in try/catch inside the helper so a malformed/truncated protobuf frame drops the frame and toasts 'Invalid message from peer' instead of crashing the page uncaught (PR #46). Both pages pin dataChannel.binaryType = 'arraybuffer' at channel acquisition (offer side at the createDataChannel site; answer side at the ondatachannel site) because WebRTC's default 'blob' would make new Uint8Array(Blob) zero-length and silently drop every frame (PR #95). Both pages additionally wire the data channel's onerror/onclose to the shared createChannelTeardown() helper's handlers (see the dead-channel teardown claim), which propagate 'connection lost' into both file pipelines and release the RTCPeerConnection — no page carries its own guarded connection.close() inside a death handler since PR #135. tests/dead-channel-peer-close.test.mjs and tests/peer-message-handler.test.mjs statically pin the dispatch, the binaryType pin, and the shared-teardown wiring.",
       "evidence": [
         {
-          "resource": "repo://src/components/OfferPage.svelte#L134-L174",
-          "version": "repo-lines-v1:sha256:c5cd427f91daad662c3af344c6726b4f9d02ac32729735e4e72386847fff906c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlMDdlNDQ5OWM5YTkyZmQzMjBjZTIyZDgyMWQxODAwYTZhOGNlNTRjN2VkOTJlYjdkNzBmMTIxOGEzMWQ5YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNTI5YjRmMzJhOTA2YmZkZDliNDMxODcyNjJlMzNhOTJjNzhmZTY3NGNlMWY4MGE5OTU5Y2JjZDhhODI3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
+          "resource": "repo://src/components/OfferPage.svelte#L155-L178",
+          "version": "repo-lines-v1:sha256:004ffbf3f6aa0c77979ce922ac3cf26ef09d10ee17654e89d1f6af459b537218:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3NGQ4NTM2OTM2YTlhNWNkMGUyZGRhNjE4ZTc2ZDEyNDAxYTk0MjM3YmIwMjkxN2I2NjhiYTI4MTdkOTcwMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjYTUyM2RlMWRlOWUxMDUzYzRlYzk0ZDMxNTg5YTNmMzFjZDFlMzk5OWFjZTk2ZmFmOGEwYWI5MDQ5OWM3NzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNTI5YjRmMzJhOTA2YmZkZDliNDMxODcyNjJlMzNhOTJjNzhmZTY3NGNlMWY4MGE5OTU5Y2JjZDhhODI3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
         },
         {
-          "resource": "repo://src/components/ReceivePage.svelte#L99-L157",
-          "version": "repo-lines-v1:sha256:3c9cb08d459bda26baf0e3a4a52b2e7ba792e11e04f86ab66ca85ee5c2e9cd95:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ODU0NjAxNTg4MTRiNjA0YTRjMWNmOTBhZGRkYmNhYmMxN2NhMDRjNmJjMGIxMGI3YTBjMWExNmU5ZDI2Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwZTNhYzgwMTdiNTdjMGUyYmQ3NDZiZDdhMTE0OWYyZGJlYWE2OTUwMDkwNDZjMGY0YjY5ZTNhZTZhNmEwMTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZDM4ZGE1YTliMDNkOGRkZWUxYmRhNDE1OGYxYjUzZTlhYmMwNGZhMzk5NWJkNGJkODhhOTQxZDY2NGI4NDkifQ"
+          "resource": "repo://src/components/ReceivePage.svelte#L131-L144",
+          "version": "repo-lines-v1:sha256:dfc8ff30fc1d823b39e8e79d7afefbd70c912349599da4ce13e46bcd696e9bc5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3NGQ4NTM2OTM2YTlhNWNkMGUyZGRhNjE4ZTc2ZDEyNDAxYTk0MjM3YmIwMjkxN2I2NjhiYTI4MTdkOTcwMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjYTUyM2RlMWRlOWUxMDUzYzRlYzk0ZDMxNTg5YTNmMzFjZDFlMzk5OWFjZTk2ZmFmOGEwYWI5MDQ5OWM3NzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNTI5YjRmMzJhOTA2YmZkZDliNDMxODcyNjJlMzNhOTJjNzhmZTY3NGNlMWY4MGE5OTU5Y2JjZDhhODI3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZDM4ZGE1YTliMDNkOGRkZWUxYmRhNDE1OGYxYjUzZTlhYmMwNGZhMzk5NWJkNGJkODhhOTQxZDY2NGI4NDkifQ"
         },
         {
-          "resource": "repo://src/utils/peerMessage.ts",
-          "version": "repo-file-v1:sha256:b7f96911290a70c5a5881e263a3d4b6ee9bd519fb3de14df76ba435b0a65c272"
+          "resource": "repo://src/utils/channelTeardown.ts#L78-L98",
+          "version": "repo-lines-v1:sha256:7f0a3db55ab28cc26448df5c34a76613b800ca3f7061730a8d1e2e35122f9e10:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmMTAwYzg2OWMwYjNkZTJlYmI0Y2I3NDBhOGVhMGQxMGYyYjVhNTJlNTliOTE5ZDlkMzc2OGJhNTAzZDEzMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1YzRjMDIxZjMzYTBmYjQxN2IwZWU2MzcwNmMwMTY0NmI1NmQ1ODA4NjQ3ZTQxOTM0MTg2NTAzMDM1NjIyNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
         },
         {
-          "resource": "repo://tests/dead-channel-peer-close.test.mjs",
-          "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
-        },
-        {
-          "resource": "repo://tests/peer-message-handler.test.mjs#L114-L172",
-          "version": "repo-lines-v1:sha256:2cac3f02a3a6456a1bc0352125eb97429c7e407cd38f2aaa0314172bc2d5bf86:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5N2I0NzZlNjJmYmMxMWFiN2QwYzlkNWQ3YmE0Y2IyYzliOTQ3ODQ3Zjk1ZTg5ZDIxM2FjODY0NTlmMWFmZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlYzFjMGI5NmZmODA1MDczZDUwNDY1Yjc4YTU5MWJiYjZhYTQzMDczMzM5MTk1YTZkZWQxMzhmNGVmMzg2NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1NzJhNGM1NDRhMDgzYTY3Y2U3MjVkODEyYjBkYTFlMjMzNjE3YTczMWY1ZmFlNjA4OTU2YjA3ZDdiNzMwMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMifQ"
+          "resource": "repo://tests/channel-teardown.test.mjs",
+          "version": "repo-file-v1:sha256:a1b80304934eb6e2f19e93b584b3952e9e5a5c7dc0859ea047a437c2e7a91bf3"
         }
       ]
     },
@@ -155,16 +155,16 @@
       "statement": "The file transfer protocol is receiver-ack chunking: the sender emits metaData, waits for EVENT_RECEIVER_ACCEPT, then sends one chunk per EVENT_RECEIVED_CHUNK acknowledgment sent by the receiver — a simple backpressure loop pacing the transfer.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L297-L308",
-          "version": "repo-lines-v1:sha256:39f48d25ef58370e8f9554a9c1bda5290f3518eb04f0bc16f8726a2dec305825:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwY2E1OWIxZWQxZmMwODk3MDcxZWY0NmI2MjcwNmFkZTk4NWE3Y2RmOWI2OGQ4ZWQ2Y2VlYWRhMGIzOTllYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDFkNzNjNDUyMmJlYTM5ZmY4MTVlMjRiY2YxMzExODUzMWQ2NzFlYjNjZjUzMTIxODg1ZTExYTFjNDcyNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5ZmIzODcwMDc0NWQ2ODZmYTZiMDk1ZDI0MzkyMjc1NjkwMmE4MmNhY2Y0YWJiODJkZGM5ZjA0NmNmYThhYjIifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L248-L272",
+          "version": "repo-lines-v1:sha256:625bff8bcee36678529ca6a4b9d2f6b149957eae0c88802779a72fde22143d21:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzZDJmNzIxZmYwYjIyY2M4NjIzYTQwNTE0MWMxNDhjMWJjYjJlMjQ2NDE1Y2ZjZmM0MTRmNjNjMzU2ZjI3NjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyOGEzZmQ3MWExODQxNjQ1ZWE4NjM3MGJhY2JlNzUyYTYxYWNiODE0YWQwNDZlY2U3YzEzZmU0MjNhYjRkZTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5Nzg5ODI5NmExNTg3ZWJlYWM2ZTJkNWM4NWIwZDQ0NGI2YTg4OGUxODVjOWZkMDNjZDcwMWQ4ZTZkZDk0NzQifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L341-L359",
-          "version": "repo-lines-v1:sha256:5a95f4dfdaa71b3948a608e1826f4ef575df6b3a6995783c2aecad24396f4d8e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNTVmNzgxNjJiMGQ2YzBhMWY3MGEyNzZjOWRlNzg3OTZmMWI5OTRhM2VkMDY5YWYxYjhiYTI2YjEyZjE0ZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwNTdkMTg3YjhiYTdmNmVmNThjNzYwMTkyZGFlNGRjNzQ1ZDI5M2M0MjZmYTc2ZDU5YmE5N2EwNmEzODAyZjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0NDBmMGFlMTkxN2Q5Njg4MGM1NzY5NDBhZjA4Nzc4ZTBhMWViOWQ4NjY5ZjFiYjg0NmQ1YmRlZGQ1YzFiY2EifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L372-L384",
+          "version": "repo-lines-v1:sha256:7f6f0360e799ec6192fa32ee09ad56649fa3a28581c202ed26574599df1e1304:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1MjVjNTAwYjNjYWExZTg1YTNhNTRlMzhiYWVkYmE1ZTJmMzZmNzQxZjdlMTIwZTc2YjdhM2IzMTRmMWU4YTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwZGFiMTJmY2RiZThkNDU5Mzg4NDM3YTE2ZDIxNjU4NGJmZGI5MTBjNzU1ZjcxNjUxYjZlYWVjNTBmNTUyNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4YzFlM2ViMzBiYzU2ODc4MDRiNWJlYzliZjRjZTE5MmZhNmZlYzRiNjZmM2MwMDNkY2ZiZmIyZWViNDY5YzkifQ"
         },
         {
-          "resource": "repo://src/components/sender/Sender.svelte#L81-L203",
-          "version": "repo-lines-v1:sha256:1f775dd6297ccabf2e5c09c6514faffeddf9600170ec4a7f6860732f51ba84f0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNDM1NTgxOTJlMmZlNDMxYmJhYTA0ZGI0ZDRiMzZjNTlkMmFhNjUzYTU4NmI2YWMwZmY4NzIzNjA0MmI2OGE5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5N2Q4NjMyZTU0ZTkyOThhYmI5NTg3MjdlMmQ1MTQwOGFiYWYxMzY2MDM1Mzc5MTAxNDBhYmY2NWIzMGFiNjEzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MzU0YTcwNzNmMjgzOWJjYzRjMDdlZjZlMzgxMmMwYWRhZWI5YTg2MTkwZDUxM2U2MWZjODgwNDgxNjcyOGVlIn0"
+          "resource": "repo://src/components/sender/Sender.svelte#L81-L215",
+          "version": "repo-lines-v1:sha256:9d09312cd6751590127f7d1478d73de37dea39edda3ad7ca2f7ddbca84dbc18d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNDM1NTgxOTJlMmZlNDMxYmJhYTA0ZGI0ZDRiMzZjNTlkMmFhNjUzYTU4NmI2YWMwZmY4NzIzNjA0MmI2OGE5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiYWNhNDMxNTQzMTQ0Yzg3MWM3MmIyMTY1MjJhNDg5NTA0ZGM1NjMyN2U0M2JjNDExMDA5Zjk1ZTlmNDM4NjI1IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5N2Q4NjMyZTU0ZTkyOThhYmI5NTg3MjdlMmQ1MTQwOGFiYWYxMzY2MDM1Mzc5MTAxNDBhYmY2NWIzMGFiNjEzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIyNDM4OGI1MzczZTUzYWViMjZiYzE3ODQ4NzU0ODM5MzJlMmMyYzZjMTk2ZjY3OWRjYjVmYzNkOTllMDYwZTdmIn0"
         }
       ]
     },
@@ -221,16 +221,12 @@
       "statement": "The app has no persistence: received files are assembled into an in-memory Blob only when the received byte count exactly matches the declared metaData.size (the completion gate is an exact match, not >=) and downloaded on demand via an object URL (single files and a bulk store-only ZIP export); nothing is stored in IndexedDB, localStorage, or any server.",
       "evidence": [
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L151-L174",
-          "version": "repo-lines-v1:sha256:657bce2d206e44a2b09cc54e355e7d575b68f30f19b06ff747bebe614c872abc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4OTM0OTMxODc1YzFhNWJlYjA0ZTU1NWFmNDZhZjZiYzZhNDNlODk0MzY5MTRmMGQ0NGIwYmI5MDk4OGE0YWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzN2EwMDJjOWUzNGFhM2Y0MTg1MDM3ZWZiNDdlNjI4MzkyNjk0MTczMDI1YjUzZWNmMzg0MmQxNGI1NTI3MzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcyYWVhMjMyOGQ3NDQ5MTY3ODQ0Zjg3MzhlMzEwNzhiMjYzNzgyZThmM2RmNzlmNjAyYjg4ZGJkZjQ0MDkwYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwOWJhMTY0OTc0ZDg4Nzc3MTVlNjk3MTBhYzlhYWI0ZmZmZmNiNzg1ZDkxODI4ZmM0MGQyYjZmMzRlZTM4NWQifQ"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L372-L388",
+          "version": "repo-lines-v1:sha256:5b73d11be2b8da837253ca95d703f1d4cf9a6fda11abd2a11bd82209b15721f4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNTVmNzgxNjJiMGQ2YzBhMWY3MGEyNzZjOWRlNzg3OTZmMWI5OTRhM2VkMDY5YWYxYjhiYTI2YjEyZjE0ZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwZGFiMTJmY2RiZThkNDU5Mzg4NDM3YTE2ZDIxNjU4NGJmZGI5MTBjNzU1ZjcxNjUxYjZlYWVjNTBmNTUyNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NzlkZGYwZDdiZGI2ODYyZjAzN2I2NjIxMDMzNjliZGIzNDZiNzI0ZTMwMzM0NTc4MzRjZTJmNGMxZTA5NWUifQ"
         },
         {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L248-L272",
-          "version": "repo-lines-v1:sha256:bae95bc02645dd877df2cbd9f79b02526c5ea4111747a041f485f6228e6e3046:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmYTQ3NzVjOWIzMTFmNGQ4NTliMDQ3NTgxMWQ5ZGY0ZDQ1YmI0Nzc3MWI1OWMwMTA2MmUyNzA4MTk3NjZhYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxMDc0ZDZmN2E3YzZmNjMxNzVjNDk5YTMwOTlkYzJhOGVlZDBiMWE0MjcyNjlmYzVlYWI5MGIxOTIwZWExM2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4M2MzZjY4OWIyYmYxMmM2OTlkYzkxZDQwZmZmMjFlZmVjNjVlMWJmYjlmZjU5ZTY2YzBlOTJhNWM5OGQ2MmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxYTYzNDRjMTg5ZTg4ODIzMzY5NGU2OWMxMjIzOGFkOTBiZTdiNzBkNTA5MjhjZGY0ZThlYjc1NTFmOWEyZTgifQ"
-        },
-        {
-          "resource": "repo://src/components/receiver/Receiver.svelte#L372-L505",
-          "version": "repo-lines-v1:sha256:92e994dbc08c5dd72d8c0c8853cbe13ea60e1fb93eb766f79dc6d7b57c471954:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmNjNlYzNkM2I5MTI3MTExNGU0YmJkYzI4OWU4MzBiMDI1MDcwN2I1ZGI0YjNlMDE0YjM5MGQ4NTNkZTUzNzllIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzZWM0OWM1NGFjMDBjMDMwNzc2MDU2ZDAzNTY2NzQ3NmI4ZjU3OWNmNDAyMWM5ZWI5NDBlZjc5MjRiM2FjZGE3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1M2U0MDJkNDk1MzllNjkwYjc4ODZmYWI2Mzc4OGRjNGRiMzY1YzdkM2YzYTUxMThjZDIyMTkzN2UzNDhiYjJjIn0"
+          "resource": "repo://src/components/receiver/Receiver.svelte#L513-L520",
+          "version": "repo-lines-v1:sha256:d78f9b174c52ceefbd107aab810f09a4b64690b34f14aec1d719522eeed92000:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjYzZWMzZDNiOTEyNzExMTRlNGJiZGMyODllODMwYjAyNTA3MDdiNWRiNGIzZTAxNGIzOTBkODUzZGU1Mzc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTllYzZiOWVkMjE5YmI5NmM5ZDY2MGJiMWYwNzVjYjJmY2UxODE5ZjM0ODk4N2EyN2IwYmQwY2FmNDEwM2NmZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2VjNDljNTRhYzAwYzAzMDc3NjA1NmQwMzU2Njc0NzZiOGY1NzljZjQwMjFjOWViOTQwZWY3OTI0YjNhY2RhNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTcxYTFlYzM3OGE0MTcyOTgwYzc2MjBlNGM5MzVjMDU1OTcyMDBhYTFjNDA5M2EyY2YzZDRmZjVlMzRmOWJmNiJ9"
         }
       ]
     },
@@ -298,7 +294,7 @@
         },
         {
           "resource": "repo://tests/dead-channel-peer-close.test.mjs",
-          "version": "repo-file-v1:sha256:ad85b489c5e8869144d07e9ed71925e2a48537e3211fe0e74f5c1b265c4db453"
+          "version": "repo-file-v1:sha256:3c803c777bb099be47930e807a298435a0f86eacc59f4662306898901d91b6d2"
         }
       ]
     },
@@ -315,10 +311,120 @@
           "version": "repo-file-v1:sha256:072e797c0ce7d084e154543fcfd577fb6e4d6ddb09915fbb12632c082f9d4762"
         }
       ]
+    },
+    {
+      "id": "claim_6c6881a796b74da698d8e2b886761e66",
+      "statement": "The receiver bounds peer-driven incoming files against resource exhaustion (PR #131): before registering a new entry, onMetaData counts active (non-Success) entries against MAX_INCOMING_FILES (32) and the total declared size of every not-yet-removed entry against MAX_TOTAL_RECEIVED_BYTES (8 GiB); a frame that would exceed either cap is not registered and is rejected back to the sender with EVENT_RECEIVER_REJECT plus a single error toast, and the frame's own id is excluded from both counts so a re-offer of an already-held file never counts against the caps.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/Toast.svelte#L1-L12",
+          "version": "repo-lines-v1:sha256:a139a888acb1f4cab268182b15f26cbaf6befb56e5502ee08d8d43ad5734faa9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YWJjOGVkNzU0MzgyMjA2NWMwMjlmNWVhMjUyZDEyMjNkNzZhYTdkMmQzZDRmYjEyNTgxMmY2YjVhOTlkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMTEyNGI2MWExMjQ0YTAyNzk1NGM3ODcwYWVkOGIzMTY4N2I1OGQxMGQ4NGZiMDVkMjQxYTIwZjU1NzRmOTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmYzI0NDY3Y2IwYzZkMDEwMDY3ODA4OWQ0ZjhmMTRiYjIzNzVkOGI4YjkzODcxMjAzMTc3ZmIwMmY5MjdlNjIifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L63-L124",
+          "version": "repo-lines-v1:sha256:7c2fbcbdbc924bd132cb1ff5d00e7c20a76dac1ab84e604847fa41e9cb990e7b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwZTQwMWYwNDMzZjY3MTljZTY2ZTRhMGI0ZWVjODQ2NDg1YzkwZGJlMDI5NjBhYWVlNDYzMzJlYTdjNWNlZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZDI4YzYwNTBlZWFjNTZjNGRmNmIyOGEyMDI0NGVhNGE3ZjNjOWRhMjkyMjUzZDdhYmY2YzllNTE4MzA0NDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMDEyMzdjYzgxMDI1ZTJhZjUxNzlkYTRkNDk1ZjY1ZGIxNjU2NzgwNjQ1MjRhOGZlZWY1MmM3MDMxOTBkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljMzZkNWU1OWE2ZWM2ODk4ZjdhNjUxMzEwNDlmY2U5ZTQ4MzJiODdjNDkwNDgzOTc1ODcyMzAxOGMzNDE5YjAifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts#L68-L91",
+          "version": "repo-lines-v1:sha256:e99d076d9f0e60ae74091a1992f6c704d8f5cadca5c7ac691b368e6c86b9d2b5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiZTk5NmYxNmNmNzUyMDZkNjhmZTIyZjQwZjU4Y2YwNGRiYmMwZTZmMjExNDY5YjJkMjYzMTVkMWEwMjU2ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmYzVmOTVjZDc2ZmZjMGYyOWQ5MGNjZTI4MjNlNjEyMzg3ZWIyMmVkYWUzYjA1NThkZTcxNmIxYzkwMmFkNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmZjBhMzE1ZTM3MTk1YjQ3ZjA3M2QyNWQ0ZjNmNTY3MzNlNDQ5YTNlZTc2MjNlYzg3NGE3NjgwM2E2MDFkM2YifQ"
+        },
+        {
+          "resource": "repo://tests/receiver-incoming-caps.test.mjs",
+          "version": "repo-file-v1:sha256:1d6d4dec85f2eebb0f0dbf4810232a37b0a993d5e76f94b62d8b213ecc80e3b0"
+        }
+      ]
+    },
+    {
+      "id": "claim_3ce7c96eae8442cab819dba7a3515ad9",
+      "statement": "Metadata size is validated to be a positive integer (PR #127): validateFileMetadata rejects a MetaData.size that is non-finite, <= 0, or not an integer, because a fractional size can never satisfy the receiver's exact-match completion gate (receivedSize === metaData.size over integer chunk byte lengths); humanFileSize clamps its unit index on both ends (Math.max(0, ...)) so a peer-controlled size in (0, 1) floors to unit 0 instead of indexing units[-1] to undefined.",
+      "evidence": [
+        {
+          "resource": "repo://src/utils/humanFileSize.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:e0ca042e6196a7e14da5537dbde585d69cb960062248b3f1cbc66d3a6b7de41b:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ3MDJjNTczMDgzNDdiNzVjMzY4OTViMDJiYmQzOTgyMzBjMmE3MjVhZDYzYjQ0ZjMwOGJhOWRkODBmMzI3ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://src/utils/validator.ts#L7-L17",
+          "version": "repo-lines-v1:sha256:394bf2bef7aa46f2464ed4d60e911a7d2eec4ae1ad1c1cd35a1523868801e309:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MDg5ZjAzNzlkMzI3ZTBmZjBlNTNjMGQ1Y2U2MThmYzlhNzk2NjQyZjgxMzJmYmQwOWVkODU3OTliYTJiNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUwMjU0NzhhY2Y3Mjk2OWZjZDk5OWZjYWFlNzZkNWM4MDkyMmE5YTA3NWIxM2U2ZjI2YmZjMWRhMmM1OTg4OTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5ZGY4NDhkNjg5NjU5NjQ2YWNhYTBhYzIzNWVhMGQ1YTRlMzAzNGUzMjAyNWNlZjNjYzJiZjg1NWRhY2YxOWYifQ"
+        },
+        {
+          "resource": "repo://tests/human-file-size.test.mjs",
+          "version": "repo-file-v1:sha256:422aaa88f9df8c9791faa8f53d7929459ef5e9dcbb01282ed19f0302d3ff7070"
+        }
+      ]
+    },
+    {
+      "id": "claim_94159e818f5a4cc88c8bbb02b27b13b7",
+      "statement": "The dead-channel onerror/onclose teardown that previously lived copy-pasted in OfferPage.svelte and ReceivePage.svelte is now the shared createChannelTeardown(options) factory in src/utils/channelTeardown.ts (PR #135, mirroring the channelSender.ts guarded-send and peerMessage.ts handler dedups: every dead-channel hardening since PR #74/#104 had to land on both pages in lockstep, and a future hardening on only one page would silently desync peer behavior). Both pages assign dataChannel.onerror/onclose to the helper's onerror ('WebRTC error' toast) and onclose ('Disconnected' toast). The helper is the single place that: toasts, resets the page's isConnecting via markNotConnecting(), runs the page-specific lost hook (OfferPage clears the dead generation's offerLink; ReceivePage passes none), propagates 'connection lost' into BOTH file pipelines via getSender()?.onChannelClose() / getReceiver()?.onChannelClose(), and releases the RTCPeerConnection guarded on connectionState !== 'closed' (closing the data channel alone leaves the ICE agent, UDP sockets, and STUN/TURN keepalives live; close() throws InvalidStateError on an already-closed peer, which an error+close double-fire or a racing regeneration would otherwise surface). The getConnection option must read the CURRENT RTCPeerConnection at fire time, not a captured one: the offer page reassigns its connection to a new peer on every regeneration, so a handler that survives a regeneration race must close the peer that actually owns the dying generation (ReceivePage's connection is a const, so a plain getter covers it too). Pinned by tests/channel-teardown.test.mjs and tests/dead-channel-peer-close.test.mjs.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/OfferPage.svelte#L155-L178",
+          "version": "repo-lines-v1:sha256:004ffbf3f6aa0c77979ce922ac3cf26ef09d10ee17654e89d1f6af459b537218:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3NGQ4NTM2OTM2YTlhNWNkMGUyZGRhNjE4ZTc2ZDEyNDAxYTk0MjM3YmIwMjkxN2I2NjhiYTI4MTdkOTcwMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjYTUyM2RlMWRlOWUxMDUzYzRlYzk0ZDMxNTg5YTNmMzFjZDFlMzk5OWFjZTk2ZmFmOGEwYWI5MDQ5OWM3NzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNTI5YjRmMzJhOTA2YmZkZDliNDMxODcyNjJlMzNhOTJjNzhmZTY3NGNlMWY4MGE5OTU5Y2JjZDhhODI3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTZiYmU1ZGI2NmNlY2E5YjVhZTI1MTkyMzg1ZjhlZWZlNGJlNWQ5Y2YyMmVhNzM2NmE1ZjExYTg2YWU4YmIifQ"
+        },
+        {
+          "resource": "repo://src/components/ReceivePage.svelte#L131-L144",
+          "version": "repo-lines-v1:sha256:dfc8ff30fc1d823b39e8e79d7afefbd70c912349599da4ce13e46bcd696e9bc5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3NGQ4NTM2OTM2YTlhNWNkMGUyZGRhNjE4ZTc2ZDEyNDAxYTk0MjM3YmIwMjkxN2I2NjhiYTI4MTdkOTcwMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjYTUyM2RlMWRlOWUxMDUzYzRlYzk0ZDMxNTg5YTNmMzFjZDFlMzk5OWFjZTk2ZmFmOGEwYWI5MDQ5OWM3NzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNTI5YjRmMzJhOTA2YmZkZDliNDMxODcyNjJlMzNhOTJjNzhmZTY3NGNlMWY4MGE5OTU5Y2JjZDhhODI3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZDM4ZGE1YTliMDNkOGRkZWUxYmRhNDE1OGYxYjUzZTlhYmMwNGZhMzk5NWJkNGJkODhhOTQxZDY2NGI4NDkifQ"
+        },
+        {
+          "resource": "repo://src/utils/channelTeardown.ts",
+          "version": "repo-file-v1:sha256:bafcfa10f93b8a661ebfa56e617d3d40b75396424e6d5941f11e213718be059a"
+        },
+        {
+          "resource": "repo://tests/channel-teardown.test.mjs",
+          "version": "repo-file-v1:sha256:a1b80304934eb6e2f19e93b584b3952e9e5a5c7dc0859ea047a437c2e7a91bf3"
+        },
+        {
+          "resource": "repo://tests/dead-channel-peer-close.test.mjs",
+          "version": "repo-file-v1:sha256:3c803c777bb099be47930e807a298435a0f86eacc59f4662306898901d91b6d2"
+        }
+      ]
+    },
+    {
+      "id": "claim_9514de98cb334ec2ade455f50b2b09b6",
+      "statement": "The static build must stay base-relative so a sub-path deployment (an org GitHub Pages site or a self-hosted base) does not 404 its own assets: PR #138 made the PWA manifest use a relative start_url ('.') and relative icon paths ('./pwa-192x192.png', './pwa-512x512.png') instead of site-root-absolute '/…' (which would resolve to the deployment root and 404 under a sub-path), and main.astro derives the favicon.ico and manifest.webmanifest links and the og:image from Vite's import.meta.env.BASE_URL — the og:image is absolutized against the configured Astro.site origin when present, else left base-prefixed for scrapers to resolve against the page URL (replacing the earlier hardcoded canonical-domain og:image). tests/subpath-static-references.test.mjs (PR #138/#139) pins the whole class: the layout's static references, the manifest's relative start_url/icons, the service-worker registration path auto-injected by astrojs-service-worker (base-prefixed <base>/service-worker.js), and the emitted service-worker.js's relative-only precache URLs — a root-absolute registration or precache URL would 404 against the <base>/ service-worker scope.",
+      "evidence": [
+        {
+          "resource": "repo://public/manifest.webmanifest",
+          "version": "repo-file-v1:sha256:16dd724dc4f788907782c1042846bca47cb898205e03cbbd65c2b4c159136d19"
+        },
+        {
+          "resource": "repo://src/layouts/main.astro#L15-L44",
+          "version": "repo-lines-v1:sha256:fe35837f2f4fcbef130fffa0a107cd7cad319aeed421ca99a1e8f3ba29d0b8f4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5MGU4MTE2MjM0YWFjZTRhMDBlZDU5ZDg4NWVkZDM1MjExZGU4NWI0NmVhYjIxM2ViMmJmNWYwMjg4NzZmNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlNGYxMThjN2QxZWI2MzA3MmZlMjk4YmE3NWY5NDJhMTBlZWIwNzA3MWJkOGJlM2I1N2UxYjFiMWRjMGUwNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQwNjFlZTJlY2UxODc5OTg0NmQ1MGEwNTkwODk4ZDBkMTQ4ZDFiYjlhZDU2ZWZhMWUxMjc5NGY3YWRlNTI3MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJiNWJlMzI0NDkyMjYyYTdiN2E4Y2M4YWQxMjA5YTVkMGU4ZDk2MDIzNjk3MWUwYWI5ZjlhZWE5MjYxOWU1YjUifQ"
+        },
+        {
+          "resource": "repo://tests/subpath-static-references.test.mjs",
+          "version": "repo-file-v1:sha256:9984718607415f4f5988cf58935a33d927d35467e2333ac52e6072aeaa72ff62"
+        }
+      ]
+    },
+    {
+      "id": "claim_a99f64a7b3524c6f86c9a18facf6bc82",
+      "statement": "The per-file progress + bitrate UI-update block that previously lived copy-pasted in Sender.svelte (sendNextChunk) and Receiver.svelte (processChunk) is now the shared updateTransferProgress(stats, sentBytes, totalBytes, writeTo) helper in src/utils/transferProgress.ts (PR #136, mirroring the channelSender.ts/peerMessage.ts/channelTeardown.ts dedups): pure math + state writes only (no toasts, no channel sends — the surrounding chunk-slicing/ack/blob/reject pipeline stays in the components). It clamps progress to [0,100] with a NaN→0 fallback (uniform for both sides), computes bitrate = sentBytes/elapsed where elapsed is time-since-ACCEPT (stats.startTime) floored to a 1 ms minimum — a small file whose accept and first progress update share a millisecond makes the raw denominator 0, and bytes/0 is Infinity, a value that would be stored in $state and render as a misleading '0 B/sec' (PR #134) — and advances nextProgressUpdate by PROGRESS_UPDATE_UI_STEP clamped to 100. The receiver passes receivingFileStatsMap[id] as the stats argument, so its bitrate denominator reads the stats clock (receivingFileStatsMap[id].startTime, the onAccept-time clock initialized in onAccept); the helper reads stats.startTime regardless of call site, keeping the two call sites byte-identical. Pinned by tests/transfer-progress.test.mjs and tests/bitrate-zero-elapsed-guard.test.mjs.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L373-L386",
+          "version": "repo-lines-v1:sha256:008659bd38d492f9633e265f8a009ac9bdbcc942b5921d4125cc3018d76d5ad7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhYzc3ZTVmMmM0OGI3YWM0MGU4ZDRlNDk3N2Y4MTM1MTJhNmQzNjk2Y2QxM2M1NDdmM2E1YTQ3YmIyYThkZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkNGJkMDY1NjgxZDIwMzQwMDhiYzZhNTQ0NjNiYThiMzU1Yzk4MzllZjFjN2UwYTMzYTI1NmQyODMwMmIyNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgxZTQwNzJkOTNkZGFiNzY1N2U2MTVhM2Q4ZGIwM2Q3MTg0ZjVmZjY3ZTJhZjhhNWEyYzY5MmVkYzE2Y2YyNWEifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L308-L314",
+          "version": "repo-lines-v1:sha256:ad72e3f0c6582ebd063b1d27738d11bea9e179e45de57cfdeb9379d8e0a748ef:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFmYzAzNGUxZGQyMjQ0ZDc0YWI5Yzg2MzYyYTA0MDMyOWJlNWYxMDk2YjRhNzZjNWI1MjI0MGMyOGJmYjYwZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RjZjQ1NzgyMWUxMzAyMWVkNjFiYzdmNGE0NTE1ZTNlODZmOGQ4NzBjNWZlZDc5MzZhMDVjM2NlMDM1NDc2MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGIzMTJlN2Y0ODE1MzBjOWIyODEwZjY0ZmJiM2UzOTQyNGU5OWMyODQ3MWI5NDA0ZjgyM2YwZjU5NGI5M2QxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWI5ZTU0MThmNGVkOTViOTBjNzVmZWI1ZDk4MTU2YzZiY2FmNzMxNmJiODY3YTU0NTdiZTBhNmEzYzhlOTI3ZSJ9"
+        },
+        {
+          "resource": "repo://src/utils/transferProgress.ts#L52-L72",
+          "version": "repo-lines-v1:sha256:c5f0c12f8d6e8ad4bcb240a07f3d3f1c1ae68007f78527c3e2bfda2f0de6d2a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1Y2ExODFkNjcyYWRhZWU4MWUxOTNiM2YyMzdiM2FlMzk3YzFhNWQ5OWJmNWM3YWUwOGM4NWExYmE2ZjQzZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMxOTVkNTQ3NWUwODgzYTcyZTU3MjMwNzBkZTMxM2FhYWNlMWI5OGI2MDBkZjQ5MTdlYzBhMzkyYzRhZDE1MjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/bitrate-zero-elapsed-guard.test.mjs",
+          "version": "repo-file-v1:sha256:233eafbc8b00a4ccda8cb213e8604751ec0127af92a2d0ab2e75d3c673e41ab9"
+        },
+        {
+          "resource": "repo://tests/transfer-progress.test.mjs",
+          "version": "repo-file-v1:sha256:0ced2d515df7d40d286e62f8c4a351419e9b66da16faa8ecc3d1bc969662574a"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-30T06:42:53.746Z"
+    "at": "2026-11-01T07:26:15.531Z"
   }
 }

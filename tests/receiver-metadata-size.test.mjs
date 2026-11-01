@@ -350,15 +350,28 @@ const { validateFileMetadata } = await loadTranspiled('validator.ts');
   );
 
   // The progress clamp remains (defense in depth on top of the exact gate).
-  assert.ok(
-    /Math\.min\(\s*100,\s*Math\.max\(\s*0,\s*Number\.isNaN\(\s*rawProgress\s*\)\s*\?\s*0\s*:\s*rawProgress\s*\)/.test(
-      source
-    ),
-    'Receiver.svelte must clamp progress to [0, 100] with a NaN -> 0 fallback'
+  // After the dedup it lives in the shared helper (src/utils/transferProgress.ts),
+  // which the receiver delegates to; assert the clamp in the helper and that
+  // processChunk still routes through it with the correct stats/UI targets.
+  const helperSource = await readFile(
+    join(here, '..', 'src', 'utils', 'transferProgress.ts'),
+    'utf8'
   );
   assert.ok(
-    /receivingFileStatsMap\[id\]\.progress\s*=/.test(source),
-    'Receiver.svelte must assign the clamped value to stats.progress'
+    /Math\.min\(\s*100,\s*Math\.max\(\s*0,\s*Number\.isNaN\(\s*rawProgress\s*\)\s*\?\s*0\s*:\s*rawProgress\s*\)/.test(
+      helperSource
+    ),
+    'the shared helper must clamp progress to [0, 100] with a NaN -> 0 fallback'
+  );
+  assert.ok(
+    /stats\.progress\s*=/.test(helperSource),
+    'the shared helper must assign the clamped value to stats.progress'
+  );
+  assert.ok(
+    /updateTransferProgress\(\s*receivingFileStatsMap\[id\]\s*,\s*receivingFileStatsMap\[id\]\.receivedSize\s*,\s*receivingFile\.metaData\.size\s*,\s*receivingFiles\[id\]\s*\)/.test(
+      source
+    ),
+    'Receiver.svelte must route its progress + bitrate update through the shared helper'
   );
   console.log(
     'ok - Receiver.svelte completion gate is exact (===), overshoot rejects; progress clamp present'

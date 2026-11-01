@@ -1,0 +1,57 @@
+# CI quality gate for zero-share.
+#
+# Enforces the same gates the locally-installed, bypassable git pre-commit hook
+# (.zerofactory/precommit.sh) enforces per developer, but on every push to main
+# and every pull request so no commit can merge with a broken test suite, a type
+# error, or a failing build.
+#
+# Order mirrors .zerofactory/precommit.sh (set -e, sequential):
+#   1. npm ci            install dependencies from the lockfile
+#   2. npx tsc --noEmit  typecheck gate
+#   3. npm run build     astro build gate
+#   4. npm test          regression-guard suite (tests/*.test.mjs)
+#
+# NOTE: do NOT add `astro check` here — @astrojs/check is not a devDependency
+# and its install prompt hangs non-interactive shells. The gate set is exactly
+# what the pre-commit hook enforces.
+#
+# Node version: the project floor is `engines.node >= 22.18`; the regression
+# tests rely on Node's built-in TypeScript type-stripping, enabled by default
+# since 22.18.0. `node-version: 22` tracks the latest 22.x patch, satisfying it.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# The pipeline only ever needs to read the repo.
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    name: Typecheck, build & regression-guard tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck (tsc --noEmit)
+        run: npx tsc --noEmit
+
+      - name: Build (astro build)
+        run: npm run build
+
+      - name: Regression-guard tests (npm test)
+        run: npm test

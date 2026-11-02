@@ -5,11 +5,14 @@
 # and every pull request so no commit can merge with a broken test suite, a type
 # error, or a failing build.
 #
-# Order mirrors .zerofactory/precommit.sh (set -e, sequential):
+# Order mirrors .zerofactory/precommit.sh (set -e, sequential; the hook's
+# format/lint phase runs prettier --write + eslint --fix, so CI enforces the
+# same gate in check mode — a lint error must fail the run, not rewrite files):
 #   1. npm ci            install dependencies from the lockfile
-#   2. npx tsc --noEmit  typecheck gate
-#   3. npm run build     astro build gate
-#   4. npm test          regression-guard suite (tests/*.test.mjs)
+#   2. npm run lint      format + lint gate (prettier --check . && eslint .)
+#   3. npx tsc --noEmit  typecheck gate
+#   4. npm run build     astro build gate
+#   5. npm test          regression-guard suite (tests/*.test.mjs)
 #
 # NOTE: do NOT add `astro check` here — @astrojs/check is not a devDependency
 # and its install prompt hangs non-interactive shells. The gate set is exactly
@@ -32,7 +35,7 @@ permissions:
 
 jobs:
   quality-gate:
-    name: Typecheck, build & regression-guard tests
+    name: Lint, typecheck, build & regression-guard tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -46,6 +49,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Lint (prettier --check . && eslint .)
+        run: npm run lint
 
       - name: Typecheck (tsc --noEmit)
         run: npx tsc --noEmit

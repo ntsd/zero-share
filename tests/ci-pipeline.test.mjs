@@ -7,11 +7,14 @@
 //
 // The fix adds a minimal .github/workflows/ci.yml that runs on every push to
 // main and every pull request and enforces exactly the gates the pre-commit
-// hook already enforces:
+// hook already enforces (the hook's format/lint phase runs prettier --write +
+// eslint --fix, so CI enforces the same gate in check mode — npm run lint must
+// FAIL on lint errors, not silently rewrite files):
 //   1. npm ci            install dependencies from the lockfile
-//   2. npx tsc --noEmit  typecheck gate
-//   3. npm run build     astro build gate
-//   4. npm test          45-file / 49-test regression-guard suite
+//   2. npm run lint      format + lint gate (prettier --check . && eslint .)
+//   3. npx tsc --noEmit  typecheck gate
+//   4. npm run build     astro build gate
+//   5. npm test          45-file / 49-test regression-guard suite
 //
 // This test verifies the pipeline exists, is well-formed YAML, is wired to the
 // right triggers, and pins each gate to the project's ACTUAL commands (read
@@ -96,9 +99,11 @@ assert.ok(
 );
 const steps = gateJobDef.steps;
 
-// The four gates, in the order the pre-commit hook enforces them.
+// The five gates, in the order the pre-commit hook enforces them (format/lint
+// phase first, then build phase, then test phase).
 const GATES = [
   { label: 'install (npm ci)', cmd: 'npm ci', re: /(^|\n)\s*npm ci\b/ },
+  { label: 'lint (npm run lint)', cmd: 'npm run lint', re: /(^|\n)\s*npm run lint\b/ },
   { label: 'typecheck (tsc --noEmit)', cmd: 'npx tsc --noEmit', re: /(^|\n)\s*npx tsc --noEmit\b/ },
   {
     label: 'build (astro build via npm run build)',
@@ -118,15 +123,16 @@ for (let i = 0; i < GATES.length; i += 1) {
   );
 }
 
-// Ordering: install < typecheck < build < test, mirroring .zerofactory/precommit.sh.
-// Typecheck before build mirrors the pre-commit build phase (tsc first, then
-// astro build); test runs last so a broken suite is only reported once the
-// app already built.
+// Ordering: install < lint < typecheck < build < test, mirroring
+// .zerofactory/precommit.sh. The hook's format/lint phase runs first; typecheck
+// before build mirrors the pre-commit build phase (tsc first, then astro
+// build); test runs last so a broken suite is only reported once the app
+// already built.
 for (let i = 1; i < gateIndex.length; i += 1) {
   assert.ok(
     gateIndex[i] > gateIndex[i - 1],
     `the ${GATES[i].label} gate must run after ${GATES[i - 1].label} ` +
-      `(order: install -> typecheck -> build -> test)`
+      '(order: install -> lint -> typecheck -> build -> test)'
   );
 }
 
@@ -157,11 +163,24 @@ assert.ok(
 );
 
 // ---- Cross-reference the gate commands to the project's ACTUAL commands ----
-// `npm run build` and `npm test` only count as the real gates if the underlying
-// package.json scripts invoke the intended tools. This catches a future edit
-// that swaps the scripts for a no-op / stub while leaving the CI `run` lines
-// untouched (which would make CI green without doing the work).
+// `npm run lint`, `npm run build` and `npm test` only count as the real gates
+// if the underlying package.json scripts invoke the intended tools. This
+// catches a future edit that swaps the scripts for a no-op / stub while
+// leaving the CI `run` lines untouched (which would make CI green without
+// doing the work).
 const scripts = pkg?.scripts ?? {};
+
+// Lint gate: `npm run lint` must actually run the check-mode format + lint
+// tools. CI must use check mode (prettier --check, eslint without --fix), not
+// the write/fix mode the pre-commit hook uses — CI should FAIL on lint errors
+// rather than silently rewrite files.
+assert.ok(
+  typeof scripts.lint === 'string' &&
+    /prettier\s+--check\b/.test(scripts.lint) &&
+    /eslint\b/.test(scripts.lint),
+  `package.json scripts.lint must run prettier --check and eslint in check mode ` +
+    `(got ${JSON.stringify(scripts.lint)})`
+);
 
 // Build gate: `npm run build` must actually run the Astro build.
 assert.ok(
@@ -199,6 +218,6 @@ assert.ok(
 
 console.log(
   `ok - CI pipeline enforces ${GATES.length} gates on push(main)+PR: ` +
-    `install -> typecheck -> build -> test; Node major ${nodeMajor} >= floor ${enginesFloor}; ` +
+    `install -> lint -> typecheck -> build -> test; Node major ${nodeMajor} >= floor ${enginesFloor}; ` +
     `protects ${testFiles.length} regression-guard test files`
 );

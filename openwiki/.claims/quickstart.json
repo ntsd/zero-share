@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:4cd6e26b469c4c21e378385e408d3c59708d8ef43ed0809c2ccbf16eb877ad1d",
+  "pageVersion": "sha256:9c666fa9f2c0f4960b38600249ca64a1f20b9e0f7c0b5f5815653425436cb026",
   "claims": [
     {
       "id": "claim_5eab5f1f06384ca79480134c91e0bb46",
@@ -74,7 +74,7 @@
     },
     {
       "id": "claim_723892aec58942a299d2fc732ea50d7a",
-      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), typecheck (tsc --noEmit — added in PR #130 as the one-command typecheck gate, since the lockfile previously pinned typescript 5.6.3 while package.json declared ^5.9.3, breaking clean installs with 11× TS2315 'Uint8Array is not generic'), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over ALL forty-nine tests/*.test.mjs regression-guard files in one invocation; the test-case count inside them is 59), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 49 regression-guard files).",
+      "statement": "The npm scripts are dev/start (astro dev), build (astro build to ./build), typecheck (tsc --noEmit — added in PR #130 as the one-command typecheck gate, since the lockfile previously pinned typescript 5.6.3 while package.json declared ^5.9.3, breaking clean installs with 11× TS2315 'Uint8Array is not generic'), test (node --no-warnings --test \\\"tests/*.test.mjs\\\" — the Node built-in runner over all tests/*.test.mjs regression-guard files in one invocation; 56 files / 66 test cases as of this sync), lint (prettier --check . && eslint .), format (prettier --write .), and protogen (protoc + ts-proto regenerating src/proto/message.ts). The Zero Factory precommit hook's default/all path runs format (npx prettier --write . + npx eslint . --fix), then build (npx tsc --noEmit + npm run build), then test (npm test — all 56 regression-guard files as of this sync). The suite's file count is re-derived at HEAD by tests/ci-pipeline.test.mjs (a >= 40 floor, deliberately not a hard number), so the prose count is a snapshot as of this sync, not a contract.",
       "evidence": [
         {
           "resource": "repo://.zerofactory/precommit.sh#L28-L45",
@@ -185,10 +185,52 @@
           "version": "repo-file-v1:sha256:aadcb71f770da019939479d6403119fd40813a1f13b860e5904a542f2af58f0d"
         }
       ]
+    },
+    {
+      "id": "claim_151073621e55493b98362061cf61c3d0",
+      "statement": ".github/workflows/ci.yml (PRs #141/#142) defines a single quality-gate job on ubuntu-latest with read-only contents permissions that runs on every push to main and every pull request, enforcing the same gates the locally-installed, bypassable .zerofactory/precommit.sh hook enforces per developer: npm ci, npm run lint, npx tsc --noEmit, npm run build, npm test — in that order, mirroring the hook's set -e sequential phase order (install -> lint -> typecheck -> build -> test). The hook's format/lint phase runs prettier --write + eslint --fix, so CI enforces the same gate in check mode (npm run lint = prettier --check . && eslint .) and fails the run on lint errors instead of rewriting files.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L25-L63",
+          "version": "repo-lines-v1:sha256:c80de75fa9a32cfe27ad906c679577c3a6199ca49818fe6294718aa4e2683f9d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2ZTFiMzJmYTA5MDc5YWUyZjAwMDFmZmYwZWNhMjdiNDk4NTk1N2Q0ZWI0ODU3OTI5YjNjZjA1OGZhYWU1NDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2MjFiOTgzMmU5Mzc1YzljYmE5MzcwMDk3MDk3NGI0MTk0ZjRiMDQ1ZmQ4NzQ1MzIyYzg5MjQ3YWU2N2M3OTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1MzI4MTNjYzQ2ZmExMGZmZDU4Y2FhOWNhZDI2NmU3ZGE1MGFhMzJmZjFhZmMyNzc0MjdmODZjOTk0NzJiNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://.zerofactory/precommit.sh",
+          "version": "repo-file-v1:sha256:ede488c84fd281edef8c0e072b469017df1ab1b74f8b7f3357a38c68a5e20601"
+        }
+      ]
+    },
+    {
+      "id": "claim_795a93d3df48438aaa616306a27d9c2f",
+      "statement": "The CI pipeline pins node-version 22 with the npm cache, satisfying the package.json engines.node >= 22.18 floor because the regression tests rely on Node's built-in TypeScript type-stripping, enabled by default since Node 22.18.0; astro check is intentionally absent from the gate set because @astrojs/check is not a devDependency and its install prompt hangs non-interactive shells.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L44-L48",
+          "version": "repo-lines-v1:sha256:174487008f73ca6261c7108849fa05580673ab9691572c054a3db32deb2aeb68:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzZkNzEwYTE3NjI4OTVjZDRjOTNjNmEyYTI5ZTYyOTI0ZDZmNzMwZDk1ZTJhZDE3N2NhNTA0OGViNTY5YzlhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2VlOWY2Y2MwZDUxNDI5OGY3NmU3OTE4YjQwZTBmNWZmYjBkNTY0ZWFkMjgyYmFiMDEzNTdhMzhmMGYwMzVjMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzM0OGU4Nzc5MWZiZTE5N2Q1N2ZkYzU2Njk2OWM2MzU1NmMxY2VlZDhlN2Q5ZTExNTBjZjE0MDkxNjY0YzA3YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDU3Y2FjMTJhYWQxMzc4N2NmNDNjN2E0NjMxN2IwOTM0MjU1YzUxZTk4NmM3YmJlNzVlNjg2NWE0MDNkMjViYiJ9"
+        },
+        {
+          "resource": "repo://package.json#L5-L6",
+          "version": "repo-lines-v1:sha256:f9640202e053a474b58934d6f1eb329a76a1e8aa4cadd76a3664cbfaaf1cbc26:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWY2MDE1NTQxMjJlZmU4NTVkNTZlMTBjYzliYWYyMDMxY2EzZjRhYjExY2RiYTIyZjFlYmM1ZDM5YTc1NTgyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWQ5ZGMwMjAyMmQ3ZTI5M2VmOGRiMmFmODU2ODU5NDMzNzM3Mjk5YWMyMDI3YzE2NzVkYmUwM2NiZjY2NzUyOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzU0NmQ0NTkxMTcxNjQ1ZmZmZWQ3Mzc0MjgwYjM4NGIyODQ0ZDk0Y2U2M2E3YjhhZmMyMDhkMjA4ZjBkMmQ3OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWUyM2JmYTExMjc0ZmJiZjM2ZjUyYmYzOTc1YzA5YTAzNzY2NGI0YzhhNGFlZWZkYzA0ZmU2YTU0OGM5YzAzMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6abab2da20a84e3d8d2150a21dee0a09",
+      "statement": "tests/ci-pipeline.test.mjs regression-guards the CI pipeline itself (static source guard, no external deps): it asserts the workflow exists and parses as valid YAML, that on.push.branches includes main plus a pull_request trigger, that a job carrying the npm ci install step exists, that all five gate steps are present in hook order, that the actions/setup-node major satisfies the package.json engines.node floor, and that the gate commands cross-reference the real package.json scripts (lint must run prettier --check + eslint in check mode, build must invoke astro build, test must run node --test against tests/*.test.mjs, and tsconfig.json must exist so tsc --noEmit types something), re-deriving the regression suite file count at HEAD (>= 40 tests/*.test.mjs files) instead of hard-coding it.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L12-L17",
+          "version": "repo-lines-v1:sha256:897b7cfa051ee8a30957ceee15e895d76b72ef4cfb5546244874751fd87bee1b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWJlNzNmMmNlMjczYWI5Mjc5MWNjMTI5MjM5ZWRlNTdjNzY4NTM0NjYyN2NmNTAwNmQwMWVmZjU4MjMzYjA5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmRkNmU5MjdkZTEyNzE4ZGNjMzdmYTBhODJlOTRkNzgyMDFmMjFlNmQwNTRjMTA5MjRjYWY3MmE5YzdjNGZlZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWRhY2QyMTUxZGZhMzJkNGVmMTRhYjIwZjUzOWJhODYzOTYyM2YyN2UxNThkM2NjYzBhMGIyZjc2YjBkOGI4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2VjYTkzMWNiZmYyMmQ2NWVhODgxNjFjMzhjMGVmYjdiMGJmOThhYzFjMGQ4ZmUwODg0MTU1YjZkZjRmZjA5YiJ9"
+        },
+        {
+          "resource": "repo://tests/ci-pipeline.test.mjs",
+          "version": "repo-file-v1:sha256:99a3dce6dab934f8f9122d75925201744396b9bf65101ae4824f5dea0c140ec5"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-11-01T07:26:15.531Z"
+    "at": "2026-11-02T09:45:34.352Z"
   }
 }

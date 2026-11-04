@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:9b9974ff00a1662e490b81ade49a5d915c018490a9ce3b2496fac65e6b45ec1b",
+  "pageVersion": "sha256:7bd042fda2dfeb801f353494310c784021691891b4b42a7f04e4bc3fc3ce01e6",
   "claims": [
     {
       "id": "claim_e9412cdc47934661b6367e1bdd715dd3",
@@ -421,10 +421,24 @@
           "version": "repo-file-v1:sha256:0ced2d515df7d40d286e62f8c4a351419e9b66da16faa8ecc3d1bc969662574a"
         }
       ]
+    },
+    {
+      "id": "claim_ed883f42ded54f389f9e4524416605ad",
+      "statement": "The typecheck/build/test quality gates are also enforced by a GitHub Actions CI pipeline (.github/workflows/ci.yml) that runs on every push to main and every pull request, acting as the non-bypassable counterpart of the local bypassable .zerofactory/precommit.sh hook; tests/ci-pipeline.test.mjs regression-guards the pipeline's existence, valid YAML, push(main)+PR triggers, gate ordering (npm ci -> lint -> typecheck -> build -> test), the setup-node major against the engines.node floor, and the cross-reference of gate commands to the package.json scripts.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L1-L57",
+          "version": "repo-lines-v1:sha256:c93d181842465ff89384e385c87a3505dbcda9983c7b78ba45005bae5a7dd1e5:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlZjk0ZDc1NGJiNzc4YzUzOTNhNGFmMTQyOGEyOGJiYmZlNmJkMTQ0NzIwNDM4YTI0Y2M3NzViMzQ2OTg5NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViYmVmOTU1ZWE1MDU1YzU4OTg1NWQzMTA1Y2NjZTM3ODIzOTkzODQ4ZmEwZTg4YmNjYWYwYzk4NzIzYTRhNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4NWJmMTUyOWZhNGRjNzc3Y2MzMGI4MTA1ZmJkM2ExMTkwZTQ4ZDExY2FiMmM2Yzc0NzY1OTNjMTRjNzAzMGYifQ"
+        },
+        {
+          "resource": "repo://tests/ci-pipeline.test.mjs",
+          "version": "repo-file-v1:sha256:99a3dce6dab934f8f9122d75925201744396b9bf65101ae4824f5dea0c140ec5"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-11-01T07:26:15.531Z"
+    "at": "2026-11-02T08:42:54.143Z"
   }
 }

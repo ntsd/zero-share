@@ -149,7 +149,7 @@
     // synchronously on empty, invalid-base64, or non-SDP input, which would
     // otherwise crash the whole page during load instead of surfacing an error
     try {
-      const sdpDecoded = sdpDecode(sdpEncoded, true);
+      const sdpDecoded = sdpDecode(sdpEncoded);
       const sessionDesc: RTCSessionDescriptionInit = {
         type: 'offer',
         sdp: sdpDecoded

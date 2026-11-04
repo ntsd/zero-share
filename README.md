@@ -15,7 +15,7 @@ A client-side secure P2P file sharing using WebRTC.
 - Open-source license.
 - QR Scan for SDP trade.
 - Paste from the clipboard.
-- short SDP by [sdp-compact](https://github.com/ntsd/sdp-compact).
+- URL-safe base64url SDP encoding for short, copy/paste/QR-friendly links.
 
 ## Usage
 

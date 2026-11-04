@@ -438,7 +438,7 @@
     try {
       const remoteDesc: RTCSessionDescriptionInit = {
         type: 'answer',
-        sdp: sdpDecode(sdp, false)
+        sdp: sdpDecode(sdp)
       };
       await connection.setRemoteDescription(remoteDesc);
     } catch {

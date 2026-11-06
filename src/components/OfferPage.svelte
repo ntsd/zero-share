@@ -114,6 +114,17 @@
     // same shared resolver as the `i` link param in createSDPLink: this peer
     // must use the exact server the receiver will honor (see configs)
     const iceServer = resolveIceServer(sendOptions.iceServer);
+    // iceCandidatePoolSize is intentionally left at the spec default (0) on
+    // BOTH peers (ReceivePage mirrors this): the pool pre-gathers candidates
+    // for that many ICE components ahead of the first gathering phase and is
+    // consumed on the first offer/answer exchange only. This app has exactly
+    // one ICE component (a single bundled data channel), and
+    // setLocalDescription runs within milliseconds of the constructor — so
+    // the pool can never finish pre-gathering before gathering starts, and a
+    // non-zero size would only hold STUN/TURN allocations (a relay allocation
+    // on TURN) for the page's lifetime with no connection-time benefit. The
+    // earlier `4` was inert for exactly this reason (4x the components
+    // needed, no idle time to pre-gather), not a browser bug.
     connection = new RTCPeerConnection({
       iceServers: [{ urls: iceServer }],
       // "balanced": The ICE agent will bundle media streams
@@ -122,8 +133,9 @@
       // if it is required for compatibility with legacy endpoints.
       // "max-bundle": The ICE agent will always bundle media streams over a single ICE transport,
       // regardless of compatibility or efficiency.
-      bundlePolicy: 'balanced',
-      iceCandidatePoolSize: 4 // somehow this doesn't work
+      // ReceivePage pins the same value, keeping both peers'
+      // RTCConfiguration objects symmetric (tests/rtc-peer-config.test.mjs).
+      bundlePolicy: 'balanced'
     });
 
     connection.onicecandidateerror = () => {

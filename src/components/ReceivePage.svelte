@@ -101,8 +101,19 @@
   let showNewFile = $state(false);
   let qrModal: QrModal | undefined = $state(undefined);
 
+  // iceCandidatePoolSize is intentionally left at the spec default (0) here
+  // and on the sender (OfferPage): this app has one ICE component (a single
+  // bundled data channel) and setLocalDescription runs immediately after the
+  // constructor, so the pool can never finish pre-gathering before gathering
+  // starts — a non-zero size would only hold STUN/TURN allocations with no
+  // connection-time benefit. Keep the two peers' RTCConfiguration symmetric
+  // (tests/rtc-peer-config.test.mjs guards this).
   const connection = new RTCPeerConnection({
-    iceServers: [{ urls: iceServer }]
+    iceServers: [{ urls: iceServer }],
+    // Pinned to mirror the sender (OfferPage): "balanced" is the spec
+    // default, so this changes no behavior — it just keeps both peers'
+    // RTCConfiguration objects symmetric.
+    bundlePolicy: 'balanced'
   });
 
   connection.ondatachannel = (event) => {

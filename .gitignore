@@ -26,3 +26,4 @@ pnpm-debug.log*
 .zerofactory/*.sqlite-journal
 .zerofactory/*.sqlite-wal
 .zerofactory/*.sqlite-shm
+.zerofactory/db.sqlite

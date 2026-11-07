@@ -15,8 +15,9 @@
 // tracked and shared (the repo's pre-commit hook, linked by install-hook).
 //
 // This test verifies:
-//   1. .gitignore contains the precise .zerofactory/*.sqlite pattern and all
-//      three SQLite sidecar patterns.
+//   1. .gitignore contains the exact .zerofactory/db.sqlite line plus the
+//      precise .zerofactory/*.sqlite pattern and all three SQLite sidecar
+//      patterns.
 //   2. .gitignore contains NO pattern that blanket-ignores the whole
 //      .zerofactory/ directory (`.zerofactory`, `.zerofactory/`, or
 //      `/.zerofactory`) — that would re-ignore the tracked
@@ -50,6 +51,7 @@ const patterns = gitignoreRaw
 // ---- Test 1: the precise DB + sidecar patterns exist ----
 {
   for (const required of [
+    '.zerofactory/db.sqlite',
     '.zerofactory/*.sqlite',
     '.zerofactory/*.sqlite-journal',
     '.zerofactory/*.sqlite-wal',
@@ -61,7 +63,9 @@ const patterns = gitignoreRaw
         `(it covers the per-developer Zero Factory kanban DB / its SQLite sidecar files)`
     );
   }
-  console.log('ok - .gitignore carries the .zerofactory/*.sqlite DB + sidecar patterns');
+  console.log(
+    'ok - .gitignore carries the .zerofactory/db.sqlite + .zerofactory/*.sqlite DB + sidecar patterns'
+  );
 }
 
 // ---- Test 2: no pattern blanket-ignores the whole .zerofactory/ directory ----

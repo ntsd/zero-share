@@ -20,3 +20,9 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# Zero Factory local kanban DB (per-developer state; NOT the shared hook script)
+.zerofactory/*.sqlite
+.zerofactory/*.sqlite-journal
+.zerofactory/*.sqlite-wal
+.zerofactory/*.sqlite-shm

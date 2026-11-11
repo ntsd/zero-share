@@ -1,6 +1,5 @@
 <script lang="ts">
   import DragAndDrop from './DragAndDrop.svelte';
-  import EventEmitter from 'eventemitter3';
   import { FileStatus, type FileStats, type SendingFile } from '../../type';
   import SendingFileList from './SendingFileList.svelte';
   import { encryptAesGcm, encryptAesKeyWithRsaPublicKey, generateAesKey } from '../../utils/crypto';
@@ -74,7 +73,7 @@
   export function onReceiveEvent(id: string, receiveEvent: ReceiveEvent) {
     const sendingFile = sendingFiles[id];
     if (sendingFile && sendingFile.event) {
-      sendingFile.event.emit(receiveEventToJSON(receiveEvent));
+      sendingFile.event.dispatchEvent(new Event(receiveEventToJSON(receiveEvent)));
     }
   }
 
@@ -110,7 +109,7 @@
     sendingFile.startTime = 0;
     sendingFile.progress = 0;
 
-    sendingFile.event = new EventEmitter();
+    sendingFile.event = new EventTarget();
 
     // Shared bookkeeping for a failed sendNextChunk() from either the ACCEPT
     // or RECEIVED_CHUNK path. Defense in depth (same intent as #46/#45): never
@@ -129,100 +128,112 @@
       }
     }
 
-    sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT), async () => {
-      // Re-check the live entry after re-entering: the file may have been
-      // removed while this async handler was suspended.
-      const f = sendingFiles[key];
-      if (!f) return;
-      f.status = FileStatus.Processing;
-      f.startTime = Date.now();
-      // The chunk pipeline only starts on accept, so the bitrate denominator
-      // (fileStats.startTime, read at the progress update below) must be
-      // time-since-ACCEPT — not time-since-Send-click from onSend(). Without
-      // this reset any waiting-accept delay (e.g. manual accept) inflates the
-      // denominator and "Sending: X/sec" grossly under-reports throughput for
-      // the whole transfer. Mirrors the receiver, which starts its entry
-      // clock in onAccept() and computes its bitrate from it.
-      fileStats.startTime = Date.now();
-      // This ACCEPT belongs to the CURRENT attempt (its listeners are wired
-      // to the event emitter created in onSend for this attempt). A re-offer
-      // of a still-active file makes the receiver abort the previous attempt
-      // with EVENT_RECEIVER_REJECT before accepting the new one — that reject
-      // is queued on this same emitter and would otherwise re-set f.error,
-      // dead-ending the resend. The receiver has re-offered and accepted, so
-      // any error state here is stale: clear it and start cleanly.
-      f.error = undefined;
-      f.stop = false;
-      try {
-        await sendNextChunk();
-      } catch (err) {
-        markChunkFailed(err);
-      }
-    });
-    sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK), async () => {
-      const f = sendingFiles[key];
-      if (!f) return;
-      // A stop only matters while bytes are still to send: the closure's
-      // offset advances as chunks hit the wire, so stop with offset < size
-      // is a mid-file pause — bail out as before. But stop with offset >=
-      // size means every byte was delivered before the stop clicked (Stop
-      // during the final chunk's send/ack window): the completion ack must
-      // still finish the entry, or the file stays stuck in Processing and a
-      // later Continue re-sends the last chunk, which the receiver's
-      // exact-size gate rejects as an overshoot.
-      if (f.stop && offset < sendingFile.metaData.size) {
-        return;
-      }
-      // Terminal state: a completed entry must never bounce — a stray or
-      // synthetic ack (e.g. one emitted by onContinue from a Continue button
-      // that was still rendered when the completion ack raced in) reaching
-      // this point would otherwise walk the bounce branch below and demote
-      // Success back to Pending.
-      if (f.status === FileStatus.Success) {
-        return;
-      }
-      if (f.error || f.status != FileStatus.Processing) {
-        f.progress = 0;
-        f.status = FileStatus.Pending;
+    sendingFile.event?.addEventListener(
+      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT),
+      async () => {
+        // Re-check the live entry after re-entering: the file may have been
+        // removed while this async handler was suspended.
+        const f = sendingFiles[key];
+        if (!f) return;
+        f.status = FileStatus.Processing;
+        f.startTime = Date.now();
+        // The chunk pipeline only starts on accept, so the bitrate denominator
+        // (fileStats.startTime, read at the progress update below) must be
+        // time-since-ACCEPT — not time-since-Send-click from onSend(). Without
+        // this reset any waiting-accept delay (e.g. manual accept) inflates the
+        // denominator and "Sending: X/sec" grossly under-reports throughput for
+        // the whole transfer. Mirrors the receiver, which starts its entry
+        // clock in onAccept() and computes its bitrate from it.
+        fileStats.startTime = Date.now();
+        // This ACCEPT belongs to the CURRENT attempt (its listeners are wired
+        // to the event emitter created in onSend for this attempt). A re-offer
+        // of a still-active file makes the receiver abort the previous attempt
+        // with EVENT_RECEIVER_REJECT before accepting the new one — that reject
+        // is queued on this same emitter and would otherwise re-set f.error,
+        // dead-ending the resend. The receiver has re-offered and accepted, so
+        // any error state here is stale: clear it and start cleanly.
+        f.error = undefined;
         f.stop = false;
-        return;
-      }
-
-      if (offset < sendingFile.metaData.size) {
         try {
           await sendNextChunk();
         } catch (err) {
           markChunkFailed(err);
         }
-        return;
       }
+    );
+    sendingFile.event?.addEventListener(
+      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK),
+      async () => {
+        const f = sendingFiles[key];
+        if (!f) return;
+        // A stop only matters while bytes are still to send: the closure's
+        // offset advances as chunks hit the wire, so stop with offset < size
+        // is a mid-file pause — bail out as before. But stop with offset >=
+        // size means every byte was delivered before the stop clicked (Stop
+        // during the final chunk's send/ack window): the completion ack must
+        // still finish the entry, or the file stays stuck in Processing and a
+        // later Continue re-sends the last chunk, which the receiver's
+        // exact-size gate rejects as an overshoot.
+        if (f.stop && offset < sendingFile.metaData.size) {
+          return;
+        }
+        // Terminal state: a completed entry must never bounce — a stray or
+        // synthetic ack (e.g. one emitted by onContinue from a Continue button
+        // that was still rendered when the completion ack raced in) reaching
+        // this point would otherwise walk the bounce branch below and demote
+        // Success back to Pending.
+        if (f.status === FileStatus.Success) {
+          return;
+        }
+        if (f.error || f.status != FileStatus.Processing) {
+          f.progress = 0;
+          f.status = FileStatus.Pending;
+          f.stop = false;
+          return;
+        }
 
-      const f2 = sendingFiles[key];
-      if (!f2) return;
-      f2.status = FileStatus.Success;
-      // A stop click in the final chunk's send/ack window leaves stop=true
-      // here; without clearing it, the list renders Continue for a finished
-      // entry and a click would bounce it back to Pending through the
-      // bounce branch above.
-      f2.stop = false;
-      addToastMessage(`File ${sendingFile.metaData.name} sent successfully`, 'success');
-    });
+        if (offset < sendingFile.metaData.size) {
+          try {
+            await sendNextChunk();
+          } catch (err) {
+            markChunkFailed(err);
+          }
+          return;
+        }
 
-    sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_VALIDATE_ERROR), () => {
-      addToastMessage('Receiver validate error', 'error');
-      const f = sendingFiles[key];
-      if (!f) return;
-      f.error = new Error('Receiver validate error');
-      f.status = FileStatus.Pending;
-    });
+        const f2 = sendingFiles[key];
+        if (!f2) return;
+        f2.status = FileStatus.Success;
+        // A stop click in the final chunk's send/ack window leaves stop=true
+        // here; without clearing it, the list renders Continue for a finished
+        // entry and a click would bounce it back to Pending through the
+        // bounce branch above.
+        f2.stop = false;
+        addToastMessage(`File ${sendingFile.metaData.name} sent successfully`, 'success');
+      }
+    );
 
-    sendingFile.event?.on(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_REJECT), () => {
-      addToastMessage('Receiver reject the file', 'error');
-      const f = sendingFiles[key];
-      if (!f) return;
-      f.error = new Error('Receiver reject the file');
-      f.status = FileStatus.Pending;
-    });
+    sendingFile.event?.addEventListener(
+      receiveEventToJSON(ReceiveEvent.EVENT_VALIDATE_ERROR),
+      () => {
+        addToastMessage('Receiver validate error', 'error');
+        const f = sendingFiles[key];
+        if (!f) return;
+        f.error = new Error('Receiver validate error');
+        f.status = FileStatus.Pending;
+      }
+    );
+
+    sendingFile.event?.addEventListener(
+      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_REJECT),
+      () => {
+        addToastMessage('Receiver reject the file', 'error');
+        const f = sendingFiles[key];
+        if (!f) return;
+        f.error = new Error('Receiver reject the file');
+        f.status = FileStatus.Pending;
+      }
+    );
 
     async function sendBuffer(buffer: ArrayBuffer) {
       // The entry may have been removed while suspended at an await; the
@@ -385,7 +396,7 @@
     // no-op, leaving the entry's stop flag cleared behind a dead connection.
     if (channelSender.isLost()) return;
     f.stop = false;
-    f.event?.emit(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK));
+    f.event?.dispatchEvent(new Event(receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK)));
   }
 
   function onRemove(key: string) {

@@ -140,7 +140,6 @@ const hoistedSendAllFiles = js.code.slice(hoistedStart, hoistedEnd);
 // through the same reactivity path the real template uses.
 const moduleSource = [
   "import * as $ from 'svelte/internal/client';",
-  "import EventEmitter from 'eventemitter3';",
   'import { createChannelSender } from ' +
     JSON.stringify(join(here, '..', 'src', 'utils', 'channelSender.ts')) +
     ';',

@@ -85,7 +85,7 @@ function seedResendEntry() {
 }
 
 // ---- Block 1: the shipped onSend() reset block clears the stale progress ----
-// The reset block runs BEFORE `sendingFile.event = new EventEmitter();`, so it
+// The reset block runs BEFORE `sendingFile.event = new EventTarget();`, so it
 // is the contiguous slice from the `// reset value` marker through
 // `sendingFile.progress = 0;`. Executing the REAL source text is the whole
 // point — a drift that drops or reorders the progress reset fails here.
@@ -100,10 +100,10 @@ function seedResendEntry() {
   // The reset must stay BEFORE the fresh event emitter is installed: a resend
   // clears the entry first, then wires this attempt's listeners.
   assert.ok(
-    /sendingFile\.event = new EventEmitter\(\);/.test(
+    /sendingFile\.event = new EventTarget\(\);/.test(
       senderSource.slice(blockEnd + 1, blockEnd + 80)
     ),
-    'the reset block must come before the fresh event emitter is installed'
+    'the reset block must come before the fresh event target is installed'
   );
 
   const entry = seedResendEntry();

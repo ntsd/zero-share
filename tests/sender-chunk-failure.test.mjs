@@ -15,7 +15,7 @@
 //   1. statically asserts the dedup: exactly one helper, exactly two call
 //      sites, no inlined duplicate bookkeeping, #46/#45 provenance kept;
 //   2. dynamically mirrors both handlers + the helper (driven through a
-//      real eventemitter3, like tests/receiver-chunk-order.test.mjs) with a
+//      real native EventTarget, like tests/receiver-chunk-order.test.mjs) with a
 //      failing sendNextChunk(), and asserts BOTH paths yield
 //      status === Pending, error.message === 'Failed to send chunk: ...',
 //      and exactly one error toast.
@@ -23,7 +23,6 @@ import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import EventEmitter from 'eventemitter3';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const senderSource = readFileSync(
@@ -81,7 +80,7 @@ const FileStatus = {
 
 // ---- Test 2 (dynamic): a failed sendNextChunk() in BOTH event paths --------
 // Mirrors the two handler bodies from Sender.svelte#onSend (post-dedup shape),
-// driven through a real EventEmitter with a sendNextChunk() that rejects.
+// driven through a native EventTarget with a sendNextChunk() that rejects.
 function registerHandlers(sendingFiles, key, sendingFile, toasts, sendNextChunk) {
   // Shared bookkeeping (mirror of the Sender.svelte helper, verbatim logic).
   function markChunkFailed(err) {
@@ -94,9 +93,9 @@ function registerHandlers(sendingFiles, key, sendingFile, toasts, sendNextChunk)
     }
   }
 
-  const event = new EventEmitter();
+  const event = new EventTarget();
   // Mirrors the EVENT_RECEIVER_ACCEPT handler.
-  event.on('EVENT_RECEIVER_ACCEPT', async () => {
+  event.addEventListener('EVENT_RECEIVER_ACCEPT', async () => {
     const f = sendingFiles[key];
     if (!f) return;
     f.status = FileStatus.Processing;
@@ -108,7 +107,7 @@ function registerHandlers(sendingFiles, key, sendingFile, toasts, sendNextChunk)
     }
   });
   // Mirrors the EVENT_RECEIVED_CHUNK handler (chunk branch only).
-  event.on('EVENT_RECEIVED_CHUNK', async () => {
+  event.addEventListener('EVENT_RECEIVED_CHUNK', async () => {
     const f = sendingFiles[key];
     if (!f) return;
     if (f.stop) return;
@@ -155,7 +154,7 @@ const CHUNK_FAIL = new Error('data channel closed');
     throw CHUNK_FAIL;
   });
 
-  event.emit('EVENT_RECEIVER_ACCEPT');
+  event.dispatchEvent(new Event('EVENT_RECEIVER_ACCEPT'));
   await delay(10); // let the async handler's catch settle
 
   const entry = sendingFiles[key];
@@ -185,7 +184,7 @@ const CHUNK_FAIL = new Error('data channel closed');
     throw CHUNK_FAIL;
   });
 
-  event.emit('EVENT_RECEIVED_CHUNK');
+  event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10);
 
   const entry = sendingFiles[key];
@@ -221,7 +220,7 @@ const CHUNK_FAIL = new Error('data channel closed');
     throw 'boom-string';
   });
 
-  event.emit('EVENT_RECEIVED_CHUNK');
+  event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10);
 
   const entry = sendingFiles[key];

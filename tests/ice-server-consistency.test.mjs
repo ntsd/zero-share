@@ -15,8 +15,10 @@
 // resolver (resolveIceServer) in src/configs.ts on BOTH sides:
 //   - OfferPage: what the RTCPeerConnection uses AND what goes into `i`
 //     both come from resolveIceServer(sendOptions.iceServer).
-//   - ReceivePage: the `i` param is accepted when isSupportedIceServer
-//     passes, otherwise it downgrades to the default with a visible toast.
+//   - ReceivePage: the `i` param is resolved through the same shared
+//     resolveIceServer helper, so a value that passes the shared predicate
+//     is honored verbatim and anything else downgrades to the default with a
+//     visible toast.
 //
 // This test verifies:
 //   1. Round-trip through the REAL src/configs.ts + src/utils/path.ts:
@@ -138,14 +140,20 @@ function roundTripLink(chosenIceServer) {
   );
 
   // Receive side: the old fixed-allowlist check is gone and the shared
-  // predicate decides; a visible toast surfaces any downgrade.
+  // resolver decides (deduped from an inlined isSupportedIceServer ternary so
+  // a future change to the predicate or default applies to BOTH peers); a
+  // visible toast surfaces any downgrade.
   assert.ok(
     !/STUN_SERVERS\.includes/.test(receiveSource),
     'ReceivePage must not hard-code its own STUN allowlist check'
   );
   assert.ok(
-    /isSupportedIceServer\(\s*iceParam\s*\)/.test(receiveSource),
-    'ReceivePage must validate the `i` param with the shared isSupportedIceServer predicate'
+    !/isSupportedIceServer\(\s*iceParam\s*\)/.test(receiveSource),
+    'ReceivePage must not inline the ICE-server fallback ternary (dedup regression)'
+  );
+  assert.ok(
+    /const\s+iceServer\s*=\s*resolveIceServer\(\s*iceParam\s*\)/.test(receiveSource),
+    'ReceivePage must resolve the `i` param through the shared resolveIceServer helper'
   );
   assert.ok(
     /addToastMessage\(\s*`[^`]*Invalid ICE server in link[^`]*`/.test(receiveSource),

@@ -3,7 +3,7 @@
     CHUNK_SIZE_OPTIONS,
     DEFAULT_SEND_OPTIONS,
     GITHUB_LINK,
-    isSupportedIceServer,
+    resolveIceServer,
     WAIT_ICE_CANDIDATES_TIMEOUT
   } from '../configs';
   import { addToastMessage } from '../stores/toastStore';
@@ -69,15 +69,15 @@
     : Promise.resolve(undefined);
 
   // webRTC
-  // validate `i` (user-controllable via the shared link): use the same
-  // isSupportedIceServer predicate the sender uses to emit the value, so a
-  // server the sender chose (including a custom TURN URL) is always honored
+  // validate `i` (user-controllable via the shared link): resolve through the
+  // same shared resolveIceServer helper the sender uses to emit the value, so
+  // a server the sender chose (including a custom TURN URL) is always honored
   // here — the two peers must agree on their ICE server or NAT traversal and
   // TURN relaying break. Only well-formed `stun:`/`turn:` URLs are accepted;
   // anything else downgrades to the default and a toast surfaces the downgrade
   // instead of failing silently.
   const iceParam = params['i'];
-  const iceServer = isSupportedIceServer(iceParam) ? iceParam : DEFAULT_SEND_OPTIONS.iceServer;
+  const iceServer = resolveIceServer(iceParam);
   if (iceParam && iceServer !== iceParam) {
     addToastMessage(
       `Invalid ICE server in link, using default (${DEFAULT_SEND_OPTIONS.iceServer})`,

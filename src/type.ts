@@ -1,5 +1,4 @@
 import type { MetaData } from './proto/message';
-import type { EventEmitter } from 'eventemitter3';
 
 export enum FileStatus {
   Pending = 'Pending',
@@ -23,7 +22,7 @@ export interface FileDetail {
 export interface SendingFile extends FileDetail {
   stop: boolean;
   file: File;
-  event?: EventEmitter;
+  event?: EventTarget;
 }
 
 export interface SendOptions {

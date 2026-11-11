@@ -14,7 +14,7 @@
 // error (single toast per file), stops the in-flight pipelines, and the
 // metadata send yields the connection-lost error instead of an encode error.
 //
-// This test drives the sender through a REAL eventemitter3 event wiring
+// This test drives the sender through a REAL native EventTarget event wiring
 // (same harness style as tests/sender-chunk-failure.test.mjs and
 // tests/receiver-chunk-order.test.mjs) with a mock dataChannel whose send()
 // throws InvalidStateError once the channel is closed.
@@ -22,7 +22,6 @@ import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import EventEmitter from 'eventemitter3';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const senderSource = readFileSync(
@@ -171,8 +170,8 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
     }
   }
 
-  const event = new EventEmitter();
-  event.on('EVENT_RECEIVER_ACCEPT', async () => {
+  const event = new EventTarget();
+  event.addEventListener('EVENT_RECEIVER_ACCEPT', async () => {
     const f = sendingFiles[key];
     if (!f) return;
     f.status = FileStatus.Processing;
@@ -183,7 +182,7 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
       markChunkFailed(err);
     }
   });
-  event.on('EVENT_RECEIVED_CHUNK', async () => {
+  event.addEventListener('EVENT_RECEIVED_CHUNK', async () => {
     const f = sendingFiles[key];
     if (!f) return;
     if (f.stop && offset < sendingFile.metaData.size) return;
@@ -208,13 +207,13 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
     f2.stop = false;
     toasts.push(`File ${sendingFile.metaData.name} sent successfully`);
   });
-  event.on('EVENT_VALIDATE_ERROR', () => {
+  event.addEventListener('EVENT_VALIDATE_ERROR', () => {
     const f = sendingFiles[key];
     if (!f) return;
     f.error = new Error('Receiver validate error');
     f.status = FileStatus.Pending;
   });
-  event.on('EVENT_RECEIVER_REJECT', () => {
+  event.addEventListener('EVENT_RECEIVER_REJECT', () => {
     const f = sendingFiles[key];
     if (!f) return;
     f.error = new Error('Receiver reject the file');
@@ -252,7 +251,7 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
     if (!f) return;
     if (connectionLost) return;
     f.stop = false;
-    f.event?.emit('EVENT_RECEIVED_CHUNK');
+    f.event?.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   }
 
   return {
@@ -285,7 +284,7 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
   // the next EVENT_RECEIVED_CHUNK ack.
   await sender.onSendMetadata();
   assert.equal(sender.sendingFiles[key].status, FileStatus.WaitingAccept);
-  sender.event.emit('EVENT_RECEIVER_ACCEPT');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVER_ACCEPT'));
   await delay(10); // let the ACCEPT handler's sendNextChunk settle
   assert.equal(sender.sendingFiles[key].status, FileStatus.Processing);
 
@@ -296,7 +295,7 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
 
   // An ack event that slips through must not re-enter the send pipeline with
   // a misleading chunk failure.
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10);
 
   const entry = sender.sendingFiles[key];
@@ -379,15 +378,15 @@ function buildSender({ key, name, size, chunkSize, dataChannel, connectionLost }
 
   await sender.onSendMetadata();
   assert.equal(sender.sendingFiles[key].status, FileStatus.WaitingAccept);
-  sender.event.emit('EVENT_RECEIVER_ACCEPT');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVER_ACCEPT'));
   await delay(10); // chunk 0 sent
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10); // chunk 1 sent
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10); // chunk 2 sent
   // The sender is one round-trip ahead: the LAST chunk's own ack is what walks
   // it to offset >= size and marks Success (the receiver acks every chunk).
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10);
   assert.equal(
     sender.sendingFiles[key].status,

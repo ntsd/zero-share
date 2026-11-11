@@ -37,7 +37,6 @@ import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import EventEmitter from 'eventemitter3';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const senderSource = readFileSync(
@@ -173,8 +172,8 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
     }
   }
 
-  const event = new EventEmitter();
-  event.on('EVENT_RECEIVER_ACCEPT', async () => {
+  const event = new EventTarget();
+  event.addEventListener('EVENT_RECEIVER_ACCEPT', async () => {
     const f = sendingFiles[key];
     if (!f) return;
     f.status = FileStatus.Processing;
@@ -188,7 +187,7 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
   // Mirrors the post-fix EVENT_RECEIVED_CHUNK handler: stop only matters
   // while bytes remain; a fully-delivered entry (offset >= size) still
   // completes, and a Success entry is never demoted by a stray ack.
-  event.on('EVENT_RECEIVED_CHUNK', async () => {
+  event.addEventListener('EVENT_RECEIVED_CHUNK', async () => {
     const f = sendingFiles[key];
     if (!f) return;
     if (f.stop && offset < sendingFile.metaData.size) return;
@@ -213,7 +212,7 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
     f2.stop = false;
     toasts.push(`File ${sendingFile.metaData.name} sent successfully`);
   });
-  event.on('EVENT_RECEIVER_REJECT', () => {
+  event.addEventListener('EVENT_RECEIVER_REJECT', () => {
     const f = sendingFiles[key];
     if (!f) return;
     f.error = new Error('Receiver reject the file');
@@ -240,7 +239,7 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
     const f = sendingFiles[key];
     if (!f) return;
     f.stop = false;
-    f.event?.emit?.('EVENT_RECEIVED_CHUNK');
+    f.event?.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   }
 
   return {
@@ -270,11 +269,11 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
   await sender.onSendMetadata();
   assert.equal(sender.sendingFiles[key].status, FileStatus.WaitingAccept);
 
-  sender.event.emit('EVENT_RECEIVER_ACCEPT');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVER_ACCEPT'));
   await delay(10); // chunk 0 sent
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10); // chunk 1 sent
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10); // final chunk (44B) sent, stop flipped inside sendBuffer()
 
   // The entry is now in the stuck state the bug produced: stop=true, but the
@@ -291,7 +290,7 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
 
   // The receiver's completion ack for the final chunk arrives. Pre-fix this
   // was dropped by `if (f.stop) return;` and the entry stayed stuck forever.
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10);
 
   assert.equal(
@@ -350,9 +349,9 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
   const key = 'mid-pause';
   const sender = buildSender({ key, name: 'mid.bin', size: 300, chunkSize: 128 });
   await sender.onSendMetadata();
-  sender.event.emit('EVENT_RECEIVER_ACCEPT');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVER_ACCEPT'));
   await delay(10); // chunk 0 sent
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10); // chunk 1 sent
 
   // The user clicks Stop mid-file (offset 256 < size 300).
@@ -360,7 +359,7 @@ function buildSender({ key, name, size, chunkSize, stopAt }) {
 
   // An ack for chunk 1 arrives: stop is set and offset < size, so this must
   // be treated as a genuine pause — no next chunk, no completion.
-  sender.event.emit('EVENT_RECEIVED_CHUNK');
+  sender.event.dispatchEvent(new Event('EVENT_RECEIVED_CHUNK'));
   await delay(10);
 
   const entry = sender.sendingFiles[key];

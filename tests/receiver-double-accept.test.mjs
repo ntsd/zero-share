@@ -11,8 +11,9 @@
 //     entry to Processing only after the ACCEPT send). Both calls send
 //     EVENT_RECEIVER_ACCEPT and both re-create receivingFileChunkMap[id] /
 //     receivingFileStatsMap[id] and delete chunkQueue[id]. On the sender,
-//     the ACCEPT handler is registered with eventemitter3's persistent .on()
-//     (not .once), so two ACCEPT messages fire sendNextChunk() concurrently,
+//     the ACCEPT handler is registered with a persistent EventTarget
+//     addEventListener (never removed — not a one-shot), so two ACCEPT
+//     messages fire sendNextChunk() concurrently,
 //     both slicing at the same closure offset — the same chunk goes on the
 //     wire twice, receivedSize is double-counted, and the exact-match gate
 //     is either never reached or crossed into rejectOversizedStream: a
